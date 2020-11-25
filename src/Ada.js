@@ -379,13 +379,14 @@ export default class Ada {
   async getExtendedPublicKeys(
     paths: Array<BIP32Path>
   ): Promise<Array<GetExtendedPublicKeyResponse>> {
-
-    await this._checkLedgerCardanoAppVersion(2, 1);
-
     // validate the input
     Precondition.checkIsArray(paths);
     for (const path of paths) {
       Precondition.checkIsValidPath(path);
+    }
+
+    if (paths.length > 1) {
+      await this._checkLedgerCardanoAppVersion(2, 1);
     }
 
     const _send = (p1, p2, data) =>
