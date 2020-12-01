@@ -27,6 +27,8 @@ export const SignTxIncluded = Object.freeze({
 
 const KEY_HASH_LENGTH = 28;
 const TX_HASH_LENGTH = 32;
+const ED25519_SIGNATURE_LENGTH = 64;
+const ED25519_EXTENDED_PUBLIC_KEY_LENGTH = 64;
 
 const TOKEN_POLICY_LENGTH = 28;
 const TOKEN_NAME_LENGTH = 32;
@@ -37,6 +39,7 @@ const TOKENS_IN_GROUP_MAX = 1000;
 const POOL_REGISTRATION_OWNERS_MAX = 1000;
 const POOL_REGISTRATION_RELAYS_MAX = 1000;
 
+const KES_PUBLIC_KEY_LENGTH = 32;
 
 export const GetKeyErrors = {
   INVALID_PATH: "invalid key path",
@@ -114,6 +117,13 @@ export const TxErrors = {
   METADATA_INVALID: "invalid metadata",
 
   VALIDITY_INTERVAL_START_INVALID: "invalid validity interval start",
+}
+
+export const OpCertErrors = {
+  INVALID_KES_KEY: "invalid KES key",
+  INVALID_KES_PERIOD: "invalid KES period",
+  INVALID_ISSUE_COUNTER: "invalid issue counter",
+  INVALID_COLD_KEY_PATH: "invalid cold key path",
 }
 
 export const SignTxUsecases = Object.freeze({
@@ -428,6 +438,22 @@ export function collectWitnessPaths(
   }
 
   return witnessPaths;
+}
+
+export function validateOperationalCertificate(
+  kesPublicKeyHex: string,
+  kesPeriodStr: string,
+  issueCounterStr: string,
+  coldKeyPath: BIP32Path
+) {
+  Precondition.checkIsHexString(kesPublicKeyHex, OpCertErrors.INVALID_KES_KEY);
+  Precondition.check(kesPublicKeyHex.length === KES_PUBLIC_KEY_LENGTH * 2, OpCertErrors.INVALID_KES_KEY);
+
+  Precondition.checkIsPositiveUint64Str(kesPeriodStr, OpCertErrors.INVALID_KES_PERIOD);
+
+  Precondition.checkIsPositiveUint64Str(issueCounterStr, OpCertErrors.INVALID_ISSUE_COUNTER);
+
+  Precondition.checkIsValidPath(coldKeyPath, OpCertErrors.INVALID_COLD_KEY_PATH);
 }
 
 export function serializeAddressParams(
@@ -823,12 +849,16 @@ export default {
   CertificateTypes,
   KEY_HASH_LENGTH,
   TX_HASH_LENGTH,
+  ED25519_SIGNATURE_LENGTH,
+  ED25519_EXTENDED_PUBLIC_KEY_LENGTH,
 
   serializeGetExtendedPublicKeyParams,
 
   determineUsecase,
   collectWitnessPaths,
   validateTransaction,
+
+  validateOperationalCertificate,
 
   serializeAddressParams,
   serializeOutputBasicParams,
