@@ -410,7 +410,11 @@ export default class Ada {
 
         response = await wrapRetryStillInCall(_send)(
           P1_INIT, P2_UNUSED,
-          Buffer.concat([pathData, remainingKeysData])
+          // remainingKeysData cannot be passed for single path export
+          // to maintain backwards compatibility with Ledger app version 2.0.4
+          paths.length > 1
+          ? Buffer.concat([pathData, remainingKeysData])
+          : pathData
         );
       } else {
         // next key APDU
