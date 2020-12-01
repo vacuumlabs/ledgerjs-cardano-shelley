@@ -308,7 +308,7 @@ export default class Ada {
     return this._getVersion();
   }
 
-  async _checkLedgerCardanoAppVersion(minMajor: number, minMinor: number) {
+  async _checkLedgerCardanoAppVersion(minMajor: number, minMinor: number): Promise<boolean> {
     const version = await this._getVersion();
     const major = parseInt(version.major);
     const minor = parseInt(version.minor);
@@ -317,12 +317,23 @@ export default class Ada {
     const msg = "Operation not supported by the Ledger device, make sure to have the latest version of the Cardano app installed";
 
     if (isNaN(major) || isNaN(minor) || isNaN(patch))
-      throw new Error(msg);
+      return false
 
     if (major < minMajor)
-      throw new Error(msg);
+      return false
 
     if ((major === minMajor) && (minor < minMinor))
+      return false
+    
+    return true
+ }
+
+  async _checkLedgerCardanoAppVersionOrThrow(minMajor: number, minMinor: number) {
+    const versionCheckSuccess = await this._checkLedgerCardanoAppVersion(minMajor, minMinor)
+
+    const msg = "Operation not supported by the Ledger device, make sure to have the latest version of the Cardano app installed";
+
+    if (!versionCheckSuccess)
       throw new Error(msg);
  }
 
@@ -337,7 +348,7 @@ export default class Ada {
    *
    */
   async getSerial(): Promise<GetSerialResponse> {
-    await this._checkLedgerCardanoAppVersion(1, 2);
+    await this._checkLedgerCardanoAppVersionOrThrow(1, 2);
 
     const _send = (p1, p2, data) =>
       this.send(CLA, INS.GET_SERIAL, p1, p2, data).then(
@@ -386,7 +397,7 @@ export default class Ada {
     }
 
     if (paths.length > 1) {
-      await this._checkLedgerCardanoAppVersion(2, 1);
+      await this._checkLedgerCardanoAppVersionOrThrow(2, 1);
     }
 
     const _send = (p1, p2, data) =>
@@ -571,7 +582,9 @@ export default class Ada {
     );
 
     if (isSigningPoolRegistrationAsOwner)
-      await this._checkLedgerCardanoAppVersion(2, 1);
+      await this._checkLedgerCardanoAppVersionOrThrow(2, 1);
+
+    const appHasStakePoolOwnerSupport = this._checkLedgerCardanoAppVersion(2, 1)
 
     const P1_STAGE_INIT = 0x01;
     const P1_STAGE_INPUTS = 0x02;
@@ -615,11 +628,16 @@ export default class Ada {
           ? MetadataCodes.SIGN_TX_METADATA_YES
           : MetadataCodes.SIGN_TX_METADATA_NO
         ),
-        utils.uint8_to_buf(
-          isSigningPoolRegistrationAsOwner
-          ? PoolRegistrationCodes.SIGN_TX_POOL_REGISTRATION_YES
-          : PoolRegistrationCodes.SIGN_TX_POOL_REGISTRATION_NO
-        ),
+        (() => {
+          if (appHasStakePoolOwnerSupport) {
+            return utils.uint8_to_buf(
+              isSigningPoolRegistrationAsOwner
+              ? PoolRegistrationCodes.SIGN_TX_POOL_REGISTRATION_YES
+              : PoolRegistrationCodes.SIGN_TX_POOL_REGISTRATION_NO
+            )
+          }
+          return Buffer.from("")
+        }) (),
         utils.uint32_to_buf(numInputs),
         utils.uint32_to_buf(numOutputs),
         utils.uint32_to_buf(numCertificates),
