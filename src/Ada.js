@@ -30,8 +30,10 @@ const INS = {
 
   GET_EXT_PUBLIC_KEY: 0x10,
   DERIVE_ADDRESS: 0x11,
+  GET_COLD_PUBLIC_KEY: 0x12,
 
   SIGN_TX: 0x21,
+  SIGN_OPERATIONAL_CERTIFICATE: 0x22,
 
   RUN_TESTS: 0xf0
 };
@@ -148,6 +150,10 @@ export type GetExtendedPublicKeyResponse = {|
   chainCodeHex: string
 |};
 
+export type GetColdPublicKeyResponse = {|
+  publicKeyHex: string,
+|}
+
 export type Witness = {|
   path: BIP32Path,
   // Note: this is *only* a signature
@@ -160,6 +166,10 @@ export type SignTransactionResponse = {|
   txHashHex: string,
   witnesses: Array<Witness>
 |};
+
+export type SignOperationalCertificateResponse = {|
+  operationalCertificateSignatureHex: string,
+|}
 
 const MetadataCodes = {
 	SIGN_TX_METADATA_NO: 1,
@@ -267,6 +277,7 @@ export default class Ada {
       "getSerial",
       "getExtendedPublicKey",
       "signTransaction",
+      "signOperationalCertificate",
       "deriveAddress",
       "showAddress"
     ];
@@ -552,6 +563,36 @@ export default class Ada {
 
     const response = await _send(P1_DISPLAY, P2_UNUSED, data);
     Assert.assert(response.length === 0, "response not empty");
+  }
+
+  async getColdPublicKey(
+    path: BIP32Path
+  ): Promise<GetColdPublicKeyResponse> {
+    // TODO input validation
+    const _send = async function(p1, p2, data, expectedResponseLength = 0) {
+      let response = await self.send(CLA, INS.GET_COLD_PUBLIC_KEY, p1, p2, data);
+      response = utils.stripRetcodeFromResponse(response);
+      Assert.assert(
+        response.length === expectedResponseLength,
+        `unexpected response lenth: ${response.length} instead of ${expectedResponseLength}`
+      );
+      return response;
+    }
+    
+    const P1_UNUSED = 0x00;
+    const P2_UNUSED = 0x00;
+
+    const result = [];
+
+    const response: Buffer = await _send(
+      P1_UNUSED, P2_UNUSED,
+      utils.path_to_buf(path),
+      cardano.ED25519_PUBLIC_KEY_LENGTH
+    );
+    
+    return {
+      publicKeyHex: utils.buf_to_hex(response)
+    }
   }
 
   async signTransaction(
@@ -841,7 +882,7 @@ export default class Ada {
       witnessSignatureHex: string
     |}> => {
       const data = Buffer.concat([utils.path_to_buf(path)]);
-      const response = await _send(P1_STAGE_WITNESSES, P2_UNUSED, data, 64);
+      const response = await _send(P1_STAGE_WITNESSES, P2_UNUSED, data, cardano.ED25519_SIGNATURE_LENGTH);
       return {
         path: path,
         witnessSignatureHex: utils.buf_to_hex(response)
@@ -953,6 +994,44 @@ export default class Ada {
       txHashHex,
       witnesses
     };
+  }
+
+  async signOperationalCertificate(
+    kesPublicKeyHex: string,
+    kesPeriodStr: string,
+    counterStr: string,
+    coldKeyPath: BIP32Path
+  ): Promise<SignOperationalCertificateResponse> {
+    // TODO input validation
+    // TODO refactor this into a generic "sendFnBuilder" to be reused by other instructions
+    const _send = async function(p1, p2, data, expectedResponseLength = 0) {
+      let response = await self.send(CLA, INS.SIGN_OPERATIONAL_CERTIFICATE, p1, p2, data);
+      response = utils.stripRetcodeFromResponse(response);
+      Assert.assert(
+        response.length === expectedResponseLength,
+        `unexpected response lenth: ${response.length} instead of ${expectedResponseLength}`
+      );
+      return response;
+    }
+    
+    const P1_UNUSED = 0x00;
+    const P2_UNUSED = 0x00;
+
+    const response: Buffer = await _send(
+      P1_UNUSED,
+      P2_UNUSED,
+      Buffer.concat([
+        utils.hex_to_buf(kesPublicKeyHex),
+        utils.amount_to_buf(kesPeriodStr),
+        utils.amount_to_buf(counterStr),
+        utils.path_to_buf(coldKeyPath)
+      ]),
+      cardano.ED25519_SIGNATURE_LENGTH
+    )
+
+    return {
+      operationalCertificateSignatureHex: utils.buf_to_hex(response)
+    }
   }
 }
 
