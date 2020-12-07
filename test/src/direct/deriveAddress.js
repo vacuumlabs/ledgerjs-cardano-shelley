@@ -160,7 +160,6 @@ describe("deriveAddress", async () => {
     }
   });
 
-
   it("Should not permit paths longer than 10 indexes", async () => {
     const path = "44'/1815'/1'/4/5/6/7/8/9/10/11";
 

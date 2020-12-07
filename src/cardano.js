@@ -4,13 +4,13 @@ import { hex_to_buf } from "../lib/utils";
 
 const HARDENED = 0x80000000;
 
-export const AddressTypeNibbles = {
+export const AddressTypeNibbles = Object.freeze({
   BASE: 0b0000,
   POINTER: 0b0100,
   ENTERPRISE: 0b0110,
   BYRON: 0b1000,
   REWARD: 0b1110
-}
+})
 
 export const CertificateTypes = {
 	STAKE_REGISTRATION: 0,

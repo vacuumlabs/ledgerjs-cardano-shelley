@@ -104,7 +104,7 @@ export const Precondition = {
     for (const c of data.split("1")[1]) {
       Precondition.check(BECH32_ALPHABET.includes(c), msg);
     }
-  }
+  },
 };
 
 export const Assert = {
