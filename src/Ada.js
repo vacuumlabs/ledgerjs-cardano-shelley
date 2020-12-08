@@ -30,7 +30,7 @@ const INS = {
 
   GET_EXT_PUBLIC_KEY: 0x10,
   DERIVE_ADDRESS: 0x11,
-  GET_COLD_PUBLIC_KEY: 0x12,
+  GET_POOL_COLD_PUBLIC_KEY: 0x12,
 
   SIGN_TX: 0x21,
   SIGN_OPERATIONAL_CERTIFICATE: 0x22,
@@ -150,7 +150,7 @@ export type GetExtendedPublicKeyResponse = {|
   chainCodeHex: string
 |};
 
-export type GetColdPublicKeyResponse = {|
+export type GetPoolColdPublicKeyResponse = {|
   publicKeyHex: string,
 |}
 
@@ -565,16 +565,17 @@ export default class Ada {
     Assert.assert(response.length === 0, "response not empty");
   }
 
-  async getColdPublicKey(
+  async getPoolColdPublicKey(
     path: BIP32Path
-  ): Promise<GetColdPublicKeyResponse> {
+  ): Promise<GetPoolColdPublicKeyResponse> {
     // TODO input validation
+    const self = this;
     const _send = async function(p1, p2, data, expectedResponseLength = 0) {
-      let response = await self.send(CLA, INS.GET_COLD_PUBLIC_KEY, p1, p2, data);
+      let response = await self.send(CLA, INS.GET_POOL_COLD_PUBLIC_KEY, p1, p2, data);
       response = utils.stripRetcodeFromResponse(response);
       Assert.assert(
         response.length === expectedResponseLength,
-        `unexpected response lenth: ${response.length} instead of ${expectedResponseLength}`
+        `unexpected response length: ${response.length} instead of ${expectedResponseLength}`
       );
       return response;
     }
@@ -642,7 +643,7 @@ export default class Ada {
       response = utils.stripRetcodeFromResponse(response);
       Assert.assert(
         response.length === expectedResponseLength,
-        `unexpected response lenth: ${response.length} instead of ${expectedResponseLength}`
+        `unexpected response length: ${response.length} instead of ${expectedResponseLength}`
       );
       return response;
     }
@@ -1009,7 +1010,7 @@ export default class Ada {
       response = utils.stripRetcodeFromResponse(response);
       Assert.assert(
         response.length === expectedResponseLength,
-        `unexpected response lenth: ${response.length} instead of ${expectedResponseLength}`
+        `unexpected response length: ${response.length} instead of ${expectedResponseLength}`
       );
       return response;
     }

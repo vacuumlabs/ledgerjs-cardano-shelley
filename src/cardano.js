@@ -520,6 +520,8 @@ export default {
   CertificateTypes,
   KEY_HASH_LENGTH,
   TX_HASH_LENGTH,
+  ED25519_SIGNATURE_LENGTH,
+  ED25519_PUBLIC_KEY_LENGTH,
 
   serializeGetExtendedPublicKeyParams,
 
