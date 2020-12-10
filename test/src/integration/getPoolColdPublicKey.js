@@ -18,9 +18,9 @@ describe("getPoolColdPublicKey", async () => {
         str_to_path(path)
       );
 
-      expect(result.publicKeyHex).to.equal("c5d853357072ac8223861852441a4d80a765738732d77f03e10e7df2cad8f4d7");
+      expect(result.publicKeyHex).to.equal("e7dea141318d36a600c72ac61d2ced63047ccf290d184eaa91783bac94857c7d");
     };
 
-    await test("1854'/1815'/0/0'");
+    await test("1853'/1815'/0/0'");
   });
 });

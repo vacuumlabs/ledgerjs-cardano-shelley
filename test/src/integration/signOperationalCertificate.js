@@ -3,7 +3,7 @@ import { expect } from "chai";
 
 const operationalCertificates = {
   basicPoolOperationalCertificate: {
-    kesPublicKeyHex: 0,
+    kesPublicKeyHex: "3d24bc547388cf2403fd978fc3d3a93d1f39acf68a9c00e40512084dc05f2822",
     kesPeriodStr: "47",
     counterStr: "42",
     coldKeyPath: str_to_path("1852'/1852'/0'")
