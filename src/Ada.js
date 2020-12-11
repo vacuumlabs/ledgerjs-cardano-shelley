@@ -1005,6 +1005,7 @@ export default class Ada {
   ): Promise<SignOperationalCertificateResponse> {
     // TODO input validation
     // TODO refactor this into a generic "sendFnBuilder" to be reused by other instructions
+    const self = this;
     const _send = async function(p1, p2, data, expectedResponseLength = 0) {
       let response = await self.send(CLA, INS.SIGN_OPERATIONAL_CERTIFICATE, p1, p2, data);
       response = utils.stripRetcodeFromResponse(response);

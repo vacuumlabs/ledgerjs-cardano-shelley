@@ -6,7 +6,7 @@ const operationalCertificates = {
     kesPublicKeyHex: "3d24bc547388cf2403fd978fc3d3a93d1f39acf68a9c00e40512084dc05f2822",
     kesPeriodStr: "47",
     counterStr: "42",
-    coldKeyPath: str_to_path("1852'/1852'/0'")
+    coldKeyPath: str_to_path("1853'/1815'/0/0'")
   },
 }
 
@@ -22,8 +22,15 @@ describe("signOperationalCertificate", async () => {
   });
 
   it("Should correctly sign basic operational certificate", async () => {
-    const response = await ada.signOperationalCertificate();
+    const testCase = operationalCertificates.basicPoolOperationalCertificate;
+    
+    const response = await ada.signOperationalCertificate(
+      testCase.kesPublicKeyHex,
+      testCase.kesPeriodStr,
+      testCase.counterStr,
+      testCase.coldKeyPath,
+    );
 
-    expect(response.operationalCertificateSignatureHex).to.equal("deadbeef");
+    expect(response.operationalCertificateSignatureHex).to.equal("d049315824428952bb0222cd3ccaf68c04fbfef54df13486a916180a387e2a775d4fa15bca43263021c27bcba8f2d967dcd53ab6a8250ef67f9aef2b3d761c0d");
   });
 });
