@@ -22,6 +22,7 @@ export const CertificateTypes = Object.freeze({
 const KEY_HASH_LENGTH = 28;
 const TX_HASH_LENGTH = 32;
 const ED25519_SIGNATURE_LENGTH = 64;
+const ED25519_EXTENDED_PUBLIC_KEY_LENGTH = 64;
 
 const POOL_REGISTRATION_OWNERS_MAX = 1000;
 const POOL_REGISTRATION_RELAYS_MAX = 1000;
@@ -549,6 +550,7 @@ export default {
   KEY_HASH_LENGTH,
   TX_HASH_LENGTH,
   ED25519_SIGNATURE_LENGTH,
+  ED25519_EXTENDED_PUBLIC_KEY_LENGTH,
 
   serializeGetExtendedPublicKeyParams,
 

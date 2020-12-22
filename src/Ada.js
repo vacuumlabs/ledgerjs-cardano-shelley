@@ -447,7 +447,7 @@ export default class Ada {
         response = await _send(
           P1_NEXT_KEY, P2_UNUSED,
           pathData,
-          64
+          cardano.ED25519_EXTENDED_PUBLIC_KEY_LENGTH
         );
       }
 
@@ -582,7 +582,7 @@ export default class Ada {
     const response: Buffer = await _send(
       P1_UNUSED, P2_UNUSED,
       utils.path_to_buf(path),
-      64
+      cardano.ED25519_EXTENDED_PUBLIC_KEY_LENGTH
     );
 
     const [publicKey, chainCode, rest] = utils.chunkBy(response, [32, 32]);
