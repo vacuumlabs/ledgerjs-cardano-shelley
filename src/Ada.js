@@ -569,6 +569,8 @@ export default class Ada {
   async getExtendedPoolColdPublicKey(
     path: BIP32Path
   ): Promise<GetExtendedPublicKeyResponse> {
+    await this._ensureLedgerAppVersionAtLeast(2, 1); // TODO update version number
+
     Precondition.checkIsValidPath(path);
     const _send = buildSendFn(this, INS.GET_POOL_COLD_PUBLIC_KEY);
     
@@ -996,6 +998,8 @@ export default class Ada {
     issueCounterStr: string,
     coldKeyPath: BIP32Path
   ): Promise<SignOperationalCertificateResponse> {
+    await this._ensureLedgerAppVersionAtLeast(2, 1); // TODO update version number
+
     cardano.validateOperationalCertificate(
       kesPublicKeyHex,
       kesPeriodStr,
