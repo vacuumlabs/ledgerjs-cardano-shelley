@@ -5,7 +5,7 @@ const operationalCertificates = {
   basicPoolOperationalCertificate: {
     kesPublicKeyHex: "3d24bc547388cf2403fd978fc3d3a93d1f39acf68a9c00e40512084dc05f2822",
     kesPeriodStr: "47",
-    counterStr: "42",
+    issueCounterStr: "42",
     coldKeyPath: str_to_path("1853'/1815'/0/0'")
   },
 }
@@ -27,7 +27,7 @@ describe("signOperationalCertificate", async () => {
     const response = await ada.signOperationalCertificate(
       testCase.kesPublicKeyHex,
       testCase.kesPeriodStr,
-      testCase.counterStr,
+      testCase.issueCounterStr,
       testCase.coldKeyPath,
     );
 

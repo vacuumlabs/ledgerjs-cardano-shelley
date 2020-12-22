@@ -150,10 +150,6 @@ export type GetExtendedPublicKeyResponse = {|
   chainCodeHex: string
 |};
 
-export type GetPoolColdPublicKeyResponse = {|
-  publicKeyHex: string,
-|}
-
 export type Witness = {|
   path: BIP32Path,
   // Note: this is *only* a signature
@@ -565,10 +561,11 @@ export default class Ada {
     Assert.assert(response.length === 0, "response not empty");
   }
 
-  async getPoolColdPublicKey(
+  async getExtendedPoolColdPublicKey(
     path: BIP32Path
-  ): Promise<GetPoolColdPublicKeyResponse> {
-    // TODO input validation
+  ): Promise<GetExtendedPublicKeyResponse> {
+    Precondition.checkIsValidPath(path);
+
     const self = this;
     const _send = async function(p1, p2, data, expectedResponseLength = 0) {
       let response = await self.send(CLA, INS.GET_POOL_COLD_PUBLIC_KEY, p1, p2, data);
@@ -588,11 +585,15 @@ export default class Ada {
     const response: Buffer = await _send(
       P1_UNUSED, P2_UNUSED,
       utils.path_to_buf(path),
-      cardano.ED25519_PUBLIC_KEY_LENGTH
+      64,
     );
+
+    const [publicKey, chainCode, rest] = utils.chunkBy(response, [32, 32]);
+    Assert.assert(rest.length === 0);
     
     return {
-      publicKeyHex: utils.buf_to_hex(response)
+      publicKeyHex: utils.buf_to_hex(publicKey),
+      chainCodeHex: utils.buf_to_hex(chainCode),
     }
   }
 
@@ -1000,10 +1001,15 @@ export default class Ada {
   async signOperationalCertificate(
     kesPublicKeyHex: string,
     kesPeriodStr: string,
-    counterStr: string,
+    issueCounterStr: string,
     coldKeyPath: BIP32Path
   ): Promise<SignOperationalCertificateResponse> {
-    // TODO input validation
+    cardano.validateOperationalCertificate(
+      kesPublicKeyHex,
+      kesPeriodStr,
+      issueCounterStr,
+      coldKeyPath
+    )
     // TODO refactor this into a generic "sendFnBuilder" to be reused by other instructions
     const self = this;
     const _send = async function(p1, p2, data, expectedResponseLength = 0) {
@@ -1025,7 +1031,7 @@ export default class Ada {
       Buffer.concat([
         utils.hex_to_buf(kesPublicKeyHex),
         utils.amount_to_buf(kesPeriodStr),
-        utils.amount_to_buf(counterStr),
+        utils.amount_to_buf(issueCounterStr),
         utils.path_to_buf(coldKeyPath)
       ]),
       cardano.ED25519_SIGNATURE_LENGTH

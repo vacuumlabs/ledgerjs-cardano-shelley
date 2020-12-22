@@ -22,10 +22,12 @@ export const CertificateTypes = Object.freeze({
 const KEY_HASH_LENGTH = 28;
 const TX_HASH_LENGTH = 32;
 const ED25519_SIGNATURE_LENGTH = 64;
-const ED25519_PUBLIC_KEY_LENGTH = 32;
 
 const POOL_REGISTRATION_OWNERS_MAX = 1000;
 const POOL_REGISTRATION_RELAYS_MAX = 1000;
+
+const KES_PUBLIC_KEY_LENGTH = 32;
+
 
 export const GetKeyErrors = {
   INVALID_PATH: "invalid key path",
@@ -93,6 +95,12 @@ export const TxErrors = {
   METADATA_INVALID: "invalid metadata",
 }
 
+export const OpCertErrors = {
+  INVALID_KES_KEY: "invalid KES key",
+  INVALID_KES_PERIOD: "invalid KES period",
+  INVALID_ISSUE_COUNTER: "invalid issue counter",
+  INVALID_COLD_KEY_PATH: "invalid cold key path",
+}
 
 function validateCertificates(
   certificates: Array<Certificate>
@@ -243,6 +251,26 @@ export function validateTransaction(
     Precondition.checkIsHexString(metadataHashHex, TxErrors.METADATA_INVALID);
     Precondition.check(metadataHashHex.length == 32 * 2, TxErrors.METADATA_INVALID);
   }
+}
+
+export function validateOperationalCertificate(
+  kesPublicKeyHex: string,
+  kesPeriodStr: string,
+  issueCounterStr: string,
+  coldKeyPath: BIP32Path
+) {
+  Precondition.checkIsHexString(kesPublicKeyHex, OpCertErrors.INVALID_KES_KEY);
+  Precondition.check(kesPublicKeyHex.length === KES_PUBLIC_KEY_LENGTH * 2, OpCertErrors.INVALID_KES_KEY);
+
+  const kesPeriod = utils.safe_parseInt(kesPeriodStr);
+  Precondition.checkIsUint64(kesPeriod, OpCertErrors.INVALID_KES_PERIOD);
+  Precondition.check(kesPeriod > 0, OpCertErrors.INVALID_KES_PERIOD);
+
+  const issueCounter = utils.safe_parseInt(issueCounterStr);
+  Precondition.checkIsUint64(issueCounter, OpCertErrors.INVALID_ISSUE_COUNTER);
+  Precondition.check(issueCounter > 0, OpCertErrors.INVALID_ISSUE_COUNTER);
+
+  Precondition.checkIsValidPath(coldKeyPath, OpCertErrors.INVALID_COLD_KEY_PATH);
 }
 
 export function serializeAddressParams(
@@ -521,11 +549,12 @@ export default {
   KEY_HASH_LENGTH,
   TX_HASH_LENGTH,
   ED25519_SIGNATURE_LENGTH,
-  ED25519_PUBLIC_KEY_LENGTH,
 
   serializeGetExtendedPublicKeyParams,
 
   validateTransaction,
+
+  validateOperationalCertificate,
 
   serializeAddressParams,
 
