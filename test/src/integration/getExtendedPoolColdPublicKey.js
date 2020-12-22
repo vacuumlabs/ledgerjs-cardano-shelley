@@ -24,4 +24,15 @@ describe("getExtendedPoolColdPublicKey", async () => {
 
     await test("1853'/1815'/0/0'");
   });
+
+  it("Should reject path not matching cold key structure", async () => {
+    const SHOULD_HAVE_THROWN = "should have thrown earlier";
+    try {
+      await ada.getExtendedPoolColdPublicKey(str_to_path("1852'/1815'/0'/0/0"));
+
+      throw new Error(SHOULD_HAVE_THROWN);
+    } catch (error) {
+      expect(error.message).not.to.have.string(SHOULD_HAVE_THROWN);
+    }
+  });
 });
