@@ -44,20 +44,36 @@ export type InputTypeUTxO = {|
   path: ?BIP32Path
 |};
 
-export type OutputTypeAddress = {|
+
+export type TokenAmount =
+{|
+  assetNameHex: string,
+  amountStr: string
+|};
+
+export type TokenGroup = 
+{|
+  policyIdHex: string,
+  tokenAmounts: Array<TokenAmount>
+|};
+
+export type TxOutputTypeAddress = {|
   amountStr: string,
+  tokenBundle: Array<TokenGroup>,
   addressHex: string
 |};
 
-export type OutputTypeAddressParams = {|
+export type TxOutputTypeAddressParams = {|
   amountStr: string,
+  tokenBundle: Array<TokenGroup>,
   addressTypeNibble: $Values<typeof AddressTypeNibbles>,
   spendingPath: BIP32Path,
   stakingPath: ?BIP32Path,
   stakingKeyHashHex: ?string,
   stakingBlockchainPointer: ?StakingBlockchainPointer,
-  amountStr: string
 |};
+
+export type TxOutput = TxOutputTypeAddress | TxOutputTypeAddressParams;
 
 export type StakingBlockchainPointer = {|
   blockIndex: number,
@@ -558,7 +574,7 @@ export default class Ada {
     networkId: number,
     protocolMagic: number,
     inputs: Array<InputTypeUTxO>,
-    outputs: Array<OutputTypeAddress | OutputTypeAddressParams>,
+    outputs: Array<TxOutput>,
     feeStr: string,
     ttlStr: string,
     certificates: Array<Certificate>,
@@ -665,6 +681,7 @@ export default class Ada {
 
     const signTx_addAddressOutput = async (
       amountStr: string,
+      tokenBundle: Array<TokenGroup>,
       addressHex: string
     ): Promise<void> => {
       const data = Buffer.concat([
@@ -677,6 +694,7 @@ export default class Ada {
 
     const signTx_addChangeOutput = async (
       amountStr: string,
+      tokenBundle: Array<TokenGroup>,
       addressTypeNibble: $Values<typeof AddressTypeNibbles>,
       spendingPath: BIP32Path,
       stakingPath: ?BIP32Path = null,
@@ -892,10 +910,15 @@ export default class Ada {
     // outputs
     for (const output of outputs) {
       if (output.addressHex) {
-        await signTx_addAddressOutput(output.amountStr, output.addressHex);
+        await signTx_addAddressOutput(
+          output.amountStr,
+          output.tokenBundle,
+          output.addressHex
+        );
       } else if (output.spendingPath) {
         await signTx_addChangeOutput(
           output.amountStr,
+          output.tokenBundle,
           output.addressTypeNibble,
           output.spendingPath,
           output.stakingPath,

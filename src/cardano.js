@@ -22,8 +22,15 @@ export const CertificateTypes = Object.freeze({
 const KEY_HASH_LENGTH = 28;
 const TX_HASH_LENGTH = 32;
 
+const TOKEN_POLICY_LENGTH = 28;
+const TOKEN_NAME_LENGTH = 32;
+
+const TOKEN_GROUPS_IN_BUNDLE_MAX = 1000; // TODO
+const TOKENS_IN_GROUP_MAX = 1000; // TODO
+
 const POOL_REGISTRATION_OWNERS_MAX = 1000;
 const POOL_REGISTRATION_RELAYS_MAX = 1000;
+
 
 export const GetKeyErrors = {
   INVALID_PATH: "invalid key path",
@@ -39,6 +46,9 @@ export const TxErrors = {
 
   OUTPUTS_NOT_ARRAY: "outputs not an array",
   OUTPUT_INVALID_AMOUNT: "invalid amount in an output",
+  OUTPUT_INVALID_TOKEN_BUNDLE: "invalid multiasset token bundle in an output",  
+  OUTPUT_INVALID_TOKEN_POLICY: "invalid multiasset token policy",
+  OUTPUT_INVALID_ASSET_NAME: "invalid asset name in the token bundle in an output",
   OUTPUT_INVALID_ADDRESS: "invalid address in an output",
   OUTPUT_WITH_PATH: "outputs given by path are not allowed for stake pool registration transactions",
   OUTPUT_UNKNOWN_TYPE: "unknown output type",
@@ -195,13 +205,34 @@ export function validateTransaction(
   for (const output of outputs) {
     Precondition.checkIsValidAmount(output.amountStr, TxErrors.OUTPUT_INVALID_AMOUNT);
 
+    if (output.tokenBundle) {
+      Precondition.checkIsArray(output.tokenBundle, TxErrors.OUTPUT_INVALID_TOKEN_BUNDLE);
+      Precondition.check(output.tokenBundle.length <= TOKEN_GROUPS_IN_BUNDLE_MAX);
+
+      for (const tokenGroup of output.tokenBundle) {
+        Precondition.checkIsHexString(tokenGroup.policyIdHex, TxErrors.OUTPUT_INVALID_TOKEN_POLICY);
+        Precondition.check(tokenGroup.policyIdHex.length === TOKEN_POLICY_LENGTH * 2, TxErrors.OUTPUT_INVALID_TOKEN_POLICY);
+
+        Precondition.checkIsArray(tokenGroup.tokenAmounts);
+        Precondition.check(tokenGroup.tokenAmounts.length <= TOKENS_IN_GROUP_MAX);
+
+        for (const tokenAmount of tokenGroup.tokenAmounts) {
+          Precondition.checkIsHexString(tokenAmount.assetNameHex, TxErrors.OUTPUT_INVALID_ASSET_NAME);
+          Precondition.check(tokenAmount.assetNameHex.length <= TOKEN_NAME_LENGTH * 2, TxErrors.OUTPUT_INVALID_ASSET_NAME);
+
+          const amount = utils.safe_parseInt(tokenAmount.amountStr);
+          Precondition.checkIsUint64(amount);
+        }
+      }
+    }
+
     if (output.addressHex) {
       Precondition.checkIsHexString(output.addressHex, TxErrors.OUTPUT_INVALID_ADDRESS);
       Precondition.check(output.addressHex.length <= 128 * 2, TxErrors.OUTPUT_INVALID_ADDRESS);
     } else if (output.spendingPath) {
       Precondition.check(!isSigningPoolRegistrationAsOwner, TxErrors.OUTPUT_WITH_PATH);
 
-      // we try to serialize the data, an error is thrown if output params are invalid
+      // we try to serialize the data, an error is thrown if address params are invalid
       serializeAddressParams(
         output.addressTypeNibble,
         output.addressTypeNibble === AddressTypeNibbles.BYRON ? protocolMagic : networkId,
