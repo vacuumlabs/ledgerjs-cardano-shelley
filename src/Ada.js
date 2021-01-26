@@ -679,43 +679,34 @@ export default class Ada {
       await _send(P1_STAGE_INPUTS, P2_UNUSED, data);
     };
 
-    const signTx_addAddressOutput = async (
-      amountStr: string,
-      tokenBundle: Array<TokenGroup>,
-      addressHex: string
+    const signTx_addOutput = async (
+      output: TxOutput
     ): Promise<void> => {
-      const data = Buffer.concat([
-        utils.amount_to_buf(amountStr),
-        utils.uint8_to_buf(TxOutputTypeCodes.SIGN_TX_OUTPUT_TYPE_ADDRESS),
-        utils.hex_to_buf(addressHex)
-      ]);
-      await _send(P1_STAGE_OUTPUTS, P2_UNUSED, data);
-    };
+      const P2_BASIC_DATA = 0x30;
+      const P2_TOKEN_GROUP = 0x31;
+      const P2_TOKEN_AMOUNT = 0x32;
+      const P2_CONFIRM = 0x33;
 
-    const signTx_addChangeOutput = async (
-      amountStr: string,
-      tokenBundle: Array<TokenGroup>,
-      addressTypeNibble: $Values<typeof AddressTypeNibbles>,
-      spendingPath: BIP32Path,
-      stakingPath: ?BIP32Path = null,
-      stakingKeyHashHex: ?string = null,
-      stakingBlockchainPointer: ?StakingBlockchainPointer = null,
-    ): Promise<void> => {
+      await _send(P1_STAGE_OUTPUTS, P2_BASIC_DATA, cardano.serializeOutputBasicParams(output));
+      for (const tokenGroup of output.tokenBundle) {
+        const data = Buffer.concat([
+          utils.hex_to_buf(tokenGroup.policyIdHex),
+          utils.uint32_to_buf(tokenGroup.tokenAmounts.length)
+        ]);
+        await _send(P1_STAGE_OUTPUTS, P2_TOKEN_GROUP, data);
 
-      const data = Buffer.concat([
-        utils.amount_to_buf(amountStr),
-        utils.uint8_to_buf(TxOutputTypeCodes.SIGN_TX_OUTPUT_TYPE_ADDRESS_PARAMS),
-        cardano.serializeAddressParams(
-          addressTypeNibble,
-          addressTypeNibble === AddressTypeNibbles.BYRON ? protocolMagic : networkId,
-          spendingPath,
-          stakingPath,
-          stakingKeyHashHex,
-          stakingBlockchainPointer
-        )
-      ]);
-      await _send(P1_STAGE_OUTPUTS, P2_UNUSED, data);
-    };
+        for(const tokenAmount of tokenGroup.tokenAmounts) {
+          const data = Buffer.concat([
+            utils.uint32_to_buf(tokenAmount.assetNameHex.length / 2),
+            utils.hex_to_buf(tokenAmount.assetNameHex),
+            utils.uint64_to_buf(tokenAmount.amountStr)
+          ]);
+          await _send(P1_STAGE_OUTPUTS, P2_TOKEN_AMOUNT, data);
+        }
+      }
+
+      await _send(P1_STAGE_OUTPUTS, P2_CONFIRM, Buffer.alloc(0));
+    }
 
     const signTx_addCertificate = async (
       type: $Values<typeof CertificateTypes>,
@@ -825,7 +816,7 @@ export default class Ada {
       ttlStr: string
     ): Promise<void> => {
       const data = Buffer.concat([
-        utils.amount_to_buf(ttlStr),
+        utils.uint64_to_buf(ttlStr),
       ]);
       await _send(P1_STAGE_TTL, P2_UNUSED, data);
     };
@@ -909,26 +900,7 @@ export default class Ada {
 
     // outputs
     for (const output of outputs) {
-      if (output.addressHex) {
-        await signTx_addAddressOutput(
-          output.amountStr,
-          output.tokenBundle,
-          output.addressHex
-        );
-      } else if (output.spendingPath) {
-        await signTx_addChangeOutput(
-          output.amountStr,
-          output.tokenBundle,
-          output.addressTypeNibble,
-          output.spendingPath,
-          output.stakingPath,
-          output.stakingKeyHashHex,
-          output.stakingBlockchainPointer,
-        );
-      } else {
-        // validation should catch invalid outputs
-        Assert.assert(false, "invalid output type");
-      }
+      await signTx_addOutput(output);
     }
 
     await signTx_setFee(feeStr);

@@ -149,6 +149,17 @@ export function buf_to_uint32(data: Buffer): number {
   return data.readUIntBE(0, 4);
 }
 
+export function uint64_to_buf(value: string): Buffer {
+  const i = safe_parseInt(value);
+  Precondition.checkIsUint64(i, "invalid uint64 value");
+
+  const data = bs10.decode(value);
+  Assert.assert(data.length <= 8, "excessive data");
+
+  const padding = Buffer.alloc(8 - data.length);
+  return Buffer.concat([padding, data]);
+}
+
 export function hex_to_buf(data: string): Buffer {
   Precondition.checkIsHexString(data, "invalid hex string");
   return Buffer.from(data, "hex");
@@ -243,12 +254,7 @@ export function buf_to_amount(data: Buffer): string {
 export function amount_to_buf(amount: string): Buffer {
   Precondition.checkIsValidAmount(amount, "invalid amount");
 
-  const data = bs10.decode(amount);
-  // Amount should fit uin64_t
-  Assert.assert(data.length <= 8, "excessive data");
-
-  const padding = Buffer.alloc(8 - data.length);
-  return Buffer.concat([padding, data]);
+  return uint64_to_buf(amount);
 }
 
 export function base58_encode(data: Buffer): string {
@@ -321,6 +327,9 @@ export default {
 
   hex_to_buf,
   buf_to_hex,
+
+  // no pair for now
+  uint64_to_buf,
 
   uint32_to_buf,
   buf_to_uint32,

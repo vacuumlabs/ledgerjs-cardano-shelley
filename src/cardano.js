@@ -1,5 +1,5 @@
 import utils, { Precondition, Assert } from "./utils";
-import { PoolParams, PoolOwnerParams, SingleHostIPRelay, SingleHostNameRelay, MultiHostNameRelay, PoolMetadataParams } from './Ada';
+import { TxOutput, PoolParams, PoolOwnerParams, SingleHostIPRelay, SingleHostNameRelay, MultiHostNameRelay, PoolMetadataParams } from './Ada';
 import { hex_to_buf } from "../lib/utils";
 
 const HARDENED = 0x80000000;
@@ -203,7 +203,12 @@ export function validateTransaction(
   // outputs
   Precondition.checkIsArray(outputs, TxErrors.OUTPUTS_NOT_ARRAY);
   for (const output of outputs) {
-    Precondition.checkIsValidAmount(output.amountStr, TxErrors.OUTPUT_INVALID_AMOUNT);
+    // we try to serialize the data, an error is thrown if ada amount or address params are invalid
+    serializeOutputBasicParams(output);
+
+    if (output.spendingPath) {
+      Precondition.check(!isSigningPoolRegistrationAsOwner, TxErrors.OUTPUT_WITH_PATH);
+    }
 
     if (output.tokenBundle) {
       Precondition.checkIsArray(output.tokenBundle, TxErrors.OUTPUT_INVALID_TOKEN_BUNDLE);
@@ -224,25 +229,6 @@ export function validateTransaction(
           Precondition.checkIsUint64(amount);
         }
       }
-    }
-
-    if (output.addressHex) {
-      Precondition.checkIsHexString(output.addressHex, TxErrors.OUTPUT_INVALID_ADDRESS);
-      Precondition.check(output.addressHex.length <= 128 * 2, TxErrors.OUTPUT_INVALID_ADDRESS);
-    } else if (output.spendingPath) {
-      Precondition.check(!isSigningPoolRegistrationAsOwner, TxErrors.OUTPUT_WITH_PATH);
-
-      // we try to serialize the data, an error is thrown if address params are invalid
-      serializeAddressParams(
-        output.addressTypeNibble,
-        output.addressTypeNibble === AddressTypeNibbles.BYRON ? protocolMagic : networkId,
-        output.spendingPath,
-        output.stakingPath,
-        output.stakingKeyHashHex,
-        output.stakingBlockchainPointer
-      );
-    } else {
-      throw new Error(TxErrors.OUTPUT_UNKNOWN_TYPE);
     }
   }
 
@@ -345,6 +331,49 @@ export function serializeAddressParams(
   ]);
 }
 
+export function serializeOutputBasicParams(
+  output: TxOutput
+): Buffer {
+  Precondition.checkIsValidAmount(amountStr);
+
+  let outputType;
+  let addressBuf;
+
+  if (output.addressHex) {
+    outputType = TxOutputTypeCodes.SIGN_TX_OUTPUT_TYPE_ADDRESS_BYTES;
+
+    Precondition.checkIsHexString(output.addressHex, TxErrors.OUTPUT_INVALID_ADDRESS);
+    Precondition.check(output.addressHex.length <= 128 * 2, TxErrors.OUTPUT_INVALID_ADDRESS);
+    addressBuf = utils.hex_to_buf(output.addressHex);
+
+  } else if (output.spendingPath) {
+    outputType = TxOutputTypeCodes.SIGN_TX_OUTPUT_TYPE_ADDRESS_PARAMS;
+    addressBuf = cardano.serializeAddressParams(
+      addressTypeNibble,
+      addressTypeNibble === AddressTypeNibbles.BYRON ? protocolMagic : networkId,
+      spendingPath,
+      stakingPath,
+      stakingKeyHashHex,
+      stakingBlockchainPointer
+    );
+
+  } else {
+    throw new Error(TxErrors.OUTPUT_UNKNOWN_TYPE);
+  }
+
+  const numTokenGroups =
+      (output.tokenBundle) ?
+      output.tokenBundle.length :
+      0;
+
+  return Buffer.concat([
+    utils.uint8_to_buf(outputType),
+    addressBuf,
+    utils.amount_to_buf(amountStr),
+    utils.uint32_to_buf(numTokenGroups)
+  ]);
+}
+
 export function serializePoolInitialParams(
   params: PoolParams
 ): Buffer {
@@ -376,8 +405,8 @@ export function serializePoolInitialParams(
     utils.hex_to_buf(params.vrfKeyHashHex),
     utils.amount_to_buf(params.pledgeStr),
     utils.amount_to_buf(params.costStr),
-    utils.amount_to_buf(params.margin.numeratorStr), // TODO why amount? ... we should have uint64_to_buf?
-    utils.amount_to_buf(params.margin.denominatorStr),
+    utils.uint64_to_buf(params.margin.numeratorStr),
+    utils.uint64_to_buf(params.margin.denominatorStr),
     utils.hex_to_buf(params.rewardAccountHex),
     utils.uint32_to_buf(params.poolOwners.length),
     utils.uint32_to_buf(params.relays.length)
