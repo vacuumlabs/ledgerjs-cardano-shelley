@@ -99,6 +99,8 @@ export const TxErrors = {
   WITHDRAWALS_FORBIDDEN: "no withdrawals allowed for transactions registering stake pools",
 
   METADATA_INVALID: "invalid metadata",
+
+  VALIDITY_INTERVAL_START_INVALID: "invalid validity interval start",
 }
 
 
@@ -180,7 +182,8 @@ export function validateTransaction(
   ttlStr: string,
   certificates: Array<Certificate>,
   withdrawals: Array<Withdrawal>,
-  metadataHashHex: ?string
+  metadataHashHex: ?string,
+  validityIntervalStartStr: ?string
 ) {
   Precondition.checkIsArray(certificates, TxErrors.CERTIFICATES_NOT_ARRAY);
   const isSigningPoolRegistrationAsOwner = certificates.some(
@@ -236,9 +239,11 @@ export function validateTransaction(
   Precondition.checkIsValidAmount(feeStr, TxErrors.FEE_INVALID);
 
   //  ttl
-  const ttl = utils.safe_parseInt(ttlStr);
-  Precondition.checkIsUint64(ttl, TxErrors.TTL_INVALID);
-  Precondition.check(ttl > 0, TxErrors.TTL_INVALID);
+  if ((ttlStr !== null) && (ttlStr !== undefined)) {
+    const ttl = utils.safe_parseInt(ttlStr);
+    Precondition.checkIsUint64(ttl, TxErrors.TTL_INVALID);
+    Precondition.check(ttl > 0, TxErrors.TTL_INVALID);
+  }
 
   // certificates
   validateCertificates(certificates);
@@ -257,6 +262,13 @@ export function validateTransaction(
   if ((metadataHashHex !== null) && (metadataHashHex !== undefined)) {
     Precondition.checkIsHexString(metadataHashHex, TxErrors.METADATA_INVALID);
     Precondition.check(metadataHashHex.length == 32 * 2, TxErrors.METADATA_INVALID);
+  }
+
+  //  validity interval start
+  if ((validityIntervalStartStr !== null) && (validityIntervalStartStr !== undefined)) {
+    const validityIntervalStart = utils.safe_parseInt(validityIntervalStartStr);
+    Precondition.checkIsUint64(validityIntervalStart, TxErrors.VALIDITY_INTERVAL_START_INVALID);
+    Precondition.check(validityIntervalStart > 0, TxErrors.VALIDITY_INTERVAL_START_INVALID);
   }
 }
 

@@ -83,6 +83,23 @@ const outputs = {
       certificateIndex: 3
     },
     amountStr: "7120787"
+  },
+  multiassetOneToken: {
+    amountStr: "1234",
+    addressHex: utils.buf_to_hex(utils.bech32_decodeAddress(
+      "addr1q84sh2j72ux0l03fxndjnhctdg7hcppsaejafsa84vh7lwgmcs5wgus8qt4atk45lvt4xfxpjtwfhdmvchdf2m3u3hlsd5tq5r"
+    )),
+    tokenBundle: [
+      {
+        policyIdHex: "95a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39",
+        tokenAmounts: [
+          {
+            assetNameHex: "74652474436f696e",
+            amountStr: "7878754"
+          }
+        ]
+      }
+    ]
   }
 };
 
@@ -112,8 +129,25 @@ const withdrawals = {
 const sampleMetadataHashHex = "deadbeef".repeat(8);
 const sampleFeeStr = "42";
 const sampleTtlStr = "10";
+const sampleValidityIntervalStart = "47";
 
 const results = {
+  multiassetOneToken: {
+    /*
+    * txbody: a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018282583901eb0baa5e570cffbe2934db29df0b6a3d7c0430ee65d4c3a7ab2fefb91bc428e4720702ebd5dab4fb175324c192dc9bb76cc5da956e3c8dff821904d2a1581c95a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39a14874652474436f696e1a007838628258390114c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f11241d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c1a006ca79302182a030a08182f
+    */
+    txHashHex: "8502ab1a781627663e8bfcff54a58747e319da3bb592a3446fc35fa5d2f2fbe9",
+    witnesses: [
+      {
+        path: str_to_path("1852'/1815'/0'/0/0"),
+        witnessSignatureHex:
+          "b48877586d90a249579a5f3994c3ad0c21c5f78960a04aadd182ca49c3b606f1d8a578edf17923188e4e0e40f191e019a5174081c092c458a82e9f0c1e1fae08"
+      }
+    ]
+  },
+
+  // TODO add a test with several token groups containing several assets
+
   noChangeByronMainnet: {
     /*
     * txBody: a400818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2e1a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a
@@ -361,6 +395,25 @@ describe("signTxOrdinary", async () => {
 
   afterEach(async () => {
     await ada.t.close();
+  });
+
+  it("Mary era transaction with a multiasset output", async () => {
+    const response = await ada.signTransaction(
+      NetworkIds.MAINNET,
+      ProtocolMagics.MAINNET,
+      [inputs.utxoShelley],
+      [
+        outputs.multiassetOneToken,
+        outputs.internalBaseWithStakingPath
+      ],
+      sampleFeeStr,
+      sampleTtlStr,
+      [],
+      [],
+      null,
+      sampleValidityIntervalStart
+    );
+    expect(response).to.deep.equal(results.multiassetOneToken);
   });
 
   it("Should correctly sign tx without change address with Byron mainnet output", async () => {

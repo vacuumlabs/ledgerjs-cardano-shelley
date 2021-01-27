@@ -178,8 +178,8 @@ export type SignTransactionResponse = {|
 |};
 
 const MetadataCodes = {
-	SIGN_TX_METADATA_NO: 1,
-	SIGN_TX_METADATA_YES: 2
+	SIGN_TX_INCLUDED_NO: 1,
+	SIGN_TX_INCLUDED_YES: 2
 }
 
 const PoolRegistrationCodes = {
@@ -576,16 +576,18 @@ export default class Ada {
     inputs: Array<InputTypeUTxO>,
     outputs: Array<TxOutput>,
     feeStr: string,
-    ttlStr: string,
+    ttlStr: ?string,
     certificates: Array<Certificate>,
     withdrawals: Array<Withdrawal>,
-    metadataHashHex: ?string
+    metadataHashHex: ?string,
+    validityIntervalStartStr: ?string
   ): Promise<SignTransactionResponse> {
 
     cardano.validateTransaction(
       networkId, protocolMagic,
       inputs, outputs, feeStr, ttlStr,
-      certificates, withdrawals, metadataHashHex
+      certificates, withdrawals, metadataHashHex,
+      validityIntervalStartStr
     );
 
     // pool registrations are quite restricted
@@ -607,8 +609,9 @@ export default class Ada {
     const P1_STAGE_CERTIFICATES = 0x06;
     const P1_STAGE_WITHDRAWALS = 0x07;
     const P1_STAGE_METADATA = 0x08;
-    const P1_STAGE_CONFIRM = 0x09;
-    const P1_STAGE_WITNESSES = 0x0a;
+    const P1_STAGE_VALIDITY_INTERVAL_START = 0x09;
+    const P1_STAGE_CONFIRM = 0x0a;
+    const P1_STAGE_WITNESSES = 0x0f;
     const P2_UNUSED = 0x00;
 
     const self = this;
@@ -630,7 +633,9 @@ export default class Ada {
       numCertificates: number,
       numWithdrawals: number,
       numWitnesses: number,
+      includeTtl: boolean,
       includeMetadata: boolean,
+      includeValidityIntervalStart: boolean,
     ): Promise<void> => {
 
       const _serializePoolRegistrationCode = (isSigningPoolRegistrationAsOwner: boolean): Buffer => {
@@ -651,9 +656,19 @@ export default class Ada {
         utils.uint8_to_buf(networkId),
         utils.uint32_to_buf(protocolMagic),
         utils.uint8_to_buf(
+          includeTtl
+          ? MetadataCodes.SIGN_TX_INCLUDED_YES
+          : MetadataCodes.SIGN_TX_INCLUDED_NO
+        ),
+        utils.uint8_to_buf(
           includeMetadata
-          ? MetadataCodes.SIGN_TX_METADATA_YES
-          : MetadataCodes.SIGN_TX_METADATA_NO
+          ? MetadataCodes.SIGN_TX_INCLUDED_YES
+          : MetadataCodes.SIGN_TX_INCLUDED_NO
+        ),
+        utils.uint8_to_buf(
+          includeValidityIntervalStart
+          ? MetadataCodes.SIGN_TX_INCLUDED_YES
+          : MetadataCodes.SIGN_TX_INCLUDED_NO
         ),
         _serializePoolRegistrationCode(isSigningPoolRegistrationAsOwner),
         utils.uint32_to_buf(numInputs),
@@ -834,6 +849,15 @@ export default class Ada {
       await _send(P1_STAGE_METADATA, P2_UNUSED, data);
     };
 
+    const signTx_setValidityIntervalStart = async (
+      validityIntervalStartStr: string
+    ): Promise<void> => {
+      const data = Buffer.concat([
+        utils.uint64_to_buf(validityIntervalStartStr),
+      ]);
+      await _send(P1_STAGE_VALIDITY_INTERVAL_START, P2_UNUSED, data);
+    };
+
     const signTx_awaitConfirm = async (): Promise<{
       txHashHex: string
     }> => {
@@ -895,8 +919,10 @@ export default class Ada {
       certificates.length,
       withdrawals.length,
       witnessPaths.length,
-      metadataHashHex != null
-    )
+      ttlStr != null,
+      metadataHashHex != null,
+      validityIntervalStartStr != null
+    );
 
     // inputs
     for (const input of inputs) {
@@ -910,7 +936,8 @@ export default class Ada {
 
     await signTx_setFee(feeStr);
 
-    await signTx_setTtl(ttlStr);
+    if (ttlStr)
+      await signTx_setTtl(ttlStr);
 
     if (certificates.length > 0) {
       for (const certificate of certificates) {
@@ -935,6 +962,9 @@ export default class Ada {
     if ((metadataHashHex !== null) && (metadataHashHex !== undefined)) {
       await signTx_setMetadata(metadataHashHex);
     }
+
+    if (validityIntervalStartStr)
+      await signTx_setValidityIntervalStart(validityIntervalStartStr);
 
     // confirm
     const { txHashHex } = await signTx_awaitConfirm();
