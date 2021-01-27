@@ -187,8 +187,8 @@ const PoolRegistrationCodes = {
 	SIGN_TX_POOL_REGISTRATION_YES: 4
 }
 
-const TxOutputTypeCodes = {
-  SIGN_TX_OUTPUT_TYPE_ADDRESS: 1,
+export const TxOutputTypeCodes = {
+  SIGN_TX_OUTPUT_TYPE_ADDRESS_BYTES: 1,
   SIGN_TX_OUTPUT_TYPE_ADDRESS_PARAMS: 2
 }
 
@@ -687,21 +687,26 @@ export default class Ada {
       const P2_TOKEN_AMOUNT = 0x32;
       const P2_CONFIRM = 0x33;
 
-      await _send(P1_STAGE_OUTPUTS, P2_BASIC_DATA, cardano.serializeOutputBasicParams(output));
-      for (const tokenGroup of output.tokenBundle) {
-        const data = Buffer.concat([
-          utils.hex_to_buf(tokenGroup.policyIdHex),
-          utils.uint32_to_buf(tokenGroup.tokenAmounts.length)
-        ]);
-        await _send(P1_STAGE_OUTPUTS, P2_TOKEN_GROUP, data);
-
-        for(const tokenAmount of tokenGroup.tokenAmounts) {
+      await _send(
+        P1_STAGE_OUTPUTS, P2_BASIC_DATA,
+        cardano.serializeOutputBasicParams(output, protocolMagic, networkId)
+      );
+      if (output.tokenBundle) {
+        for (const tokenGroup of output.tokenBundle) {
           const data = Buffer.concat([
-            utils.uint32_to_buf(tokenAmount.assetNameHex.length / 2),
-            utils.hex_to_buf(tokenAmount.assetNameHex),
-            utils.uint64_to_buf(tokenAmount.amountStr)
+            utils.hex_to_buf(tokenGroup.policyIdHex),
+            utils.uint32_to_buf(tokenGroup.tokenAmounts.length)
           ]);
-          await _send(P1_STAGE_OUTPUTS, P2_TOKEN_AMOUNT, data);
+          await _send(P1_STAGE_OUTPUTS, P2_TOKEN_GROUP, data);
+
+          for(const tokenAmount of tokenGroup.tokenAmounts) {
+            const data = Buffer.concat([
+              utils.uint32_to_buf(tokenAmount.assetNameHex.length / 2),
+              utils.hex_to_buf(tokenAmount.assetNameHex),
+              utils.uint64_to_buf(tokenAmount.amountStr)
+            ]);
+            await _send(P1_STAGE_OUTPUTS, P2_TOKEN_AMOUNT, data);
+          }
         }
       }
 

@@ -352,7 +352,7 @@ const results = {
 
 
 
-describe("signTx", async () => {
+describe("signTxOrdinary", async () => {
   let ada = {};
 
   beforeEach(async () => {
