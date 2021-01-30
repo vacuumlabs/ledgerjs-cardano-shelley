@@ -251,7 +251,7 @@ export function buf_to_amount(data: Buffer): string {
   return encoded.replace(/^0*(.)/, "$1");
 }
 
-export function amount_to_buf(amount: string): Buffer {
+export function ada_amount_to_buf(amount: string): Buffer {
   Precondition.checkIsValidAmount(amount, "invalid amount");
 
   return uint64_to_buf(amount);
@@ -347,7 +347,7 @@ export default {
 
   safe_parseInt,
 
-  amount_to_buf,
+  ada_amount_to_buf,
   buf_to_amount,
 
   base58_encode,

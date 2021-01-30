@@ -17,7 +17,13 @@ export const CertificateTypes = Object.freeze({
 	STAKE_DEREGISTRATION: 1,
 	STAKE_DELEGATION: 2,
 	STAKE_POOL_REGISTRATION : 3
-})
+});
+
+export const SignTxIncluded = Object.freeze({
+	SIGN_TX_INCLUDED_NO: 1,
+	SIGN_TX_INCLUDED_YES: 2
+});
+
 
 const KEY_HASH_LENGTH = 28;
 const TX_HASH_LENGTH = 32;
@@ -25,8 +31,8 @@ const TX_HASH_LENGTH = 32;
 const TOKEN_POLICY_LENGTH = 28;
 const TOKEN_NAME_LENGTH = 32;
 
-const TOKEN_GROUPS_IN_BUNDLE_MAX = 1000; // TODO
-const TOKENS_IN_GROUP_MAX = 1000; // TODO
+const ASSET_GROUPS_MAX = 1000;
+const TOKENS_IN_GROUP_MAX = 1000;
 
 const POOL_REGISTRATION_OWNERS_MAX = 1000;
 const POOL_REGISTRATION_RELAYS_MAX = 1000;
@@ -215,20 +221,20 @@ export function validateTransaction(
 
     if (output.tokenBundle) {
       Precondition.checkIsArray(output.tokenBundle, TxErrors.OUTPUT_INVALID_TOKEN_BUNDLE);
-      Precondition.check(output.tokenBundle.length <= TOKEN_GROUPS_IN_BUNDLE_MAX);
+      Precondition.check(output.tokenBundle.length <= ASSET_GROUPS_MAX);
 
-      for (const tokenGroup of output.tokenBundle) {
-        Precondition.checkIsHexString(tokenGroup.policyIdHex, TxErrors.OUTPUT_INVALID_TOKEN_POLICY);
-        Precondition.check(tokenGroup.policyIdHex.length === TOKEN_POLICY_LENGTH * 2, TxErrors.OUTPUT_INVALID_TOKEN_POLICY);
+      for (const assetGroup of output.tokenBundle) {
+        Precondition.checkIsHexString(assetGroup.policyIdHex, TxErrors.OUTPUT_INVALID_TOKEN_POLICY);
+        Precondition.check(assetGroup.policyIdHex.length === TOKEN_POLICY_LENGTH * 2, TxErrors.OUTPUT_INVALID_TOKEN_POLICY);
 
-        Precondition.checkIsArray(tokenGroup.tokenAmounts);
-        Precondition.check(tokenGroup.tokenAmounts.length <= TOKENS_IN_GROUP_MAX);
+        Precondition.checkIsArray(assetGroup.tokens);
+        Precondition.check(assetGroup.tokens.length <= TOKENS_IN_GROUP_MAX);
 
-        for (const tokenAmount of tokenGroup.tokenAmounts) {
-          Precondition.checkIsHexString(tokenAmount.assetNameHex, TxErrors.OUTPUT_INVALID_ASSET_NAME);
-          Precondition.check(tokenAmount.assetNameHex.length <= TOKEN_NAME_LENGTH * 2, TxErrors.OUTPUT_INVALID_ASSET_NAME);
+        for (const token of assetGroup.tokens) {
+          Precondition.checkIsHexString(token.assetNameHex, TxErrors.OUTPUT_INVALID_ASSET_NAME);
+          Precondition.check(token.assetNameHex.length <= TOKEN_NAME_LENGTH * 2, TxErrors.OUTPUT_INVALID_ASSET_NAME);
 
-          const amount = utils.safe_parseInt(tokenAmount.amountStr);
+          const amount = utils.safe_parseInt(token.amountStr);
           Precondition.checkIsUint64(amount);
         }
       }
@@ -239,7 +245,7 @@ export function validateTransaction(
   Precondition.checkIsValidAmount(feeStr, TxErrors.FEE_INVALID);
 
   //  ttl
-  if ((ttlStr !== null) && (ttlStr !== undefined)) {
+  if (ttlStr != null) {
     const ttl = utils.safe_parseInt(ttlStr);
     Precondition.checkIsUint64(ttl, TxErrors.TTL_INVALID);
     Precondition.check(ttl > 0, TxErrors.TTL_INVALID);
@@ -259,13 +265,13 @@ export function validateTransaction(
   }
 
   // metadata could be null
-  if ((metadataHashHex !== null) && (metadataHashHex !== undefined)) {
+  if (metadataHashHex != null) {
     Precondition.checkIsHexString(metadataHashHex, TxErrors.METADATA_INVALID);
     Precondition.check(metadataHashHex.length == 32 * 2, TxErrors.METADATA_INVALID);
   }
 
   //  validity interval start
-  if ((validityIntervalStartStr !== null) && (validityIntervalStartStr !== undefined)) {
+  if (validityIntervalStartStr != null) {
     const validityIntervalStart = utils.safe_parseInt(validityIntervalStartStr);
     Precondition.checkIsUint64(validityIntervalStart, TxErrors.VALIDITY_INTERVAL_START_INVALID);
     Precondition.check(validityIntervalStart > 0, TxErrors.VALIDITY_INTERVAL_START_INVALID);
@@ -379,7 +385,7 @@ export function serializeOutputBasicParams(
     throw new Error(TxErrors.OUTPUT_UNKNOWN_TYPE);
   }
 
-  const numTokenGroups =
+  const numassetGroups =
       (output.tokenBundle) ?
       output.tokenBundle.length :
       0;
@@ -387,8 +393,8 @@ export function serializeOutputBasicParams(
   return Buffer.concat([
     utils.uint8_to_buf(outputType),
     addressBuf,
-    utils.amount_to_buf(output.amountStr),
-    utils.uint32_to_buf(numTokenGroups)
+    utils.ada_amount_to_buf(output.amountStr),
+    utils.uint32_to_buf(numassetGroups)
   ]);
 }
 
@@ -421,8 +427,8 @@ export function serializePoolInitialParams(
   return Buffer.concat([
     utils.hex_to_buf(params.poolKeyHashHex),
     utils.hex_to_buf(params.vrfKeyHashHex),
-    utils.amount_to_buf(params.pledgeStr),
-    utils.amount_to_buf(params.costStr),
+    utils.ada_amount_to_buf(params.pledgeStr),
+    utils.ada_amount_to_buf(params.costStr),
     utils.uint64_to_buf(params.margin.numeratorStr),
     utils.uint64_to_buf(params.margin.denominatorStr),
     utils.hex_to_buf(params.rewardAccountHex),
@@ -549,16 +555,12 @@ export function serializePoolMetadataParams(
   params: PoolMetadataParams
 ): Buffer {
 
-  const POOL_CERTIFICATE_METADATA_NO = 1;
-  const POOL_CERTIFICATE_METADATA_YES = 2;
-
   const includeMetadataBuffer = Buffer.alloc(1);
-  if ((params === null) || (params === undefined)) {
-    // deal with null metadata
-    includeMetadataBuffer.writeUInt8(POOL_CERTIFICATE_METADATA_NO);
-    return includeMetadataBuffer;
+  if (params != null) {
+    includeMetadataBuffer.writeUInt8(SignTxIncluded.SIGN_TX_INCLUDED_YES);
   } else {
-    includeMetadataBuffer.writeUInt8(POOL_CERTIFICATE_METADATA_YES);
+    includeMetadataBuffer.writeUInt8(SignTxIncluded.SIGN_TX_INCLUDED_NO);
+    return includeMetadataBuffer;
   }
 
   const url = params.metadataUrl;

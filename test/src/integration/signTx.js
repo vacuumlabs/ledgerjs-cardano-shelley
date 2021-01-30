@@ -92,10 +92,40 @@ const outputs = {
     tokenBundle: [
       {
         policyIdHex: "95a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39",
-        tokenAmounts: [
+        tokens: [
           {
             assetNameHex: "74652474436f696e",
             amountStr: "7878754"
+          }
+        ]
+      }
+    ]
+  },
+  multiassetManyTokens: {
+    amountStr: "1234",
+    addressHex: utils.buf_to_hex(utils.bech32_decodeAddress(
+      "addr1q84sh2j72ux0l03fxndjnhctdg7hcppsaejafsa84vh7lwgmcs5wgus8qt4atk45lvt4xfxpjtwfhdmvchdf2m3u3hlsd5tq5r"
+    )),
+    tokenBundle: [
+      {
+        policyIdHex: "95a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39",
+        tokens: [
+          {
+            assetNameHex: "74652474436f696e",
+            amountStr: "7878754"
+          },
+          {
+            assetNameHex: "456c204e69c3b16f",
+            amountStr: "1234"
+          }
+        ]
+      },
+      {
+        policyIdHex: "75a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39",
+        tokens: [
+          {
+            assetNameHex: "7564247542686911",
+            amountStr: "47"
           }
         ]
       }
@@ -146,7 +176,19 @@ const results = {
     ]
   },
 
-  // TODO add a test with several token groups containing several assets
+  multiassetManyTokens: {
+    /*
+    * txbody:
+    */
+    txHashHex: "8502ab1a781627663e8bfcff54a58747e319da3bb592a3446fc35fa5d2f2fbe9",
+    witnesses: [
+      {
+        path: str_to_path("1852'/1815'/0'/0/0"),
+        witnessSignatureHex:
+          "b48877586d90a249579a5f3994c3ad0c21c5f78960a04aadd182ca49c3b606f1d8a578edf17923188e4e0e40f191e019a5174081c092c458a82e9f0c1e1fae08"
+      }
+    ]
+  },
 
   noChangeByronMainnet: {
     /*
@@ -414,6 +456,25 @@ describe("signTxOrdinary", async () => {
       sampleValidityIntervalStart
     );
     expect(response).to.deep.equal(results.multiassetOneToken);
+  });
+
+  it("Mary era transaction with a complex multiasset output", async () => {
+    const response = await ada.signTransaction(
+      NetworkIds.MAINNET,
+      ProtocolMagics.MAINNET,
+      [inputs.utxoShelley],
+      [
+        outputs.multiassetManyTokens,
+        outputs.internalBaseWithStakingPath
+      ],
+      sampleFeeStr,
+      sampleTtlStr,
+      [],
+      [],
+      null,
+      sampleValidityIntervalStart
+    );
+    expect(response).to.deep.equal(results.multiassetManyTokens);
   });
 
   it("Should correctly sign tx without change address with Byron mainnet output", async () => {

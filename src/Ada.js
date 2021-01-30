@@ -20,7 +20,7 @@ import type Transport from "@ledgerhq/hw-transport";
 import { TransportStatusError } from "@ledgerhq/hw-transport";
 
 import utils, { Precondition, Assert, invariant } from "./utils";
-import cardano, { CertificateTypes, AddressTypeNibbles, TxErrors } from "./cardano";
+import cardano, { CertificateTypes, AddressTypeNibbles, SignTxIncluded, TxErrors } from "./cardano";
 
 const CLA = 0xd7;
 
@@ -45,27 +45,27 @@ export type InputTypeUTxO = {|
 |};
 
 
-export type TokenAmount =
+export type Token =
 {|
   assetNameHex: string,
   amountStr: string
 |};
 
-export type TokenGroup = 
+export type AssetGroup =
 {|
   policyIdHex: string,
-  tokenAmounts: Array<TokenAmount>
+  tokens: Array<Token>
 |};
 
 export type TxOutputTypeAddress = {|
   amountStr: string,
-  tokenBundle: Array<TokenGroup>,
+  tokenBundle: Array<AssetGroup>,
   addressHex: string
 |};
 
 export type TxOutputTypeAddressParams = {|
   amountStr: string,
-  tokenBundle: Array<TokenGroup>,
+  tokenBundle: Array<AssetGroup>,
   addressTypeNibble: $Values<typeof AddressTypeNibbles>,
   spendingPath: BIP32Path,
   stakingPath: ?BIP32Path,
@@ -176,11 +176,6 @@ export type SignTransactionResponse = {|
   txHashHex: string,
   witnesses: Array<Witness>
 |};
-
-const MetadataCodes = {
-	SIGN_TX_INCLUDED_NO: 1,
-	SIGN_TX_INCLUDED_YES: 2
-}
 
 const PoolRegistrationCodes = {
 	SIGN_TX_POOL_REGISTRATION_NO: 3,
@@ -638,6 +633,8 @@ export default class Ada {
       includeValidityIntervalStart: boolean,
     ): Promise<void> => {
 
+      await this._ensureLedgerAppVersionAtLeast(2, 1); // TODO update version
+
       const _serializePoolRegistrationCode = (isSigningPoolRegistrationAsOwner: boolean): Buffer => {
         // backwards compatible way of serializing the flag to signalize pool registration
         // transactions. To be removed/refactored once Ledger app 2.1.0 or later is rolled out
@@ -657,18 +654,18 @@ export default class Ada {
         utils.uint32_to_buf(protocolMagic),
         utils.uint8_to_buf(
           includeTtl
-          ? MetadataCodes.SIGN_TX_INCLUDED_YES
-          : MetadataCodes.SIGN_TX_INCLUDED_NO
+          ? SignTxIncluded.SIGN_TX_INCLUDED_YES
+          : SignTxIncluded.SIGN_TX_INCLUDED_NO
         ),
         utils.uint8_to_buf(
           includeMetadata
-          ? MetadataCodes.SIGN_TX_INCLUDED_YES
-          : MetadataCodes.SIGN_TX_INCLUDED_NO
+          ? SignTxIncluded.SIGN_TX_INCLUDED_YES
+          : SignTxIncluded.SIGN_TX_INCLUDED_NO
         ),
         utils.uint8_to_buf(
           includeValidityIntervalStart
-          ? MetadataCodes.SIGN_TX_INCLUDED_YES
-          : MetadataCodes.SIGN_TX_INCLUDED_NO
+          ? SignTxIncluded.SIGN_TX_INCLUDED_YES
+          : SignTxIncluded.SIGN_TX_INCLUDED_NO
         ),
         _serializePoolRegistrationCode(isSigningPoolRegistrationAsOwner),
         utils.uint32_to_buf(numInputs),
@@ -698,29 +695,29 @@ export default class Ada {
       output: TxOutput
     ): Promise<void> => {
       const P2_BASIC_DATA = 0x30;
-      const P2_TOKEN_GROUP = 0x31;
-      const P2_TOKEN_AMOUNT = 0x32;
+      const P2_ASSET_GROUP = 0x31;
+      const P2_TOKEN = 0x32;
       const P2_CONFIRM = 0x33;
 
       await _send(
         P1_STAGE_OUTPUTS, P2_BASIC_DATA,
         cardano.serializeOutputBasicParams(output, protocolMagic, networkId)
       );
-      if (output.tokenBundle) {
-        for (const tokenGroup of output.tokenBundle) {
+      if (output.tokenBundle != null) {
+        for (const assetGroup of output.tokenBundle) {
           const data = Buffer.concat([
-            utils.hex_to_buf(tokenGroup.policyIdHex),
-            utils.uint32_to_buf(tokenGroup.tokenAmounts.length)
+            utils.hex_to_buf(assetGroup.policyIdHex),
+            utils.uint32_to_buf(assetGroup.tokens.length)
           ]);
-          await _send(P1_STAGE_OUTPUTS, P2_TOKEN_GROUP, data);
+          await _send(P1_STAGE_OUTPUTS, P2_ASSET_GROUP, data);
 
-          for(const tokenAmount of tokenGroup.tokenAmounts) {
+          for(const token of assetGroup.tokens) {
             const data = Buffer.concat([
-              utils.uint32_to_buf(tokenAmount.assetNameHex.length / 2),
-              utils.hex_to_buf(tokenAmount.assetNameHex),
-              utils.uint64_to_buf(tokenAmount.amountStr)
+              utils.uint32_to_buf(token.assetNameHex.length / 2),
+              utils.hex_to_buf(token.assetNameHex),
+              utils.uint64_to_buf(token.amountStr)
             ]);
-            await _send(P1_STAGE_OUTPUTS, P2_TOKEN_AMOUNT, data);
+            await _send(P1_STAGE_OUTPUTS, P2_TOKEN, data);
           }
         }
       }
@@ -742,7 +739,7 @@ export default class Ada {
       case CertificateTypes.STAKE_REGISTRATION:
       case CertificateTypes.STAKE_DEREGISTRATION:
       case CertificateTypes.STAKE_DELEGATION: {
-        if (path)
+        if (path != null)
           dataFields.push(utils.path_to_buf(path));
         break;
       }
@@ -817,7 +814,7 @@ export default class Ada {
       amountStr: string,
     ): Promise<void> => {
       const data = Buffer.concat([
-        utils.amount_to_buf(amountStr),
+        utils.ada_amount_to_buf(amountStr),
         utils.path_to_buf(path)
       ]);
       await _send(P1_STAGE_WITHDRAWALS, P2_UNUSED, data);
@@ -827,7 +824,7 @@ export default class Ada {
       feeStr: string
     ): Promise<void> => {
       const data = Buffer.concat([
-        utils.amount_to_buf(feeStr),
+        utils.ada_amount_to_buf(feeStr),
       ]);
       await _send(P1_STAGE_FEE, P2_UNUSED, data);
     };
@@ -936,8 +933,9 @@ export default class Ada {
 
     await signTx_setFee(feeStr);
 
-    if (ttlStr)
+    if (ttlStr != null) {
       await signTx_setTtl(ttlStr);
+    }
 
     if (certificates.length > 0) {
       for (const certificate of certificates) {
@@ -959,12 +957,13 @@ export default class Ada {
       }
     }
 
-    if ((metadataHashHex !== null) && (metadataHashHex !== undefined)) {
+    if (metadataHashHex != null) {
       await signTx_setMetadata(metadataHashHex);
     }
 
-    if (validityIntervalStartStr)
+    if (validityIntervalStartStr != null) {
       await signTx_setValidityIntervalStart(validityIntervalStartStr);
+    }
 
     // confirm
     const { txHashHex } = await signTx_awaitConfirm();
