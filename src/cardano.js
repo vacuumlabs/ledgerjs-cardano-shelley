@@ -398,6 +398,40 @@ export function serializeOutputBasicParams(
   ]);
 }
 
+// TODO remove after ledger app 2.2 is widespread
+export function serializeOutputBasicParamsBefore_2_2(
+  output: TxOutput,
+  protocolMagic: number,
+  networkId: number
+): Buffer {
+  if (output.addressHex) {
+    Precondition.checkIsHexString(output.addressHex, TxErrors.OUTPUT_INVALID_ADDRESS);
+    Precondition.check(output.addressHex.length <= 128 * 2, TxErrors.OUTPUT_INVALID_ADDRESS);
+
+    return Buffer.concat([	
+      utils.amount_to_buf(amountStr),	
+      utils.uint8_to_buf(TxOutputTypeCodes.SIGN_TX_OUTPUT_TYPE_ADDRESS_BYTES),
+      utils.hex_to_buf(addressHex)	
+    ]);	
+
+  } else if (output.spendingPath) {
+    return Buffer.concat([
+      utils.amount_to_buf(amountStr),
+      utils.uint8_to_buf(TxOutputTypeCodes.SIGN_TX_OUTPUT_TYPE_ADDRESS_PARAMS),	
+      cardano.serializeAddressParams(	
+        addressTypeNibble,	
+        addressTypeNibble === AddressTypeNibbles.BYRON ? protocolMagic : networkId,	
+        spendingPath,	
+        stakingPath,	
+        stakingKeyHashHex,	
+        stakingBlockchainPointer	
+      )
+    ]);
+  } else {
+    throw new Error(TxErrors.OUTPUT_UNKNOWN_TYPE);
+  }
+}
+
 export function serializePoolInitialParams(
   params: PoolParams
 ): Buffer {

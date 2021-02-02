@@ -583,13 +583,6 @@ export default class Ada {
     validityIntervalStartStr: ?string
   ): Promise<SignTransactionResponse> {
 
-    cardano.validateTransaction(
-      networkId, protocolMagic,
-      inputs, outputs, feeStr, ttlStr,
-      certificates, withdrawals, metadataHashHex,
-      validityIntervalStartStr
-    );
-
     // pool registrations are quite restricted
     // this affects witness set construction and many validations
     const isSigningPoolRegistrationAsOwner = certificates.some(
@@ -598,8 +591,32 @@ export default class Ada {
 
     const appHasStakePoolOwnerSupport = await this._isLedgerAppVersionAtLeast(2, 1);
     if (isSigningPoolRegistrationAsOwner && !appHasStakePoolOwnerSupport) {
-      throw Error(Errors.INCORRECT_APP_VERSION)
+      throw Error(Errors.INCORRECT_APP_VERSION);
     }
+
+    const appHasMultiassetSupport = await this._isLedgerAppVersionAtLeast(2, 2);
+    if (!appHasMultiassetSupport) {
+
+      const containsMultiassets = outputs.some(
+        output => (output.tokenBundle != null)
+      );
+
+      // for older app versions:
+      // multiasset outputs must not be given
+      // validity interval start must not be given
+      // ttl must be given
+      if (containsMultiassets || (validityIntervalStartStr != null) || (ttlStr == null)) {
+        throw Error(Errors.INCORRECT_APP_VERSION);
+      }
+    }
+
+    cardano.validateTransaction(
+      networkId, protocolMagic,
+      inputs, outputs, feeStr, ttlStr,
+      certificates, withdrawals, metadataHashHex,
+      validityIntervalStartStr
+    );
+
 
     const P1_STAGE_INIT = 0x01;
     const P1_STAGE_INPUTS = 0x02;
@@ -621,19 +638,18 @@ export default class Ada {
       protocolMagic: number,
       numInputs: number,
       numOutputs: number,
+      includeTtl: boolean,
       numCertificates: number,
       numWithdrawals: number,
-      numWitnesses: number,
-      includeTtl: boolean,
       includeMetadata: boolean,
       includeValidityIntervalStart: boolean,
+      numWitnesses: number
     ): Promise<void> => {
-
-      await this._ensureLedgerAppVersionAtLeast(2, 1); // TODO update version
 
       const _serializePoolRegistrationCode = (isSigningPoolRegistrationAsOwner: boolean): Buffer => {
         // backwards compatible way of serializing the flag to signalize pool registration
-        // transactions. To be removed/refactored once Ledger app 2.1.0 or later is rolled out
+        // transactions.
+        // TODO To be removed/refactored once Ledger app 2.1 or later is rolled out
         if (!appHasStakePoolOwnerSupport) {
           return Buffer.from([])
         }
@@ -643,26 +659,43 @@ export default class Ada {
           ? PoolRegistrationCodes.SIGN_TX_POOL_REGISTRATION_YES
           : PoolRegistrationCodes.SIGN_TX_POOL_REGISTRATION_NO
         )
-      }
+      };
+
+      const _serializeIncludeInTxData = (hasMultiassetSupport: boolean): Buffer => {
+        // TODO remove after Ledger app 2.1 support is not needed anymore
+        if (!hasMultiassetSupport) {
+          return Buffer.concat([
+            utils.uint8_to_buf(
+              includeMetadata
+              ? SignTxIncluded.SIGN_TX_INCLUDED_YES
+              : SignTxIncluded.SIGN_TX_INCLUDED_NO
+            ),
+          ]);
+        }
+
+        return Buffer.concat([
+          utils.uint8_to_buf(
+            includeTtl
+            ? SignTxIncluded.SIGN_TX_INCLUDED_YES
+            : SignTxIncluded.SIGN_TX_INCLUDED_NO
+          ),
+          utils.uint8_to_buf(
+            includeMetadata
+            ? SignTxIncluded.SIGN_TX_INCLUDED_YES
+            : SignTxIncluded.SIGN_TX_INCLUDED_NO
+          ),
+          utils.uint8_to_buf(
+            includeValidityIntervalStart
+            ? SignTxIncluded.SIGN_TX_INCLUDED_YES
+            : SignTxIncluded.SIGN_TX_INCLUDED_NO
+          ),
+        ]);
+      };
 
       const data = Buffer.concat([
         utils.uint8_to_buf(networkId),
         utils.uint32_to_buf(protocolMagic),
-        utils.uint8_to_buf(
-          includeTtl
-          ? SignTxIncluded.SIGN_TX_INCLUDED_YES
-          : SignTxIncluded.SIGN_TX_INCLUDED_NO
-        ),
-        utils.uint8_to_buf(
-          includeMetadata
-          ? SignTxIncluded.SIGN_TX_INCLUDED_YES
-          : SignTxIncluded.SIGN_TX_INCLUDED_NO
-        ),
-        utils.uint8_to_buf(
-          includeValidityIntervalStart
-          ? SignTxIncluded.SIGN_TX_INCLUDED_YES
-          : SignTxIncluded.SIGN_TX_INCLUDED_NO
-        ),
+        _serializeIncludeInTxData(appHasMultiassetSupport),
         _serializePoolRegistrationCode(isSigningPoolRegistrationAsOwner),
         utils.uint32_to_buf(numInputs),
         utils.uint32_to_buf(numOutputs),
@@ -696,11 +729,20 @@ export default class Ada {
       const P2_TOKEN = 0x32;
       const P2_CONFIRM = 0x33;
 
+      // TODO remove the Before_2_2 version after ledger app 2.2 is widespread
+      let outputData;
+      if (appHasMultiassetSupport) {
+        outputData = cardano.serializeOutputBasicParams(output, protocolMagic, networkId);
+      } else {
+        outputData = cardano.serializeOutputBasicParamsBefore_2_2(output, protocolMagic, networkId);
+      }
+
       await _send(
         P1_STAGE_OUTPUTS, P2_BASIC_DATA,
-        cardano.serializeOutputBasicParams(output, protocolMagic, networkId),
+        outputData,
         0
       );
+
       if (output.tokenBundle != null) {
         for (const assetGroup of output.tokenBundle) {
           const data = Buffer.concat([
@@ -916,12 +958,12 @@ export default class Ada {
       protocolMagic,
       inputs.length,
       outputs.length,
+      ttlStr != null,
       certificates.length,
       withdrawals.length,
-      witnessPaths.length,
-      ttlStr != null,
       metadataHashHex != null,
-      validityIntervalStartStr != null
+      validityIntervalStartStr != null,
+      witnessPaths.length
     );
 
     // inputs
