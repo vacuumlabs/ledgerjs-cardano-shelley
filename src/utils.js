@@ -75,7 +75,7 @@ export const Precondition = {
       Precondition.checkIsUint32(x, msg);
     }
   },
-  checkIsValidAmount: (amount: string, msg: ?string = null) => {
+  checkIsValidAdaAmount: (amount: string, msg: ?string = null) => {
     Precondition.checkIsString(amount, msg);
     Precondition.check(/^[0-9]*$/.test(amount), msg);
     // Length checks
@@ -252,7 +252,7 @@ export function buf_to_amount(data: Buffer): string {
 }
 
 export function ada_amount_to_buf(amount: string): Buffer {
-  Precondition.checkIsValidAmount(amount, "invalid amount");
+  Precondition.checkIsValidAdaAmount(amount, "invalid amount");
 
   return uint64_to_buf(amount);
 }

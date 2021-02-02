@@ -242,7 +242,7 @@ export function validateTransaction(
   }
 
   // fee
-  Precondition.checkIsValidAmount(feeStr, TxErrors.FEE_INVALID);
+  Precondition.checkIsValidAdaAmount(feeStr, TxErrors.FEE_INVALID);
 
   //  ttl
   if (ttlStr != null) {
@@ -260,7 +260,7 @@ export function validateTransaction(
     throw new Error(TxErrors.WITHDRAWALS_FORBIDDEN);
   }
   for (const withdrawal of withdrawals) {
-    Precondition.checkIsValidAmount(withdrawal.amountStr);
+    Precondition.checkIsValidAdaAmount(withdrawal.amountStr);
     Precondition.checkIsValidPath(withdrawal.path);
   }
 
@@ -354,7 +354,7 @@ export function serializeOutputBasicParams(
   protocolMagic: number,
   networkId: number
 ): Buffer {
-  Precondition.checkIsValidAmount(output.amountStr);
+  Precondition.checkIsValidAdaAmount(output.amountStr);
 
   let outputType;
   let addressBuf;
@@ -404,27 +404,29 @@ export function serializeOutputBasicParamsBefore_2_2(
   protocolMagic: number,
   networkId: number
 ): Buffer {
+  Precondition.checkIsValidAdaAmount(output.amountStr);
+
   if (output.addressHex) {
     Precondition.checkIsHexString(output.addressHex, TxErrors.OUTPUT_INVALID_ADDRESS);
     Precondition.check(output.addressHex.length <= 128 * 2, TxErrors.OUTPUT_INVALID_ADDRESS);
 
     return Buffer.concat([	
-      utils.amount_to_buf(amountStr),	
+      utils.ada_amount_to_buf(output.amountStr),	
       utils.uint8_to_buf(TxOutputTypeCodes.SIGN_TX_OUTPUT_TYPE_ADDRESS_BYTES),
-      utils.hex_to_buf(addressHex)	
+      utils.hex_to_buf(output.addressHex)	
     ]);	
 
   } else if (output.spendingPath) {
     return Buffer.concat([
-      utils.amount_to_buf(amountStr),
+      utils.ada_amount_to_buf(output.amountStr),
       utils.uint8_to_buf(TxOutputTypeCodes.SIGN_TX_OUTPUT_TYPE_ADDRESS_PARAMS),	
-      cardano.serializeAddressParams(	
-        addressTypeNibble,	
-        addressTypeNibble === AddressTypeNibbles.BYRON ? protocolMagic : networkId,	
-        spendingPath,	
-        stakingPath,	
-        stakingKeyHashHex,	
-        stakingBlockchainPointer	
+      serializeAddressParams(	
+        output.addressTypeNibble,	
+        output.addressTypeNibble === AddressTypeNibbles.BYRON ? protocolMagic : networkId,	
+        output.spendingPath,	
+        output.stakingPath,	
+        output.stakingKeyHashHex,	
+        output.stakingBlockchainPointer	
       )
     ]);
   } else {
@@ -441,8 +443,8 @@ export function serializePoolInitialParams(
   Precondition.checkIsHexString(params.vrfKeyHashHex, TxErrors.CERTIFICATE_POOL_INVALID_VRF_KEY_HASH);
   Precondition.check(params.vrfKeyHashHex.length === 32 * 2, TxErrors.CERTIFICATE_POOL_INVALID_VRF_KEY_HASH);
 
-  Precondition.checkIsValidAmount(params.pledgeStr, TxErrors.CERTIFICATE_POOL_INVALID_PLEDGE);
-  Precondition.checkIsValidAmount(params.costStr, TxErrors.CERTIFICATE_POOL_INVALID_COST);
+  Precondition.checkIsValidAdaAmount(params.pledgeStr, TxErrors.CERTIFICATE_POOL_INVALID_PLEDGE);
+  Precondition.checkIsValidAdaAmount(params.costStr, TxErrors.CERTIFICATE_POOL_INVALID_COST);
 
   const marginNumerator = utils.safe_parseInt(params.margin.numeratorStr);
   Precondition.checkIsUint64(marginNumerator, TxErrors.CERTIFICATE_POOL_INVALID_MARGIN);
@@ -637,8 +639,9 @@ export default {
 
   validateTransaction,
 
-  serializeOutputBasicParams,
   serializeAddressParams,
+  serializeOutputBasicParams,
+  serializeOutputBasicParamsBefore_2_2,
 
   serializePoolInitialParams,
   serializePoolOwnerParams,

@@ -594,6 +594,7 @@ export default class Ada {
       throw Error(Errors.INCORRECT_APP_VERSION);
     }
 
+    // TODO replace this with a better mechanism for detecting ledger app capabilities
     const appHasMultiassetSupport = await this._isLedgerAppVersionAtLeast(2, 2);
     if (!appHasMultiassetSupport) {
 
@@ -729,16 +730,20 @@ export default class Ada {
       const P2_TOKEN = 0x32;
       const P2_CONFIRM = 0x33;
 
-      // TODO remove the Before_2_2 version after ledger app 2.2 is widespread
+      // TODO remove the Before_2_2 version after ledger app 2.2 is rolled out
       let outputData;
+      let outputP2;
       if (appHasMultiassetSupport) {
         outputData = cardano.serializeOutputBasicParams(output, protocolMagic, networkId);
+        outputP2 = P2_BASIC_DATA;
       } else {
         outputData = cardano.serializeOutputBasicParamsBefore_2_2(output, protocolMagic, networkId);
+        outputP2 = P2_UNUSED;
       }
 
       await _send(
-        P1_STAGE_OUTPUTS, P2_BASIC_DATA,
+        P1_STAGE_OUTPUTS,
+        outputP2,
         outputData,
         0
       );
@@ -762,7 +767,10 @@ export default class Ada {
         }
       }
 
-      await _send(P1_STAGE_OUTPUTS, P2_CONFIRM, Buffer.alloc(0), 0);
+      // TODO remove the if condition after ledger app 2.2 is rolled out
+      if (appHasMultiassetSupport) {
+        await _send(P1_STAGE_OUTPUTS, P2_CONFIRM, Buffer.alloc(0), 0);
+      }
     }
 
     const signTx_addCertificate = async (
@@ -903,8 +911,17 @@ export default class Ada {
     const signTx_awaitConfirm = async (): Promise<{
       txHashHex: string
     }> => {
+
+      // TODO remove after ledger app 2.2 is rolled out
+      let confirmP1;
+      if (appHasMultiassetSupport) {
+        confirmP1 = P1_STAGE_CONFIRM;
+      } else {
+        confirmP1 = 0x09; // needed for backward compatibility
+      }
+
       const response = await _send(
-        P1_STAGE_CONFIRM,
+        confirmP1,
         P2_UNUSED,
         utils.hex_to_buf(""),
         cardano.TX_HASH_LENGTH
@@ -920,8 +937,22 @@ export default class Ada {
       path: BIP32Path,
       witnessSignatureHex: string
     |}> => {
+
+      // TODO remove after ledger app 2.2 is rolled out
+      let witnessP1;
+      if (appHasMultiassetSupport) {
+        witnessP1 = P1_STAGE_WITNESSES;
+      } else {
+        witnessP1 = 0x0a; // needed for backward compatibility
+      }
+
       const data = Buffer.concat([utils.path_to_buf(path)]);
-      const response = await _send(P1_STAGE_WITNESSES, P2_UNUSED, data, 64);
+      const response = await _send(
+        witnessP1,
+        P2_UNUSED,
+        data,
+        64
+      );
       return {
         path: path,
         witnessSignatureHex: utils.buf_to_hex(response)
