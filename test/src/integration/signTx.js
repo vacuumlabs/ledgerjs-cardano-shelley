@@ -6,6 +6,7 @@ import {
   outputs,
   sampleFeeStr,
   sampleTtlStr,
+  sampleBigIntStr,
   certificates,
   withdrawals,
   sampleMetadataHashHex,
@@ -446,5 +447,23 @@ describe("signTxOrdinaryMary", async () => {
       sampleValidityIntervalStartStr
     );
     expect(response).to.deep.equal(resultsMary.multiassetManyTokens);
+  });
+
+  it("Mary era transaction with big numbers", async () => {
+    const response = await ada.signTransaction(
+      NetworkIds.MAINNET,
+      ProtocolMagics.MAINNET,
+      [inputs.utxoShelley],
+      [
+        outputs.multiassetBigNumber,
+      ],
+      sampleBigIntStr,
+      sampleBigIntStr,
+      [],
+      [],
+      null,
+      sampleBigIntStr
+    );
+    expect(response).to.deep.equal(resultsMary.bigNumbersEverywhere);
   });
 });

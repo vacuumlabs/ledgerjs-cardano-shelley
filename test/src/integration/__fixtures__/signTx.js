@@ -129,7 +129,24 @@ export const outputs = {
         ]
       }
     ]
-  }
+  },
+  multiassetBigNumber: {
+    addressHex: utils.buf_to_hex(utils.bech32_decodeAddress(
+      "addr1q84sh2j72ux0l03fxndjnhctdg7hcppsaejafsa84vh7lwgmcs5wgus8qt4atk45lvt4xfxpjtwfhdmvchdf2m3u3hlsd5tq5r"
+    )),
+    amountStr: "24103998870869519",
+    tokenBundle: [
+      {
+        policyIdHex: "95a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39",
+        tokens: [
+          {
+            assetNameHex: "74652474436f696e",
+            amountStr: "24103998870869519"
+          }
+        ]
+      }
+    ]
+  },
 };
 
 export const certificates = {
@@ -159,6 +176,7 @@ export const sampleMetadataHashHex = "deadbeef".repeat(8);
 export const sampleFeeStr = "42";
 export const sampleTtlStr = "10";
 export const sampleValidityIntervalStartStr = "47";
+export const sampleBigIntStr = "24103998870869519";
 
 
 export const resultsByron = {
@@ -459,6 +477,20 @@ export const resultsMary = {
         path: str_to_path("1852'/1815'/0'/0/0"),
         witnessSignatureHex:
           "391c3f0ba1c31b11d6cd36ffb5dcfa1c88a54daae043a1f48402d50d9f67388cca50536b44ab0b9b79fcd922da26e847e0e186d844e8d90543d0c56c2afffa0c"
+      }
+    ]
+  },
+
+  bigNumbersEverywhere: {
+    /*
+    * txbody: a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018182583901eb0baa5e570cffbe2934db29df0b6a3d7c0430ee65d4c3a7ab2fefb91bc428e4720702ebd5dab4fb175324c192dc9bb76cc5da956e3c8dff821b0055a275925d560fa1581c95a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39a14874652474436f696e1b0055a275925d560f021b0055a275925d560f031b0055a275925d560f081b0055a275925d560f
+    */
+    txHashHex: "e60735a3cc71a8a3f89652797c3e650d6ed80059c0b59978c59858dcf6f8ca48",
+    witnesses: [
+      {
+        path: str_to_path("1852'/1815'/0'/0/0"),
+        witnessSignatureHex:
+          "632cd935550a71c1e1869e6f5749ee4cb8c268cbe014138561fc2d1045b5b2be84526cfd5a6fea01de99bdf903fa17c79a58a832b5cdcb1c999bcbe995a56806"
       }
     ]
   },

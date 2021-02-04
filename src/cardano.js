@@ -83,6 +83,7 @@ export const TxErrors = {
   CERTIFICATE_POOL_INVALID_PLEDGE: "invalid pledge in a pool registration certificate",
   CERTIFICATE_POOL_INVALID_COST: "invalid cost in a pool registration certificate",
   CERTIFICATE_POOL_INVALID_MARGIN: "invalid margin in a pool registration certificate",
+  CERTIFICATE_POOL_INVALID_MARGIN_DENOMINATOR: "pool margin denominator must be a value between 1 and 10^15",
   CERTIFICATE_POOL_INVALID_REWARD_ACCOUNT: "invalid reward account in a pool registration certificate",
   CERTIFICATE_POOL_OWNERS_NOT_ARRAY: "owners not an array in a pool registration certificate",
   CERTIFICATE_POOL_OWNERS_TOO_MANY: "too many owners in a pool registration certificate",
@@ -233,9 +234,7 @@ export function validateTransaction(
         for (const token of assetGroup.tokens) {
           Precondition.checkIsHexString(token.assetNameHex, TxErrors.OUTPUT_INVALID_ASSET_NAME);
           Precondition.check(token.assetNameHex.length <= TOKEN_NAME_LENGTH * 2, TxErrors.OUTPUT_INVALID_ASSET_NAME);
-
-          const amount = utils.safe_parseInt(token.amountStr);
-          Precondition.checkIsUint64(amount);
+          Precondition.checkIsUint64Str(token.amountStr);
         }
       }
     }
@@ -246,9 +245,7 @@ export function validateTransaction(
 
   //  ttl
   if (ttlStr != null) {
-    const ttl = utils.safe_parseInt(ttlStr);
-    Precondition.checkIsUint64(ttl, TxErrors.TTL_INVALID);
-    Precondition.check(ttl > 0, TxErrors.TTL_INVALID);
+    Precondition.checkIsPositiveUint64Str(ttlStr, TxErrors.TTL_INVALID);
   }
 
   // certificates
@@ -272,9 +269,7 @@ export function validateTransaction(
 
   //  validity interval start
   if (validityIntervalStartStr != null) {
-    const validityIntervalStart = utils.safe_parseInt(validityIntervalStartStr);
-    Precondition.checkIsUint64(validityIntervalStart, TxErrors.VALIDITY_INTERVAL_START_INVALID);
-    Precondition.check(validityIntervalStart > 0, TxErrors.VALIDITY_INTERVAL_START_INVALID);
+    Precondition.checkIsPositiveUint64Str(validityIntervalStartStr, TxErrors.VALIDITY_INTERVAL_START_INVALID);
   }
 }
 
@@ -446,13 +441,12 @@ export function serializePoolInitialParams(
   Precondition.checkIsValidAdaAmount(params.pledgeStr, TxErrors.CERTIFICATE_POOL_INVALID_PLEDGE);
   Precondition.checkIsValidAdaAmount(params.costStr, TxErrors.CERTIFICATE_POOL_INVALID_COST);
 
-  const marginNumerator = utils.safe_parseInt(params.margin.numeratorStr);
-  Precondition.checkIsUint64(marginNumerator, TxErrors.CERTIFICATE_POOL_INVALID_MARGIN);
-  const marginDenominator = utils.safe_parseInt(params.margin.denominatorStr);
-  Precondition.checkIsUint64(marginDenominator, TxErrors.CERTIFICATE_POOL_INVALID_MARGIN);
-  Precondition.check(marginNumerator >= 0, TxErrors.CERTIFICATE_POOL_INVALID_MARGIN);
-  Precondition.check(marginDenominator > 0, TxErrors.CERTIFICATE_POOL_INVALID_MARGIN);
-  Precondition.check(marginNumerator <= marginDenominator, TxErrors.CERTIFICATE_POOL_INVALID_MARGIN);
+  const marginNumeratorStr = params.margin.numeratorStr;
+  const marginDenominatorStr = params.margin.denominatorStr;
+  Precondition.checkIsUint64Str(marginNumeratorStr, TxErrors.CERTIFICATE_POOL_INVALID_MARGIN);
+  Precondition.checkIsValidPoolMarginDenominator(marginDenominatorStr, TxErrors.CERTIFICATE_POOL_INVALID_MARGIN_DENOMINATOR);
+  // given both are valid uint strings, the check below is equivalent to "marginNumerator <= marginDenominator"
+  Precondition.checkIsValidUintStr(marginNumeratorStr, marginDenominatorStr, TxErrors.CERTIFICATE_POOL_INVALID_MARGIN);
 
   Precondition.checkIsHexString(params.rewardAccountHex, TxErrors.CERTIFICATE_POOL_INVALID_REWARD_ACCOUNT);
   Precondition.check(params.rewardAccountHex.length === 29 * 2, TxErrors.CERTIFICATE_POOL_INVALID_REWARD_ACCOUNT);

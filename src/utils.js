@@ -15,8 +15,10 @@ const BECH32_ALPHABET =
 // We use bs10 as an easy way to parse/encode amount strings
 const bs10 = basex("0123456789");
 
+const MAX_UINT_64_STR = "18446744073709551615"
 // Max supply in lovelace
 const MAX_LOVELACE_SUPPLY_STR = ["45", "000", "000", "000", "000000"].join("");
+const POOL_MARGIN_DENOMINATOR_MAX_STR = ["1", "000", "000", "000", "000", "000000"].join("")
 
 const TESTNET_NETWORK_ID = 0x00
 
@@ -43,11 +45,6 @@ export const Precondition = {
   },
 
   // Extended checks
-  checkIsUint64: (data: any, msg: ?string = null) => {
-    Precondition.checkIsInteger(data, msg);
-    Precondition.check(data >= 0, msg);
-    Precondition.check(data <= 18446744073709551615, msg);
-  },
   checkIsUint32: (data: any, msg: ?string = null) => {
     Precondition.checkIsInteger(data, msg);
     Precondition.check(data >= 0, msg);
@@ -75,20 +72,34 @@ export const Precondition = {
       Precondition.checkIsUint32(x, msg);
     }
   },
+  checkIsUint64Str: (data: any, msg: ?string = null) => {
+    Precondition.checkIsValidUintStr(data, MAX_UINT_64_STR, msg);
+  },
+  checkIsPositiveUint64Str: (data: string, msg: ?string = null) => {
+    Precondition.checkIsUint64Str(data, msg);
+    Precondition.check(data !== "0", msg);
+  },
   checkIsValidAdaAmount: (amount: string, msg: ?string = null) => {
-    Precondition.checkIsString(amount, msg);
-    Precondition.check(/^[0-9]*$/.test(amount), msg);
+    Precondition.checkIsValidUintStr(amount, MAX_LOVELACE_SUPPLY_STR, msg);
+  },
+  checkIsValidPoolMarginDenominator: (data: string, msg: ?string = null) => {
+    Precondition.checkIsValidUintStr(data, POOL_MARGIN_DENOMINATOR_MAX_STR, msg);
+    Precondition.check(data !== "0", msg);
+  },
+  checkIsValidUintStr (data: any, maxValue: string, msg: ?string = null) {
+    Precondition.checkIsString(data, msg);
+    Precondition.check(/^[0-9]*$/.test(data), msg);
     // Length checks
-    Precondition.check(amount.length > 0, msg);
-    Precondition.check(amount.length <= MAX_LOVELACE_SUPPLY_STR.length, msg);
+    Precondition.check(data.length > 0, msg);
+    Precondition.check(data.length <= maxValue.length, msg);
     // Leading zeros
-    if (amount.length > 1) {
-      Precondition.check(amount[0] != "0", msg);
+    if (data.length > 1) {
+      Precondition.check(data[0] != "0", msg);
     }
-    // less than max supply
-    if (amount.length === MAX_LOVELACE_SUPPLY_STR.length) {
+    // less or equal than max value
+    if (data.length === maxValue.length) {
       // Note: this is string comparison!
-      Precondition.check(amount <= MAX_LOVELACE_SUPPLY_STR, msg);
+      Precondition.check(data <= maxValue, msg);
     }
   },
   checkIsValidBase58: (data: string, msg: ?string = null) => {
@@ -150,8 +161,7 @@ export function buf_to_uint32(data: Buffer): number {
 }
 
 export function uint64_to_buf(value: string): Buffer {
-  const i = safe_parseInt(value);
-  Precondition.checkIsUint64(i, "invalid uint64 value");
+  Precondition.checkIsUint64Str(value, "invalid uint64 value");
 
   const data = bs10.decode(value);
   Assert.assert(data.length <= 8, "excessive data");
@@ -344,8 +354,6 @@ export default {
   path_to_buf,
 
   str_to_path,
-
-  safe_parseInt,
 
   ada_amount_to_buf,
   buf_to_amount,
