@@ -1,6 +1,5 @@
-import utils, { Precondition, Assert } from "./utils";
-import { TxOutput, TxOutputTypeCodes, PoolParams, PoolOwnerParams, SingleHostIPRelay, SingleHostNameRelay, MultiHostNameRelay, PoolMetadataParams } from './Ada';
-import { hex_to_buf } from "../lib/utils";
+import utils, { Precondition, Assert, hex_to_buf } from "./utils";
+import { TxOutput, TxOutputTypeCodes, PoolRegistrationParams, PoolOwnerParams, SingleHostIPRelay, SingleHostNameRelay, MultiHostNameRelay, PoolMetadataParams } from './Ada';
 
 const HARDENED = 0x80000000;
 
@@ -71,15 +70,20 @@ export const TxErrors = {
 
   CERTIFICATES_NOT_ARRAY: "certificates not an array",
   CERTIFICATES_COMBINATION_FORBIDDEN: "pool registration must not be combined with other certificates",
+  CERTIFICATES_MULTIPLE_POOL_REGISTRATIONS: "pool registrations must not be combined",
+  CERTIFICATE_INVALID: "invalid certificate",
   CERTIFICATE_MISSING_PATH: "path is required for one of the certificates",
   CERTIFICATE_SUPERFLUOUS_PATH: "superfluous path in a certificate",
   CERTIFICATE_MISSING_POOL_KEY_HASH: "pool key hash missing in a certificate",
-  CERTIFICATE_SUPERFLUOUS_POOL_KEY_HASH: "superfluous pool key hash in a certificate",
   CERTIFICATE_INVALID_POOL_KEY_HASH: "invalid pool key hash in a certificate",
-  CERTIFICATE_INVALID: "invalid certificate",
+  CERTIFICATE_SUPERFLUOUS_POOL_KEY_HASH: "superfluous pool key hash in a certificate",
+  CERTIFICATE_SUPERFLUOUS_POOL_REGISTRATION_PARAMS: "superfluous pool registration params in a certificate",
+  CERTIFICATE_SUPERFLUOUS_POOL_RETIREMENT_PARAMS: "superfluous pool retirement params in a certificate",
+  CERTIFICATE_MISSING_POOL_RETIREMENT_PARAMS: "missing stake pool retirement params in a certificate",
+  CERTIFICATE_INVALID_POOL_RETIREMENT_PARAMS: "invalid pool retirement params in a certificate",
 
   CERTIFICATE_POOL_MISSING_POOL_PARAMS: "missing stake pool params in a pool registration certificate",
-  CERTIFICATE_POOL_INVALID_POOL_KEY_HASH: "invalid pool key hash in a pool registration certificate",
+  CERTIFICATE_POOL_INVALID_POOL_KEY: "invalid pool key in a pool registration certificate",
   CERTIFICATE_POOL_INVALID_VRF_KEY_HASH: "invalid vrf key hash in a pool registration certificate",
   CERTIFICATE_POOL_INVALID_PLEDGE: "invalid pledge in a pool registration certificate",
   CERTIFICATE_POOL_INVALID_COST: "invalid cost in a pool registration certificate",
@@ -88,7 +92,8 @@ export const TxErrors = {
   CERTIFICATE_POOL_INVALID_REWARD_ACCOUNT: "invalid reward account in a pool registration certificate",
   CERTIFICATE_POOL_OWNERS_NOT_ARRAY: "owners not an array in a pool registration certificate",
   CERTIFICATE_POOL_OWNERS_TOO_MANY: "too many owners in a pool registration certificate",
-  CERTIFICATE_POOL_OWNERS_SINGLE_PATH: "there should be exactly one owner given by path in a pool registration certificate",
+  CERTIFICATE_POOL_OWNERS_SINGLE_PATH_OWNER: "there should be exactly one owner given by path in a pool registration certificate signed by owner",
+  CERTIFICATE_POOL_OWNERS_SINGLE_PATH_OPERATOR: "there should be at most one owner given by path in a pool registration certificate signed by pool operator",
   CERTIFICATE_POOL_OWNER_INCOMPLETE: "incomplete owner params in a pool registration certificate",
   CERTIFICATE_POOL_OWNER_INVALID_PATH: "invalid owner path in a pool registration certificate",
   CERTIFICATE_POOL_OWNER_INVALID_KEY_HASH: "invalid owner key hash in a pool registration certificate",
@@ -111,47 +116,98 @@ export const TxErrors = {
   VALIDITY_INTERVAL_START_INVALID: "invalid validity interval start",
 }
 
+export const SignTxUsecases = Object.freeze({
+	SIGN_TX_USECASE_ORDINARY_TX: 3,
+	SIGN_TX_USECASE_POOL_REGISTRATION_OWNER: 4,
+	SIGN_TX_USECASE_POOL_REGISTRATION_OPERATOR: 5,
+});
+
+export const DataDescriptionKind = Object.freeze({
+	DATA_DESCRIPTION_PATH: 1,
+	DATA_DESCRIPTION_HASH: 2,
+});
+
+function getFirstPoolRegistrationCertificate(certificates: Array<Certificate>): ?Certificate {
+  return certificates.find(
+    cert => cert.type === CertificateTypes.STAKE_POOL_REGISTRATION
+  );
+}
+
+export function determineUsecase(certificates: Array<Certificate>) {
+  const poolRegistrationCert = getFirstPoolRegistrationCertificate(certificates);
+
+  // for owner/operator signatures, we determine usecase
+  // from the first pool registration certificate
+  // (there is supposed to be only one, validated elsewhere)
+  if (poolRegistrationCert) {
+    const poolParams = poolRegistrationCert.poolRegistrationParams;
+    Precondition.check(poolParams, TxErrors.CERTIFICATE_POOL_MISSING_POOL_PARAMS);
+    Precondition.check(poolParams.poolKey, TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY);
+
+    if (poolParams.poolKey.path) {
+      return SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OPERATOR;
+    } else {
+      return SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OWNER;
+    }
+  }
+
+  return SignTxUsecases.SIGN_TX_USECASE_ORDINARY_TX;
+}
 
 function validateCertificates(
-  certificates: Array<Certificate>
+  certificates: Array<Certificate>, usecase: $Values<typeof SignTxUsecases>
 )
 {
   Precondition.checkIsArray(certificates, TxErrors.CERTIFICATES_NOT_ARRAY);
-  const isSigningPoolRegistrationAsOwner = certificates.some(
-    cert => cert.type === CertificateTypes.STAKE_POOL_REGISTRATION
-  );
 
+  // this loop validates individual certificates
+  // and makes sure that the included certificates correspond to the usecase
   for (const cert of certificates) {
     if (!cert) throw new Error(TxErrors.CERTIFICATE_INVALID);
 
     switch (cert.type) {
-      case CertificateTypes.STAKE_REGISTRATION: {
-        Precondition.check(!isSigningPoolRegistrationAsOwner, TxErrors.CERTIFICATES_COMBINATION_FORBIDDEN);
-        Precondition.checkIsValidPath(cert.path, TxErrors.CERTIFICATE_MISSING_PATH);
-        Precondition.check(!cert.poolKeyHashHex, TxErrors.CERTIFICATE_SUPERFLUOUS_POOL_KEY_HASH);
-        break;
-      }
+      case CertificateTypes.STAKE_REGISTRATION:
       case CertificateTypes.STAKE_DEREGISTRATION: {
-        Precondition.check(!isSigningPoolRegistrationAsOwner, TxErrors.CERTIFICATES_COMBINATION_FORBIDDEN);
+        Precondition.check(usecase === SignTxUsecases.SIGN_TX_USECASE_ORDINARY_TX, TxErrors.CERTIFICATES_COMBINATION_FORBIDDEN);
         Precondition.checkIsValidPath(cert.path, TxErrors.CERTIFICATE_MISSING_PATH);
         Precondition.check(!cert.poolKeyHashHex, TxErrors.CERTIFICATE_SUPERFLUOUS_POOL_KEY_HASH);
+        Precondition.check(!cert.poolRegistrationParams, TxErrors.CERTIFICATE_SUPERFLUOUS_POOL_REGISTRATION_PARAMS);
+        Precondition.check(!cert.poolRetirementParams, TxErrors.CERTIFICATE_SUPERFLUOUS_POOL_RETIREMENT_PARAMS);
         break;
       }
       case CertificateTypes.STAKE_DELEGATION: {
-        Precondition.check(!isSigningPoolRegistrationAsOwner, TxErrors.CERTIFICATES_COMBINATION_FORBIDDEN);
+        Precondition.check(usecase === SignTxUsecases.SIGN_TX_USECASE_ORDINARY_TX, TxErrors.CERTIFICATES_COMBINATION_FORBIDDEN);
         Precondition.checkIsValidPath(cert.path, TxErrors.CERTIFICATE_MISSING_PATH);
         Precondition.checkIsHexString(cert.poolKeyHashHex, TxErrors.CERTIFICATE_MISSING_POOL_KEY_HASH);
         Precondition.check(cert.poolKeyHashHex.length == KEY_HASH_LENGTH * 2, TxErrors.CERTIFICATE_INVALID_POOL_KEY_HASH);
+        Precondition.check(!cert.poolRegistrationParams, TxErrors.CERTIFICATE_SUPERFLUOUS_POOL_REGISTRATION_PARAMS);
+        Precondition.check(!cert.poolRetirementParams, TxErrors.CERTIFICATE_SUPERFLUOUS_POOL_RETIREMENT_PARAMS);
+        break;
+      }
+      case CertificateTypes.STAKE_POOL_RETIREMENT: {
+        Precondition.check(usecase === SignTxUsecases.SIGN_TX_USECASE_ORDINARY_TX, TxErrors.CERTIFICATES_COMBINATION_FORBIDDEN);
+        Precondition.check(!cert.path, TxErrors.CERTIFICATE_SUPERFLUOUS_PATH);
+        Precondition.check(!cert.poolKeyHashHex, TxErrors.CERTIFICATE_SUPERFLUOUS_POOL_KEY_HASH);
+        Precondition.check(!cert.poolRegistrationParams, TxErrors.CERTIFICATE_SUPERFLUOUS_POOL_REGISTRATION_PARAMS);
+
+        Precondition.check(cert.poolRetirementParams, TxErrors.CERTIFICATE_MISSING_POOL_RETIREMENT_PARAMS);
+        Precondition.checkIsValidPath(cert.poolRetirementParams.poolKeyPath, TxErrors.CERTIFICATE_INVALID_POOL_RETIREMENT_PARAMS);
+        Precondition.checkIsUint64(cert.poolRetirementParams.retirementEpochStr, TxErrors.CERTIFICATE_INVALID_POOL_RETIREMENT_PARAMS);
         break;
       }
       case CertificateTypes.STAKE_POOL_REGISTRATION: {
-        Assert.assert(isSigningPoolRegistrationAsOwner);
+        Precondition.check(usecase !== SignTxUsecases.SIGN_TX_USECASE_ORDINARY_TX, TxErrors.CERTIFICATES_COMBINATION_FORBIDDEN);
         Precondition.check(!cert.path, TxErrors.CERTIFICATE_SUPERFLUOUS_PATH);
+        Precondition.check(!cert.poolKeyHashHex, TxErrors.CERTIFICATE_SUPERFLUOUS_POOL_KEY_HASH);
         const poolParams = cert.poolRegistrationParams;
-        Precondition.check(!!poolParams, TxErrors.CERTIFICATE_POOL_MISSING_POOL_PARAMS);
+        Precondition.check(poolParams, TxErrors.CERTIFICATE_POOL_MISSING_POOL_PARAMS);
 
-        // serialization succeeds if and only if params are valid
-        serializePoolInitialParams(poolParams);
+        // serialization succeeds if and only if the params are valid
+        serializePoolParamsInit(poolParams);
+        serializePoolParamsPoolKey(poolParams);
+        serializePoolParamsVrfKey(poolParams);
+        serializePoolParamsFinancials(poolParams);
+        serializePoolParamsRewardAccount(poolParams);
 
         // owners
         Precondition.checkIsArray(poolParams.poolOwners, TxErrors.CERTIFICATE_POOL_OWNERS_NOT_ARRAY);
@@ -159,19 +215,27 @@ function validateCertificates(
         for (const owner of poolParams.poolOwners) {
           if (owner.stakingPath) {
             numPathOwners++;
-            serializePoolOwnerParams(owner);
+            serializePoolParamsOwner(owner);
           }
         }
-        if (numPathOwners !== 1) throw new Error(TxErrors.CERTIFICATE_POOL_OWNERS_SINGLE_PATH);
+        switch (usecase) {
+          case SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OWNER:
+            Precondition.check(numPathOwners === 1, TxErrors.CERTIFICATE_POOL_OWNERS_SINGLE_PATH_OWNER);
+            break;
+
+          case SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OPERATOR:
+            Precondition.check(numPathOwners <= 1, TxErrors.CERTIFICATE_POOL_OWNERS_SINGLE_PATH_OPERATOR);
+            break;
+        }
 
         // relays
         Precondition.checkIsArray(poolParams.relays, TxErrors.CERTIFICATE_POOL_RELAYS_NOT_ARRAY);
         for (const relay of poolParams.relays) {
-          serializePoolRelayParams(relay);
+          serializePoolParamsRelay(relay);
         }
 
         // metadata
-        serializePoolMetadataParams(poolParams.metadata);
+        serializePoolParamsMetadata(poolParams.metadata);
 
         break;
       }
@@ -194,9 +258,7 @@ export function validateTransaction(
   validityIntervalStartStr: ?string
 ) {
   Precondition.checkIsArray(certificates, TxErrors.CERTIFICATES_NOT_ARRAY);
-  const isSigningPoolRegistrationAsOwner = certificates.some(
-    cert => cert.type === CertificateTypes.STAKE_POOL_REGISTRATION
-  );
+  const usecase = determineUsecase(certificates);
 
   // inputs
   Precondition.checkIsArray(inputs, TxErrors.INPUTS_NOT_ARRAY);
@@ -204,10 +266,12 @@ export function validateTransaction(
     Precondition.checkIsHexString(input.txHashHex, TxErrors.INPUT_INVALID_TX_HASH);
     Precondition.check(input.txHashHex.length === TX_HASH_LENGTH * 2, TxErrors.INPUT_INVALID_TX_HASH);
 
-    if (isSigningPoolRegistrationAsOwner) {
-      // input should not be given with a path
-      // the path is not used, but we check just to avoid potential confusion of developers using this
-      Precondition.check(!input.path, TxErrors.INPUT_WITH_PATH);
+    switch (usecase) {
+      case SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OWNER:
+        // input should not be given with a path
+        // the path is not used, but we check just to avoid potential confusion of developers using this
+        Precondition.check(!input.path, TxErrors.INPUT_WITH_PATH);
+        break;
     }
   }
 
@@ -218,7 +282,8 @@ export function validateTransaction(
     serializeOutputBasicParams(output, protocolMagic, networkId);
 
     if (output.spendingPath) {
-      Precondition.check(!isSigningPoolRegistrationAsOwner, TxErrors.OUTPUT_WITH_PATH);
+      // TODO perhaps use a switch?
+      Precondition.check(usecase !== SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OWNER, TxErrors.OUTPUT_WITH_PATH);
     }
 
     if (output.tokenBundle) {
@@ -250,12 +315,14 @@ export function validateTransaction(
   }
 
   // certificates
-  validateCertificates(certificates);
+  validateCertificates(certificates, usecase);
 
   // withdrawals
   Precondition.checkIsArray(withdrawals, TxErrors.WITHDRAWALS_NOT_ARRAY);
-  if (isSigningPoolRegistrationAsOwner && withdrawals.length > 0) {
-    throw new Error(TxErrors.WITHDRAWALS_FORBIDDEN);
+  switch (usecase) {
+    case SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OWNER:
+      Precondition.check(withdrawals.length === 0, TxErrors.WITHDRAWALS_FORBIDDEN);
+      break;
   }
   for (const withdrawal of withdrawals) {
     Precondition.checkIsValidAdaAmount(withdrawal.amountStr);
@@ -283,10 +350,7 @@ export function collectWitnessPaths(
   certificates: Array<Certificate>,
   withdrawals: Array<Withdrawal>
 ): Array<BIP32Path> {
-  Precondition.checkIsArray(certificates, TxErrors.CERTIFICATES_NOT_ARRAY);
-  const isSigningPoolRegistrationAsOwner = certificates.some(
-    cert => cert.type === CertificateTypes.STAKE_POOL_REGISTRATION
-  );
+  const usecase = determineUsecase(certificates);
 
   let numPoolRegistrationCerts = 0;
   const ordinaryWitnesses = [];
@@ -329,17 +393,27 @@ export function collectWitnessPaths(
     }
   }
 
-  if (isSigningPoolRegistrationAsOwner) {
-    Precondition.check(numPoolRegistrationCerts === 1, TxErrors.CERTIFICATES_MULTIPLE_POOL_REGISTRATIONS);
-    Precondition.check(ordinaryWitnesses.length === 0); // inputs should be given without witnesses
-    Assert.assert(poolOwnerWitnesses.length === 1);
-    Assert.assert(poolOperatorWitnesses.length === 0);
-  } else {
-    // ordinary tx
-    Assert.assert(numPoolRegistrationCerts === 0);
-    Assert.assert(ordinaryWitnesses.length === inputs.length + withdrawals.length + certificates.length);
-    Assert.assert(poolOwnerWitnesses.length === 0);
-    Assert.assert(poolOperatorWitnesses.length === 0);
+  switch (usecase) {
+    case SignTxUsecases.SIGN_TX_USECASE_ORDINARY_TX:
+      Assert.assert(numPoolRegistrationCerts === 0);
+      Assert.assert(ordinaryWitnesses.length === inputs.length + withdrawals.length + certificates.length);
+      Assert.assert(poolOwnerWitnesses.length === 0);
+      Assert.assert(poolOperatorWitnesses.length === 0);
+      break;
+
+    case SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OWNER:
+      Precondition.check(numPoolRegistrationCerts === 1, TxErrors.CERTIFICATES_MULTIPLE_POOL_REGISTRATIONS);
+      Precondition.check(ordinaryWitnesses.length === 0); // inputs should be given without witnesses
+      Assert.assert(poolOwnerWitnesses.length === 1);
+      Assert.assert(poolOperatorWitnesses.length === 0);
+      break;
+
+    case SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OPERATOR:
+      Precondition.check(numPoolRegistrationCerts === 1, TxErrors.CERTIFICATES_MULTIPLE_POOL_REGISTRATIONS);
+      Assert.assert(ordinaryWitnesses.length === inputs.length + withdrawals.length + certificates.length);
+      Assert.assert(poolOwnerWitnesses.length <= 1);
+      Assert.assert(poolOperatorWitnesses.length === 1);
+      break;
   }
 
   // each path is included only once
@@ -512,15 +586,55 @@ export function serializeOutputBasicParamsBefore_2_2(
   }
 }
 
-export function serializePoolInitialParams(
-  params: PoolParams
+export function serializePoolParamsInit(
+  params: PoolRegistrationParams
 ): Buffer {
-  Precondition.checkIsHexString(params.poolKeyHashHex, TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY_HASH);
-  Precondition.check(params.poolKeyHashHex.length === KEY_HASH_LENGTH * 2, TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY_HASH);
+  Precondition.check(params.poolOwners.length <= POOL_REGISTRATION_OWNERS_MAX, TxErrors.CERTIFICATE_POOL_OWNERS_TOO_MANY);
+  Precondition.check(params.relays.length <= POOL_REGISTRATION_RELAYS_MAX, TxErrors.CERTIFICATE_POOL_RELAYS_TOO_MANY);
 
+  return Buffer.concat([
+    utils.uint32_to_buf(params.poolOwners.length),
+    utils.uint32_to_buf(params.relays.length)
+  ]);
+}
+
+export function serializePoolParamsPoolKey(
+  params: PoolRegistrationParams
+): Buffer {
+  const poolKey = params.poolKey;
+  Precondition.check(poolKey, TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY);
+
+  if (poolKey.path) {
+    Precondition.check(!poolKey.keyHashHex); // only one of the two should be given
+    Precondition.checkIsValidPath(poolKey.path);
+    return Buffer.concat([
+      utils.uint8_to_buf(DataDescriptionKind.DATA_DESCRIPTION_PATH),
+      utils.path_to_buf(poolKey.path)
+    ]);
+  } else if (poolKey.keyHashHex) {
+    Precondition.checkIsHexString(poolKey.keyHashHex, TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY);
+    Precondition.check(poolKey.keyHashHex.length === KEY_HASH_LENGTH * 2, TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY);
+    return Buffer.concat([
+      utils.uint8_to_buf(DataDescriptionKind.DATA_DESCRIPTION_HASH),
+      utils.hex_to_buf(poolKey.keyHashHex)
+    ]);
+  } else {
+    throw new Error(TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY);
+  }
+}
+
+export function serializePoolParamsVrfKey(
+  params: PoolRegistrationParams
+): Buffer {
   Precondition.checkIsHexString(params.vrfKeyHashHex, TxErrors.CERTIFICATE_POOL_INVALID_VRF_KEY_HASH);
   Precondition.check(params.vrfKeyHashHex.length === 32 * 2, TxErrors.CERTIFICATE_POOL_INVALID_VRF_KEY_HASH);
 
+  return utils.hex_to_buf(params.vrfKeyHashHex);
+}
+
+export function serializePoolParamsFinancials(
+  params: PoolRegistrationParams
+): Buffer {
   Precondition.checkIsValidAdaAmount(params.pledgeStr, TxErrors.CERTIFICATE_POOL_INVALID_PLEDGE);
   Precondition.checkIsValidAdaAmount(params.costStr, TxErrors.CERTIFICATE_POOL_INVALID_COST);
 
@@ -531,57 +645,55 @@ export function serializePoolInitialParams(
   // given both are valid uint strings, the check below is equivalent to "marginNumerator <= marginDenominator"
   Precondition.checkIsValidUintStr(marginNumeratorStr, marginDenominatorStr, TxErrors.CERTIFICATE_POOL_INVALID_MARGIN);
 
-  Precondition.checkIsHexString(params.rewardAccountHex, TxErrors.CERTIFICATE_POOL_INVALID_REWARD_ACCOUNT);
-  Precondition.check(params.rewardAccountHex.length === 29 * 2, TxErrors.CERTIFICATE_POOL_INVALID_REWARD_ACCOUNT);
-
-  Precondition.check(params.poolOwners.length <= POOL_REGISTRATION_OWNERS_MAX, TxErrors.CERTIFICATE_POOL_OWNERS_TOO_MANY);
-  Precondition.check(params.relays.length <= POOL_REGISTRATION_RELAYS_MAX, TxErrors.CERTIFICATE_POOL_RELAYS_TOO_MANY);
-
   return Buffer.concat([
-    utils.hex_to_buf(params.poolKeyHashHex),
-    utils.hex_to_buf(params.vrfKeyHashHex),
     utils.ada_amount_to_buf(params.pledgeStr),
     utils.ada_amount_to_buf(params.costStr),
     utils.uint64_to_buf(params.margin.numeratorStr),
     utils.uint64_to_buf(params.margin.denominatorStr),
-    utils.hex_to_buf(params.rewardAccountHex),
-    utils.uint32_to_buf(params.poolOwners.length),
-    utils.uint32_to_buf(params.relays.length)
   ]);
 }
 
-export function serializePoolOwnerParams(
+export function serializePoolParamsRewardAccount(
+  params: PoolRegistrationParams
+): Buffer {
+  Precondition.checkIsHexString(params.rewardAccountHex, TxErrors.CERTIFICATE_POOL_INVALID_REWARD_ACCOUNT);
+  Precondition.check(params.rewardAccountHex.length === 29 * 2, TxErrors.CERTIFICATE_POOL_INVALID_REWARD_ACCOUNT);
+
+  return Buffer.concat([
+    utils.uint8_to_buf(DataDescriptionKind.DATA_DESCRIPTION_HASH),
+    utils.hex_to_buf(params.rewardAccountHex)
+  ]);
+}
+
+export function serializePoolParamsOwner(
   params: PoolOwnerParams
 ): Buffer {
-  const SIGN_TX_POOL_OWNER_TYPE_PATH = 1;
-  const SIGN_TX_POOL_OWNER_TYPE_KEY_HASH = 2;
-
   const path = params.stakingPath;
   const hashHex = params.stakingKeyHashHex;
 
   if (path) {
     Precondition.checkIsValidPath(path, TxErrors.CERTIFICATE_POOL_OWNER_INVALID_PATH);
 
-    const pathBuf = utils.path_to_buf(path);
-    const typeBuf = Buffer.alloc(1);
-    typeBuf.writeUInt8(SIGN_TX_POOL_OWNER_TYPE_PATH);
-    return Buffer.concat([typeBuf, pathBuf]);
+    return Buffer.concat([
+      utils.uint8_to_buf(DataDescriptionKind.DATA_DESCRIPTION_PATH),
+      utils.path_to_buf(path)
+    ]);
   }
 
   if (hashHex) {
     Precondition.checkIsHexString(hashHex, TxErrors.CERTIFICATE_POOL_OWNER_INVALID_KEY_HASH);
     Precondition.check(hashHex.length === KEY_HASH_LENGTH * 2, TxErrors.CERTIFICATE_POOL_OWNER_INVALID_KEY_HASH);
 
-    const hashBuf = utils.hex_to_buf(hashHex);
-    const typeBuf = Buffer.alloc(1);
-    typeBuf.writeUInt8(SIGN_TX_POOL_OWNER_TYPE_KEY_HASH);
-    return Buffer.concat([typeBuf, hashBuf]);
+    return Buffer.concat([
+      utils.uint8_to_buf(DataDescriptionKind.DATA_DESCRIPTION_HASH),
+      utils.hex_to_buf(hashHex)
+    ]);
   }
 
   throw new Error(TxErrors.CERTIFICATE_POOL_OWNER_INCOMPLETE);
 }
 
-export function serializePoolRelayParams(
+export function serializePoolParamsRelay(
   relayParams: RelayParams
 ): Buffer {
   const type = relayParams.type;
@@ -664,7 +776,7 @@ export function serializePoolRelayParams(
   throw new Error(TxErrors.CERTIFICATE_POOL_RELAY_INVALID_TYPE);
 }
 
-export function serializePoolMetadataParams(
+export function serializePoolParamsMetadata(
   params: PoolMetadataParams
 ): Buffer {
 
@@ -714,6 +826,7 @@ export default {
 
   serializeGetExtendedPublicKeyParams,
 
+  determineUsecase,
   collectWitnessPaths,
   validateTransaction,
 
@@ -721,8 +834,12 @@ export default {
   serializeOutputBasicParams,
   serializeOutputBasicParamsBefore_2_2,
 
-  serializePoolInitialParams,
-  serializePoolOwnerParams,
-  serializePoolRelayParams,
-  serializePoolMetadataParams
+  serializePoolParamsInit,
+  serializePoolParamsPoolKey,
+  serializePoolParamsVrfKey,
+  serializePoolParamsFinancials,
+  serializePoolParamsRewardAccount,
+  serializePoolParamsOwner,
+  serializePoolParamsRelay,
+  serializePoolParamsMetadata
 };

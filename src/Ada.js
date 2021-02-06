@@ -20,7 +20,7 @@ import type Transport from "@ledgerhq/hw-transport";
 import { TransportStatusError } from "@ledgerhq/hw-transport";
 
 import utils, { Precondition, Assert, invariant } from "./utils";
-import cardano, { CertificateTypes, AddressTypeNibbles, SignTxIncluded, TxErrors } from "./cardano";
+import cardano, { AddressTypeNibbles, CertificateTypes, SignTxIncluded, SignTxUsecases, TxErrors } from "./cardano";
 
 const CLA = 0xd7;
 
@@ -81,6 +81,11 @@ export type StakingBlockchainPointer = {|
   certificateIndex: number
 |}
 
+export type PoolKeyParams = {|
+  keyHashHex: string,
+  path: BIP32Path
+|}
+
 export type PoolOwnerParams = {|
   stakingPath: ?BIP32Path,
   stakingKeyHashHex: ?string
@@ -116,8 +121,8 @@ export type Margin = {|
   denominatorStr: string,
 |}
 
-export type PoolParams = {|
-  poolKeyHashHex: string,
+export type PoolRegistrationParams = {|
+  poolKey: PoolKeyParams, // i.e. cold key
   vrfKeyHashHex: string,
   pledgeStr: string,
   costStr: string,
@@ -128,11 +133,17 @@ export type PoolParams = {|
   metadata: PoolMetadataParams
 |};
 
+export type PoolRetirementParams = {|
+  poolKeyPath: BIP32Path, // i.e. cold key
+  retirementEpochStr: string
+|};
+
 export type Certificate = {|
   type: $Values<typeof CertificateTypes>,
-  path: BIP32Path,
+  path: ?BIP32Path,
   poolKeyHashHex: ?string,
-  poolRegistrationParams: ?PoolParams
+  poolRegistrationParams: ?PoolRegistrationParams,
+  poolRetirementParams: ?PoolRetirementParams
 |};
 
 export type Withdrawal = {|
@@ -585,12 +596,11 @@ export default class Ada {
 
     // pool registrations are quite restricted
     // this affects witness set construction and many validations
-    const isSigningPoolRegistrationAsOwner = certificates.some(
-      cert => cert.type === CertificateTypes.STAKE_POOL_REGISTRATION
-    );
+    const usecase = cardano.determineUsecase(certificates);
 
+    // TODO update
     const appHasStakePoolOwnerSupport = await this._isLedgerAppVersionAtLeast(2, 1);
-    if (isSigningPoolRegistrationAsOwner && !appHasStakePoolOwnerSupport) {
+    if (usecase !== SignTxUsecases.SIGN_TX_USECASE_ORDINARY_TX && !appHasStakePoolOwnerSupport) {
       throw Error(Errors.INCORRECT_APP_VERSION);
     }
 
@@ -647,7 +657,8 @@ export default class Ada {
       numWitnesses: number
     ): Promise<void> => {
 
-      const _serializePoolRegistrationCode = (isSigningPoolRegistrationAsOwner: boolean): Buffer => {
+      // TODO let's get rid of this legacy support
+      const _serializeUsecase = (usecase: number): Buffer => {
         // backwards compatible way of serializing the flag to signalize pool registration
         // transactions.
         // TODO To be removed/refactored once Ledger app 2.1 or later is rolled out
@@ -655,11 +666,7 @@ export default class Ada {
           return Buffer.from([])
         }
 
-        return utils.uint8_to_buf(
-          isSigningPoolRegistrationAsOwner
-          ? PoolRegistrationCodes.SIGN_TX_POOL_REGISTRATION_YES
-          : PoolRegistrationCodes.SIGN_TX_POOL_REGISTRATION_NO
-        )
+        return utils.uint8_to_buf(usecase);
       };
 
       const _serializeIncludeInTxData = (hasMultiassetSupport: boolean): Buffer => {
@@ -697,7 +704,7 @@ export default class Ada {
         utils.uint8_to_buf(networkId),
         utils.uint32_to_buf(protocolMagic),
         _serializeIncludeInTxData(appHasMultiassetSupport),
-        _serializePoolRegistrationCode(isSigningPoolRegistrationAsOwner),
+        _serializeUsecase(usecase),
         utils.uint32_to_buf(numInputs),
         utils.uint32_to_buf(numOutputs),
         utils.uint32_to_buf(numCertificates),
@@ -777,7 +784,8 @@ export default class Ada {
       type: $Values<typeof CertificateTypes>,
       path: ?BIP32Path,
       poolKeyHashHex: ?string,
-      poolParams: ?PoolParams
+      poolRegistrationParams: ?PoolRegistrationParams,
+      poolRetirementParams: ?PoolRetirementParams
     ): Promise<void> => {
       const dataFields = [
         utils.uint8_to_buf(type),
@@ -789,10 +797,18 @@ export default class Ada {
       case CertificateTypes.STAKE_DELEGATION: {
         if (path != null)
           dataFields.push(utils.path_to_buf(path));
+        if (poolKeyHashHex)
+          dataFields.push(utils.hex_to_buf(poolKeyHashHex));
+        break;
+      }
+      case CertificateTypes.STAKE_POOL_RETIREMENT: {
+        invariant(poolRetirementParams != null);
+        dataFields.push(utils.path_to_buf(poolRetirementParams.poolKeyPath));
+        dataFields.push(utils.ada_amount_to_buf(poolRetirementParams.retirementEpochStr));
         break;
       }
       case CertificateTypes.STAKE_POOL_REGISTRATION: {
-        Assert.assert(isSigningPoolRegistrationAsOwner, "tx certificates validation messed up");
+        Assert.assert(usecase !== SignTxUsecases.SIGN_TX_USECASE_ORDINARY_TX, "tx certificates validation messed up");
         // OK, data are serialized and sent later in additional APDUs
         break;
       }
@@ -801,47 +817,75 @@ export default class Ada {
         Assert.assert(false, "invalid certificate type");
       }
 
-      if (poolKeyHashHex != null) {
-        dataFields.push(utils.hex_to_buf(poolKeyHashHex));
-      }
-
       const data = Buffer.concat(dataFields);
       await _send(P1_STAGE_CERTIFICATES, P2_UNUSED, data, 0);
 
       // we are done for every certificate except pool registration
 
       if (type === CertificateTypes.STAKE_POOL_REGISTRATION) {
-        invariant(poolParams != null);
+        invariant(poolRegistrationParams != null);
 
         // additional data for pool certificate
         const APDU_INSTRUCTIONS = {
-          POOL_PARAMS: 0x30,
-          OWNERS: 0x31,
-          RELAYS: 0x32,
-          METADATA: 0x33,
-          CONFIRMATION: 0x34
+          INIT: 0x30,
+          POOL_KEY: 0x31,
+          VRF_KEY: 0x32,
+          FINANCIALS: 0x33,
+          REWARD_ACCOUNT: 0x34,
+          OWNERS: 0x35,
+          RELAYS: 0x36,
+          METADATA: 0x37,
+          CONFIRMATION: 0x38
         };
 
         await _send(
           P1_STAGE_CERTIFICATES,
-          APDU_INSTRUCTIONS.POOL_PARAMS,
-          cardano.serializePoolInitialParams(poolParams),
+          APDU_INSTRUCTIONS.INIT,
+          cardano.serializePoolParamsInit(poolRegistrationParams),
           0
         );
 
-        for (const owner of poolParams.poolOwners) {
+        await _send(
+          P1_STAGE_CERTIFICATES,
+          APDU_INSTRUCTIONS.POOL_KEY,
+          cardano.serializePoolParamsPoolKey(poolRegistrationParams),
+          0
+        );
+
+        await _send(
+          P1_STAGE_CERTIFICATES,
+          APDU_INSTRUCTIONS.VRF_KEY,
+          cardano.serializePoolParamsVrfKey(poolRegistrationParams),
+          0
+        );
+
+        await _send(
+          P1_STAGE_CERTIFICATES,
+          APDU_INSTRUCTIONS.FINANCIALS,
+          cardano.serializePoolParamsFinancials(poolRegistrationParams),
+          0
+        );
+
+        await _send(
+          P1_STAGE_CERTIFICATES,
+          APDU_INSTRUCTIONS.REWARD_ACCOUNT,
+          cardano.serializePoolParamsRewardAccount(poolRegistrationParams),
+          0
+        );
+
+        for (const owner of poolRegistrationParams.poolOwners) {
           await _send(
             P1_STAGE_CERTIFICATES,
             APDU_INSTRUCTIONS.OWNERS,
-            cardano.serializePoolOwnerParams(owner),
+            cardano.serializePoolParamsOwner(owner),
             0
           );
         }
-        for (const relay of poolParams.relays) {
+        for (const relay of poolRegistrationParams.relays) {
           await _send(
             P1_STAGE_CERTIFICATES,
             APDU_INSTRUCTIONS.RELAYS,
-            cardano.serializePoolRelayParams(relay),
+            cardano.serializePoolParamsRelay(relay),
             0
           );
         }
@@ -849,7 +893,7 @@ export default class Ada {
         await _send(
           P1_STAGE_CERTIFICATES,
           APDU_INSTRUCTIONS.METADATA,
-          cardano.serializePoolMetadataParams(poolParams.metadata),
+          cardano.serializePoolParamsMetadata(poolRegistrationParams.metadata),
           0
         );
 
@@ -996,7 +1040,8 @@ export default class Ada {
           certificate.type,
           certificate.path,
           certificate.poolKeyHashHex,
-          certificate.poolRegistrationParams
+          certificate.poolRegistrationParams,
+          certificate.poolRetirementParams
         )
       }
     }

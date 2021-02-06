@@ -203,7 +203,7 @@ describe("signTxPoolRegistrationReject", async () => {
       );
     }
 
-    const errMsg = TxErrors.CERTIFICATE_POOL_OWNERS_SINGLE_PATH;
+    const errMsg = TxErrors.CERTIFICATE_POOL_OWNERS_SINGLE_PATH_OWNER;
     // after removing js validation, this should pass instead:
     // const errMsg = getErrorDescription(parseInt(ERRORS.INVALID_DATA));
     await checkThrows(f, errMsg);
@@ -227,7 +227,7 @@ describe("signTxPoolRegistrationReject", async () => {
       );
     }
 
-    await checkThrows(f, TxErrors.CERTIFICATE_POOL_OWNERS_SINGLE_PATH);
+    await checkThrows(f, TxErrors.CERTIFICATE_POOL_OWNERS_SINGLE_PATH_OWNER);
   });
 
   it("Should reject pool registration with no owners", async () => {
@@ -248,7 +248,7 @@ describe("signTxPoolRegistrationReject", async () => {
       );
     }
 
-    await checkThrows(f, TxErrors.CERTIFICATE_POOL_OWNERS_SINGLE_PATH);
+    await checkThrows(f, TxErrors.CERTIFICATE_POOL_OWNERS_SINGLE_PATH_OWNER);
   });
 
   it("Should reject pool registration with invalid metadata url", async () => {

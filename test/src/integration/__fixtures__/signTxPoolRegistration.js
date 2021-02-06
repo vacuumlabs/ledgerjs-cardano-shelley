@@ -178,7 +178,9 @@ const relayVariationSet = {
 const defaultPoolRegistration = {
   type: 3,
   poolRegistrationParams: {
-    poolKeyHashHex: "13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad",
+    poolKey: {
+      keyHashHex: "13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad",
+    },
     vrfKeyHashHex: "07821cd344d7fd7e3ae5f2ed863218cb979ff1d59e50c4276bdc479b0d084450",
     pledgeStr: "50000000000",
     costStr: "340000000",
