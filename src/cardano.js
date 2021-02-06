@@ -307,8 +307,16 @@ export function collectWitnessPaths(
         ordinaryWitnesses.push(cert.path);
         break;
 
+      case CertificateTypes.STAKE_POOL_RETIREMENT:
+        ordinaryWitnesses.push(cert.poolRetirementParams.poolKeyPath);
+        break;
+
       case CertificateTypes.STAKE_POOL_REGISTRATION:
         numPoolRegistrationCerts++;
+
+        const poolKeyPath = cert.poolRegistrationParams.poolKey.path;
+        if (poolKeyPath)
+          poolOperatorWitnesses.push(poolKeyPath);
 
         for (const owner of cert.poolRegistrationParams.poolOwners) {
           if (owner.stakingPath)
