@@ -13,15 +13,16 @@ export const AddressTypeNibbles = Object.freeze({
 });
 
 export const CertificateTypes = Object.freeze({
-	STAKE_REGISTRATION: 0,
-	STAKE_DEREGISTRATION: 1,
-	STAKE_DELEGATION: 2,
-	STAKE_POOL_REGISTRATION : 3
+  STAKE_REGISTRATION: 0,
+  STAKE_DEREGISTRATION: 1,
+  STAKE_DELEGATION: 2,
+  STAKE_POOL_REGISTRATION : 3,
+  STAKE_POOL_RETIREMENT: 4
 });
 
 export const SignTxIncluded = Object.freeze({
-	SIGN_TX_INCLUDED_NO: 1,
-	SIGN_TX_INCLUDED_YES: 2
+  SIGN_TX_INCLUDED_NO: 1,
+  SIGN_TX_INCLUDED_YES: 2
 });
 
 
@@ -271,6 +272,80 @@ export function validateTransaction(
   if (validityIntervalStartStr != null) {
     Precondition.checkIsPositiveUint64Str(validityIntervalStartStr, TxErrors.VALIDITY_INTERVAL_START_INVALID);
   }
+
+  // additional validation, dependent on usecase,
+  // is included in the witness calculation logic
+  collectWitnessPaths(inputs, certificates, withdrawals);
+}
+
+export function collectWitnessPaths(
+  inputs: Array<InputTypeUTxO>,
+  certificates: Array<Certificate>,
+  withdrawals: Array<Withdrawal>
+): Array<BIP32Path> {
+  Precondition.checkIsArray(certificates, TxErrors.CERTIFICATES_NOT_ARRAY);
+  const isSigningPoolRegistrationAsOwner = certificates.some(
+    cert => cert.type === CertificateTypes.STAKE_POOL_REGISTRATION
+  );
+
+  let numPoolRegistrationCerts = 0;
+  const ordinaryWitnesses = [];
+  const poolOwnerWitnesses = [];
+  const poolOperatorWitnesses = [];
+
+  for (const {path} of [...inputs, ...withdrawals]) {
+    if (path)
+      ordinaryWitnesses.push(path);
+  }
+
+  for (const cert of certificates) {
+    switch (cert.type) {
+
+      case CertificateTypes.STAKE_REGISTRATION:
+      case CertificateTypes.STAKE_DEREGISTRATION:
+      case CertificateTypes.STAKE_DELEGATION:
+        ordinaryWitnesses.push(cert.path);
+        break;
+
+      case CertificateTypes.STAKE_POOL_REGISTRATION:
+        numPoolRegistrationCerts++;
+
+        for (const owner of cert.poolRegistrationParams.poolOwners) {
+          if (owner.stakingPath)
+            poolOwnerWitnesses.push(owner.stakingPath)
+        }
+        break;
+
+      default:
+        throw new Error(TxErrors.CERTIFICATE_INVALID);
+    }
+  }
+
+  if (isSigningPoolRegistrationAsOwner) {
+    Precondition.check(numPoolRegistrationCerts === 1, TxErrors.CERTIFICATES_MULTIPLE_POOL_REGISTRATIONS);
+    Precondition.check(ordinaryWitnesses.length === 0); // inputs should be given without witnesses
+    Assert.assert(poolOwnerWitnesses.length === 1);
+    Assert.assert(poolOperatorWitnesses.length === 0);
+  } else {
+    // ordinary tx
+    Assert.assert(numPoolRegistrationCerts === 0);
+    Assert.assert(ordinaryWitnesses.length === inputs.length + withdrawals.length + certificates.length);
+    Assert.assert(poolOwnerWitnesses.length === 0);
+    Assert.assert(poolOperatorWitnesses.length === 0);
+  }
+
+  // each path is included only once
+  const witnessPaths = [];
+  const witnessPathsSet = new Set();
+  for (const path of [...ordinaryWitnesses, ...poolOwnerWitnesses, ...poolOperatorWitnesses]) {
+    const pathKey = JSON.stringify(path);
+    if (!witnessPathsSet.has(pathKey)) {
+      witnessPathsSet.add(pathKey);
+      witnessPaths.push(path);
+    }
+  }
+
+  return witnessPaths;
 }
 
 export function serializeAddressParams(
@@ -380,7 +455,7 @@ export function serializeOutputBasicParams(
     throw new Error(TxErrors.OUTPUT_UNKNOWN_TYPE);
   }
 
-  const numassetGroups =
+  const numAssetGroups =
       (output.tokenBundle) ?
       output.tokenBundle.length :
       0;
@@ -389,7 +464,7 @@ export function serializeOutputBasicParams(
     utils.uint8_to_buf(outputType),
     addressBuf,
     utils.ada_amount_to_buf(output.amountStr),
-    utils.uint32_to_buf(numassetGroups)
+    utils.uint32_to_buf(numAssetGroups)
   ]);
 }
 
@@ -631,6 +706,7 @@ export default {
 
   serializeGetExtendedPublicKeyParams,
 
+  collectWitnessPaths,
   validateTransaction,
 
   serializeAddressParams,

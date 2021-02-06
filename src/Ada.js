@@ -959,30 +959,7 @@ export default class Ada {
       };
     };
 
-    const witnessPaths = [];
-    if (isSigningPoolRegistrationAsOwner) {
-      // there should be exactly one owner given by path which will be used for the witness
-      Assert.assert(certificates.length == 1);
-      invariant(certificates[0].poolRegistrationParams != null);
-
-      const owners = certificates[0].poolRegistrationParams.poolOwners;
-      const witnessOwner = owners.find(owner => !!owner.stakingPath);
-      invariant(witnessOwner != null);
-
-      witnessPaths.push(witnessOwner.stakingPath);
-
-    } else {
-      // we collect required witnesses for inputs, certificates and withdrawals
-      // each path is included only once
-      const witnessPathsSet = new Set();
-      for (const {path} of [...inputs, ...certificates, ...withdrawals]) {
-        const pathKey = JSON.stringify(path);
-        if (!witnessPathsSet.has(pathKey)) {
-          witnessPathsSet.add(pathKey);
-          witnessPaths.push(path);
-        }
-      }
-    }
+    const witnessPaths = cardano.collectWitnessPaths(inputs, certificates, withdrawals);
 
     await signTx_init(
       networkId,
