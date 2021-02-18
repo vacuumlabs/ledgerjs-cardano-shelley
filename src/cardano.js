@@ -1,5 +1,24 @@
+// @flow
 import utils, { Precondition, Assert, hex_to_buf } from "./utils";
-import { TxOutput, TxOutputTypeCodes, PoolRegistrationParams, PoolOwnerParams, SingleHostIPRelay, SingleHostNameRelay, MultiHostNameRelay, PoolMetadataParams } from './Ada';
+import {
+  TxOutputTypeCodes,
+} from './Ada';
+import type {
+  BIP32Path,
+  InputTypeUTxO,
+  StakingBlockchainPointer,
+  TxOutput,
+  Certificate,
+  Withdrawal,
+  PoolRegistrationParams,
+  PoolOwnerParams,
+  RelayParams,
+  SingleHostIPRelay,
+  SingleHostNameRelay,
+  MultiHostNameRelay,
+  PoolMetadataParams,
+} from './Ada';
+
 
 const HARDENED = 0x80000000;
 
@@ -61,6 +80,7 @@ export const TxErrors = {
   OUTPUT_INVALID_ADDRESS: "invalid address in an output",
   OUTPUT_WITH_PATH: "outputs given by path are not allowed for stake pool registration transactions",
   OUTPUT_UNKNOWN_TYPE: "unknown output type",
+  OUTPUT_INVALID_ADDRESS_TYPE_NIBBLE: "invalid address type nibble",
   OUTPUT_INVALID_SPENDING_PATH: "invalid spending path in an output",
   OUTPUT_INVALID_BLOCKCHAIN_POINTER: "invalid blockchain pointer in an output",
   OUTPUT_INVALID_STAKING_KEY_PATH: "invalid staking key path in an output",
@@ -151,8 +171,8 @@ export function determineUsecase(certificates: Array<Certificate>) {
   // (there is supposed to be only one, validated elsewhere)
   if (poolRegistrationCert) {
     const poolParams = poolRegistrationCert.poolRegistrationParams;
-    Precondition.check(poolParams, TxErrors.CERTIFICATE_POOL_MISSING_POOL_PARAMS);
-    Precondition.check(poolParams.poolKey, TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY);
+    Precondition.check(!!poolParams, TxErrors.CERTIFICATE_POOL_MISSING_POOL_PARAMS);
+    Precondition.check(!!poolParams.poolKey, TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY);
 
     if (poolParams.poolKey.path) {
       return SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OPERATOR;
@@ -202,7 +222,7 @@ function validateCertificates(
 
         Precondition.check(cert.poolRetirementParams, TxErrors.CERTIFICATE_MISSING_POOL_RETIREMENT_PARAMS);
         Precondition.checkIsValidPath(cert.poolRetirementParams.poolKeyPath, TxErrors.CERTIFICATE_INVALID_POOL_RETIREMENT_PARAMS);
-        Precondition.checkIsUint64(cert.poolRetirementParams.retirementEpochStr, TxErrors.CERTIFICATE_INVALID_POOL_RETIREMENT_PARAMS);
+        Precondition.checkIsUint64Str(cert.poolRetirementParams.retirementEpochStr, TxErrors.CERTIFICATE_INVALID_POOL_RETIREMENT_PARAMS);
         break;
       }
       case CertificateTypes.STAKE_POOL_REGISTRATION: {
@@ -210,7 +230,7 @@ function validateCertificates(
         Precondition.check(!cert.path, TxErrors.CERTIFICATE_SUPERFLUOUS_PATH);
         Precondition.check(!cert.poolKeyHashHex, TxErrors.CERTIFICATE_SUPERFLUOUS_POOL_KEY_HASH);
         const poolParams = cert.poolRegistrationParams;
-        Precondition.check(poolParams, TxErrors.CERTIFICATE_POOL_MISSING_POOL_PARAMS);
+        Precondition.check(!!poolParams, TxErrors.CERTIFICATE_POOL_MISSING_POOL_PARAMS);
 
         // serialization succeeds if and only if the params are valid
         serializePoolParamsInit(poolParams);
@@ -259,9 +279,9 @@ export function validateTransaction(
   networkId: number,
   protocolMagic: number,
   inputs: Array<InputTypeUTxO>,
-  outputs: Array<OutputTypeAddress | OutputTypeAddressParams>,
+  outputs: Array<TxOutput>,
   feeStr: string,
-  ttlStr: string,
+  ttlStr: ?string,
   certificates: Array<Certificate>,
   withdrawals: Array<Withdrawal>,
   metadataHashHex: ?string,
@@ -628,7 +648,7 @@ export function serializePoolParamsPoolKey(
   params: PoolRegistrationParams
 ): Buffer {
   const poolKey = params.poolKey;
-  Precondition.check(poolKey, TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY);
+  Precondition.check(!!poolKey, TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY);
 
   if (poolKey.path) {
     Precondition.check(!poolKey.keyHashHex); // only one of the two should be given
@@ -729,10 +749,10 @@ export function serializePoolParamsRelay(
   const RELAY_YES = 2;
 
   const yesBuf = Buffer.alloc(1);
-  yesBuf.writeUInt8(RELAY_YES);
+  yesBuf.writeUInt8(RELAY_YES, 0);
 
   const noBuf = Buffer.alloc(1);
-  noBuf.writeUInt8(RELAY_NO);
+  noBuf.writeUInt8(RELAY_NO, 0);
 
   let portBuf: Buffer;
   if (params.portNumber) {
@@ -785,18 +805,18 @@ export function serializePoolParamsRelay(
   Precondition.checkIsUint8(type);
 
   let typeBuf = Buffer.alloc(1);
-  typeBuf.writeUInt8(type);
+  typeBuf.writeUInt8(type, 0);
 
   switch(type) {
     case 0:
       return Buffer.concat([typeBuf, portBuf, ipv4Buf, ipv6Buf]);
 
     case 1:
-      Precondition.check(dnsBuf, TxErrors.CERTIFICATE_POOL_RELAY_MISSING_DNS);
+      Precondition.check(!!dnsBuf, TxErrors.CERTIFICATE_POOL_RELAY_MISSING_DNS);
       return Buffer.concat([typeBuf, portBuf, dnsBuf]);
 
     case 2:
-      Precondition.check(dnsBuf, TxErrors.CERTIFICATE_POOL_RELAY_MISSING_DNS);
+      Precondition.check(!!dnsBuf, TxErrors.CERTIFICATE_POOL_RELAY_MISSING_DNS);
       return Buffer.concat([typeBuf, dnsBuf]);
   }
   throw new Error(TxErrors.CERTIFICATE_POOL_RELAY_INVALID_TYPE);
@@ -808,9 +828,9 @@ export function serializePoolParamsMetadata(
 
   const includeMetadataBuffer = Buffer.alloc(1);
   if (params != null) {
-    includeMetadataBuffer.writeUInt8(SignTxIncluded.SIGN_TX_INCLUDED_YES);
+    includeMetadataBuffer.writeUInt8(SignTxIncluded.SIGN_TX_INCLUDED_YES, 0);
   } else {
-    includeMetadataBuffer.writeUInt8(SignTxIncluded.SIGN_TX_INCLUDED_NO);
+    includeMetadataBuffer.writeUInt8(SignTxIncluded.SIGN_TX_INCLUDED_NO, 0);
     return includeMetadataBuffer;
   }
 
@@ -836,7 +856,7 @@ export function serializePoolParamsMetadata(
 export function serializeGetExtendedPublicKeyParams(
   path: BIP32Path
 ): Buffer {
-  Precondition.check(path, GetKeyErrors.INVALID_PATH);
+  Precondition.check(!!path, GetKeyErrors.INVALID_PATH);
 
   return utils.path_to_buf(path);
 }

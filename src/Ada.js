@@ -194,11 +194,6 @@ export type SignOperationalCertificateResponse = {|
   operationalCertificateSignatureHex: string,
 |}
 
-const PoolRegistrationCodes = {
-	SIGN_TX_POOL_REGISTRATION_NO: 3,
-	SIGN_TX_POOL_REGISTRATION_YES: 4
-}
-
 export const TxOutputTypeCodes = {
   SIGN_TX_OUTPUT_TYPE_ADDRESS_BYTES: 1,
   SIGN_TX_OUTPUT_TYPE_ADDRESS_PARAMS: 2
