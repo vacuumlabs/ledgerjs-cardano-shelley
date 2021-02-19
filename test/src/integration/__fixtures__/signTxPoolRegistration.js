@@ -2,10 +2,20 @@ import { utils } from "../../../../lib/Ada";
 import { str_to_path } from "../../test_utils";
 
 export const inputs = {
-  utxo: {
+  utxoNoPath: {
     txHashHex: "3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7",
     outputIndex: 0
-  }
+  },
+  utxoWithPath0: {
+    txHashHex: "3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7",
+    outputIndex: 0,
+    path: str_to_path("1852'/1815'/0'/0/0"),
+  },
+  utxoWithPath1: {
+    txHashHex: "3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7",
+    outputIndex: 0,
+    path: str_to_path("1852'/1815'/0'/0/1"),
+  },
 };
   
 export const outputs = {
@@ -288,6 +298,17 @@ export const certificates = {
       }
     }
   },
+  poolRegistrationOperatorNoOwnersNoRelays: {
+    ...defaultPoolRegistration,
+    poolRegistrationParams: {
+      ...defaultPoolRegistration.poolRegistrationParams,
+      poolKey: {
+        path: str_to_path("1853'/1815'/0/0'"),
+      },
+      poolOwners: [],
+      poolRelays: [],
+    }
+  },
 }
 
 export const withdrawals = {
@@ -387,6 +408,22 @@ export const results = {
         witnessSignatureHex:
           "91c09ad95d5d0f87f61a62e2f5e2dda4245eb4011887a04a53bdf085282002ccc712718e855e36a30cfcf7ecd43bcdc795aa87647be9c716b65e7fcf376e0503"
       }
+    ]
+  },
+  poolRegistrationOperatorNoOwnersNoRelays: {
+    // WARNING: only as computed by ledger, not verified with cardano-cli
+    txHashHex: "48c83faaf0f70d21aab3ad664a085858621e127b27ad8e01144284be826318e0",
+    witnesses: [
+      {
+        path: str_to_path("1852'/1815'/0'/0/0"),
+        witnessSignatureHex:
+          "d9a94ec942c49a4a5be468dc8c543d532d537653042d00efed53ee8fd70f6c295da7d9bc1757010c4bb4d1b52737ea20a686d6c1138b6825ebd27d6817277805"
+      },
+      {
+        path: str_to_path("1853'/1815'/0/0'"),
+        witnessSignatureHex:
+          "1633559973afa8a0f4786f49abf5dfe61220a9ccae384a69d193e3eef5fa0375c672199fd1ef1711077136815a4adc20d899043a0babec36dd6ca71ae349a70d"
+      },
     ]
   },
 }
