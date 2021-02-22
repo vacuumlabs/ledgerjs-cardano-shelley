@@ -466,4 +466,43 @@ describe("signTxPoolRegistrationOperatorOK", async () => {
     );
     expect(response).to.deep.equal(results.poolRegistrationOperatorNoOwnersNoRelays);
   });
+
+  it("Should correctly witness pool registration with one owner-operator as operator", async () => {
+    const cert = certificates.poolRegistrationOperatorSingleOwnerNoRelays;
+    const response = await ada.signTransaction(
+      NetworkIds.MAINNET,
+      ProtocolMagics.MAINNET,
+      [inputs.utxoWithPath0],
+      [
+        outputs.external,
+      ],
+      sampleFeeStr,
+      sampleTtlStr,
+      [cert],
+      [],
+      null
+    );
+    expect(response).to.deep.equal(results.poolRegistrationOperatorOneOwnerOperatorNoRelays);
+  });
+
+  it("Should correctly witness pool registration with multiple owners and all relays as operator", async () => {
+    const cert = certificates.poolRegistrationOperatorMultipleOwnersAllRelays;
+    const response = await ada.signTransaction(
+      NetworkIds.MAINNET,
+      ProtocolMagics.MAINNET,
+      [inputs.utxoWithPath0],
+      [
+        outputs.external,
+      ],
+      sampleFeeStr,
+      sampleTtlStr,
+      [cert],
+      [
+        withdrawals.withdrawal0,
+        withdrawals.withdrawal1
+      ],
+      null
+    );
+    expect(response).to.deep.equal(results.poolRegistrationOperatorMultipleOwnersAllRelays);
+  });
 });

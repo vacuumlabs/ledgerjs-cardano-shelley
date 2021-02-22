@@ -309,13 +309,39 @@ export const certificates = {
       poolRelays: [],
     }
   },
+  poolRegistrationOperatorSingleOwnerNoRelays: {
+    ...defaultPoolRegistration,
+    poolRegistrationParams: {
+      ...defaultPoolRegistration.poolRegistrationParams,
+      poolKey: {
+        path: str_to_path("1853'/1815'/0/0'"),
+      },
+      poolOwners: [stakingPathOwners.owner0],
+      poolRelays: [],
+    }
+  },
+  poolRegistrationOperatorMultipleOwnersAllRelays: {
+    ...defaultPoolRegistration,
+    poolRegistrationParams: {
+      ...defaultPoolRegistration.poolRegistrationParams,
+      poolKey: {
+        path: str_to_path("1853'/1815'/0/0'"),
+      },
+      poolOwners: poolOwnerVariationSet.twoCombinedOwners,
+      relays: relayVariationSet.allRelays,
+    }
+  },
 }
 
 export const withdrawals = {
   withdrawal0: {
     path: str_to_path("1852'/1815'/0'/2/0"),
     amountStr: "111"
-  }
+  },
+  withdrawal1: {
+    path: str_to_path("1852'/1815'/1'/2/0"),
+    amountStr: "112"
+  },
 }
 
 export const results = {
@@ -423,6 +449,53 @@ export const results = {
         path: str_to_path("1853'/1815'/0/0'"),
         witnessSignatureHex:
           "1633559973afa8a0f4786f49abf5dfe61220a9ccae384a69d193e3eef5fa0375c672199fd1ef1711077136815a4adc20d899043a0babec36dd6ca71ae349a70d"
+      },
+    ]
+  },
+  poolRegistrationOperatorOneOwnerOperatorNoRelays: {
+    // WARNING: only as computed by ledger, not verified with cardano-cli
+    txHashHex: "7c78e25208b996b0e91ba3c8f5c6330690ca255edb639c91cac43d6b6c21e693",
+    witnesses: [
+      {
+        path: str_to_path("1852'/1815'/0'/0/0"),
+        witnessSignatureHex:
+          "e376807c409905fdc7e9de401f18d2108902c793edc2cfeb2717b9f1e50eb15ea65cbb483c712acfcdec89136cf370837bbdf77020cdf78bb55ccdae1bf7060c"
+      },
+      {
+        path: str_to_path("1852'/1815'/0'/2/0"),
+        witnessSignatureHex:
+          "69897a4672ae58924f120c6d5f6fbe956c5e2c998e40ccbf0254cc0907b57620b4d9c778f8b8521a8cf17efa55bd87ff07dab9ce32f8a75326dc43caeab99902"
+      },
+      {
+        path: str_to_path("1853'/1815'/0/0'"),
+        witnessSignatureHex:
+          "d1c68e9abedcbe793573431a0f9c1f977623c6ce3f99786f8156fb2bfcfdc1d4d962c3d72d4250505e58d29cadac7cda1f5bcae9b81feb9372a6bd548ff77300"
+      },
+    ]
+  },
+  poolRegistrationOperatorMultipleOwnersAllRelays: {
+    // WARNING: only as computed by ledger, not verified with cardano-cli
+    txHashHex: "027ed8aafc762627157853be8490e04fe444a8bc0c7bc72d11b70f586b1d93cc",
+    witnesses: [
+      {
+        path: str_to_path("1852'/1815'/0'/0/0"),
+        witnessSignatureHex:
+          "ba4972723698dd47d0489cea836c35b4bbd6cb87c125acb7bbf965c075c104ee0dfa3e11ec4ccc9aa8404df95dd3ae01bea286dae98ea8e884be952b24140201"
+      },
+      {
+        path: str_to_path("1852'/1815'/0'/2/0"),
+        witnessSignatureHex:
+          "26901d08ae79b184ed6a3f15d51f4ee39d34dc831560b5f939db1d70edfb53a6d37b6fd39df4eeb3f4566a46ee96d6ca4790ef83ee6ac3b0d1fc08d1ca826c0f"
+      },
+      {
+        path: str_to_path("1852'/1815'/1'/2/0"),
+        witnessSignatureHex:
+          "0eb2dc85f5f4dea3a32430c48db838d041e2e6f85b821b0c660683fe16bcffa0f6d1154375edc88a6aaed861d6b033530a6a01ff7c77d38524027233c426a70c"
+      },
+      {
+        path: str_to_path("1853'/1815'/0/0'"),
+        witnessSignatureHex:
+          "c6598badef68ca56a0aff8ab52007a3d916019cdfa3a5024690e09e7ba6f6d856ca43cf65f630def0e0e5fa9381a87b4e3a6b3f10ad6617792a020751093f306"
       },
     ]
   },
