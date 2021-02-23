@@ -751,11 +751,8 @@ export function serializePoolParamsRelay(
   const RELAY_NO = 1;
   const RELAY_YES = 2;
 
-  const yesBuf = Buffer.alloc(1);
-  yesBuf.writeUInt8(RELAY_YES, 0);
-
-  const noBuf = Buffer.alloc(1);
-  noBuf.writeUInt8(RELAY_NO, 0);
+  const noBuf = utils.uint8_to_buf(RELAY_NO);
+  const yesBuf = utils.uint8_to_buf(RELAY_YES);
 
   let portBuf: Buffer;
   if (params.portNumber) {
@@ -815,11 +812,11 @@ export function serializePoolParamsRelay(
       return Buffer.concat([typeBuf, portBuf, ipv4Buf, ipv6Buf]);
 
     case 1:
-      Precondition.check(!!dnsBuf, TxErrors.CERTIFICATE_POOL_RELAY_MISSING_DNS);
+      Precondition.check(dnsBuf != null, TxErrors.CERTIFICATE_POOL_RELAY_MISSING_DNS);
       return Buffer.concat([typeBuf, portBuf, dnsBuf]);
 
     case 2:
-      Precondition.check(!!dnsBuf, TxErrors.CERTIFICATE_POOL_RELAY_MISSING_DNS);
+      Precondition.check(dnsBuf != null, TxErrors.CERTIFICATE_POOL_RELAY_MISSING_DNS);
       return Buffer.concat([typeBuf, dnsBuf]);
   }
   throw new Error(TxErrors.CERTIFICATE_POOL_RELAY_INVALID_TYPE);
