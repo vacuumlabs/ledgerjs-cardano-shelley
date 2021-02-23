@@ -171,13 +171,16 @@ export function determineUsecase(certificates: Array<Certificate>) {
   // (there is supposed to be only one, validated elsewhere)
   if (poolRegistrationCert) {
     const poolParams = poolRegistrationCert.poolRegistrationParams;
-    Precondition.check(!!poolParams, TxErrors.CERTIFICATE_POOL_MISSING_POOL_PARAMS);
-    Precondition.check(!!poolParams.poolKey, TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY);
+    Precondition.check(poolParams != null, TxErrors.CERTIFICATE_POOL_MISSING_POOL_PARAMS);
+    Precondition.check(poolParams.poolKey != null, TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY);
 
+    // full validation of the components of the pool key is done elsewhere
     if (poolParams.poolKey.path) {
       return SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OPERATOR;
-    } else {
+    } else if (poolParams.poolKey.keyHashHex) {
       return SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OWNER;
+    } else {
+      throw new Error(TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY);
     }
   }
 

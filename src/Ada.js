@@ -84,8 +84,8 @@ export type StakingBlockchainPointer = {|
 |}
 
 export type PoolKeyParams = {|
-  keyHashHex: string,
-  path: BIP32Path
+  keyHashHex: ?string,
+  path: ?BIP32Path
 |}
 
 export type PoolOwnerParams = {|
