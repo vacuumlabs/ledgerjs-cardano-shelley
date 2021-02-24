@@ -18,11 +18,11 @@ describe("getExtendedPoolColdPublicKey", async () => {
         str_to_path(path)
       );
 
-      expect(result.publicKeyHex).to.equal("e7dea141318d36a600c72ac61d2ced63047ccf290d184eaa91783bac94857c7d");
-      expect(result.chainCodeHex).to.equal("ce1415094a8192bf54e3dc1fb24df8f61a5ecdb4a39bdb3498d6073f986c1ebd");
+      expect(result.publicKeyHex).to.equal("3d7e84dca8b4bc322401a2cc814af7c84d2992a22f99554fe340d7df7910768d");
+      expect(result.chainCodeHex).to.equal("1e2a47754207da3069f90241fbf3b8742c367e9028e5f3f85ae3660330b4f5b7");
     };
 
-    await test("1853'/1815'/0/0'");
+    await test("1853'/1815'/0'/0'");
   });
 
   it("Should reject path not matching cold key structure", async () => {

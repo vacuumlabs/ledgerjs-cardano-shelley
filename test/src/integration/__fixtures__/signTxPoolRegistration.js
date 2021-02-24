@@ -303,7 +303,7 @@ export const certificates = {
     poolRegistrationParams: {
       ...defaultPoolRegistration.poolRegistrationParams,
       poolKey: {
-        path: str_to_path("1853'/1815'/0/0'"),
+        path: str_to_path("1853'/1815'/0'/0'"),
       },
       poolOwners: [],
       poolRelays: [],
@@ -314,7 +314,7 @@ export const certificates = {
     poolRegistrationParams: {
       ...defaultPoolRegistration.poolRegistrationParams,
       poolKey: {
-        path: str_to_path("1853'/1815'/0/0'"),
+        path: str_to_path("1853'/1815'/0'/0'"),
       },
       poolOwners: [stakingPathOwners.owner0],
       poolRelays: [],
@@ -325,7 +325,7 @@ export const certificates = {
     poolRegistrationParams: {
       ...defaultPoolRegistration.poolRegistrationParams,
       poolKey: {
-        path: str_to_path("1853'/1815'/0/0'"),
+        path: str_to_path("1853'/1815'/0'/0'"),
       },
       poolOwners: poolOwnerVariationSet.twoCombinedOwners,
       relays: relayVariationSet.allRelays,
@@ -446,7 +446,7 @@ export const results = {
           "d9a94ec942c49a4a5be468dc8c543d532d537653042d00efed53ee8fd70f6c295da7d9bc1757010c4bb4d1b52737ea20a686d6c1138b6825ebd27d6817277805"
       },
       {
-        path: str_to_path("1853'/1815'/0/0'"),
+        path: str_to_path("1853'/1815'/0'/0'"),
         witnessSignatureHex:
           "1633559973afa8a0f4786f49abf5dfe61220a9ccae384a69d193e3eef5fa0375c672199fd1ef1711077136815a4adc20d899043a0babec36dd6ca71ae349a70d"
       },
@@ -467,7 +467,7 @@ export const results = {
           "69897a4672ae58924f120c6d5f6fbe956c5e2c998e40ccbf0254cc0907b57620b4d9c778f8b8521a8cf17efa55bd87ff07dab9ce32f8a75326dc43caeab99902"
       },
       {
-        path: str_to_path("1853'/1815'/0/0'"),
+        path: str_to_path("1853'/1815'/0'/0'"),
         witnessSignatureHex:
           "d1c68e9abedcbe793573431a0f9c1f977623c6ce3f99786f8156fb2bfcfdc1d4d962c3d72d4250505e58d29cadac7cda1f5bcae9b81feb9372a6bd548ff77300"
       },
@@ -493,7 +493,7 @@ export const results = {
           "0eb2dc85f5f4dea3a32430c48db838d041e2e6f85b821b0c660683fe16bcffa0f6d1154375edc88a6aaed861d6b033530a6a01ff7c77d38524027233c426a70c"
       },
       {
-        path: str_to_path("1853'/1815'/0/0'"),
+        path: str_to_path("1853'/1815'/0'/0'"),
         witnessSignatureHex:
           "c6598badef68ca56a0aff8ab52007a3d916019cdfa3a5024690e09e7ba6f6d856ca43cf65f630def0e0e5fa9381a87b4e3a6b3f10ad6617792a020751093f306"
       },

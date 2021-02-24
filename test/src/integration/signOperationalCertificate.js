@@ -6,7 +6,7 @@ const operationalCertificates = {
     kesPublicKeyHex: "3d24bc547388cf2403fd978fc3d3a93d1f39acf68a9c00e40512084dc05f2822",
     kesPeriodStr: "47",
     issueCounterStr: "42",
-    coldKeyPath: str_to_path("1853'/1815'/0/0'")
+    coldKeyPath: str_to_path("1853'/1815'/0'/0'")
   },
 }
 
@@ -31,6 +31,6 @@ describe("signOperationalCertificate", async () => {
       testCase.coldKeyPath,
     );
 
-    expect(response.operationalCertificateSignatureHex).to.equal("d049315824428952bb0222cd3ccaf68c04fbfef54df13486a916180a387e2a775d4fa15bca43263021c27bcba8f2d967dcd53ab6a8250ef67f9aef2b3d761c0d");
+    expect(response.operationalCertificateSignatureHex).to.equal("b3d545de0d89ca8c337b7a1544419adb322a9c5e488a802fe9578f165202e59f3cf73bcc5ed533e05088c66deabae3c221090800d2681d4ff7cc2bf32bb73706");
   });
 });
