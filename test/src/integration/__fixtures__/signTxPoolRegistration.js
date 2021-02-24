@@ -219,6 +219,13 @@ export const certificates = {
     path: str_to_path("1852'/1815'/0'/2/0"),
     poolKeyHashHex: "f61c42cbf7c8c53af3f520508212ad3e72f674f957fe23ff0acb4973"
   },
+  poolRetirement: {
+    type: 4,
+    poolRetirementParams: {
+      poolKeyPath: str_to_path("1853'/1815'/0'/0'"),
+      retirementEpochStr: "10",
+    }
+  },
   poolRegistrationDefault: {
     ...defaultPoolRegistration
   },
@@ -357,6 +364,27 @@ export const results = {
         witnessSignatureHex:
           "61fc06451462426b14fa3a31008a5f7d32b2f1793022060c02939bd0004b07f2bd737d542c2db6cef6dad912b9bdca1829a5dc2b45bab3c72afe374cef59cc04"
       }
+    ]
+  },
+  poolRetirement: {
+    // WARNING: only as computed by ledger, not verified with cardano-cli
+    txHashHex: "da65ca8c5a9e4e1a8dd3c7f623e7e0e13c4f23d7ef2ae7bdd9e5edd654ec5656",
+    witnesses: [
+      {
+        path: str_to_path("1852'/1815'/0'/0/0"),
+        witnessSignatureHex:
+          "1238a6c4baf2dd0732c4b377db24ce3169196bcf64bd058a41cb0bfb4eefa4269384501645e8fc40be6d3bcc0272a51d1f36d7f06a9f0a55bfc2797bff573f0c"
+      },
+      {
+        path: str_to_path("1853'/1815'/0'/0'"),
+        witnessSignatureHex:
+          "ce19e55d2a6f00ed7627e164f7c4df5686e60e0f26e51280b7459e149ff520cb9adbbccb846d3852d30e492ffccdb40f9315966917e939c7621fbbc80ab3cc02"
+      },
+      {
+        path: str_to_path("1852'/1815'/0'/2/0"),
+        witnessSignatureHex:
+          "09e73628850d3b69e19ba3b95009ab389a6def0b19d6d4b8db84033cd989676384b1cf73dbe65bf1b2e373346e8159a2dc5c92f2c86f6b56827edf541604f30c"
+      },
     ]
   },
   poolRegistrationDefault: {
