@@ -353,6 +353,7 @@ export function validateTransaction(
   // withdrawals
   Precondition.checkIsArray(withdrawals, TxErrors.WITHDRAWALS_NOT_ARRAY);
   switch (usecase) {
+    case SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OPERATOR:
     case SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OWNER:
       Precondition.check(withdrawals.length === 0, TxErrors.WITHDRAWALS_FORBIDDEN);
       break;
@@ -443,7 +444,7 @@ export function collectWitnessPaths(
 
     case SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OPERATOR:
       Precondition.check(numPoolRegistrationCerts === 1, TxErrors.CERTIFICATES_MULTIPLE_POOL_REGISTRATIONS);
-      Assert.assert(ordinaryWitnesses.length === inputs.length + withdrawals.length);
+      Assert.assert(ordinaryWitnesses.length === inputs.length);
       Assert.assert(poolOwnerWitnesses.length <= 1);
       Assert.assert(poolOperatorWitnesses.length === 1);
       break;

@@ -497,10 +497,7 @@ describe("signTxPoolRegistrationOperatorOK", async () => {
       sampleFeeStr,
       sampleTtlStr,
       [cert],
-      [
-        withdrawals.withdrawal0,
-        withdrawals.withdrawal1
-      ],
+      [],
       null
     );
     expect(response).to.deep.equal(results.poolRegistrationOperatorMultipleOwnersAllRelays);
