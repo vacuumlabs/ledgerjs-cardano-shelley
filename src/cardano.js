@@ -116,7 +116,7 @@ export const TxErrors = {
   CERTIFICATE_POOL_OWNERS_NOT_ARRAY: "owners not an array in a pool registration certificate",
   CERTIFICATE_POOL_OWNERS_TOO_MANY: "too many owners in a pool registration certificate",
   CERTIFICATE_POOL_OWNERS_SINGLE_PATH_OWNER: "there should be exactly one owner given by path in a pool registration certificate signed by owner",
-  CERTIFICATE_POOL_OWNERS_SINGLE_PATH_OPERATOR: "there should be at most one owner given by path in a pool registration certificate signed by pool operator",
+  CERTIFICATE_POOL_OWNERS_SINGLE_PATH_OPERATOR: "there should be no owners given by path in a pool registration certificate signed by pool operator",
   CERTIFICATE_POOL_OWNER_INCOMPLETE: "incomplete owner params in a pool registration certificate",
   CERTIFICATE_POOL_OWNER_INVALID_PATH: "invalid owner path in a pool registration certificate",
   CERTIFICATE_POOL_OWNER_INVALID_KEY_HASH: "invalid owner key hash in a pool registration certificate",
@@ -257,7 +257,7 @@ function validateCertificates(
             break;
 
           case SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OPERATOR:
-            Precondition.check(numPathOwners <= 1, TxErrors.CERTIFICATE_POOL_OWNERS_SINGLE_PATH_OPERATOR);
+            Precondition.check(numPathOwners === 0, TxErrors.CERTIFICATE_POOL_OWNERS_SINGLE_PATH_OPERATOR);
             break;
         }
 
@@ -445,7 +445,7 @@ export function collectWitnessPaths(
     case SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OPERATOR:
       Precondition.check(numPoolRegistrationCerts === 1, TxErrors.CERTIFICATES_MULTIPLE_POOL_REGISTRATIONS);
       Assert.assert(ordinaryWitnesses.length === inputs.length);
-      Assert.assert(poolOwnerWitnesses.length <= 1);
+      Assert.assert(poolOwnerWitnesses.length === 0);
       Assert.assert(poolOperatorWitnesses.length === 1);
       break;
   }

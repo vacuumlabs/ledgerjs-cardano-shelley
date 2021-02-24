@@ -316,7 +316,7 @@ export const certificates = {
       poolKey: {
         path: str_to_path("1853'/1815'/0'/0'"),
       },
-      poolOwners: [stakingPathOwners.owner0],
+      poolOwners: [stakingHashOwners.owner0],
       poolRelays: [],
     }
   },
@@ -327,7 +327,7 @@ export const certificates = {
       poolKey: {
         path: str_to_path("1853'/1815'/0'/0'"),
       },
-      poolOwners: poolOwnerVariationSet.twoCombinedOwners,
+      poolOwners: poolOwnerVariationSet.twoHashOwners,
       relays: relayVariationSet.allRelays,
     }
   },
@@ -438,64 +438,49 @@ export const results = {
   },
   poolRegistrationOperatorNoOwnersNoRelays: {
     // WARNING: only as computed by ledger, not verified with cardano-cli
-    txHashHex: "48c83faaf0f70d21aab3ad664a085858621e127b27ad8e01144284be826318e0",
+    txHashHex: "0d46294fab62e72204d12646479cf7f91eb91af8ebdfd166cbb01eab25227e63",
     witnesses: [
       {
         path: str_to_path("1852'/1815'/0'/0/0"),
         witnessSignatureHex:
-          "d9a94ec942c49a4a5be468dc8c543d532d537653042d00efed53ee8fd70f6c295da7d9bc1757010c4bb4d1b52737ea20a686d6c1138b6825ebd27d6817277805"
+          "d95bd4946c8ca1aa6d5771f0e7da2e835bee3fc8136cfdfecaed6355709b6d932b0bb286bc7cc660cc90386dca5fe33c5e66064fec4090a5a2aa15704d271306"
       },
       {
         path: str_to_path("1853'/1815'/0'/0'"),
         witnessSignatureHex:
-          "1633559973afa8a0f4786f49abf5dfe61220a9ccae384a69d193e3eef5fa0375c672199fd1ef1711077136815a4adc20d899043a0babec36dd6ca71ae349a70d"
+          "405542c32c49818630ecf1228d597ff2ce895bdd7dbc25dc45f821912d03160c6b071ba0473ced359167b38da0b15303219cdba8c45c6eff7e68ba5b67c6980e"
       },
     ]
   },
   poolRegistrationOperatorOneOwnerOperatorNoRelays: {
     // WARNING: only as computed by ledger, not verified with cardano-cli
-    txHashHex: "7c78e25208b996b0e91ba3c8f5c6330690ca255edb639c91cac43d6b6c21e693",
+    txHashHex: "0e3b20af881ec742d60ed0d47cceb875f10d0aac2d0df81ef2d9fae255b589dc",
     witnesses: [
       {
         path: str_to_path("1852'/1815'/0'/0/0"),
         witnessSignatureHex:
-          "e376807c409905fdc7e9de401f18d2108902c793edc2cfeb2717b9f1e50eb15ea65cbb483c712acfcdec89136cf370837bbdf77020cdf78bb55ccdae1bf7060c"
-      },
-      {
-        path: str_to_path("1852'/1815'/0'/2/0"),
-        witnessSignatureHex:
-          "69897a4672ae58924f120c6d5f6fbe956c5e2c998e40ccbf0254cc0907b57620b4d9c778f8b8521a8cf17efa55bd87ff07dab9ce32f8a75326dc43caeab99902"
+          "e7f8e5fcd2c23e9657ff519e25045e94cadf3eb07d602c65baed2f2d0526aaa93669b6deb770918410c7af2f0e7dc872353c3a8884a325183c0a40bd7cabc80a"
       },
       {
         path: str_to_path("1853'/1815'/0'/0'"),
         witnessSignatureHex:
-          "d1c68e9abedcbe793573431a0f9c1f977623c6ce3f99786f8156fb2bfcfdc1d4d962c3d72d4250505e58d29cadac7cda1f5bcae9b81feb9372a6bd548ff77300"
+          "d8b24b8bf6e245516923ee2e178c4d363bf5a06a2a9e724b2abe730bcce015cdec088fd596af530c57460de750557aef9fe78bfd2291dd6d2452593d43258d0a"
       },
     ]
   },
   poolRegistrationOperatorMultipleOwnersAllRelays: {
     // WARNING: only as computed by ledger, not verified with cardano-cli
-    txHashHex: "027ed8aafc762627157853be8490e04fe444a8bc0c7bc72d11b70f586b1d93cc",
+    txHashHex: "7ece5d431b09770f2e24c190e96c3884866ba4c9cd3292d4b42d286af5f3f872",
     witnesses: [
       {
         path: str_to_path("1852'/1815'/0'/0/0"),
         witnessSignatureHex:
-          "ba4972723698dd47d0489cea836c35b4bbd6cb87c125acb7bbf965c075c104ee0dfa3e11ec4ccc9aa8404df95dd3ae01bea286dae98ea8e884be952b24140201"
-      },
-      {
-        path: str_to_path("1852'/1815'/0'/2/0"),
-        witnessSignatureHex:
-          "26901d08ae79b184ed6a3f15d51f4ee39d34dc831560b5f939db1d70edfb53a6d37b6fd39df4eeb3f4566a46ee96d6ca4790ef83ee6ac3b0d1fc08d1ca826c0f"
-      },
-      {
-        path: str_to_path("1852'/1815'/1'/2/0"),
-        witnessSignatureHex:
-          "0eb2dc85f5f4dea3a32430c48db838d041e2e6f85b821b0c660683fe16bcffa0f6d1154375edc88a6aaed861d6b033530a6a01ff7c77d38524027233c426a70c"
+          "9f6da51173411ba82e76695ccf7c222f1df7444b0bbc1af354800acf244a4eaf72e95853406918e3ef461569fe99b39e33164ab440510f75df06e4ff89ca9107"
       },
       {
         path: str_to_path("1853'/1815'/0'/0'"),
         witnessSignatureHex:
-          "c6598badef68ca56a0aff8ab52007a3d916019cdfa3a5024690e09e7ba6f6d856ca43cf65f630def0e0e5fa9381a87b4e3a6b3f10ad6617792a020751093f306"
+          "8957a7768bc9389cd7ab6fa3b3e2fa089785715a5298f9cb38abf99a6e0da5bef734c4862ca7948fb69575ccb9ed8ae1d92cc971742f674632f6f03e22c5b103"
       },
     ]
   },
