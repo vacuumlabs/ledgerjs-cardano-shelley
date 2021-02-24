@@ -430,7 +430,7 @@ export function collectWitnessPaths(
   switch (usecase) {
     case SignTxUsecases.SIGN_TX_USECASE_ORDINARY_TX:
       Assert.assert(numPoolRegistrationCerts === 0);
-      Assert.assert(ordinaryWitnesses.length === inputs.length + withdrawals.length + certificates.length);
+      Assert.assert(ordinaryWitnesses.length <= inputs.length + withdrawals.length + certificates.length);
       Assert.assert(poolOwnerWitnesses.length === 0);
       Assert.assert(poolOperatorWitnesses.length === 0);
       break;
@@ -444,7 +444,7 @@ export function collectWitnessPaths(
 
     case SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OPERATOR:
       Precondition.check(numPoolRegistrationCerts === 1, TxErrors.CERTIFICATES_MULTIPLE_POOL_REGISTRATIONS);
-      Assert.assert(ordinaryWitnesses.length === inputs.length);
+      Assert.assert(ordinaryWitnesses.length <= inputs.length);
       Assert.assert(poolOwnerWitnesses.length === 0);
       Assert.assert(poolOperatorWitnesses.length === 1);
       break;
