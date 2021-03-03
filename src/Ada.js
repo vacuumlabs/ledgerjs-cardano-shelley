@@ -582,32 +582,6 @@ export default class Ada {
     await _send(P1_DISPLAY, P2_UNUSED, data, 0);
   }
 
-  async getExtendedPoolColdPublicKey(
-    path: BIP32Path
-  ): Promise<GetExtendedPublicKeyResponse> {
-    await this._ensureLedgerAppVersionAtLeast(2, 1); // TODO update version number
-
-    Precondition.checkIsValidPath(path);
-    const _send = buildSendFn(this, INS.GET_POOL_COLD_PUBLIC_KEY);
-    
-    const P1_UNUSED = 0x00;
-    const P2_UNUSED = 0x00;
-
-    const response: Buffer = await _send(
-      P1_UNUSED, P2_UNUSED,
-      utils.path_to_buf(path),
-      cardano.ED25519_EXTENDED_PUBLIC_KEY_LENGTH
-    );
-
-    const [publicKey, chainCode, rest] = utils.chunkBy(response, [32, 32]);
-    Assert.assert(rest.length === 0);
-    
-    return {
-      publicKeyHex: utils.buf_to_hex(publicKey),
-      chainCodeHex: utils.buf_to_hex(chainCode),
-    }
-  }
-
   async signTransaction(
     networkId: number,
     protocolMagic: number,

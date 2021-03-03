@@ -30,16 +30,19 @@ describe("getExtendedPublicKey", async () => {
 
     await test("44'/1815'/1'");
     await test("44'/1815'/1'/0/12'");
-    await test("44'/1815'/1'/0/10'/1/2/3");
+    await test("44'/1815'/1'/0/10");
 
     await test("1852'/1815'/0'/0/1");
     await test("1852'/1815'/0'/2/0");
+
+    await test("1853'/1815'/0'/0'");
   });
 
   it("Should successfully get several extended public keys, starting with a usual one", async () => {
     const paths = [
       "44'/1815'/1'",
-      "44'/1815'/1'/0/10'/1/2/3",
+      "44'/1815'/1'/0/10",
+      "1853'/1815'/0'/0'",
     ];
 
     const inputs = [];
@@ -66,7 +69,7 @@ describe("getExtendedPublicKey", async () => {
 
   it("Should successfully get several extended public keys, starting with an unusual one", async () => {
     const paths = [
-      "44'/1815'/1'/0/10'/1/2/3",
+      "1852'/1815'/150'/0/10'",
       "44'/1815'/1'",
       "44'/1815'/1'/0/12'",
       "1852'/1815'/0'/0/1",
@@ -109,6 +112,17 @@ describe("getExtendedPublicKey", async () => {
     const SHOULD_HAVE_THROWN = "should have thrown earlier";
     try {
       await ada.getExtendedPublicKey(str_to_path("44'/1815'"));
+
+      throw new Error(SHOULD_HAVE_THROWN);
+    } catch (error) {
+      expect(error.message).not.to.have.string(SHOULD_HAVE_THROWN);
+    }
+  });
+
+  it("Should reject path not matching cold key structure", async () => {
+    const SHOULD_HAVE_THROWN = "should have thrown earlier";
+    try {
+      await ada.getExtendedPoolColdPublicKey(str_to_path("1853'/1900'/0'/0/0"));
 
       throw new Error(SHOULD_HAVE_THROWN);
     } catch (error) {

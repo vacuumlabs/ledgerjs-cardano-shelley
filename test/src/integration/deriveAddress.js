@@ -109,6 +109,6 @@ describe("deriveAddress", async () => {
     };
 
     await test("44'/1815'/1'");
-    await test("44'/1815'/1'/5/10'/1/2/3");
+    await test("44'/1815'/1'/5/10'");
   });
 });
