@@ -313,7 +313,7 @@ export const certificates = {
         path: str_to_path("1853'/1815'/0'/0'"),
       },
       poolOwners: [],
-      poolRelays: [],
+      relays: [],
     }
   },
   poolRegistrationOperatorSingleOwnerNoRelays: {
@@ -324,7 +324,7 @@ export const certificates = {
         path: str_to_path("1853'/1815'/0'/0'"),
       },
       poolOwners: [stakingHashOwners.owner0],
-      poolRelays: [],
+      relays: [],
     }
   },
   poolRegistrationOperatorMultipleOwnersAllRelays: {
@@ -466,33 +466,33 @@ export const results = {
   },
   poolRegistrationOperatorNoOwnersNoRelays: {
     // WARNING: only as computed by ledger, not verified with cardano-cli
-    txHashHex: "0d46294fab62e72204d12646479cf7f91eb91af8ebdfd166cbb01eab25227e63",
+    txHashHex: "75a57a27893443eb7bb6e4746b6d52ba74c401ece0d2a2570322d6b7d07c29a7",
     witnesses: [
       {
         path: str_to_path("1852'/1815'/0'/0/0"),
         witnessSignatureHex:
-          "d95bd4946c8ca1aa6d5771f0e7da2e835bee3fc8136cfdfecaed6355709b6d932b0bb286bc7cc660cc90386dca5fe33c5e66064fec4090a5a2aa15704d271306"
+          "2bff91cbd14ae53a2d476bd27306a7117d705c4fb58248af4f9b86c770991ea9785a39924d824a75b9ee0632b52c4267e6afec41e206a03b4753c5a397275807"
       },
       {
         path: str_to_path("1853'/1815'/0'/0'"),
         witnessSignatureHex:
-          "405542c32c49818630ecf1228d597ff2ce895bdd7dbc25dc45f821912d03160c6b071ba0473ced359167b38da0b15303219cdba8c45c6eff7e68ba5b67c6980e"
+          "a92f621f48c785103b1dab862715beef0f0dc2408d0668422286a1dbc268db9a32cacd3b689a0c6af32ab2ac5057caac13910f09363e2d2db0dde4a27b2b5a09"
       },
     ]
   },
   poolRegistrationOperatorOneOwnerOperatorNoRelays: {
     // WARNING: only as computed by ledger, not verified with cardano-cli
-    txHashHex: "0e3b20af881ec742d60ed0d47cceb875f10d0aac2d0df81ef2d9fae255b589dc",
+    txHashHex: "19b4e645af2c4b4bf16ec3e378d8e52624c46dba3a91398d46be12c1ef3585d5",
     witnesses: [
       {
         path: str_to_path("1852'/1815'/0'/0/0"),
         witnessSignatureHex:
-          "e7f8e5fcd2c23e9657ff519e25045e94cadf3eb07d602c65baed2f2d0526aaa93669b6deb770918410c7af2f0e7dc872353c3a8884a325183c0a40bd7cabc80a"
+          "4f31baa6c392043b3c525c5edd8d1dcc5331d9aab7706c506b60bbe71a95259299c63bd680e645633604082913ba267e31078c6a2ccd4686e9ba3f612342070c"
       },
       {
         path: str_to_path("1853'/1815'/0'/0'"),
         witnessSignatureHex:
-          "d8b24b8bf6e245516923ee2e178c4d363bf5a06a2a9e724b2abe730bcce015cdec088fd596af530c57460de750557aef9fe78bfd2291dd6d2452593d43258d0a"
+          "6948f460334f0daddbea8700325b2ceadb241114767db72a68c074dd717e58135579425eb5181dbb8a6d46fcb83bd4aa08f2fd16ed7540ee70e7020af4d96709"
       },
     ]
   },
