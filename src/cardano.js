@@ -152,9 +152,9 @@ export const SignTxUsecases = Object.freeze({
 	SIGN_TX_USECASE_POOL_REGISTRATION_OPERATOR: 5,
 });
 
-export const DataDescriptionKind = Object.freeze({
-	DATA_DESCRIPTION_PATH: 1,
-	DATA_DESCRIPTION_HASH: 2,
+export const KeyReferenceType = Object.freeze({
+	KEY_REFERENCE_PATH: 1,
+	KEY_REFERENCE_HASH: 2,
 });
 
 function getFirstPoolRegistrationCertificate(certificates: Array<Certificate>): ?Certificate {
@@ -658,14 +658,14 @@ export function serializePoolParamsPoolKey(
     Precondition.check(!poolKey.keyHashHex); // only one of the two should be given
     Precondition.checkIsValidPath(poolKey.path);
     return Buffer.concat([
-      utils.uint8_to_buf(DataDescriptionKind.DATA_DESCRIPTION_PATH),
+      utils.uint8_to_buf(KeyReferenceType.KEY_REFERENCE_PATH),
       utils.path_to_buf(poolKey.path)
     ]);
   } else if (poolKey.keyHashHex) {
     Precondition.checkIsHexString(poolKey.keyHashHex, TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY);
     Precondition.check(poolKey.keyHashHex.length === KEY_HASH_LENGTH * 2, TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY);
     return Buffer.concat([
-      utils.uint8_to_buf(DataDescriptionKind.DATA_DESCRIPTION_HASH),
+      utils.uint8_to_buf(KeyReferenceType.KEY_REFERENCE_HASH),
       utils.hex_to_buf(poolKey.keyHashHex)
     ]);
   } else {
@@ -706,13 +706,22 @@ export function serializePoolParamsFinancials(
 export function serializePoolParamsRewardAccount(
   params: PoolRegistrationParams
 ): Buffer {
-  Precondition.checkIsHexString(params.rewardAccountHex, TxErrors.CERTIFICATE_POOL_INVALID_REWARD_ACCOUNT);
-  Precondition.check(params.rewardAccountHex.length === 29 * 2, TxErrors.CERTIFICATE_POOL_INVALID_REWARD_ACCOUNT);
+  if (params.rewardAccount.path) {
+    Precondition.checkIsValidPath(params.rewardAccount.path);
 
-  return Buffer.concat([
-    utils.uint8_to_buf(DataDescriptionKind.DATA_DESCRIPTION_HASH),
-    utils.hex_to_buf(params.rewardAccountHex)
-  ]);
+    return Buffer.concat([
+      utils.uint8_to_buf(KeyReferenceType.KEY_REFERENCE_PATH),
+      utils.path_to_buf(params.rewardAccount.path)
+    ]);
+  } else {
+    Precondition.checkIsHexString(params.rewardAccount.rewardAccountHex, TxErrors.CERTIFICATE_POOL_INVALID_REWARD_ACCOUNT);
+    Precondition.check(params.rewardAccount.rewardAccountHex.length === 29 * 2, TxErrors.CERTIFICATE_POOL_INVALID_REWARD_ACCOUNT);
+
+    return Buffer.concat([
+      utils.uint8_to_buf(KeyReferenceType.KEY_REFERENCE_HASH),
+      utils.hex_to_buf(params.rewardAccount.rewardAccountHex)
+    ]);
+  }
 }
 
 export function serializePoolParamsOwner(
@@ -725,7 +734,7 @@ export function serializePoolParamsOwner(
     Precondition.checkIsValidPath(path, TxErrors.CERTIFICATE_POOL_OWNER_INVALID_PATH);
 
     return Buffer.concat([
-      utils.uint8_to_buf(DataDescriptionKind.DATA_DESCRIPTION_PATH),
+      utils.uint8_to_buf(KeyReferenceType.KEY_REFERENCE_PATH),
       utils.path_to_buf(path)
     ]);
   }
@@ -735,7 +744,7 @@ export function serializePoolParamsOwner(
     Precondition.check(hashHex.length === KEY_HASH_LENGTH * 2, TxErrors.CERTIFICATE_POOL_OWNER_INVALID_KEY_HASH);
 
     return Buffer.concat([
-      utils.uint8_to_buf(DataDescriptionKind.DATA_DESCRIPTION_HASH),
+      utils.uint8_to_buf(KeyReferenceType.KEY_REFERENCE_HASH),
       utils.hex_to_buf(hashHex)
     ]);
   }

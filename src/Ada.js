@@ -84,13 +84,18 @@ export type StakingBlockchainPointer = {|
 |}
 
 export type PoolKeyParams = {|
-  keyHashHex: ?string,
-  path: ?BIP32Path
+  path: ?BIP32Path,
+  keyHashHex: ?string
 |}
 
 export type PoolOwnerParams = {|
   stakingPath: ?BIP32Path,
   stakingKeyHashHex: ?string
+|}
+
+export type PoolRewardAccountParams = {|
+  path: ?BIP32Path,
+  rewardAccountHex: ?string
 |}
 
 export type SingleHostIPRelay = {|
@@ -129,7 +134,7 @@ export type PoolRegistrationParams = {|
   pledgeStr: string,
   costStr: string,
   margin: Margin,
-  rewardAccountHex: string,
+  rewardAccount: PoolRewardAccountParams,
   poolOwners: Array<PoolOwnerParams>,
   relays: Array<RelayParams>,
   metadata: PoolMetadataParams
