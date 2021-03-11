@@ -501,7 +501,7 @@ describe("signTxPoolRegistrationOperatorOK", async () => {
     expect(response).to.deep.equal(results.poolRegistrationOperatorNoOwnersNoRelays);
   });
 
-  it("Should correctly witness pool registration with one owner-operator as operator", async () => {
+  it("Should correctly witness pool registration with one owner as operator", async () => {
     const cert = certificates.poolRegistrationOperatorSingleOwnerNoRelays;
     const response = await ada.signTransaction(
       NetworkIds.MAINNET,
