@@ -1,0 +1,6 @@
+docs/
+_typedoc/
+node_modules/
+lib/
+test/lib/
+example-node/lib/
