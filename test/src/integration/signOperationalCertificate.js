@@ -31,6 +31,6 @@ describe("signOperationalCertificate", async () => {
       testCase.coldKeyPath,
     );
 
-    expect(response.operationalCertificateSignatureHex).to.equal("b3d545de0d89ca8c337b7a1544419adb322a9c5e488a802fe9578f165202e59f3cf73bcc5ed533e05088c66deabae3c221090800d2681d4ff7cc2bf32bb73706");
+    expect(response.operationalCertificateSignatureHex).to.equal("ce8d7cab55217ed17f1cceb8cb487dcbe6172fdb5794cc26f78c2f1d2495598e72beb6209f113562f9488ef6e81e3e8f758ea072c3cf9c17095868f2e9213f0a");
   });
 });
