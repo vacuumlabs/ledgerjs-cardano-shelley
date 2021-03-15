@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>RelayType | @cardano-foundation/ledgerjs-hw-app-cardano - v2.2.0</title>
+	<title>PoolOwnerType | @cardano-foundation/ledgerjs-hw-app-cardano - v2.2.0</title>
 	<meta name="description" content="Documentation for @cardano-foundation/ledgerjs-hw-app-cardano - v2.2.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,28 +55,16 @@
 					<a href="../index.html">@cardano-foundation/ledgerjs-hw-app-cardano - v2.2.0</a>
 				</li>
 				<li>
-					<a href="relaytype.html">RelayType</a>
+					<a href="poolownertype.html">PoolOwnerType</a>
 				</li>
 			</ul>
-			<h1>Enumeration RelayType</h1>
+			<h1>Enumeration PoolOwnerType</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-comment">
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>Relay type (as defined by the Cardano spec)</p>
-					</div>
-					<dl class="tsd-comment-tags">
-						<dt>see</dt>
-						<dd><p><a href="../index.html#relay">Relay</a></p>
-						</dd>
-					</dl>
-				</div>
-			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
@@ -84,9 +72,8 @@
 						<section class="tsd-index-section ">
 							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="relaytype.html#multihostname" class="tsd-kind-icon">Multi<wbr>Host<wbr>Name</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="relaytype.html#singlehostaddr" class="tsd-kind-icon">Single<wbr>Host<wbr>Addr</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="relaytype.html#singlehostname" class="tsd-kind-icon">Single<wbr>Host<wbr>Name</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="poolownertype.html#deviceowned" class="tsd-kind-icon">Device<wbr>Owned</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="poolownertype.html#thirdparty" class="tsd-kind-icon">Third<wbr>Party</a></li>
 							</ul>
 						</section>
 					</div>
@@ -95,32 +82,22 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Enumeration members</h2>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="multihostname" class="tsd-anchor"></a>
-					<h3>Multi<wbr>Host<wbr>Name</h3>
-					<div class="tsd-signature tsd-kind-icon">Multi<wbr>Host<wbr>Name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 2</span></div>
+					<a name="deviceowned" class="tsd-anchor"></a>
+					<h3>Device<wbr>Owned</h3>
+					<div class="tsd-signature tsd-kind-icon">Device<wbr>Owned<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;device_owned&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/3a91ee0/src/types/public.ts#L47">src/types/public.ts:47</a></li>
+							<li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/3a91ee0/src/types/public.ts#L282">src/types/public.ts:282</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="singlehostaddr" class="tsd-anchor"></a>
-					<h3>Single<wbr>Host<wbr>Addr</h3>
-					<div class="tsd-signature tsd-kind-icon">Single<wbr>Host<wbr>Addr<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 0</span></div>
+					<a name="thirdparty" class="tsd-anchor"></a>
+					<h3>Third<wbr>Party</h3>
+					<div class="tsd-signature tsd-kind-icon">Third<wbr>Party<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;third_party&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/3a91ee0/src/types/public.ts#L45">src/types/public.ts:45</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="singlehostname" class="tsd-anchor"></a>
-					<h3>Single<wbr>Host<wbr>Name</h3>
-					<div class="tsd-signature tsd-kind-icon">Single<wbr>Host<wbr>Name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 1</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/3a91ee0/src/types/public.ts#L46">src/types/public.ts:46</a></li>
+							<li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/3a91ee0/src/types/public.ts#L281">src/types/public.ts:281</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -139,16 +116,13 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-enum">
-						<a href="relaytype.html" class="tsd-kind-icon">Relay<wbr>Type</a>
+						<a href="poolownertype.html" class="tsd-kind-icon">Pool<wbr>Owner<wbr>Type</a>
 						<ul>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="relaytype.html#multihostname" class="tsd-kind-icon">Multi<wbr>Host<wbr>Name</a>
+								<a href="poolownertype.html#deviceowned" class="tsd-kind-icon">Device<wbr>Owned</a>
 							</li>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="relaytype.html#singlehostaddr" class="tsd-kind-icon">Single<wbr>Host<wbr>Addr</a>
-							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="relaytype.html#singlehostname" class="tsd-kind-icon">Single<wbr>Host<wbr>Name</a>
+								<a href="poolownertype.html#thirdparty" class="tsd-kind-icon">Third<wbr>Party</a>
 							</li>
 						</ul>
 					</li>
