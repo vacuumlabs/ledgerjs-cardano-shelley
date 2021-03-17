@@ -10,6 +10,8 @@ ES6
 const result = await ledger.signTransaction(networkId, protocolMagic, inputs, outputs, feeStr, ttlStr, certificates, withdrawals, metadataHashHex);
 ```
 
+TODO we need a very precise description of which witnesses are returned and how it depends on inputs
+
 ## Params
 
 ### Sign a transaction
