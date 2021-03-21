@@ -67,7 +67,7 @@ export const Precondition = {
     Precondition.check(/^[0-9a-fA-F]*$/.test(data), msg);
   },
   checkIsValidPath: (path: Array<number>, msg: ?string = null) => {
-    Precondition.checkIsArray(path), msg;
+    Precondition.checkIsArray(path, msg);
     for (const x of path) {
       Precondition.checkIsUint32(x, msg);
     }
