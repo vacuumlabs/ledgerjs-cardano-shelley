@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>RelayType | @cardano-foundation/ledgerjs-hw-app-cardano - v3.0.0</title>
+	<title>TransactionSigningMode | @cardano-foundation/ledgerjs-hw-app-cardano - v3.0.0</title>
 	<meta name="description" content="Documentation for @cardano-foundation/ledgerjs-hw-app-cardano - v3.0.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,10 +55,10 @@
 					<a href="../index.html">@cardano-foundation/ledgerjs-hw-app-cardano - v3.0.0</a>
 				</li>
 				<li>
-					<a href="relaytype.html">RelayType</a>
+					<a href="transactionsigningmode.html">TransactionSigningMode</a>
 				</li>
 			</ul>
-			<h1>Enumeration RelayType</h1>
+			<h1>Enumeration TransactionSigningMode</h1>
 		</div>
 	</div>
 </header>
@@ -68,11 +68,16 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Relay type (as defined by the Cardano spec)</p>
+						<p>Mode in which we want to sign the transaction.
+							Ledger hardware app has certain limitations and it cannot sign arbitrary combination of all transaction features.
+						The mode specifies which use-case the user wants to use and triggers additional validation on <code>tx</code> field.</p>
 					</div>
 					<dl class="tsd-comment-tags">
 						<dt>see</dt>
-						<dd><p><a href="../index.html#relay">Relay</a></p>
+						<dd><p><a href="../index.html#transaction">Transaction</a></p>
+						</dd>
+						<dt>see</dt>
+						<dd><p>[[SigningRequest]]</p>
 						</dd>
 					</dl>
 				</div>
@@ -84,9 +89,9 @@
 						<section class="tsd-index-section ">
 							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="relaytype.html#multi_host" class="tsd-kind-icon">MULTI_<wbr>HOST</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="relaytype.html#single_host_hostname" class="tsd-kind-icon">SINGLE_<wbr>HOST_<wbr>HOSTNAME</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="relaytype.html#single_host_ip_addr" class="tsd-kind-icon">SINGLE_<wbr>HOST_<wbr>IP_<wbr>ADDR</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="transactionsigningmode.html#ordinary_transaction" class="tsd-kind-icon">ORDINARY_<wbr>TRANSACTION</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="transactionsigningmode.html#pool_registration_as_owner" class="tsd-kind-icon">POOL_<wbr>REGISTRATION_<wbr>AS_<wbr>OWNER</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="transactionsigningmode.html#__reseved_pool_registration_as_operator" class="tsd-kind-icon">__RESEVED_<wbr>POOL_<wbr>REGISTRATION_<wbr>AS_<wbr>OPERATOR</a></li>
 							</ul>
 						</section>
 					</div>
@@ -95,62 +100,71 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Enumeration members</h2>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="multi_host" class="tsd-anchor"></a>
-					<h3>MULTI_<wbr>HOST</h3>
+					<a name="ordinary_transaction" class="tsd-anchor"></a>
+					<h3>ORDINARY_<wbr>TRANSACTION</h3>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Relay is multiple hosts reachable under dns name</p>
+							<p>Represents an ordinary user transaction transferring funds.</p>
 						</div>
-						<dl class="tsd-comment-tags">
-							<dt>see</dt>
-							<dd><p><a href="../index.html#multihostrelayparams">MultiHostRelayParams</a></p>
-							</dd>
-						</dl>
+						<p>The transaction</p>
+						<ul>
+							<li><em>should</em> have valid <code>path</code> property on all <code>inputs</code></li>
+							<li><em>must not</em> contain a pool registration certificate</li>
+						</ul>
+						<p>The API witnesses</p>
+						<ul>
+							<li>all non-null [[TxInput.path]] on <code>inputs</code></li>
+							<li>all [[Withdrawal.path]] on <code>withdrawals</code></li>
+							<li>all <code>path</code> properties on <code>certificates</code> for Stake registering/deregistering/delegating certificate.</li>
+						</ul>
 					</div>
-					<div class="tsd-signature tsd-kind-icon">MULTI_<wbr>HOST<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 2</span></div>
+					<div class="tsd-signature tsd-kind-icon">ORDINARY_<wbr>TRANSACTION<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;ordinary_transaction&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/ceb1d1f/src/types/public.ts#L95">src/types/public.ts:95</a></li>
+							<li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/ceb1d1f/src/types/public.ts#L796">src/types/public.ts:796</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="single_host_hostname" class="tsd-anchor"></a>
-					<h3>SINGLE_<wbr>HOST_<wbr>HOSTNAME</h3>
+					<a name="pool_registration_as_owner" class="tsd-anchor"></a>
+					<h3>POOL_<wbr>REGISTRATION_<wbr>AS_<wbr>OWNER</h3>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Relay is a single host specified as dns name</p>
+							<p>Represents pool registration from the perspective of pool owner.</p>
 						</div>
-						<dl class="tsd-comment-tags">
-							<dt>see</dt>
-							<dd><p><a href="../index.html#singlehosthostnamerelayparams">SingleHostHostnameRelayParams</a></p>
-							</dd>
-						</dl>
+						<p>The transaction</p>
+						<ul>
+							<li><em>must</em> have <code>path=null</code> on all <code>inputs</code> (i.e., we are not witnessing any UTxO)</li>
+							<li><em>must</em> have single Pool registration certificate</li>
+							<li><em>must</em> have single owner of type <a href="poolownertype.html#device_owned">PoolOwnerType.DEVICE_OWNED</a> on that certificate</li>
+							<li><em>must not</em> have withdrawals</li>
+						</ul>
+						<p>These restrictions are in place due to a possibility of maliciously signing <em>another</em> part of
+						the transaction with the pool owner path as we are not displaying device-owned paths on the device screen.</p>
+						<p>The API witnesses</p>
+						<ul>
+							<li>the single [[PoolOwnerDeviceOwnedParams.stakingPath]] found in pool registration</li>
+						</ul>
 					</div>
-					<div class="tsd-signature tsd-kind-icon">SINGLE_<wbr>HOST_<wbr>HOSTNAME<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 1</span></div>
+					<div class="tsd-signature tsd-kind-icon">POOL_<wbr>REGISTRATION_<wbr>AS_<wbr>OWNER<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;pool_registration_as_owner&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/ceb1d1f/src/types/public.ts#L90">src/types/public.ts:90</a></li>
+							<li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/ceb1d1f/src/types/public.ts#L813">src/types/public.ts:813</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="single_host_ip_addr" class="tsd-anchor"></a>
-					<h3>SINGLE_<wbr>HOST_<wbr>IP_<wbr>ADDR</h3>
+					<a name="__reseved_pool_registration_as_operator" class="tsd-anchor"></a>
+					<h3>__RESEVED_<wbr>POOL_<wbr>REGISTRATION_<wbr>AS_<wbr>OPERATOR</h3>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Relay is a single host specified with IPv4 or IPv6</p>
+							<p>Reserved for future use</p>
 						</div>
-						<dl class="tsd-comment-tags">
-							<dt>see</dt>
-							<dd><p><a href="../index.html#singlehostipaddrrelayparams">SingleHostIpAddrRelayParams</a></p>
-							</dd>
-						</dl>
 					</div>
-					<div class="tsd-signature tsd-kind-icon">SINGLE_<wbr>HOST_<wbr>IP_<wbr>ADDR<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 0</span></div>
+					<div class="tsd-signature tsd-kind-icon">__RESEVED_<wbr>POOL_<wbr>REGISTRATION_<wbr>AS_<wbr>OPERATOR<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;__pool_registration_as_operator&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/ceb1d1f/src/types/public.ts#L85">src/types/public.ts:85</a></li>
+							<li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/ceb1d1f/src/types/public.ts#L818">src/types/public.ts:818</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -169,16 +183,16 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-enum">
-						<a href="relaytype.html" class="tsd-kind-icon">Relay<wbr>Type</a>
+						<a href="transactionsigningmode.html" class="tsd-kind-icon">Transaction<wbr>Signing<wbr>Mode</a>
 						<ul>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="relaytype.html#multi_host" class="tsd-kind-icon">MULTI_<wbr>HOST</a>
+								<a href="transactionsigningmode.html#ordinary_transaction" class="tsd-kind-icon">ORDINARY_<wbr>TRANSACTION</a>
 							</li>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="relaytype.html#single_host_hostname" class="tsd-kind-icon">SINGLE_<wbr>HOST_<wbr>HOSTNAME</a>
+								<a href="transactionsigningmode.html#pool_registration_as_owner" class="tsd-kind-icon">POOL_<wbr>REGISTRATION_<wbr>AS_<wbr>OWNER</a>
 							</li>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="relaytype.html#single_host_ip_addr" class="tsd-kind-icon">SINGLE_<wbr>HOST_<wbr>IP_<wbr>ADDR</a>
+								<a href="transactionsigningmode.html#__reseved_pool_registration_as_operator" class="tsd-kind-icon">__RESEVED_<wbr>POOL_<wbr>REGISTRATION_<wbr>AS_<wbr>OPERATOR</a>
 							</li>
 						</ul>
 					</li>
