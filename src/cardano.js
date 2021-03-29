@@ -1,5 +1,5 @@
 // @flow
-import utils, { Precondition, Assert, hex_to_buf } from "./utils";
+import utils, { Precondition, Assert, hex_to_buf, invariant } from "./utils";
 import {
   TxOutputTypeCodes,
 } from './Ada';
@@ -95,7 +95,7 @@ export const TxErrors = {
   CERTIFICATES_COMBINATION_FORBIDDEN: "pool registration must not be combined with other certificates",
   CERTIFICATES_MULTIPLE_POOL_REGISTRATIONS: "pool registrations must not be combined",
   CERTIFICATE_INVALID: "invalid certificate",
-  CERTIFICATE_MISSING_PATH: "path is required for one of the certificates",
+  CERTIFICATE_INVALID_PATH: "path for one of the certificates is missing or invalid",
   CERTIFICATE_SUPERFLUOUS_PATH: "superfluous path in a certificate",
   CERTIFICATE_MISSING_POOL_KEY_HASH: "pool key hash missing in a certificate",
   CERTIFICATE_INVALID_POOL_KEY_HASH: "invalid pool key hash in a certificate",
@@ -107,12 +107,14 @@ export const TxErrors = {
 
   CERTIFICATE_POOL_MISSING_POOL_PARAMS: "missing stake pool params in a pool registration certificate",
   CERTIFICATE_POOL_INVALID_POOL_KEY: "invalid pool key in a pool registration certificate",
+  CERTIFICATE_POOL_POOL_KEY_FORMAT_NOT_SUPPORTED: "pool key format not supported by the Cardano app",
   CERTIFICATE_POOL_INVALID_VRF_KEY_HASH: "invalid vrf key hash in a pool registration certificate",
   CERTIFICATE_POOL_INVALID_PLEDGE: "invalid pledge in a pool registration certificate",
   CERTIFICATE_POOL_INVALID_COST: "invalid cost in a pool registration certificate",
   CERTIFICATE_POOL_INVALID_MARGIN: "invalid margin in a pool registration certificate",
   CERTIFICATE_POOL_INVALID_MARGIN_DENOMINATOR: "pool margin denominator must be a value between 1 and 10^15",
   CERTIFICATE_POOL_INVALID_REWARD_ACCOUNT: "invalid reward account in a pool registration certificate",
+  CERTIFICATE_POOL_REWARD_ACCOUNT_FORMAT_NOT_SUPPORTED: "reward account format not supported by the Cardano app",
   CERTIFICATE_POOL_OWNERS_NOT_ARRAY: "owners not an array in a pool registration certificate",
   CERTIFICATE_POOL_OWNERS_TOO_MANY: "too many owners in a pool registration certificate",
   CERTIFICATE_POOL_OWNERS_SINGLE_PATH_OWNER: "there should be exactly one owner given by path in a pool registration certificate signed by owner",
@@ -172,6 +174,7 @@ export function determineUsecase(certificates: Array<Certificate>) {
   if (poolRegistrationCert) {
     const poolParams = poolRegistrationCert.poolRegistrationParams;
     Precondition.check(poolParams != null, TxErrors.CERTIFICATE_POOL_MISSING_POOL_PARAMS);
+    invariant(poolParams != null);
     Precondition.check(poolParams.poolKey != null, TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY);
 
     // full validation of the components of the pool key is done elsewhere
@@ -202,7 +205,7 @@ function validateCertificates(
       case CertificateTypes.STAKE_REGISTRATION:
       case CertificateTypes.STAKE_DEREGISTRATION: {
         Precondition.check(usecase === SignTxUsecases.SIGN_TX_USECASE_ORDINARY_TX, TxErrors.CERTIFICATES_COMBINATION_FORBIDDEN);
-        Precondition.checkIsValidPath(cert.path, TxErrors.CERTIFICATE_MISSING_PATH);
+        Precondition.checkIsValidPath(cert.path, TxErrors.CERTIFICATE_INVALID_PATH);
         Precondition.check(!cert.poolKeyHashHex, TxErrors.CERTIFICATE_SUPERFLUOUS_POOL_KEY_HASH);
         Precondition.check(!cert.poolRegistrationParams, TxErrors.CERTIFICATE_SUPERFLUOUS_POOL_REGISTRATION_PARAMS);
         Precondition.check(!cert.poolRetirementParams, TxErrors.CERTIFICATE_SUPERFLUOUS_POOL_RETIREMENT_PARAMS);
@@ -210,8 +213,9 @@ function validateCertificates(
       }
       case CertificateTypes.STAKE_DELEGATION: {
         Precondition.check(usecase === SignTxUsecases.SIGN_TX_USECASE_ORDINARY_TX, TxErrors.CERTIFICATES_COMBINATION_FORBIDDEN);
-        Precondition.checkIsValidPath(cert.path, TxErrors.CERTIFICATE_MISSING_PATH);
+        Precondition.checkIsValidPath(cert.path, TxErrors.CERTIFICATE_INVALID_PATH);
         Precondition.checkIsHexString(cert.poolKeyHashHex, TxErrors.CERTIFICATE_MISSING_POOL_KEY_HASH);
+        invariant(cert.poolKeyHashHex != null);
         Precondition.check(cert.poolKeyHashHex.length == KEY_HASH_LENGTH * 2, TxErrors.CERTIFICATE_INVALID_POOL_KEY_HASH);
         Precondition.check(!cert.poolRegistrationParams, TxErrors.CERTIFICATE_SUPERFLUOUS_POOL_REGISTRATION_PARAMS);
         Precondition.check(!cert.poolRetirementParams, TxErrors.CERTIFICATE_SUPERFLUOUS_POOL_RETIREMENT_PARAMS);
@@ -223,8 +227,10 @@ function validateCertificates(
         Precondition.check(!cert.poolKeyHashHex, TxErrors.CERTIFICATE_SUPERFLUOUS_POOL_KEY_HASH);
         Precondition.check(!cert.poolRegistrationParams, TxErrors.CERTIFICATE_SUPERFLUOUS_POOL_REGISTRATION_PARAMS);
 
-        Precondition.check(cert.poolRetirementParams, TxErrors.CERTIFICATE_MISSING_POOL_RETIREMENT_PARAMS);
+        Precondition.check(cert.poolRetirementParams != null, TxErrors.CERTIFICATE_MISSING_POOL_RETIREMENT_PARAMS);
+        invariant(cert.poolRetirementParams != null);
         Precondition.checkIsValidPath(cert.poolRetirementParams.poolKeyPath, TxErrors.CERTIFICATE_INVALID_POOL_RETIREMENT_PARAMS);
+        invariant(cert.poolRetirementParams != null);
         Precondition.checkIsUint64Str(cert.poolRetirementParams.retirementEpochStr, TxErrors.CERTIFICATE_INVALID_POOL_RETIREMENT_PARAMS);
         break;
       }
@@ -236,6 +242,7 @@ function validateCertificates(
         Precondition.check(!!poolParams, TxErrors.CERTIFICATE_POOL_MISSING_POOL_PARAMS);
 
         // serialization succeeds if and only if the params are valid
+        invariant(poolParams != null);
         serializePoolParamsInit(poolParams);
         serializePoolParamsPoolKey(poolParams);
         serializePoolParamsVrfKey(poolParams);
@@ -406,12 +413,14 @@ export function collectWitnessPaths(
         break;
 
       case CertificateTypes.STAKE_POOL_RETIREMENT:
+        invariant(cert.poolRetirementParams != null);
         ordinaryWitnesses.push(cert.poolRetirementParams.poolKeyPath);
         break;
 
       case CertificateTypes.STAKE_POOL_REGISTRATION:
         numPoolRegistrationCerts++;
 
+        invariant(cert.poolRegistrationParams != null);
         const poolKeyPath = cert.poolRegistrationParams.poolKey.path;
         if (poolKeyPath)
           poolOperatorWitnesses.push(poolKeyPath);
@@ -659,13 +668,16 @@ export function serializePoolParamsPoolKey(
     Precondition.checkIsValidPath(poolKey.path);
     return Buffer.concat([
       utils.uint8_to_buf(KeyReferenceType.KEY_REFERENCE_PATH),
+      // $FlowFixMe
       utils.path_to_buf(poolKey.path)
     ]);
   } else if (poolKey.keyHashHex) {
     Precondition.checkIsHexString(poolKey.keyHashHex, TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY);
+    invariant(poolKey.keyHashHex != null);
     Precondition.check(poolKey.keyHashHex.length === KEY_HASH_LENGTH * 2, TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY);
     return Buffer.concat([
       utils.uint8_to_buf(KeyReferenceType.KEY_REFERENCE_HASH),
+      // $FlowFixMe
       utils.hex_to_buf(poolKey.keyHashHex)
     ]);
   } else {
@@ -711,14 +723,17 @@ export function serializePoolParamsRewardAccount(
 
     return Buffer.concat([
       utils.uint8_to_buf(KeyReferenceType.KEY_REFERENCE_PATH),
+      // $FlowFixMe
       utils.path_to_buf(params.rewardAccount.path)
     ]);
   } else {
     Precondition.checkIsHexString(params.rewardAccount.rewardAccountHex, TxErrors.CERTIFICATE_POOL_INVALID_REWARD_ACCOUNT);
+    invariant(params.rewardAccount.rewardAccountHex != null);
     Precondition.check(params.rewardAccount.rewardAccountHex.length === 29 * 2, TxErrors.CERTIFICATE_POOL_INVALID_REWARD_ACCOUNT);
 
     return Buffer.concat([
       utils.uint8_to_buf(KeyReferenceType.KEY_REFERENCE_HASH),
+      // $FlowFixMe
       utils.hex_to_buf(params.rewardAccount.rewardAccountHex)
     ]);
   }
@@ -767,7 +782,9 @@ export function serializePoolParamsRelay(
   let portBuf: Buffer;
   if (params.portNumber) {
     Precondition.checkIsUint32(params.portNumber, TxErrors.CERTIFICATE_POOL_RELAY_INVALID_PORT);
+    invariant(params.portNumber != null);
     Precondition.check(params.portNumber <= 65535, TxErrors.CERTIFICATE_POOL_RELAY_INVALID_PORT);
+    // $FlowFixMe
     portBuf = Buffer.concat([yesBuf, utils.uint16_to_buf(params.portNumber)]);
   } else {
     portBuf = noBuf;
@@ -776,6 +793,7 @@ export function serializePoolParamsRelay(
   let ipv4Buf: Buffer;
   if (params.ipv4) {
     Precondition.checkIsString(params.ipv4, TxErrors.CERTIFICATE_POOL_RELAY_INVALID_IPV4);
+    invariant(params.ipv4 != null);
     let ipParts = params.ipv4.split('.');
     Precondition.check(ipParts.length === 4, TxErrors.CERTIFICATE_POOL_RELAY_INVALID_IPV4);
     let ipBytes = Buffer.alloc(4);
@@ -792,6 +810,7 @@ export function serializePoolParamsRelay(
   let ipv6Buf: Buffer;
   if (params.ipv6) {
     Precondition.checkIsString(params.ipv6, TxErrors.CERTIFICATE_POOL_RELAY_INVALID_IPV6);
+    invariant(params.ipv6 != null);
     let ipHex = params.ipv6.split(':').join('');
     Precondition.checkIsHexString(ipHex, TxErrors.CERTIFICATE_POOL_RELAY_INVALID_IPV6);
     Precondition.check(ipHex.length === 16 * 2, TxErrors.CERTIFICATE_POOL_RELAY_INVALID_IPV6);
@@ -823,10 +842,12 @@ export function serializePoolParamsRelay(
 
     case 1:
       Precondition.check(dnsBuf != null, TxErrors.CERTIFICATE_POOL_RELAY_MISSING_DNS);
+      // $FlowFixMe
       return Buffer.concat([typeBuf, portBuf, dnsBuf]);
 
     case 2:
       Precondition.check(dnsBuf != null, TxErrors.CERTIFICATE_POOL_RELAY_MISSING_DNS);
+      // $FlowFixMe
       return Buffer.concat([typeBuf, dnsBuf]);
   }
   throw new Error(TxErrors.CERTIFICATE_POOL_RELAY_INVALID_TYPE);
