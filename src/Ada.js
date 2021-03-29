@@ -1160,7 +1160,7 @@ export default class Ada {
     issueCounterStr: string,
     coldKeyPath: BIP32Path
   ): Promise<SignOperationalCertificateResponse> {
-    await this._ensureLedgerAppVersionAtLeast(2, 1); // TODO update version number
+    await this._ensureLedgerAppVersionAtLeast(2, 3);
 
     cardano.validateOperationalCertificate(
       kesPublicKeyHex,
