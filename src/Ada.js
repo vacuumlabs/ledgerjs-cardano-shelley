@@ -604,12 +604,20 @@ export default class Ada {
     // this affects witness set construction and many validations
     const usecase = cardano.determineUsecase(certificates);
 
-    // TODO update
-    const appHasStakePoolOwnerSupport = await this._isLedgerAppVersionAtLeast(2, 1);
-    if (usecase !== SignTxUsecases.SIGN_TX_USECASE_ORDINARY_TX && !appHasStakePoolOwnerSupport) {
-      throw Error(Errors.INCORRECT_APP_VERSION);
+    switch(usecase) {
+      case SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OWNER:
+        await this._ensureLedgerAppVersionAtLeast(2, 1);
+        break;
+
+      case SignTxUsecases.SIGN_TX_USECASE_POOL_REGISTRATION_OPERATOR:
+        await this._ensureLedgerAppVersionAtLeast(2, 3);
+        break;
+
+      default:
+        break;
     }
 
+    // changes from Cardano Allegra and Mary forks
     // TODO replace this with a better mechanism for detecting ledger app capabilities
     const appHasMultiassetSupport = await this._isLedgerAppVersionAtLeast(2, 2);
     if (!appHasMultiassetSupport) {
@@ -627,13 +635,20 @@ export default class Ada {
       }
     }
 
+    // support for pool retirement certificates
+    const containsPoolRetirement = certificates.some(
+      cert => (cert.type === CertificateTypes.STAKE_POOL_RETIREMENT)
+    );
+    if (containsPoolRetirement) {
+      await this._ensureLedgerAppVersionAtLeast(2, 3);
+    }
+
     cardano.validateTransaction(
       networkId, protocolMagic,
       inputs, outputs, feeStr, ttlStr,
       certificates, withdrawals, metadataHashHex,
       validityIntervalStartStr
     );
-
 
     const P1_STAGE_INIT = 0x01;
     const P1_STAGE_INPUTS = 0x02;
@@ -650,6 +665,9 @@ export default class Ada {
 
     const _send = buildSendFn(this, INS.SIGN_TX);
 
+    const useLegacyUsecaseSerialization = !(await this._isLedgerAppVersionAtLeast(2, 1));
+    const hasLegacyStakePoolOwnerSupport = !(await this._isLedgerAppVersionAtLeast(2, 3));
+
     const signTx_init = async (
       networkId: number,
       protocolMagic: number,
@@ -663,12 +681,11 @@ export default class Ada {
       numWitnesses: number
     ): Promise<void> => {
 
-      // TODO let's get rid of this legacy support
       const _serializeUsecase = (usecase: number): Buffer => {
         // backwards compatible way of serializing the flag to signalize pool registration
         // transactions.
         // TODO To be removed/refactored once Ledger app 2.1 or later is rolled out
-        if (!appHasStakePoolOwnerSupport) {
+        if (useLegacyUsecaseSerialization) {
           return Buffer.from([])
         }
 
@@ -832,83 +849,132 @@ export default class Ada {
         invariant(poolRegistrationParams != null);
 
         // additional data for pool certificate
-        const APDU_INSTRUCTIONS = {
-          INIT: 0x30,
-          POOL_KEY: 0x31,
-          VRF_KEY: 0x32,
-          FINANCIALS: 0x33,
-          REWARD_ACCOUNT: 0x34,
-          OWNERS: 0x35,
-          RELAYS: 0x36,
-          METADATA: 0x37,
-          CONFIRMATION: 0x38
-        };
 
-        await _send(
-          P1_STAGE_CERTIFICATES,
-          APDU_INSTRUCTIONS.INIT,
-          cardano.serializePoolParamsInit(poolRegistrationParams),
-          0
-        );
+        if (hasLegacyStakePoolOwnerSupport) {
+          const APDU_INSTRUCTIONS = {
+            POOL_PARAMS: 0x30,
+            OWNERS: 0x31,
+            RELAYS: 0x32,
+            METADATA: 0x33,
+            CONFIRMATION: 0x34
+          };
 
-        await _send(
-          P1_STAGE_CERTIFICATES,
-          APDU_INSTRUCTIONS.POOL_KEY,
-          cardano.serializePoolParamsPoolKey(poolRegistrationParams),
-          0
-        );
-
-        await _send(
-          P1_STAGE_CERTIFICATES,
-          APDU_INSTRUCTIONS.VRF_KEY,
-          cardano.serializePoolParamsVrfKey(poolRegistrationParams),
-          0
-        );
-
-        await _send(
-          P1_STAGE_CERTIFICATES,
-          APDU_INSTRUCTIONS.FINANCIALS,
-          cardano.serializePoolParamsFinancials(poolRegistrationParams),
-          0
-        );
-
-        await _send(
-          P1_STAGE_CERTIFICATES,
-          APDU_INSTRUCTIONS.REWARD_ACCOUNT,
-          cardano.serializePoolParamsRewardAccount(poolRegistrationParams),
-          0
-        );
-
-        for (const owner of poolRegistrationParams.poolOwners) {
           await _send(
             P1_STAGE_CERTIFICATES,
-            APDU_INSTRUCTIONS.OWNERS,
-            cardano.serializePoolParamsOwner(owner),
+            APDU_INSTRUCTIONS.POOL_PARAMS,
+            cardano.serializePoolInitialParams_before_2_3(poolRegistrationParams),
+            0
+          );
+
+          for (const owner of poolRegistrationParams.poolOwners) {
+            await _send(
+              P1_STAGE_CERTIFICATES,
+              APDU_INSTRUCTIONS.OWNERS,
+              cardano.serializePoolParamsOwner(owner),
+              0
+            );
+          }
+          for (const relay of poolRegistrationParams.relays) {
+            await _send(
+              P1_STAGE_CERTIFICATES,
+              APDU_INSTRUCTIONS.RELAYS,
+              cardano.serializePoolParamsRelay(relay),
+              0
+            );
+          }
+
+          await _send(
+            P1_STAGE_CERTIFICATES,
+            APDU_INSTRUCTIONS.METADATA,
+            cardano.serializePoolParamsMetadata(poolRegistrationParams.metadata),
+            0
+          );
+
+          await _send(
+            P1_STAGE_CERTIFICATES,
+            APDU_INSTRUCTIONS.CONFIRMATION,
+            Buffer.alloc(0),
+            0
+          );
+        } else {
+          const APDU_INSTRUCTIONS = {
+            INIT: 0x30,
+            POOL_KEY: 0x31,
+            VRF_KEY: 0x32,
+            FINANCIALS: 0x33,
+            REWARD_ACCOUNT: 0x34,
+            OWNERS: 0x35,
+            RELAYS: 0x36,
+            METADATA: 0x37,
+            CONFIRMATION: 0x38
+          };
+
+          await _send(
+            P1_STAGE_CERTIFICATES,
+            APDU_INSTRUCTIONS.INIT,
+            cardano.serializePoolParamsInit(poolRegistrationParams),
+            0
+          );
+
+          await _send(
+            P1_STAGE_CERTIFICATES,
+            APDU_INSTRUCTIONS.POOL_KEY,
+            cardano.serializePoolParamsPoolKey(poolRegistrationParams),
+            0
+          );
+
+          await _send(
+            P1_STAGE_CERTIFICATES,
+            APDU_INSTRUCTIONS.VRF_KEY,
+            cardano.serializePoolParamsVrfKey(poolRegistrationParams),
+            0
+          );
+
+          await _send(
+            P1_STAGE_CERTIFICATES,
+            APDU_INSTRUCTIONS.FINANCIALS,
+            cardano.serializePoolParamsFinancials(poolRegistrationParams),
+            0
+          );
+
+          await _send(
+            P1_STAGE_CERTIFICATES,
+            APDU_INSTRUCTIONS.REWARD_ACCOUNT,
+            cardano.serializePoolParamsRewardAccount(poolRegistrationParams),
+            0
+          );
+
+          for (const owner of poolRegistrationParams.poolOwners) {
+            await _send(
+              P1_STAGE_CERTIFICATES,
+              APDU_INSTRUCTIONS.OWNERS,
+              cardano.serializePoolParamsOwner(owner),
+              0
+            );
+          }
+          for (const relay of poolRegistrationParams.relays) {
+            await _send(
+              P1_STAGE_CERTIFICATES,
+              APDU_INSTRUCTIONS.RELAYS,
+              cardano.serializePoolParamsRelay(relay),
+              0
+            );
+          }
+
+          await _send(
+            P1_STAGE_CERTIFICATES,
+            APDU_INSTRUCTIONS.METADATA,
+            cardano.serializePoolParamsMetadata(poolRegistrationParams.metadata),
+            0
+          );
+
+          await _send(
+            P1_STAGE_CERTIFICATES,
+            APDU_INSTRUCTIONS.CONFIRMATION,
+            Buffer.alloc(0),
             0
           );
         }
-        for (const relay of poolRegistrationParams.relays) {
-          await _send(
-            P1_STAGE_CERTIFICATES,
-            APDU_INSTRUCTIONS.RELAYS,
-            cardano.serializePoolParamsRelay(relay),
-            0
-          );
-        }
-
-        await _send(
-          P1_STAGE_CERTIFICATES,
-          APDU_INSTRUCTIONS.METADATA,
-          cardano.serializePoolParamsMetadata(poolRegistrationParams.metadata),
-          0
-        );
-
-        await _send(
-          P1_STAGE_CERTIFICATES,
-          APDU_INSTRUCTIONS.CONFIRMATION,
-          Buffer.alloc(0),
-          0
-        );
       }
     }
 

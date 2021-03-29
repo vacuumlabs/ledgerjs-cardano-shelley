@@ -863,6 +863,48 @@ export function serializePoolParamsMetadata(
   ]);
 }
 
+export function serializePoolInitialParams_before_2_3(
+  params: PoolRegistrationParams
+): Buffer {
+  Precondition.checkIsHexString(params.poolKey.keyHashHex, TxErrors.CERTIFICATE_POOL_POOL_KEY_FORMAT_NOT_SUPPORTED);
+  // $FlowFixMe
+  Precondition.check(params.poolKey.keyHashHex.length === KEY_HASH_LENGTH * 2, TxErrors.CERTIFICATE_POOL_INVALID_POOL_KEY);
+
+  Precondition.checkIsHexString(params.vrfKeyHashHex, TxErrors.CERTIFICATE_POOL_INVALID_VRF_KEY_HASH);
+  Precondition.check(params.vrfKeyHashHex.length === 32 * 2, TxErrors.CERTIFICATE_POOL_INVALID_VRF_KEY_HASH);
+
+  Precondition.checkIsValidAdaAmount(params.pledgeStr, TxErrors.CERTIFICATE_POOL_INVALID_PLEDGE);
+  Precondition.checkIsValidAdaAmount(params.costStr, TxErrors.CERTIFICATE_POOL_INVALID_COST);
+
+  const marginNumeratorStr = params.margin.numeratorStr;
+  const marginDenominatorStr = params.margin.denominatorStr;
+  Precondition.checkIsUint64Str(marginNumeratorStr, TxErrors.CERTIFICATE_POOL_INVALID_MARGIN);
+  Precondition.checkIsValidPoolMarginDenominator(marginDenominatorStr, TxErrors.CERTIFICATE_POOL_INVALID_MARGIN_DENOMINATOR);
+  // given both are valid uint strings, the check below is equivalent to "marginNumerator <= marginDenominator"
+  Precondition.checkIsValidUintStr(marginNumeratorStr, marginDenominatorStr, TxErrors.CERTIFICATE_POOL_INVALID_MARGIN);
+
+  Precondition.checkIsHexString(params.rewardAccount.rewardAccountHex, TxErrors.CERTIFICATE_POOL_REWARD_ACCOUNT_FORMAT_NOT_SUPPORTED);
+  // $FlowFixMe
+  Precondition.check(params.rewardAccount.rewardAccountHex.length === 29 * 2, TxErrors.CERTIFICATE_POOL_INVALID_REWARD_ACCOUNT);
+
+  Precondition.check(params.poolOwners.length <= POOL_REGISTRATION_OWNERS_MAX, TxErrors.CERTIFICATE_POOL_OWNERS_TOO_MANY);
+  Precondition.check(params.relays.length <= POOL_REGISTRATION_RELAYS_MAX, TxErrors.CERTIFICATE_POOL_RELAYS_TOO_MANY);
+
+  return Buffer.concat([
+    // $FlowFixMe
+    utils.hex_to_buf(params.poolKey.keyHashHex),
+    utils.hex_to_buf(params.vrfKeyHashHex),
+    utils.ada_amount_to_buf(params.pledgeStr),
+    utils.ada_amount_to_buf(params.costStr),
+    utils.uint64_to_buf(params.margin.numeratorStr),
+    utils.uint64_to_buf(params.margin.denominatorStr),
+    // $FlowFixMe
+    utils.hex_to_buf(params.rewardAccount.rewardAccountHex),
+    utils.uint32_to_buf(params.poolOwners.length),
+    utils.uint32_to_buf(params.relays.length)
+  ]);
+}
+
 export function serializeGetExtendedPublicKeyParams(
   path: BIP32Path
 ): Buffer {
@@ -901,5 +943,6 @@ export default {
   serializePoolParamsRewardAccount,
   serializePoolParamsOwner,
   serializePoolParamsRelay,
-  serializePoolParamsMetadata
+  serializePoolParamsMetadata,
+  serializePoolInitialParams_before_2_3,
 };
