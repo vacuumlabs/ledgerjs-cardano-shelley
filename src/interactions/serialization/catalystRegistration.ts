@@ -20,8 +20,8 @@ export function serializeCatalystRegistrationRewardsDestination(paymentDestinati
     ]);
 }
 
-export function serializeCatalystRegistrationNonce(slotNumber: Uint64_str): Buffer {
+export function serializeCatalystRegistrationNonce(nonce: Uint64_str): Buffer {
     return Buffer.concat([
-        uint64_to_buf(slotNumber),
+        uint64_to_buf(nonce),
     ]);
 }

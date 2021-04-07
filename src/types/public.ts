@@ -623,6 +623,10 @@ export type DeviceCompatibility = {
      * Whether we support Mary features
      */
     supportsMary: boolean
+    /**
+     * Whether we support Catalyst registration
+     */
+    supportsCatalyst: boolean
 }
 
 /**
@@ -675,6 +679,33 @@ export type Witness = {
 };
 
 /**
+ * Kind of auxiliary data supplementary information
+ * @category Basic types
+ * @see [[TxAuxiliaryDataSupplement]]
+ * @see [[TxAuxiliaryDataType]]
+ */
+export enum TxAuxiliaryDataSupplementType {
+    /** Supplementary information for the caller to assemble the Catalyst voting registration
+     * they sent to be signed.
+     */
+    CATALYST_REGISTRATION = 'catalyst_registration',
+}
+
+/**
+ * Transaction auxiliary data supplementary information.
+ * @category Basic types
+ * @see [[TxAuxiliaryDataSupplementType]]
+ * @see [[SignedTransactionData]]
+ */
+export type TxAuxiliaryDataSupplement = {
+    type: TxAuxiliaryDataSupplementType.CATALYST_REGISTRATION,
+    /** Hash of the auxiliary data including the Catalyst registration */
+    auxiliaryDataHashHex: string,
+    /** Signature of the Catalyst registration payload by the staking key that was supplied */
+    signatureHex: string,
+};
+
+/**
  * Result of signing a transaction.
  * @category Basic types
  * @see [[Ada.signTransaction]]
@@ -688,6 +719,11 @@ export type SignedTransactionData = {
      * List of witnesses. Caller should assemble full transaction to be submitted to the network.
      */
     witnesses: Array<Witness>,
+    /**
+     * Additional information about auxiliary data serialized into the transaction, providing
+     * the caller with information needed to assemble the transation containing these auxiliary data.
+     */
+    auxiliaryDataSupplement: TxAuxiliaryDataSupplement | null,
 };
 
 /**
@@ -773,9 +809,9 @@ export type TxMetadata = {
     stakingPath: BIP32Path
 
     /**
-     * Address for receiving voting rewards, Byron addresses not supported
+     * Address for receiving voting rewards, Byron-era addresses not supported
      */
-    rewardsDestination: DeviceOwnedAddress // TODO restrict to shelley addresses
+    rewardsDestination: DeviceOwnedAddress
 
     /**
      * Nonce value

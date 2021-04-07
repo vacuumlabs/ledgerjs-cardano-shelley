@@ -1,6 +1,7 @@
 import type {  ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, Uint64_str, ValidBIP32Path, Version } from "../types/internal";
 import { CertificateType, PoolOwnerType, TX_HASH_LENGTH } from "../types/internal";
-import type { SignedTransactionData} from '../types/public';
+import type { SignedTransactionData, TxAuxiliaryDataSupplement} from '../types/public';
+import { TxAuxiliaryDataSupplementType} from '../types/public';
 import { TxMetadataType } from '../types/public';
 import { TransactionSigningMode,TxAuxiliaryDataType } from '../types/public';
 import { assert } from "../utils/assert";
@@ -24,7 +25,7 @@ const enum P1 {
   STAGE_TTL = 0x05,
   STAGE_CERTIFICATES = 0x06,
   STAGE_WITHDRAWALS = 0x07,
-  STAGE_METADATA = 0x08,
+  STAGE_AUX_DATA = 0x08,
   STAGE_VALIDITY_INTERVAL_START = 0x09,
   STAGE_CONFIRM = 0x0a,
   STAGE_WITNESSES = 0x0f,
@@ -227,7 +228,7 @@ function* signTx_setTtl(
 
 function* signTx_setAuxiliaryData(
   auxiliaryData:  ParsedTxAuxiliaryData
-): Interaction<any> {
+): Interaction<TxAuxiliaryDataSupplement | null> {
   const enum P2 {
     UNUSED = 0x00
   }
@@ -240,7 +241,7 @@ function* signTx_setAuxiliaryData(
   assert(supportedAuxiliaryDataTypes.includes(auxiliaryData.type), 'Auxiliary data type not implemented');
 
   yield send({
-    p1: P1.STAGE_METADATA,
+    p1: P1.STAGE_AUX_DATA,
     p2: P2.UNUSED,
     data: serializeTxAuxiliaryData(auxiliaryData),
     expectedResponseLength: 0,
@@ -254,51 +255,53 @@ function* signTx_setAuxiliaryData(
       VOTING_KEY = 0x30,
       STAKING_KEY = 0x31,
       VOTING_REWARDS_ADDRESS = 0x32,
-      SLOT_NUMBER = 0x33,
+      NONCE = 0x33,
       CONFIRM = 0x34
     }
 
     yield send({
-      p1: P1.STAGE_METADATA,
+      p1: P1.STAGE_AUX_DATA,
       p2: P2.VOTING_KEY,
       data: serializeCatalystRegistrationVotingKey(metadata.votingPublicKey), 
       expectedResponseLength: 0,
     });
 
     yield send({
-      p1: P1.STAGE_METADATA,
+      p1: P1.STAGE_AUX_DATA,
       p2: P2.STAKING_KEY,
       data: serializeCatalystRegistrationStakingPath(metadata.stakingPath),
       expectedResponseLength: 0,
     });
 
     yield send({
-      p1: P1.STAGE_METADATA,
+      p1: P1.STAGE_AUX_DATA,
       p2: P2.VOTING_REWARDS_ADDRESS,
       data: serializeCatalystRegistrationRewardsDestination(metadata.rewardsDestination),
       expectedResponseLength: 0,
     });
 
     yield send({
-      p1: P1.STAGE_METADATA,
-      p2: P2.SLOT_NUMBER,
+      p1: P1.STAGE_AUX_DATA,
+      p2: P2.NONCE,
       data: serializeCatalystRegistrationNonce(metadata.nonce),
       expectedResponseLength: 0,
     });
 
     const response = yield send({
-      p1: P1.STAGE_METADATA,
+      p1: P1.STAGE_AUX_DATA,
       p2: P2.CONFIRM,
       data: Buffer.alloc(0),
       expectedResponseLength: 96,
     });
 
     return {
-      // TODO add type
-      auxDataHashHex: response.slice(0, 32).toString('hex'),
-      signature: response.slice(32, 96).toString('hex'),
+      type: TxAuxiliaryDataSupplementType.CATALYST_REGISTRATION,
+      auxiliaryDataHashHex: response.slice(0, 32).toString('hex'),
+      signatureHex: response.slice(32, 96).toString('hex'),
     };
   }
+
+  return null;
 }
 
 function* signTx_setValidityIntervalStart(
@@ -437,8 +440,9 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
   }
 
   // metadata
+  let auxiliaryDataSupplement = null;
   if (tx.auxiliaryData != null) {
-    yield* signTx_setAuxiliaryData(tx.auxiliaryData);
+    auxiliaryDataSupplement = yield* signTx_setAuxiliaryData(tx.auxiliaryData);
   }
 
   // validity start
@@ -459,5 +463,6 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
   return {
     txHashHex,
     witnesses,
+    auxiliaryDataSupplement,
   };
 }
