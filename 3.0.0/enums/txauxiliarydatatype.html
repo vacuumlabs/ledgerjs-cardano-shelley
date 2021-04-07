@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>TxOutputDestinationType | @cardano-foundation/ledgerjs-hw-app-cardano - v3.0.0</title>
+	<title>TxAuxiliaryDataType | @cardano-foundation/ledgerjs-hw-app-cardano - v3.0.0</title>
 	<meta name="description" content="Documentation for @cardano-foundation/ledgerjs-hw-app-cardano - v3.0.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,10 +55,10 @@
 					<a href="../index.html">@cardano-foundation/ledgerjs-hw-app-cardano - v3.0.0</a>
 				</li>
 				<li>
-					<a href="txoutputdestinationtype.html">TxOutputDestinationType</a>
+					<a href="txauxiliarydatatype.html">TxAuxiliaryDataType</a>
 				</li>
 			</ul>
-			<h1>Enumeration TxOutputDestinationType</h1>
+			<h1>Enumeration TxAuxiliaryDataType</h1>
 		</div>
 	</div>
 </header>
@@ -68,11 +68,11 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Specified type of output destination</p>
+						<p>Kind of transaction auxiliary data supplied to Ledger</p>
 					</div>
 					<dl class="tsd-comment-tags">
 						<dt>see</dt>
-						<dd><p><a href="../index.html#txoutputdestination">TxOutputDestination</a></p>
+						<dd><p><a href="../index.html#txauxiliarydata">TxAuxiliaryData</a></p>
 						</dd>
 					</dl>
 				</div>
@@ -84,8 +84,7 @@
 						<section class="tsd-index-section ">
 							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="txoutputdestinationtype.html#device_owned" class="tsd-kind-icon">DEVICE_<wbr>OWNED</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="txoutputdestinationtype.html#third_party" class="tsd-kind-icon">THIRD_<wbr>PARTY</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="txauxiliarydatatype.html#arbitrary_hash" class="tsd-kind-icon">ARBITRARY_<wbr>HASH</a></li>
 							</ul>
 						</section>
 					</div>
@@ -94,44 +93,17 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Enumeration members</h2>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="device_owned" class="tsd-anchor"></a>
-					<h3>DEVICE_<wbr>OWNED</h3>
+					<a name="arbitrary_hash" class="tsd-anchor"></a>
+					<h3>ARBITRARY_<wbr>HASH</h3>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Destination is an address owned by the device.
-							Device will not show the address (unles it seems fishy)</p>
+							<p>Auxiliary data is supplied as raw hash value</p>
 						</div>
-						<dl class="tsd-comment-tags">
-							<dt>see</dt>
-							<dd><p><a href="../index.html#deviceownedaddress">DeviceOwnedAddress</a></p>
-							</dd>
-						</dl>
 					</div>
-					<div class="tsd-signature tsd-kind-icon">DEVICE_<wbr>OWNED<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;device_owned&quot;</span></div>
+					<div class="tsd-signature tsd-kind-icon">ARBITRARY_<wbr>HASH<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;arbitrary_hash&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/fbc9fee/src/types/public.ts#L308">src/types/public.ts:308</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="third_party" class="tsd-anchor"></a>
-					<h3>THIRD_<wbr>PARTY</h3>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Destination is an address not owned by the device.
-							Device will show this address in the review screen.</p>
-						</div>
-						<dl class="tsd-comment-tags">
-							<dt>see</dt>
-							<dd><p><a href="../index.html#thirdpartyaddressparams">ThirdPartyAddressParams</a></p>
-							</dd>
-						</dl>
-					</div>
-					<div class="tsd-signature tsd-kind-icon">THIRD_<wbr>PARTY<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;third_party&quot;</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/fbc9fee/src/types/public.ts#L302">src/types/public.ts:302</a></li>
+							<li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/fbc9fee/src/types/public.ts#L700">src/types/public.ts:700</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -150,13 +122,10 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-enum">
-						<a href="txoutputdestinationtype.html" class="tsd-kind-icon">Tx<wbr>Output<wbr>Destination<wbr>Type</a>
+						<a href="txauxiliarydatatype.html" class="tsd-kind-icon">Tx<wbr>Auxiliary<wbr>Data<wbr>Type</a>
 						<ul>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="txoutputdestinationtype.html#device_owned" class="tsd-kind-icon">DEVICE_<wbr>OWNED</a>
-							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="txoutputdestinationtype.html#third_party" class="tsd-kind-icon">THIRD_<wbr>PARTY</a>
+								<a href="txauxiliarydatatype.html#arbitrary_hash" class="tsd-kind-icon">ARBITRARY_<wbr>HASH</a>
 							</li>
 						</ul>
 					</li>
