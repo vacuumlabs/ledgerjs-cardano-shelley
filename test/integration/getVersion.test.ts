@@ -23,6 +23,7 @@ describe("getVersion", async () => {
       isCompatible: true,
       recommendedVersion: null,
       supportsMary: true,
+      supportsCatalyst: true,
     })
   });
 });

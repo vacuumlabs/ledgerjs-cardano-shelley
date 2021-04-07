@@ -71,7 +71,7 @@ export type ParsedTxMetadata = {
     type: TxMetadataType.CATALYST_REGISTRATION,
     votingPublicKey: CatalystVotingPublicKey
     stakingPath: ValidBIP32Path
-    rewardsDestination: ParsedAddressParams
+    rewardsDestination: ShelleyAddressParams
     nonce: Uint64_str
 }
 
@@ -186,14 +186,14 @@ type StakingChoicePointer = {
 
 export type StakingChoice = StakingChoiceNone | StakingChoicePath | StakingChoiceHash | StakingChoicePointer
 
-type ByronAddressParams = {
+export type ByronAddressParams = {
     type: AddressType.BYRON,
     protocolMagic: Uint32_t
     spendingPath: ValidBIP32Path,
     stakingChoice: StakingChoiceNone,
 }
 
-type ShelleyAddressParams = {
+export type ShelleyAddressParams = {
     type: AddressType.BASE | AddressType.ENTERPRISE | AddressType.POINTER | AddressType.REWARD,
     networkId: Uint8_t,
     spendingPath: ValidBIP32Path
