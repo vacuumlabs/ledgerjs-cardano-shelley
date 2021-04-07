@@ -1,4 +1,4 @@
-import { AddressType, CertificateType, PoolOwnerType, RelayType, TransactionSigningMode, TxAuxiliaryDataType, TxOutputDestinationType } from './public'
+import { AddressType, CertificateType, PoolOwnerType, RelayType, TransactionSigningMode, TxAuxiliaryDataType, TxMetadataType, TxOutputDestinationType } from './public'
 
 // Basic primitives
 export type VarlenAsciiString = string & { __type: 'ascii' }
@@ -15,7 +15,7 @@ export type Uint16_t = number & { __type: 'uint16_t' }
 export type Uint8_t = number & { __type: 'uint8_t' }
 
 // Reexport blockchain spec
-export { AddressType, CertificateType, RelayType, PoolOwnerType, TxAuxiliaryDataType, TransactionSigningMode, TxOutputDestinationType }
+export { AddressType, CertificateType, RelayType, PoolOwnerType, TxAuxiliaryDataType, TxMetadataType, TransactionSigningMode, TxOutputDestinationType }
 export { Version, DeviceCompatibility } from './public'
 // Our types
 export const KEY_HASH_LENGTH = 28;
@@ -55,9 +55,24 @@ export type ParsedNetwork = {
     networkId: Uint8_t
 }
 
+export const CATALYST_VOTING_PUBLIC_KEY_LENGTH = 32;
+
+export type CatalystVotingPublicKey = FixlenHexString<typeof CATALYST_VOTING_PUBLIC_KEY_LENGTH>
+
 export type  ParsedTxAuxiliaryData = {
     type: TxAuxiliaryDataType.ARBITRARY_HASH
     hashHex: FixlenHexString<32>
+} | {
+    type: TxAuxiliaryDataType.TUPLE
+    metadata: ParsedTxMetadata
+}
+
+export type ParsedTxMetadata = {
+    type: TxMetadataType.CATALYST_REGISTRATION,
+    votingPublicKey: CatalystVotingPublicKey
+    stakingPath: ValidBIP32Path
+    rewardsDestination: ParsedAddressParams
+    nonce: Uint64_str
 }
 
 export type ParsedTransaction = {

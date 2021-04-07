@@ -1,4 +1,5 @@
-import type { SignedTransactionData, Transaction, TxInput, TxOutput, TxOutputDestination } from "../../../src/Ada";
+import type { DeviceOwnedAddress, SignedTransactionData, Transaction, TxInput, TxOutput, TxOutputDestination } from "../../../src/Ada";
+import { TxMetadataType } from "../../../src/Ada";
 import { AddressType, CertificateType, Networks, TxAuxiliaryDataType, TxOutputDestinationType, utils } from "../../../src/Ada";
 import { str_to_path } from "../../../src/utils/address";
 
@@ -879,6 +880,45 @@ export const testsMary: TestcaseMary[] = [
           path: str_to_path("1852'/1815'/0'/0/0"),
           witnessSignatureHex:
             "f19c5f698d3d46dac99c83268d8b5154262c22f9599d38b5221b78d08cef8f5bb81de648a0c94d328b74e88c58d46535de289123f08a47a05a1c253980d6b80e",
+        },
+      ],
+    },
+  }
+]
+
+export const testsCatalystRegistration: TestcaseMary[] = [
+  {
+    testname: "Should correctly sign tx with Catalyst voting key registration metadata",
+    tx: {
+      ...maryBase,
+      outputs: [outputs.internalBaseWithStakingPath],
+      auxiliaryData: {
+        type: TxAuxiliaryDataType.TUPLE,
+        params: {
+          metadata: {
+            type: TxMetadataType.CATALYST_REGISTRATION,
+            params: {
+              votingPublicKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
+              stakingPath: str_to_path("1852'/1815'/0'/2/0"),
+              nonce: 1454448,
+              rewardsDestination: destinations.internalBaseWithStakingPath.params as DeviceOwnedAddress
+            } 
+          }
+        }
+      }
+    },
+    txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
+      "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
+      "e1a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a075820deadbeefdeadbeefdeadbee" +
+      "fdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef", // TODO update
+    result: {
+      txHashHex:
+        "9069fef983e4479a05e5e8dfef973348814688c665b9c7008bbb2c686190a3b0",
+      witnesses: [
+        {
+          path: str_to_path("1852'/1815'/0'/0/0"),
+          witnessSignatureHex:
+            "8fca49d28f1c0b8b1962e388c45f57e2b5234a07ac0c9badba1887dd662bf1a55e841abe5e7324ad976e8da2c9b1bab8a48bb508da2ef85a0eff374d74d90305",
         },
       ],
     },
