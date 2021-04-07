@@ -698,8 +698,8 @@ export type SignedTransactionData = {
 export enum TxAuxiliaryDataType {
     /** Auxiliary data is supplied as raw hash value */
     ARBITRARY_HASH = 'arbitrary_hash',
-
-    // CatalystVoting = 'catalyst_voting'
+    /** Auxiliary data is supplied in a structured form to be serialized as a tuple */
+    TUPLE = 'tuple'
 }
 
 /**
@@ -712,6 +712,9 @@ export type TxAuxiliaryData =
     {
         type: TxAuxiliaryDataType.ARBITRARY_HASH
         params: TxAuxiliaryDataArbitraryHashParams
+    } | {
+        type: TxAuxiliaryDataType.TUPLE
+        params: TxAuxiliaryDataTupleParams
     }
 
 /**
@@ -721,6 +724,63 @@ export type TxAuxiliaryData =
 export type TxAuxiliaryDataArbitraryHashParams = {
     /** Hash of the transaction metadata */
     hashHex: string
+}
+
+/**
+ * Auxiliary data is supplied in a structured form to be serialized into the transaction
+ * as a tuple (Mary-era format of metadata)
+ * @see [[TxAuxiliaryData]]
+ */
+ export type TxAuxiliaryDataTupleParams = {
+    /** metadata parameters */
+    metadata: TxMetadata
+    // auxiliaryScripts not supported
+}
+
+/**
+ * Kind of transaction metadata supplied to Ledger
+ * @see [[TxMetadata]]
+ */
+export enum TxMetadataType {
+    /** Catalyst voting registration */
+    CATALYST_REGISTRATION = 'catalyst_registration'
+}
+
+/**
+ * Metadata entry to be included within the auxiliary data of the transaction
+ * @see [[TxMetadataType]]
+ * @see [[TxAuxiliaryData]]
+ */
+export type TxMetadata = {
+    type: TxMetadataType.CATALYST_REGISTRATION,
+    params: CatalystRegistrationParams
+}
+
+/**
+ * Parameters needed for Ledger to assemble and sign the Catalyst voting registration metadata.
+ * Ledger will display the voting registration parameters and overall metadata hash.
+ * @see [[TxMetadata]]
+ */
+ export type CatalystRegistrationParams = {
+    /**
+     * Voting key to be registered given in hex
+     */
+    votingPublicKeyHex: string,
+
+    /**
+     * Path to the staking key to which voting rights would be associated
+     */
+    stakingPath: BIP32Path
+
+    /**
+     * Address for receiving voting rewards, Byron addresses not supported
+     */
+    rewardsDestination: DeviceOwnedAddress // TODO restrict to shelley addresses
+
+    /**
+     * Nonce value
+     */
+    nonce: bigint_like
 }
 
 /**
