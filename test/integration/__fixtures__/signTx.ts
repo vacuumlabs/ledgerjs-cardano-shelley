@@ -937,18 +937,18 @@ export const testsCatalystRegistration: TestcaseMary[] = [
       "fdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef", // TODO update
     result: {
       txHashHex:
-        "9069fef983e4479a05e5e8dfef973348814688c665b9c7008bbb2c686190a3b0",
+        "ffb0c7daf1bcb661cdab8b452a6e6664a9fd9da289405a4234c356c75ce5be66",
       witnesses: [
         {
           path: str_to_path("1852'/1815'/0'/0/0"),
           witnessSignatureHex:
-            "8fca49d28f1c0b8b1962e388c45f57e2b5234a07ac0c9badba1887dd662bf1a55e841abe5e7324ad976e8da2c9b1bab8a48bb508da2ef85a0eff374d74d90305",
+            "b4e2bd2985668b6cbce395700545f3773b72ca1e86cc9470cb5340e5b266d05feb968cf09a1febe852d180f5ba93113f13e5d56fe8cf7bbfb31b3ccaa45fb800",
         },
       ],
       auxiliaryDataSupplement: {
         type: TxAuxiliaryDataSupplementType.CATALYST_REGISTRATION,
-        auxiliaryDataHashHex: "3e11c265917589dabd02a30a988241b5e7f59fb3c0853d93a3b2eb1b709acb4c",
-        signatureHex: "37987ce20da14f7b34e28ad14c8975b8b179085a7703c4b1b6dddcd21de77c8c5fd92ac84241b1bb3ccf852c3e8683fd1c586ab0a18c31e46e1320c00db86b0f"
+        auxiliaryDataHashHex: "e9141b460aea0abb69ce113c7302c7c03690267736d6a382ee62d2a53c2ec926",
+        signatureHex: "0ca3bb69cad5f471ddd32097a8501e3956e4ae0c2bf523625d1686b123dcc04af240630eb93bf1069c607b59bbe7d521fb8dd14a4312788bc0b72b7473ee160e"
       }
     },
   }
