@@ -411,6 +411,12 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
     tx, signingMode, witnessPaths,
   );
 
+  // metadata
+  let auxiliaryDataSupplement = null;
+  if (tx.auxiliaryData != null) {
+    auxiliaryDataSupplement = yield* signTx_setAuxiliaryData(tx.auxiliaryData);
+  }
+
   // inputs
   for (const input of tx.inputs) {
     yield* signTx_addInput(input);
@@ -437,12 +443,6 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
   // withdrawals
   for (const withdrawal of tx.withdrawals) {
     yield* signTx_addWithdrawal(withdrawal);
-  }
-
-  // metadata
-  let auxiliaryDataSupplement = null;
-  if (tx.auxiliaryData != null) {
-    auxiliaryDataSupplement = yield* signTx_setAuxiliaryData(tx.auxiliaryData);
   }
 
   // validity start
