@@ -44,7 +44,7 @@ export function getCompatibility(version: Version): DeviceCompatibility {
     isCompatible: v2_2,
     recommendedVersion: v2_2 ? null : '2.3.0',
     supportsMary: v2_2,
-    supportsCatalyst: v2_3
+    supportsCatalystRegistration: v2_3
   }
 }
 

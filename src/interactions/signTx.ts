@@ -1,3 +1,4 @@
+import { DeviceVersionUnsupported } from '../errors';
 import type {  ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, Uint64_str, ValidBIP32Path, Version } from "../types/internal";
 import { CertificateType, PoolOwnerType, TX_HASH_LENGTH } from "../types/internal";
 import type { SignedTransactionData, TxAuxiliaryDataSupplement} from '../types/public';
@@ -5,10 +6,10 @@ import { TxAuxiliaryDataSupplementType} from '../types/public';
 import { TxMetadataType } from '../types/public';
 import { TransactionSigningMode,TxAuxiliaryDataType } from '../types/public';
 import { assert } from "../utils/assert";
-import { buf_to_hex, } from "../utils/serialize";
+import { buf_to_hex, hex_to_buf } from "../utils/serialize";
 import { INS } from "./common/ins";
 import type { Interaction, SendParams } from "./common/types";
-import { ensureLedgerAppVersionCompatible } from "./getVersion";
+import { ensureLedgerAppVersionCompatible, getCompatibility } from "./getVersion";
 import { serializeCatalystRegistrationNonce, serializeCatalystRegistrationRewardsDestination, serializeCatalystRegistrationStakingPath,serializeCatalystRegistrationVotingKey } from "./serialization/catalystRegistration"
 import { serializePoolInitialParams, serializePoolMetadata, serializePoolOwner, serializePoolRelay } from "./serialization/poolRegistrationCertificate";
 import { serializeTxAuxiliaryData } from "./serialization/txAuxiliaryData";
@@ -19,13 +20,13 @@ import { serializeAssetGroup, serializeToken, serializeTxOutputBasicParams } fro
 
 const enum P1 {
   STAGE_INIT = 0x01,
+  STAGE_AUX_DATA = 0x08,
   STAGE_INPUTS = 0x02,
   STAGE_OUTPUTS = 0x03,
   STAGE_FEE = 0x04,
   STAGE_TTL = 0x05,
   STAGE_CERTIFICATES = 0x06,
   STAGE_WITHDRAWALS = 0x07,
-  STAGE_AUX_DATA = 0x08,
   STAGE_VALIDITY_INTERVAL_START = 0x09,
   STAGE_CONFIRM = 0x0a,
   STAGE_WITNESSES = 0x0f,
@@ -304,6 +305,25 @@ function* signTx_setAuxiliaryData(
   return null;
 }
 
+function* signTx_setAuxiliaryData_before_v2_3(
+  auxiliaryData:  ParsedTxAuxiliaryData
+): Interaction<null> {
+  const enum P2 {
+    UNUSED = 0x00
+  }
+
+  assert(auxiliaryData.type === TxAuxiliaryDataType.ARBITRARY_HASH, 'Auxiliary data type not implemented');
+
+  yield send({
+    p1: P1.STAGE_AUX_DATA,
+    p2: P2.UNUSED,
+    data: hex_to_buf(auxiliaryData.hashHex),
+    expectedResponseLength: 0,
+  });
+
+  return null;
+}
+
 function* signTx_setValidityIntervalStart(
   validityIntervalStartStr: Uint64_str
 ): Interaction<void> {
@@ -401,8 +421,20 @@ function generateWitnessPaths(request: ParsedSigningRequest): ValidBIP32Path[] {
   }
 }
 
+function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSigningRequest): void {
+  const auxiliaryData = request?.tx?.auxiliaryData;
+  const hasCatalystRegistration = auxiliaryData?.type == TxAuxiliaryDataType.TUPLE && auxiliaryData.metadata.type == TxMetadataType.CATALYST_REGISTRATION;
+
+  if (hasCatalystRegistration && !getCompatibility(version).supportsCatalystRegistration) {
+    throw new DeviceVersionUnsupported(`Catalyst registration not supported by Ledger app version ${version}.`);
+  }
+}
+
 export function* signTransaction(version: Version, request: ParsedSigningRequest): Interaction<SignedTransactionData> {
   ensureLedgerAppVersionCompatible(version);
+  ensureRequestSupportedByAppVersion(version, request);
+
+  const isCatalystRegistrationSupported = getCompatibility(version).supportsCatalystRegistration;
 
   const witnessPaths = generateWitnessPaths(request)
   const { tx, signingMode } = request
@@ -411,9 +443,9 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
     tx, signingMode, witnessPaths,
   );
 
-  // metadata
+  // auxiliary data
   let auxiliaryDataSupplement = null;
-  if (tx.auxiliaryData != null) {
+  if (isCatalystRegistrationSupported && tx.auxiliaryData != null) {
     auxiliaryDataSupplement = yield* signTx_setAuxiliaryData(tx.auxiliaryData);
   }
 
@@ -443,6 +475,11 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
   // withdrawals
   for (const withdrawal of tx.withdrawals) {
     yield* signTx_addWithdrawal(withdrawal);
+  }
+
+  // auxiliary data before Ledger app version 2.3.0
+  if (!isCatalystRegistrationSupported && tx.auxiliaryData != null) {
+    auxiliaryDataSupplement = yield* signTx_setAuxiliaryData_before_v2_3(tx.auxiliaryData);
   }
 
   // validity start

@@ -626,7 +626,7 @@ export type DeviceCompatibility = {
     /**
      * Whether we support Catalyst registration
      */
-    supportsCatalyst: boolean
+    supportsCatalystRegistration: boolean
 }
 
 /**
