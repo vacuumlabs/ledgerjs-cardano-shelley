@@ -14,9 +14,9 @@ export function serializeCatalystRegistrationStakingPath(stakingPath: ValidBIP32
     ]);
 }
 
-export function serializeCatalystRegistrationRewardsDestination(paymentDestination: ParsedAddressParams): Buffer {
+export function serializeCatalystRegistrationRewardsDestination(rewardsDestination: ParsedAddressParams): Buffer {
     return Buffer.concat([
-        serializeAddressParams(paymentDestination),
+        serializeAddressParams(rewardsDestination),
     ]);
 }
 
