@@ -49,8 +49,6 @@ export enum InvalidDataReason {
   "superfluous pool key hash in a certificate",
   CERTIFICATE_INVALID_TYPE = "invalid certificate type",
 
-  POOL_REGISTRATION_INVALID_POOL_KEY_HASH =
-  "invalid pool key hash in a pool registration certificate",
   POOL_REGISTRATION_INVALID_VRF_KEY_HASH =
   "invalid vrf key hash in a pool registration certificate",
   POOL_REGISTRATION_INVALID_PLEDGE =
@@ -61,10 +59,15 @@ export enum InvalidDataReason {
   "invalid margin in a pool registration certificate",
   POOL_MARGIN_INVALID_MARGIN_DENOMINATOR =
   "pool margin denominator must be a value between 1 and 10^15",
-  POOL_REGISTRATION_INVALID_REWARD_ACCOUNT =
-  "invalid reward account in a pool registration certificate",
   POOL_REGISTRATION_OWNERS_TOO_MANY =
   "too many owners in a pool registration certificate",
+
+  POOL_KEY_INVALID_TYPE =
+  "invalid pool key type",
+  POOL_KEY_INVALID_PATH =
+  "invalid pool key path in a pool registration certificate",
+  POOL_KEY_INVALID_KEY_HASH =
+  "invalid pool key hash in a pool registration certificate",
 
   POOL_OWNER_INVALID_TYPE =
   "invalid owner type",
@@ -74,6 +77,16 @@ export enum InvalidDataReason {
   "invalid owner key hash in a pool registration certificate",
   POOL_REGISTRATION_RELAYS_TOO_MANY =
   "too many pool relays in a pool registration certificate",
+
+  POOL_REWARD_ACCOUNT_INVALID_TYPE =
+  "invalid pool reward account type",
+  POOL_REWARD_ACCOUNT_INVALID_PATH =
+  "invalid pool reward account key path in a pool registration certificate",
+  POOL_REWARD_ACCOUNT_INVALID_HEX =
+  "invalid pool reward account key hash in a pool registration certificate",
+
+  POOL_RETIREMENT_INVALID_RETIREMENT_EPOCH =
+  "invalid pool retirement epoch",
 
   RELAY_INVALID_TYPE =
   "invalid type of a relay in a pool registration certificate",
@@ -121,4 +134,22 @@ export enum InvalidDataReason {
   "single device-owned pool owner is expected in TransactionSigningMode.POOL_REGISTRATION_AS_OWNER",
   SIGN_MODE_POOL_OWNER__WITHDRAWALS_NOT_ALLOWED =
   "no withdrawals allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OWNER",
+
+  SIGN_MODE_POOL_OPERATOR__SINGLE_POOL_REG_CERTIFICATE_REQUIRED =
+  "single pool registration certificate is expected in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR",
+  SIGN_MODE_POOL_OPERATOR__DEVICE_OWNED_POOL_KEY_REQUIRED =
+  "device owned pool key is required in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR",
+  SIGN_MODE_POOL_OPERATOR__DEVICE_OWNED_POOL_OWNER_NOT_ALLOWED =
+  "no device-owned pool owner is expected in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR",
+  SIGN_MODE_POOL_OPERATOR__WITHDRAWALS_NOT_ALLOWED =
+  "no withdrawals allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR",
+
+  OPERATIONAL_CERTIFICATE_INVALID_KES_KEY =
+  "invalid operational certificate kes key",
+  OPERATIONAL_CERTIFICATE_INVALID_KES_PERIOD =
+  "invalid operational certificate kes period",
+  OPERATIONAL_CERTIFICATE_INVALID_ISSUE_COUNTER =
+  "invalid operational certificate issue counter",
+  OPERATIONAL_CERTIFICATE_INVALID_COLD_KEY_PATH =
+  "invalid operational certificate cold key path",
 }
