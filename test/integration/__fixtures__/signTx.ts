@@ -375,6 +375,7 @@ export type TestcaseShelley = {
   testname: string
   tx: Transaction
   txBody?: string,
+  txAuxiliaryData?: string,
   result: SignedTransactionData
 }
 
@@ -821,6 +822,7 @@ export type TestcaseMary = {
   testname: string
   tx: Transaction
   txBody: string,
+  txAuxiliaryData?: string,
   result: SignedTransactionData
 }
 
@@ -926,15 +928,21 @@ export const testsCatalystRegistration: TestcaseMary[] = [
               stakingPath: str_to_path("1852'/1815'/0'/2/0"),
               nonce: 1454448,
               rewardsDestination: destinations.internalBaseWithStakingPath.params as DeviceOwnedAddress
-            } 
+            }
           }
         }
       }
     },
-    txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
-      "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
-      "e1a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a075820deadbeefdeadbeefdeadbee" +
-      "fdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef", // TODO update
+    txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad" +
+      "1c0b70001818258390114c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f11241d" +
+      "227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c1a006ca79302182a030a075" +
+      "820e9141b460aea0abb69ce113c7302c7c03690267736d6a382ee62d2a53c2ec92608182f",
+    txAuxiliaryData: "82a219ef64a40158204b19e27ffc006ace16592311c4d2f0cafc255eaa47" +
+      "a6178ff540c0a46d07027c02582066610efd336e1137c525937b76511fbcf2a0e6bcf0d340a67" +
+      "bcb39bc870d85e80358390114c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f11" +
+      "241d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c041a0016317019ef65a" +
+      "10158400ca3bb69cad5f471ddd32097a8501e3956e4ae0c2bf523625d1686b123dcc04af24063" +
+      "0eb93bf1069c607b59bbe7d521fb8dd14a4312788bc0b72b7473ee160e80",
     result: {
       txHashHex:
         "ffb0c7daf1bcb661cdab8b452a6e6664a9fd9da289405a4234c356c75ce5be66",
