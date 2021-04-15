@@ -241,11 +241,23 @@ export const outputs: Record<
         ],
       },
       {
-        policyIdHex: "75a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39",
+        // fingerprints taken from CIP 14 draft
+        policyIdHex: "7eae28af2208be856f7a119668ae52a49b73725e326dc16579dcc373",
         tokens: [
           {
-            assetNameHex: "7564247542686911",
-            amount: "47",
+            // fingerprint: asset17jd78wukhtrnmjh3fngzasxm8rck0l2r4hhyyt
+            assetNameHex: "1e349c9bdea19fd6c147626a5260bc44b71635f398b67c59881df209",
+            amountStr: "1"
+          },
+          {
+            // fingerprint: asset1pkpwyknlvul7az0xx8czhl60pyel45rpje4z8w
+            assetNameHex: "0000000000000000000000000000000000000000000000000000000000000000",
+            amountStr: "2"
+          },
+          {
+            // fingerprint: asset1rjklcrnsdzqp65wjgrg55sy9723kw09mlgvlc3
+            assetNameHex: "",
+            amountStr: "3"
           },
         ],
       },
@@ -851,6 +863,7 @@ export const testsMary: TestcaseMary[] = [
       ...maryBase,
       outputs: [outputs.multiassetManyTokens, outputs.internalBaseWithStakingPath],
     },
+    // TODO GK - probably incorrect output
     txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018282583901eb0baa5e570cffbe2934db29df0b6a3d7c0430ee65d4c3a7ab2fefb91bc428e4720702ebd5dab4fb175324c192dc9bb76cc5da956e3c8dff821904d2a2581c95a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39a24874652474436f696e1a00783862401904d2581c75a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39a1487564247542686911182f8258390114c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f11241d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c1a006ca79302182a030a08182f",
     result: {
       txHashHex:
@@ -926,7 +939,7 @@ export const testsCatalystRegistration: TestcaseMary[] = [
               stakingPath: str_to_path("1852'/1815'/0'/2/0"),
               nonce: 1454448,
               rewardsDestination: destinations.internalBaseWithStakingPath.params as DeviceOwnedAddress
-            } 
+            }
           }
         }
       }

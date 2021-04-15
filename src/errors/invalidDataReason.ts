@@ -49,8 +49,8 @@ export enum InvalidDataReason {
   "superfluous pool key hash in a certificate",
   CERTIFICATE_INVALID_TYPE = "invalid certificate type",
 
-  POOL_REGISTRATION_INVALID_POOL_KEY_HASH =
-  "invalid pool key hash in a pool registration certificate",
+  // POOL_REGISTRATION_INVALID_POOL_KEY_HASH =
+  // "invalid pool key hash in a pool registration certificate",
   POOL_REGISTRATION_INVALID_VRF_KEY_HASH =
   "invalid vrf key hash in a pool registration certificate",
   POOL_REGISTRATION_INVALID_PLEDGE =
@@ -61,10 +61,17 @@ export enum InvalidDataReason {
   "invalid margin in a pool registration certificate",
   POOL_MARGIN_INVALID_MARGIN_DENOMINATOR =
   "pool margin denominator must be a value between 1 and 10^15",
-  POOL_REGISTRATION_INVALID_REWARD_ACCOUNT =
-  "invalid reward account in a pool registration certificate",
+  // POOL_REGISTRATION_INVALID_REWARD_ACCOUNT =
+  // "invalid reward account in a pool registration certificate",
   POOL_REGISTRATION_OWNERS_TOO_MANY =
   "too many owners in a pool registration certificate",
+
+  POOL_KEY_INVALID_TYPE =
+  "invalid key type",
+  POOL_KEY_INVALID_PATH =
+  "invalid key path in a pool registration certificate",
+  POOL_KEY_INVALID_KEY_HASH =
+  "invalid key hash in a pool registration certificate",
 
   POOL_OWNER_INVALID_TYPE =
   "invalid owner type",
@@ -74,6 +81,16 @@ export enum InvalidDataReason {
   "invalid owner key hash in a pool registration certificate",
   POOL_REGISTRATION_RELAYS_TOO_MANY =
   "too many pool relays in a pool registration certificate",
+
+  POOL_REWARD_ACCOUNT_INVALID_TYPE =
+  "invalid reward account type",
+  POOL_REWARD_ACCOUNT_INVALID_PATH =
+  "invalid reward account key path in a pool registration certificate",
+  POOL_REWARD_ACCOUNT_INVALID_KEY_HASH =
+  "invalid reward account key hash in a pool registration certificate",
+
+  POOL_RETIREMENT_INVALID_RETIREMENT_EPOCH =
+  "invalid retirement epoch",
 
   RELAY_INVALID_TYPE =
   "invalid type of a relay in a pool registration certificate",

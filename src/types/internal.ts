@@ -1,4 +1,4 @@
-import { AddressType, CertificateType, PoolOwnerType, RelayType, TransactionSigningMode, TxAuxiliaryDataType, TxMetadataType, TxOutputDestinationType } from './public'
+import { AddressType, CertificateType, PoolKeyType, PoolOwnerType, PoolRewardAccountType, RelayType, TransactionSigningMode, TxAuxiliaryDataType, TxMetadataType, TxOutputDestinationType } from './public'
 
 // Basic primitives
 export type VarlenAsciiString = string & { __type: 'ascii' }
@@ -15,7 +15,7 @@ export type Uint16_t = number & { __type: 'uint16_t' }
 export type Uint8_t = number & { __type: 'uint8_t' }
 
 // Reexport blockchain spec
-export { AddressType, CertificateType, RelayType, PoolOwnerType, TxAuxiliaryDataType, TxMetadataType, TransactionSigningMode, TxOutputDestinationType }
+export { AddressType, CertificateType, RelayType, PoolKeyType, PoolOwnerType, PoolRewardAccountType, TxAuxiliaryDataType, TxMetadataType, TransactionSigningMode, TxOutputDestinationType }
 export { Version, DeviceCompatibility } from './public'
 // Our types
 export const KEY_HASH_LENGTH = 28;
@@ -34,6 +34,10 @@ export type ParsedCertificate = {
 } | {
     type: CertificateType.STAKE_POOL_REGISTRATION
     pool: ParsedPoolParams
+} | {
+    type: CertificateType.STAKE_POOL_RETIREMENT
+    path: ValidBIP32Path
+    retirementEpoch: Uint64_str
 }
 
 export const TOKEN_POLICY_LENGTH = 28;
@@ -59,7 +63,7 @@ export const CATALYST_VOTING_PUBLIC_KEY_LENGTH = 32;
 
 export type CatalystVotingPublicKey = FixlenHexString<typeof CATALYST_VOTING_PUBLIC_KEY_LENGTH>
 
-export type  ParsedTxAuxiliaryData = {
+export type ParsedTxAuxiliaryData = {
     type: TxAuxiliaryDataType.ARBITRARY_HASH
     hashHex: FixlenHexString<32>
 } | {
@@ -83,7 +87,7 @@ export type ParsedTransaction = {
     ttl: Uint64_str | null
     certificates: ParsedCertificate[]
     withdrawals: ParsedWithdrawal[]
-    auxiliaryData:  ParsedTxAuxiliaryData | null
+    auxiliaryData: ParsedTxAuxiliaryData | null
     validityIntervalStart: Uint64_str | null
 }
 
@@ -113,15 +117,24 @@ export type ParsedMargin = {
 
 
 export type ParsedPoolParams = {
-    keyHashHex: FixlenHexString<28>,
+    key: ParsedPoolKey,
     vrfHashHex: FixlenHexString<32>,
     pledge: Uint64_str,
     cost: Uint64_str,
     margin: ParsedMargin,
-    rewardAccountHex: FixlenHexString<29>
+    rewardAccount: ParsedPoolRewardAccount,
     owners: ParsedPoolOwner[],
     relays: ParsedPoolRelay[],
     metadata: ParsedPoolMetadata | null
+}
+
+
+export type ParsedPoolKey = {
+    type: PoolKeyType.DEVICE_OWNED,
+    path: ValidBIP32Path
+} | {
+    type: PoolKeyType.THIRD_PARTY
+    hashHex: FixlenHexString<typeof KEY_HASH_LENGTH>
 }
 
 
@@ -132,6 +145,16 @@ export type ParsedPoolOwner = {
     type: PoolOwnerType.THIRD_PARTY
     hashHex: FixlenHexString<typeof KEY_HASH_LENGTH>
 }
+
+
+export type ParsedPoolRewardAccount = {
+    type: PoolRewardAccountType.DEVICE_OWNED,
+    path: ValidBIP32Path
+} | {
+    type: PoolRewardAccountType.THIRD_PARTY
+    hashHex: FixlenHexString<typeof KEY_HASH_LENGTH>
+}
+
 
 export type ParsedPoolRelay = {
     type: RelayType.SINGLE_HOST_IP_ADDR,

@@ -1,6 +1,6 @@
 import { InvalidData } from "../errors";
 import { InvalidDataReason } from "../errors/invalidDataReason";
-import type { OutputDestination, ParsedAssetGroup,  ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedToken, ParsedTransaction, ParsedWithdrawal } from "../types/internal";
+import type { OutputDestination, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedToken, ParsedTransaction, ParsedWithdrawal } from "../types/internal";
 import { ASSET_NAME_LENGTH_MAX, CertificateType, TOKEN_POLICY_LENGTH, TX_HASH_LENGTH } from "../types/internal";
 import type {
     AssetGroup,
@@ -215,6 +215,7 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
                 tx.certificates.length === 1,
                 InvalidDataReason.SIGN_MODE_POOL_OWNER__SINGLE_POOL_REG_CERTIFICATE_REQUIRED
             )
+            // TODO GK
             tx.certificates.forEach(certificate => {
                 validate(
                     certificate.type === CertificateType.STAKE_POOL_REGISTRATION,

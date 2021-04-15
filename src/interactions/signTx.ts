@@ -1,16 +1,15 @@
-import { DeviceVersionUnsupported } from '../errors';
-import type {  ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, Uint64_str, ValidBIP32Path, Version } from "../types/internal";
+import type { ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, Uint64_str, ValidBIP32Path, Version } from "../types/internal";
 import { CertificateType, PoolOwnerType, TX_HASH_LENGTH } from "../types/internal";
-import type { SignedTransactionData, TxAuxiliaryDataSupplement} from '../types/public';
-import { TxAuxiliaryDataSupplementType} from '../types/public';
+import type { SignedTransactionData, TxAuxiliaryDataSupplement } from '../types/public';
+import { TxAuxiliaryDataSupplementType } from '../types/public';
 import { TxMetadataType } from '../types/public';
-import { TransactionSigningMode,TxAuxiliaryDataType } from '../types/public';
+import { TransactionSigningMode, TxAuxiliaryDataType } from '../types/public';
 import { assert } from "../utils/assert";
 import { buf_to_hex, hex_to_buf } from "../utils/serialize";
 import { INS } from "./common/ins";
 import type { Interaction, SendParams } from "./common/types";
 import { ensureLedgerAppVersionCompatible, getCompatibility } from "./getVersion";
-import { serializeCatalystRegistrationNonce, serializeCatalystRegistrationRewardsDestination, serializeCatalystRegistrationStakingPath,serializeCatalystRegistrationVotingKey } from "./serialization/catalystRegistration"
+import { serializeCatalystRegistrationNonce, serializeCatalystRegistrationRewardsDestination, serializeCatalystRegistrationStakingPath, serializeCatalystRegistrationVotingKey } from "./serialization/catalystRegistration"
 import { serializePoolInitialParams, serializePoolMetadata, serializePoolOwner, serializePoolRelay } from "./serialization/poolRegistrationCertificate";
 import { serializeTxAuxiliaryData } from "./serialization/txAuxiliaryData";
 import { serializeTxCertificate } from "./serialization/txCertificate";
@@ -135,18 +134,50 @@ function* signTx_addCertificate(
   // additional data for pool certificate
   if (certificate.type === CertificateType.STAKE_POOL_REGISTRATION) {
     const enum P2 {
-      POOL_PARAMS = 0x30,
-      OWNERS = 0x31,
-      RELAYS = 0x32,
-      METADATA = 0x33,
-      CONFIRMATION = 0x34,
-    }
+      INIT = 0x30,
+      POOL_KEY = 0x31,
+      VRF_KEY = 0x32,
+      FINANCIALS = 0x33,
+      REWARD_ACCOUNT = 0x34,
+      OWNERS = 0x35,
+      RELAYS = 0x36,
+      METADATA = 0x37,
+      CONFIRMATION = 0x38,
+    };
 
     const pool = certificate.pool
     yield send({
       p1: P1.STAGE_CERTIFICATES,
-      p2: P2.POOL_PARAMS,
+      p2: P2.INIT,
       data: serializePoolInitialParams(pool),
+      expectedResponseLength: 0,
+    });
+
+    yield send({
+      p1: P1.STAGE_CERTIFICATES,
+      p2: P2.POOL_KEY,
+      data: serializePoolKey(pool.key),
+      expectedResponseLength: 0,
+    });
+
+    yield send({
+      p1: P1.STAGE_CERTIFICATES,
+      p2: P2.VRF_KEY,
+      data: hex_to_buf(pool.vrfHashHex),
+      expectedResponseLength: 0,
+    });
+
+    yield send({
+      p1: P1.STAGE_CERTIFICATES,
+      p2: P2.FINANCIALS,
+      data: hex_to_buf(pool.vrfHashHex),
+      expectedResponseLength: 0,
+    });
+
+    yield send({
+      p1: P1.STAGE_CERTIFICATES,
+      p2: P2.REWARD_ACCOUNT,
+      data: serializePoolRewardAccount(pool.rewardAccount),
       expectedResponseLength: 0,
     });
 
@@ -228,7 +259,7 @@ function* signTx_setTtl(
 }
 
 function* signTx_setAuxiliaryData(
-  auxiliaryData:  ParsedTxAuxiliaryData
+  auxiliaryData: ParsedTxAuxiliaryData
 ): Interaction<TxAuxiliaryDataSupplement | null> {
   const enum P2 {
     UNUSED = 0x00
@@ -263,7 +294,7 @@ function* signTx_setAuxiliaryData(
     yield send({
       p1: P1.STAGE_AUX_DATA,
       p2: P2.VOTING_KEY,
-      data: serializeCatalystRegistrationVotingKey(metadata.votingPublicKey), 
+      data: serializeCatalystRegistrationVotingKey(metadata.votingPublicKey),
       expectedResponseLength: 0,
     });
 
@@ -306,7 +337,7 @@ function* signTx_setAuxiliaryData(
 }
 
 function* signTx_setAuxiliaryData_before_v2_3(
-  auxiliaryData:  ParsedTxAuxiliaryData
+  auxiliaryData: ParsedTxAuxiliaryData
 ): Interaction<null> {
   const enum P2 {
     UNUSED = 0x00

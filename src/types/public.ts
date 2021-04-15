@@ -70,6 +70,11 @@ export enum CertificateType {
      * @see [[PoolRegistrationParams]]
      */
     STAKE_POOL_REGISTRATION = 3,
+    /**
+     * Stake pool retirement certificate
+     * @see [[PoolRegistrationParams]]
+     */
+    STAKE_POOL_RETIREMENT = 4,
 }
 
 /**
@@ -346,6 +351,58 @@ export type BlockchainPointer = {
 };
 
 /**
+ * Type of a pool key in pool registration certificate.
+ * Ledger device needs to distinguish between keys which are owned by a third party
+ * or by this device if one needs to sign pool registration certificate as an owner.
+ * @see [[PoolKey]]
+ * @category Pool registration certificate
+ */
+export enum PoolKeyType {
+    /**
+     * Pool key is third party
+     * @see [[PoolKeyThirdPartyParams]]
+     */
+    THIRD_PARTY = 'third_party',
+    /**
+     * Pool key is owned by this device
+     * @see [[PoolKeyDeviceOwnedParams]]
+     */
+    DEVICE_OWNED = 'device_owned',
+}
+/**
+ * Represents pool key.
+ * @category Pool registration certificate
+ * @see [[PoolRegistrationParams]]
+ */
+export type PoolKey = {
+    type: PoolKeyType.THIRD_PARTY
+    params: PoolKeyThirdPartyParams
+} | {
+    type: PoolKeyType.DEVICE_OWNED
+    params: PoolKeyDeviceOwnedParams
+}
+
+/**
+ * Pool key is owned external party
+ * @category Pool registration certificate
+ * @see [[PoolKey]]
+ * @see [[PoolKeyType]]
+ */
+export type PoolKeyThirdPartyParams = {
+    keyHashHex: string,
+}
+
+/**
+ * Pool key is owned by Ledger device. Supply staking key path which should sign the certificate
+ * @category Pool registration certificate
+ * @see [[PoolKey]]
+ * @see [[PoolKeyType]]
+ */
+export type PoolKeyDeviceOwnedParams = {
+    path: BIP32Path,
+};
+
+/**
  * Type of an owner in pool registration certificate.
  * Ledger device needs to distinguish between owners which are third party
  * and this device if one needs to sign pool registration certificate as an owner.
@@ -395,6 +452,58 @@ export type PoolOwnerThirdPartyParams = {
  */
 export type PoolOwnerDeviceOwnedParams = {
     stakingPath: BIP32Path,
+};
+
+/**
+ * Type of a reward account in pool registration certificate.
+ * Ledger device needs to distinguish between reward accounts which are owned by a third party
+ * or by this device if one needs to sign pool registration certificate as an owner.
+ * @see [[PoolRewardAccount]]
+ * @category Pool registration certificate
+ */
+export enum PoolRewardAccountType {
+    /**
+     * Pool reward account is third party
+     * @see [[PoolRewardAccountThirdPartyParams]]
+     */
+    THIRD_PARTY = 'third_party',
+    /**
+     * Pool reward account is owned by this device
+     * @see [[PoolRewardAccountDeviceOwnedParams]]
+     */
+    DEVICE_OWNED = 'device_owned',
+}
+/**
+ * Represents pool reward account.
+ * @category Pool registration certificate
+ * @see [[PoolRegistrationParams]]
+ */
+export type PoolRewardAccount = {
+    type: PoolRewardAccountType.THIRD_PARTY
+    params: PoolRewardAccountThirdPartyParams
+} | {
+    type: PoolRewardAccountType.DEVICE_OWNED
+    params: PoolRewardAccountDeviceOwnedParams
+}
+
+/**
+ * Pool reward account is external party
+ * @category Pool registration certificate
+ * @see [[PoolRewardAccount]]
+ * @see [[PoolRewardAccountType]]
+ */
+export type PoolRewardAccountThirdPartyParams = {
+    keyHashHex: string,
+}
+
+/**
+ * Pool owner is Ledger device. Supply staking key path for reward account
+ * @category Pool registration certificate
+ * @see [[PoolRewardAccount]]
+ * @see [[PoolRewardAccountType]]
+ */
+export type PoolRewardAccountDeviceOwnedParams = {
+    path: BIP32Path,
 };
 
 /**
@@ -455,7 +564,7 @@ export type Relay = {
 }
 
 /**
- * Pool registratin metadata
+ * Pool registration metadata
  * 
  * @category Pool registration certificate
  * @see [[PoolRegistrationParams]]
@@ -492,7 +601,7 @@ export type Margin = {
  */
 export type PoolRegistrationParams = {
     /** Pool cold key */
-    poolKeyHashHex: string,
+    poolKey: PoolKey,
     /** Pool vrf key */
     vrfKeyHashHex: string,
     /** Owner pledge */
@@ -500,11 +609,27 @@ export type PoolRegistrationParams = {
     cost: bigint_like,
     margin: Margin,
     /** Pool rewards account */
-    rewardAccountHex: string,
+    rewardAccount: PoolRewardAccount,
     poolOwners: Array<PoolOwner>,
     relays: Array<Relay>,
     metadata?: PoolMetadataParams | null,
 };
+
+/**
+ * Pool retirement certificate parameters
+ * @category Shelley
+ * @see [[Certificate]]
+ * */
+export type PoolRetirementParams = {
+    /**
+     * Path to the pool key
+     */
+    poolKeyPath: BIP32Path
+    /**
+     * TODO GK
+     */
+    retirementEpochStr: string
+}
 
 /**
  * Stake key registration certificate parameters
@@ -562,6 +687,9 @@ export type Certificate = {
 } | {
     type: CertificateType.STAKE_POOL_REGISTRATION
     params: PoolRegistrationParams
+} | {
+    type: CertificateType.STAKE_POOL_RETIREMENT
+    params: PoolRetirementParams
 }
 
 /**
@@ -767,7 +895,7 @@ export type TxAuxiliaryDataArbitraryHashParams = {
  * as a tuple (Mary-era format of metadata)
  * @see [[TxAuxiliaryData]]
  */
- export type TxAuxiliaryDataTupleParams = {
+export type TxAuxiliaryDataTupleParams = {
     /** metadata parameters */
     metadata: TxMetadata
     // auxiliaryScripts not supported
@@ -797,7 +925,7 @@ export type TxMetadata = {
  * Ledger will display the voting registration parameters and overall metadata hash.
  * @see [[TxMetadata]]
  */
- export type CatalystRegistrationParams = {
+export type CatalystRegistrationParams = {
     /**
      * Voting key to be registered given in hex
      */

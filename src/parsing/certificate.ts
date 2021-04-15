@@ -3,7 +3,7 @@ import { InvalidDataReason } from "../errors/invalidDataReason";
 import type { ParsedCertificate, } from "../types/internal";
 import { CertificateType, KEY_HASH_LENGTH } from "../types/internal";
 import type { Certificate, } from "../types/public";
-import { parseBIP32Path, parseHexStringOfLength, validate } from "../utils/parse";
+import { parseBIP32Path, parseHexStringOfLength, parseUint64_str, validate } from "../utils/parse";
 import { parsePoolParams } from "./poolRegistration";
 
 export function parseCertificate(cert: Certificate): ParsedCertificate {
@@ -27,6 +27,15 @@ export function parseCertificate(cert: Certificate): ParsedCertificate {
             return {
                 type: cert.type,
                 pool: parsePoolParams(cert.params)
+            }
+        }
+        case CertificateType.STAKE_POOL_RETIREMENT: {
+            // TODO GK - needed?
+            validate((cert.params as any).poolKeyHashHex == null, InvalidDataReason.CERTIFICATE_SUPERFLUOUS_POOL_KEY_HASH);
+            return {
+                type: cert.type,
+                path: parseBIP32Path(cert.params.poolKeyPath, InvalidDataReason.CERTIFICATE_MISSING_PATH),
+                retirementEpoch: parseUint64_str(cert.params.retirementEpochStr, {}, InvalidDataReason.POOL_RETIREMENT_INVALID_RETIREMENT_EPOCH)
             }
         }
 

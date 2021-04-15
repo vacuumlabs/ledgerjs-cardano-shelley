@@ -1,5 +1,5 @@
-import type { ParsedPoolMetadata, ParsedPoolOwner, ParsedPoolParams, ParsedPoolRelay, Uint8_t, Uint32_t } from "../../types/internal";
-import { PoolOwnerType, RelayType } from "../../types/internal";
+import type { ParsedPoolMetadata, ParsedPoolOwner, ParsedPoolParams, ParsedPoolRelay, Uint8_t, Uint32_t, ParsedPoolKey, ParsedPoolRewardAccount } from "../../types/internal";
+import { PoolKeyType, PoolOwnerType, PoolRewardAccountType, RelayType } from "../../types/internal";
 import { unreachable } from "../../utils/assert";
 import { hex_to_buf, path_to_buf, uint8_to_buf, uint16_to_buf, uint32_to_buf, uint64_to_buf } from "../../utils/serialize";
 
@@ -12,16 +12,50 @@ const SignTxIncluded = Object.freeze({
 
 export function serializePoolInitialParams(pool: ParsedPoolParams): Buffer {
     return Buffer.concat([
-        hex_to_buf(pool.keyHashHex),
+        // hex_to_buf(pool.key),
+        serializePoolKey(pool.key),
         hex_to_buf(pool.vrfHashHex),
         uint64_to_buf(pool.pledge),
         uint64_to_buf(pool.cost),
         uint64_to_buf(pool.margin.numerator),
         uint64_to_buf(pool.margin.denominator),
-        hex_to_buf(pool.rewardAccountHex),
+        // hex_to_buf(pool.rewardAccountHex),
+        serializePoolRewardAccount(pool.rewardAccount),
         uint32_to_buf(pool.owners.length as Uint32_t),
         uint32_to_buf(pool.relays.length as Uint32_t),
     ]);
+}
+
+export function serializeFinancials(pool: ParsedPoolParams): Buffer {
+    return Buffer.concat([
+        uint64_to_buf(pool.pledge),
+        uint64_to_buf(pool.cost),
+        uint64_to_buf(pool.margin.numerator),
+        uint64_to_buf(pool.margin.denominator),
+    ]);
+}
+
+export function serializePoolKey(key: ParsedPoolKey): Buffer {
+    const typeHeader: Record<PoolKeyType, Uint8_t> = {
+        [PoolKeyType.DEVICE_OWNED]: 1 as Uint8_t,
+        [PoolKeyType.THIRD_PARTY]: 2 as Uint8_t,
+    }
+    switch (key.type) {
+        case PoolKeyType.DEVICE_OWNED: {
+            return Buffer.concat([
+                uint8_to_buf(typeHeader[key.type]),
+                path_to_buf(key.path)
+            ])
+        }
+        case PoolKeyType.THIRD_PARTY: {
+            return Buffer.concat([
+                uint8_to_buf(typeHeader[key.type]),
+                hex_to_buf(key.hashHex)
+            ])
+        }
+        default:
+            unreachable(key)
+    }
 }
 
 export function serializePoolOwner(owner: ParsedPoolOwner): Buffer {
@@ -44,6 +78,29 @@ export function serializePoolOwner(owner: ParsedPoolOwner): Buffer {
         }
         default:
             unreachable(owner)
+    }
+}
+
+export function serializePoolRewardAccount(rewardAccount: ParsedPoolRewardAccount): Buffer {
+    const typeHeader: Record<PoolRewardAccountType, Uint8_t> = {
+        [PoolRewardAccountType.DEVICE_OWNED]: 1 as Uint8_t,
+        [PoolRewardAccountType.THIRD_PARTY]: 2 as Uint8_t,
+    }
+    switch (rewardAccount.type) {
+        case PoolRewardAccountType.DEVICE_OWNED: {
+            return Buffer.concat([
+                uint8_to_buf(typeHeader[rewardAccount.type]),
+                path_to_buf(rewardAccount.path)
+            ])
+        }
+        case PoolRewardAccountType.THIRD_PARTY: {
+            return Buffer.concat([
+                uint8_to_buf(typeHeader[rewardAccount.type]),
+                hex_to_buf(rewardAccount.hashHex)
+            ])
+        }
+        default:
+            unreachable(rewardAccount)
     }
 }
 
