@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+
+## [3.1.0](https://github.com/cardano-foundation/ledgerjs-hw-app-cardano/compare/v3.0.0...v3.1.0) - [?]
+
+Added support for Catalyst voting registration metadata creation within the signTransaction() call.
+
+### Changed
+
+- added Catalyst voting registration support: https://github.com/vacuumlabs/ledgerjs-cardano-shelley/pull/99
+- relaxed validation of `signTransaction()` call `ttl` and `validityIntervalStart` parameter to allow zero value
+
+
 ## [3.0.0](https://github.com/cardano-foundation/ledgerjs-hw-app-cardano/compare/v2.2.1...v3.0.0) - [April 13th 2021]
 
 Major release. Switched from flow to TypeScript.
