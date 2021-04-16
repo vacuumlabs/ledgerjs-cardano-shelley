@@ -610,7 +610,8 @@ export type Version = {
  */
 export type DeviceCompatibility = {
     /** Overall compatibility.
-     * - true if SDK somewhat supports device
+     * - true if SDK supports the device with given firmware version (to the
+     *   extent of the features supported by the firmware itself)
      * - false if SDK refuses to communicate with current device version
      */
     isCompatible: boolean
@@ -767,7 +768,7 @@ export type TxAuxiliaryDataArbitraryHashParams = {
  * as a tuple (Mary-era format of metadata)
  * @see [[TxAuxiliaryData]]
  */
- export type TxAuxiliaryDataTupleParams = {
+export type TxAuxiliaryDataTupleParams = {
     /** metadata parameters */
     metadata: TxMetadata
     // auxiliaryScripts not supported
@@ -797,7 +798,7 @@ export type TxMetadata = {
  * Ledger will display the voting registration parameters and overall metadata hash.
  * @see [[TxMetadata]]
  */
- export type CatalystRegistrationParams = {
+export type CatalystRegistrationParams = {
     /**
      * Voting key to be registered given in hex
      */
