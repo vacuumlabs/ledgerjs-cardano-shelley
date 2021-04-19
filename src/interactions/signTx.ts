@@ -477,7 +477,7 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
     yield* signTx_addWithdrawal(withdrawal);
   }
 
-  // auxiliary data before Ledger app version 2.3.0
+  // auxiliary data before Ledger app version 2.3.x
   if (!isCatalystRegistrationSupported && tx.auxiliaryData != null) {
     auxiliaryDataSupplement = yield* signTx_setAuxiliaryData_before_v2_3(tx.auxiliaryData);
   }
