@@ -909,7 +909,30 @@ export const testsMary: TestcaseMary[] = [
       ],
       auxiliaryDataSupplement: null,
     },
-  }
+  },
+  {
+    testname: "Mary era transaction with zero fee, TTL and validity interval start",
+    tx: {
+      ...maryBase,
+      fee: 0,
+      ttl: 0,
+      validityIntervalStart: 0,
+      outputs: [outputs.internalBaseWithStakingPath],
+    },
+    txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b70001818258390114c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f11241d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c1a006ca793020003000800",
+    result: {
+      txHashHex:
+        "acc997f583c78f36529ee29134e2cfb7a4550493727f565a502ab40544827311",
+      witnesses: [
+        {
+          path: str_to_path("1852'/1815'/0'/0/0"),
+          witnessSignatureHex:
+            "e5ee59942fba139b5547e5e1dae1389ed9edd6e7bd7f057b988973c2451b5e3e41901c1d9a0fa74d34dae356a064ee783205d731fee01105c904702826b66b04",
+        },
+      ],
+      auxiliaryDataSupplement: null,
+    },
+  },
 ]
 
 export const testsCatalystRegistration: TestcaseMary[] = [
