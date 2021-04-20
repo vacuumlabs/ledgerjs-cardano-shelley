@@ -628,6 +628,11 @@ export type DeviceCompatibility = {
      * Whether we support Catalyst registration
      */
     supportsCatalystRegistration: boolean
+    /**
+     * Whether we support transactions with zero TTL
+     * (useful for dummy transactions to ensure invalidity)
+     */
+    supportsZeroTtl: boolean
 }
 
 /**

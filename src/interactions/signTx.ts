@@ -428,6 +428,10 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
   if (hasCatalystRegistration && !getCompatibility(version).supportsCatalystRegistration) {
     throw new DeviceVersionUnsupported(`Catalyst registration not supported by Ledger app version ${version}.`);
   }
+
+  if (request?.tx?.ttl === "0" && !getCompatibility(version).supportsZeroTtl) {
+    throw new DeviceVersionUnsupported(`Zero TTL not supported by Ledger app version ${version}.`);
+  }
 }
 
 export function* signTransaction(version: Version, request: ParsedSigningRequest): Interaction<SignedTransactionData> {
