@@ -1,14 +1,17 @@
 // @ts-ignore
-import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
+import SpeculosTransport from "@ledgerhq/hw-transport-node-speculos";
 
 import Ada from "../src/Ada";
 
+// standard address of speculos described in https://speculos.ledger.com/user/clients.html
+const apduPort = 9999;
+
 export async function getTransport() {
-  return await TransportNodeHid.create(1000);
+  return await SpeculosTransport.open({ apduPort });
 }
 
 export async function getAda() {
-  const transport = await TransportNodeHid.create(1000);
+  const transport = await SpeculosTransport.open({ apduPort });
 
   const ada = new Ada(transport);
   (ada as any).t = transport;
