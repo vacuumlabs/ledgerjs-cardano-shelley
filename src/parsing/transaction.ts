@@ -40,27 +40,30 @@ function parseCertificates(certificates: Array<Certificate>): Array<ParsedCertif
 }
 
 
-function parseToken(token: Token): ParsedToken {
+type ParseNumberFunction<Type> = (val: unknown, constraints: { min?: string | undefined; max?: string | undefined; },
+                                  errMsg: InvalidDataReason) => Type
+
+function parseToken<Type>(token: Token, parseFn: ParseNumberFunction<Type>): ParsedToken<Type> {
     const assetNameHex = parseHexString(token.assetNameHex, InvalidDataReason.OUTPUT_INVALID_ASSET_NAME)
     validate(
         token.assetNameHex.length <= ASSET_NAME_LENGTH_MAX * 2,
         InvalidDataReason.OUTPUT_INVALID_ASSET_NAME
     )
 
-    const amount = parseUint64_str(token.amount, {}, InvalidDataReason.OUTPUT_INVALID_AMOUNT)
+    const amount = parseFn(token.amount, {}, InvalidDataReason.OUTPUT_INVALID_AMOUNT)
     return {
         assetNameHex,
         amount,
     }
 }
 
-function parseAssetGroup(assetGroup: AssetGroup): ParsedAssetGroup {
+function parseAssetGroup<Type>(assetGroup: AssetGroup, parseTokenAmountFunction: ParseNumberFunction<Type>): ParsedAssetGroup<Type> {
     validate(isArray(assetGroup.tokens), InvalidDataReason.OUTPUT_INVALID_ASSET_GROUP_NOT_ARRAY)
     validate(assetGroup.tokens.length <= TOKENS_IN_GROUP_MAX, InvalidDataReason.OUTPUT_INVALID_ASSET_GROUP_TOO_LARGE)
 
     const parsedAssetGroup = {
         policyIdHex: parseHexStringOfLength(assetGroup.policyIdHex, TOKEN_POLICY_LENGTH, InvalidDataReason.OUTPUT_INVALID_POLICY_NAME),
-        tokens: assetGroup.tokens.map(t => parseToken(t)),
+        tokens: assetGroup.tokens.map(t => parseToken(t, parseTokenAmountFunction)),
     }
 
     const assetNamesHex = parsedAssetGroup.tokens.map(t => t.assetNameHex)
@@ -76,9 +79,9 @@ function parseAssetGroup(assetGroup: AssetGroup): ParsedAssetGroup {
     return parsedAssetGroup
 }
 
-
-function parseTokenBundle(tokenBundle: AssetGroup[]): ParsedAssetGroup[] {
-    const parsedTokenBundle = tokenBundle.map(ag => parseAssetGroup(ag))
+function parseTokenBundle<Type>(tokenBundle: AssetGroup[], parseTokenAmountFunction: ParseNumberFunction<Type>): ParsedAssetGroup<Type>[] {
+    validate(tokenBundle.length <= ASSET_GROUPS_MAX, InvalidDataReason.OUTPUT_INVALID_TOKEN_BUNDLE_TOO_LARGE)
+    const parsedTokenBundle = tokenBundle.map(ag => parseAssetGroup(ag, parseTokenAmountFunction))
 
     const policyIds = parsedTokenBundle.map(ag => ag.policyIdHex)
     validate(policyIds.length == new Set(policyIds).size, InvalidDataReason.OUTPUT_INVALID_TOKEN_BUNDLE_NOT_UNIQUE)
@@ -190,8 +193,7 @@ function parseTxOutput(
     const amount = parseUint64_str(output.amount, { max: MAX_LOVELACE_SUPPLY_STR }, InvalidDataReason.OUTPUT_INVALID_AMOUNT)
 
     validate(isArray(output.tokenBundle ?? []), InvalidDataReason.OUTPUT_INVALID_TOKEN_BUNDLE_NOT_ARRAY)
-    validate((output.tokenBundle ?? []).length <= ASSET_GROUPS_MAX, InvalidDataReason.OUTPUT_INVALID_TOKEN_BUNDLE_TOO_LARGE)
-    const tokenBundle = parseTokenBundle(output.tokenBundle ?? [])
+    const tokenBundle = parseTokenBundle(output.tokenBundle ?? [], parseUint64_str)
 
     const destination = parseTxDestination(network, output.destination)
     return {
@@ -264,8 +266,8 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
         break
     }
     case TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR: {
-        // Most of these restrictions are necessary in TransactionSigningMode.POOL_REGISTRATION_AS_OWNER, 
-        // and since pool owner signatures will be added to the same tx body, we need the restrictions here, too 
+        // Most of these restrictions are necessary in TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
+        // and since pool owner signatures will be added to the same tx body, we need the restrictions here, too
         // (we don't want to let operator sign a tx that pool owners will not be able to sign).
 
         validate(
