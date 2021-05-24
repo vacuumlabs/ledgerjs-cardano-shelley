@@ -1,5 +1,8 @@
-import type { ParsedInput, ParsedWithdrawal, Uint64_str, ValidBIP32Path } from "../../types/internal"
-import { hex_to_buf, path_to_buf, uint32_to_buf, uint64_to_buf } from "../../utils/serialize"
+import { InvalidDataReason } from "../../errors/invalidDataReason"
+import { Int64_str, StakeCredentialType, ParsedAssetGroup, ParsedInput, ParsedToken, ParsedWithdrawal, Uint32_t, Uint64_str, ValidBIP32Path } from "../../types/internal"
+import { hex_to_buf, path_to_buf, uint32_to_buf, uint64_to_buf, stake_credential_to_buf } from "../../utils/serialize"
+import type {SerializeTokenAmountFn} from "../signTx"
+import { assert } from "../../utils/assert"
 
 export function serializeTxInput(
     input: ParsedInput
@@ -10,12 +13,22 @@ export function serializeTxInput(
     ])
 }
 
+export function serializeTxWithdrawalPreMultisig(
+    withdrawal: ParsedWithdrawal
+) {
+    assert(withdrawal.stakeCredential.type == StakeCredentialType.KEY_PATH, InvalidDataReason.WITHDRAWAL_INVALID_IDENTIFIER)
+    return Buffer.concat([
+        uint64_to_buf(withdrawal.amount),
+        path_to_buf(withdrawal.stakeCredential.path),
+    ])
+}
+
 export function serializeTxWithdrawal(
     withdrawal: ParsedWithdrawal
 ) {
     return Buffer.concat([
         uint64_to_buf(withdrawal.amount),
-        path_to_buf(withdrawal.path),
+        stake_credential_to_buf(withdrawal.stakeCredential),
     ])
 }
 
@@ -48,5 +61,26 @@ export function serializeTxWitnessRequest(
 ) {
     return Buffer.concat([
         path_to_buf(path),
+    ])
+}
+
+export function serializeAssetGroup<T>(assetGroup: ParsedAssetGroup<T>) {
+    return Buffer.concat([
+        hex_to_buf(assetGroup.policyIdHex),
+        uint32_to_buf(assetGroup.tokens.length as Uint32_t),
+    ])
+}
+
+export function serializeToken<T>(token: ParsedToken<T>, serializeTokenAmountFn: SerializeTokenAmountFn<T>) {
+    return Buffer.concat([
+        uint32_to_buf(token.assetNameHex.length / 2 as Uint32_t),
+        hex_to_buf(token.assetNameHex),
+        serializeTokenAmountFn(token.amount),
+    ])
+}
+
+export function serializeMintBasicParams(mint: Array<ParsedAssetGroup<Int64_str>>) {
+    return Buffer.concat([
+        uint32_to_buf(mint.length as Uint32_t),
     ])
 }

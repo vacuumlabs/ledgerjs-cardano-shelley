@@ -10,6 +10,7 @@ const _serializeSigningMode = (
         [TransactionSigningMode.ORDINARY_TRANSACTION]: 3 as Uint8_t,
         [TransactionSigningMode.POOL_REGISTRATION_AS_OWNER]: 4 as Uint8_t,
         [TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR]: 5 as Uint8_t,
+        [TransactionSigningMode.SCRIPT_TRANSACTION]: 6 as Uint8_t,
     }[mode]
 
     assert(value !== undefined, 'Invalid signing mode')
@@ -37,6 +38,7 @@ export function serializeTxInit(tx: ParsedTransaction, signingMode: TransactionS
         _serializeOptionFlag(tx.ttl != null),
         _serializeOptionFlag(tx.auxiliaryData != null),
         _serializeOptionFlag(tx.validityIntervalStart != null),
+        _serializeOptionFlag(tx.mint != null),
         _serializeSigningMode(signingMode),
         uint32_to_buf(tx.inputs.length as Uint32_t),
         uint32_to_buf(tx.outputs.length as Uint32_t),
