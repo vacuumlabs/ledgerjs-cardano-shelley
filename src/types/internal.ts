@@ -49,14 +49,14 @@ export type ParsedCertificate = {
 export const TOKEN_POLICY_LENGTH = 28
 
 
-export type ParsedToken = {
+export type ParsedToken<Type> = {
     assetNameHex: HexString,
-    amount: Uint64_str,
+    amount: Type,
 };
 
-export type ParsedAssetGroup = {
+export type ParsedAssetGroup<Type> = {
     policyIdHex: FixlenHexString<typeof TOKEN_POLICY_LENGTH>,
-    tokens: Array<ParsedToken>,
+    tokens: Array<ParsedToken<Type>>,
 };
 
 
@@ -254,7 +254,7 @@ export type OutputDestination = {
 
 export type ParsedOutput = {
     amount: Uint64_str
-    tokenBundle: ParsedAssetGroup[]
+    tokenBundle: ParsedAssetGroup<Uint64_str>[]
     destination: OutputDestination
 }
 

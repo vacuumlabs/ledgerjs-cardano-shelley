@@ -1,4 +1,4 @@
-import type { OutputDestination, ParsedAssetGroup, ParsedOutput, ParsedToken, Uint8_t, Uint32_t } from "../../types/internal"
+import type { OutputDestination, ParsedAssetGroup, ParsedOutput, ParsedToken, Uint8_t, Uint32_t, Uint64_str } from "../../types/internal"
 import { TxOutputDestinationType } from "../../types/internal"
 import { unreachable } from "../../utils/assert"
 import { hex_to_buf, uint8_to_buf, uint32_to_buf, uint64_to_buf } from "../../utils/serialize"
@@ -38,7 +38,7 @@ export function serializeTxOutputBasicParams(
 }
 
 export function serializeAssetGroup(
-    assetGroup: ParsedAssetGroup
+    assetGroup: ParsedAssetGroup<Uint64_str>
 ) {
     return Buffer.concat([
         hex_to_buf(assetGroup.policyIdHex),
@@ -47,7 +47,7 @@ export function serializeAssetGroup(
 }
 
 export function serializeToken(
-    token: ParsedToken
+    token: ParsedToken<Uint64_str>
 ) {
     return Buffer.concat([
         uint32_to_buf(token.assetNameHex.length / 2 as Uint32_t),
