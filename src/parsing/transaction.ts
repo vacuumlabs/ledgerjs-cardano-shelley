@@ -24,7 +24,7 @@ import {
 } from "../types/public"
 import { unreachable } from "../utils/assert"
 import { isArray, parseBIP32Path, validate } from "../utils/parse"
-import { parseHexString, parseHexStringOfLength, parseUint32_t, parseUint64_str } from "../utils/parse"
+import { parseHexString, parseHexStringOfLength, parseInt64_str, parseUint32_t, parseUint64_str } from "../utils/parse"
 import { parseAddress } from "./address"
 import { parseCertificate } from "./certificate"
 import { ASSET_GROUPS_MAX, MAX_LOVELACE_SUPPLY_STR, TOKENS_IN_GROUP_MAX } from "./constants"
@@ -129,6 +129,12 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
         ? null
         : parseUint64_str(tx.validityIntervalStart, {}, InvalidDataReason.VALIDITY_INTERVAL_START_INVALID)
 
+    // mint instructions
+    validate(isArray(tx.mintInstructions ?? []), InvalidDataReason.OUTPUT_INVALID_TOKEN_BUNDLE_NOT_ARRAY)
+    const mintInstructions = tx.mintInstructions == null
+        ? null
+        : parseTokenBundle(tx.mintInstructions, parseInt64_str)
+
     return {
         network,
         inputs,
@@ -139,6 +145,7 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
         withdrawals,
         certificates,
         fee,
+        mintInstructions,
     }
 }
 
