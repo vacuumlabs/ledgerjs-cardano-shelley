@@ -18,17 +18,17 @@ export enum InvalidDataReason {
 
   OUTPUTS_NOT_ARRAY = "outputs not an array",
 
-  OUTPUT_INVALID_AMOUNT = "invalid amount in an output",
-  OUTPUT_INVALID_POLICY_NAME = "invalid policy id in the token bundle in an output ",
-  OUTPUT_INVALID_TOKEN_BUNDLE_NOT_ARRAY = "invalid token bundle in an output - asset groups not an array",
-  OUTPUT_INVALID_TOKEN_BUNDLE_TOO_LARGE = "invalid token bundle in an output - too many asset groups",
-  OUTPUT_INVALID_TOKEN_BUNDLE_ORDERING = "invalid token bundle in an output - incorrect ordering of asset groups",
-  OUTPUT_INVALID_TOKEN_BUNDLE_NOT_UNIQUE = "invalid token bundle in an output - policyIds not unique",
-  OUTPUT_INVALID_ASSET_NAME = "invalid asset name in the token bundle in an output",
-  OUTPUT_INVALID_ASSET_GROUP_NOT_ARRAY = "invalid asset group in the token bundle in an output - tokens not an array",
-  OUTPUT_INVALID_ASSET_GROUP_TOO_LARGE = "invalid asset group in the token bundle in an output - too many tokens",
-  OUTPUT_INVALID_ASSET_GROUP_ORDERING = "invalid asset group in the token bundle in an output - incorrect ordering of tokens",
-  OUTPUT_INVALID_ASSET_GROUP_NOT_UNIQUE = "invalid asset group in the token bundle in an output - token names not unique",
+  OUTPUT_INVALID_AMOUNT = "invalid amount in an output (or mint field)",
+  OUTPUT_INVALID_POLICY_NAME = "invalid policy id in the token bundle in an output (or mint field)",
+  OUTPUT_INVALID_TOKEN_BUNDLE_NOT_ARRAY = "invalid token bundle in an output (or mint field) - asset groups not an array",
+  OUTPUT_INVALID_TOKEN_BUNDLE_TOO_LARGE = "invalid token bundle in an output (or mint field) - too many asset groups",
+  OUTPUT_INVALID_TOKEN_BUNDLE_ORDERING = "invalid token bundle in an output (or mint field) - incorrect ordering of asset groups",
+  OUTPUT_INVALID_TOKEN_BUNDLE_NOT_UNIQUE = "invalid token bundle in an output (or mint field) - policyIds not unique",
+  OUTPUT_INVALID_ASSET_NAME = "invalid asset name in the token bundle in an output (or mint field)",
+  OUTPUT_INVALID_ASSET_GROUP_NOT_ARRAY = "invalid asset group in the token bundle in an output (or mint field) - tokens not an array",
+  OUTPUT_INVALID_ASSET_GROUP_TOO_LARGE = "invalid asset group in the token bundle in an output (or mint field) - too many tokens",
+  OUTPUT_INVALID_ASSET_GROUP_ORDERING = "invalid asset group in the token bundle in an output (or mint field) - incorrect ordering of tokens",
+  OUTPUT_INVALID_ASSET_GROUP_NOT_UNIQUE = "invalid asset group in the token bundle in an output (or mint field) - token names not unique",
 
   OUTPUT_INVALID_ADDRESS = "invalid address in an output",
 
