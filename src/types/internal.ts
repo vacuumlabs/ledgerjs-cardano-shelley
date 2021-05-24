@@ -14,6 +14,10 @@ export type Uint32_t = number & { __type: 'uint32_t' }
 export type Uint16_t = number & { __type: 'uint16_t' }
 export type Uint8_t = number & { __type: 'uint8_t' }
 
+export type Int64_str = string & { __type: 'int64_t' }
+export type _Int64_num = number & { __type: 'int64_t' }
+export type _Int64_bigint = bigint & { __type: 'int64_t' }
+
 // Reexport blockchain spec
 export { AddressType, CertificateType, RelayType, PoolKeyType, PoolOwnerType, PoolRewardAccountType, TransactionSigningMode, TxAuxiliaryDataType, TxOutputDestinationType }
 export { Version, DeviceCompatibility } from './public'
@@ -95,6 +99,7 @@ export type ParsedTransaction = {
     withdrawals: ParsedWithdrawal[]
     auxiliaryData: ParsedTxAuxiliaryData | null
     validityIntervalStart: Uint64_str | null
+    mintInstructions: Array<ParsedAssetGroup<Int64_str>> | null
 }
 
 export type ParsedSigningRequest = {

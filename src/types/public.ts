@@ -716,6 +716,33 @@ export type Withdrawal = {
 };
 
 /**
+ * Describes a single token to be minted or burned during the transaction
+ * @category ~Mary~ --> todo?
+ * @see [[MintAssetGroup]]
+ */
+export type MintToken = {
+    assetNameHex: string,
+    /** Note: device does not know the number of decimal places the token uses */
+    amount: bigint_like,
+};
+
+/**
+ * Describes a group of assets defined in the same policy to be minted or burned during the transaction
+ * @category ~Mary~ --> todo?
+ * @see [[Transaction]]
+ */
+export type MintAssetGroup = {
+    policyIdHex: string,
+    /**
+     * The keys must be sorted lowest value to highest to reflect a valid canonical CBOR.
+     * The sorting rules (as described in the [CBOR RFC](https://datatracker.ietf.org/doc/html/rfc7049#section-3.9)) are:
+     *  * if two keys have different lengths, the shorter one sorts earlier;
+     *  * if two keys have the same length, the one with the lower value in lexical order sorts earlier.
+     */
+    tokens: Array<MintToken>,
+};
+
+/**
  * Device app flags
  * @category Basic types
  * @see [[Version]]
@@ -995,7 +1022,11 @@ export type Transaction = {
      * Validity start (block height) if any.
      * Transaction becomes valid only starting from this block height.
      */
-    validityIntervalStart?: bigint_like | null
+    validityIntervalStart?: bigint_like | null,
+    /**
+     * Mint or burn instructions (if any)
+     */
+    mintInstructions?: Array<MintAssetGroup> | null,
 }
 
 /**
