@@ -1227,7 +1227,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
             ...maryBase,
             outputs: [outputs.multiassetAssetGroupsNotUnique],
         },
-        rejectReason: InvalidDataReason.OUTPUT_INVALID_TOKEN_BUNDLE_NOT_UNIQUE,
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_NOT_UNIQUE,
     },
     // enforcing of asset order is removed for now and will be added back after the ordering is properly defined by a CIP
     // {
@@ -1252,7 +1252,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
             ...maryBase,
             outputs: [outputs.multiassetTokensNotUnique],
         },
-        rejectReason: InvalidDataReason.OUTPUT_INVALID_ASSET_GROUP_NOT_UNIQUE,
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_NOT_UNIQUE,
     },
 
 ]
