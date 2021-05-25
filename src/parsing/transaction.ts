@@ -44,13 +44,13 @@ type ParseNumberFunction<Type> = (val: unknown, constraints: { min?: string | un
                                   errMsg: InvalidDataReason) => Type
 
 function parseToken<Type>(token: Token, parseFn: ParseNumberFunction<Type>): ParsedToken<Type> {
-    const assetNameHex = parseHexString(token.assetNameHex, InvalidDataReason.OUTPUT_INVALID_ASSET_NAME)
+    const assetNameHex = parseHexString(token.assetNameHex, InvalidDataReason.MULTIASSET_INVALID_ASSET_NAME)
     validate(
         token.assetNameHex.length <= ASSET_NAME_LENGTH_MAX * 2,
-        InvalidDataReason.OUTPUT_INVALID_ASSET_NAME
+        InvalidDataReason.MULTIASSET_INVALID_ASSET_NAME
     )
 
-    const amount = parseFn(token.amount, {}, InvalidDataReason.OUTPUT_INVALID_AMOUNT)
+    const amount = parseFn(token.amount, {}, InvalidDataReason.MULTIASSET_INVALID_TOKEN_AMOUNT)
     return {
         assetNameHex,
         amount,
@@ -58,11 +58,11 @@ function parseToken<Type>(token: Token, parseFn: ParseNumberFunction<Type>): Par
 }
 
 function parseAssetGroup<Type>(assetGroup: AssetGroup, parseTokenAmountFunction: ParseNumberFunction<Type>): ParsedAssetGroup<Type> {
-    validate(isArray(assetGroup.tokens), InvalidDataReason.OUTPUT_INVALID_ASSET_GROUP_NOT_ARRAY)
-    validate(assetGroup.tokens.length <= TOKENS_IN_GROUP_MAX, InvalidDataReason.OUTPUT_INVALID_ASSET_GROUP_TOO_LARGE)
+    validate(isArray(assetGroup.tokens), InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_NOT_ARRAY)
+    validate(assetGroup.tokens.length <= TOKENS_IN_GROUP_MAX, InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_TOO_LARGE)
 
     const parsedAssetGroup = {
-        policyIdHex: parseHexStringOfLength(assetGroup.policyIdHex, TOKEN_POLICY_LENGTH, InvalidDataReason.OUTPUT_INVALID_POLICY_NAME),
+        policyIdHex: parseHexStringOfLength(assetGroup.policyIdHex, TOKEN_POLICY_LENGTH, InvalidDataReason.MULTIASSET_INVALID_POLICY_NAME),
         tokens: assetGroup.tokens.map(t => parseToken(t, parseTokenAmountFunction)),
     }
 
@@ -80,7 +80,8 @@ function parseAssetGroup<Type>(assetGroup: AssetGroup, parseTokenAmountFunction:
 }
 
 function parseTokenBundle<Type>(tokenBundle: AssetGroup[], parseTokenAmountFunction: ParseNumberFunction<Type>): ParsedAssetGroup<Type>[] {
-    validate(tokenBundle.length <= ASSET_GROUPS_MAX, InvalidDataReason.OUTPUT_INVALID_TOKEN_BUNDLE_TOO_LARGE)
+    validate(isArray(tokenBundle), InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_NOT_ARRAY)
+    validate(tokenBundle.length <= ASSET_GROUPS_MAX, InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_TOO_LARGE)
     const parsedTokenBundle = tokenBundle.map(ag => parseAssetGroup(ag, parseTokenAmountFunction))
 
     const policyIds = parsedTokenBundle.map(ag => ag.policyIdHex)
@@ -130,10 +131,9 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
         : parseUint64_str(tx.validityIntervalStart, {}, InvalidDataReason.VALIDITY_INTERVAL_START_INVALID)
 
     // mint instructions
-    validate(isArray(tx.mintInstructions ?? []), InvalidDataReason.OUTPUT_INVALID_TOKEN_BUNDLE_NOT_ARRAY)
-    const mintInstructions = tx.mintInstructions == null
+    const mint = tx.mint == null
         ? null
-        : parseTokenBundle(tx.mintInstructions, parseInt64_str)
+        : parseTokenBundle(tx.mint, parseInt64_str)
 
     return {
         network,
@@ -145,7 +145,7 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
         withdrawals,
         certificates,
         fee,
-        mintInstructions,
+        mint,
     }
 }
 
@@ -199,7 +199,6 @@ function parseTxOutput(
 ): ParsedOutput {
     const amount = parseUint64_str(output.amount, { max: MAX_LOVELACE_SUPPLY_STR }, InvalidDataReason.OUTPUT_INVALID_AMOUNT)
 
-    validate(isArray(output.tokenBundle ?? []), InvalidDataReason.OUTPUT_INVALID_TOKEN_BUNDLE_NOT_ARRAY)
     const tokenBundle = parseTokenBundle(output.tokenBundle ?? [], parseUint64_str)
 
     const destination = parseTxDestination(network, output.destination)
