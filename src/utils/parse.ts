@@ -85,7 +85,6 @@ export const isIntStr = (data: unknown, constraints: { min?: string, max?: strin
         && /^-?[0-9]*$/.test(data)
         // Length checks
         && data.length > 0
-        && data.length <= Math.max(min.length, max.length)
 
     let isValidNegativeNumber = isString(data) && data.startsWith("-") &&
         // leading zeros

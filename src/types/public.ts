@@ -727,7 +727,7 @@ export type Withdrawal = {
 
 /**
  * Describes a single token to be minted or burned during the transaction
- * @category ~Mary~ --> todo?
+ * @category Mary
  * @see [[MintAssetGroup]]
  */
 export type MintToken = {
@@ -738,7 +738,7 @@ export type MintToken = {
 
 /**
  * Describes a group of assets defined in the same policy to be minted or burned during the transaction
- * @category ~Mary~ --> todo?
+ * @category Mary
  * @see [[Transaction]]
  */
 export type MintAssetGroup = {
@@ -1036,7 +1036,7 @@ export type Transaction = {
     /**
      * Mint or burn instructions (if any)
      */
-    mintInstructions?: Array<MintAssetGroup> | null,
+    mint?: Array<MintAssetGroup> | null,
 }
 
 /**

@@ -1216,7 +1216,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
             ...maryBase,
             outputs: [outputs.multiassetInvalidAssetGroupOrdering],
         },
-        rejectReason: InvalidDataReason.OUTPUT_INVALID_TOKEN_BUNDLE_ORDERING,
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_ORDERING,
     },
     {
         testname: "Reject tx where asset groups are not unique",
@@ -1224,7 +1224,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
             ...maryBase,
             outputs: [outputs.multiassetAssetGroupsNotUnique],
         },
-        rejectReason: InvalidDataReason.OUTPUT_INVALID_TOKEN_BUNDLE_NOT_UNIQUE,
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_NOT_UNIQUE,
     },
     {
         testname: "Reject tx where tokens within an asset group are not ordered - alphabetical",
@@ -1232,7 +1232,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
             ...maryBase,
             outputs: [outputs.multiassetInvalidTokenOrderingSameLength],
         },
-        rejectReason: InvalidDataReason.OUTPUT_INVALID_ASSET_GROUP_ORDERING,
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_ORDERING,
     },
     {
         testname: "Reject tx where tokens within an asset group are not ordered - length",
@@ -1240,7 +1240,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
             ...maryBase,
             outputs: [outputs.multiassetInvalidTokenOrderingDifferentLengths],
         },
-        rejectReason: InvalidDataReason.OUTPUT_INVALID_ASSET_GROUP_ORDERING,
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_ORDERING,
     },
     {
         testname: "Reject tx where tokens within an asset group are not unique",
@@ -1248,7 +1248,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
             ...maryBase,
             outputs: [outputs.multiassetTokensNotUnique],
         },
-        rejectReason: InvalidDataReason.OUTPUT_INVALID_ASSET_GROUP_NOT_UNIQUE,
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_NOT_UNIQUE,
     },
 
 ]

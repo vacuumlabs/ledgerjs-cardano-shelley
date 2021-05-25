@@ -11,26 +11,25 @@ export enum InvalidDataReason {
   NETWORK_INVALID_NETWORK_ID = "invalid network id",
 
   INPUTS_NOT_ARRAY = "inputs not an array",
-
   INPUT_INVALID_TX_HASH = "invalid tx hash in an input",
   INPUT_INVALID_PATH = "invalid input path",
   INPUT_INVALID_UTXO_INDEX = "invalid input utxo index",
 
   OUTPUTS_NOT_ARRAY = "outputs not an array",
-
-  OUTPUT_INVALID_AMOUNT = "invalid amount in an output (or mint field)",
-  OUTPUT_INVALID_POLICY_NAME = "invalid policy id in the token bundle in an output (or mint field)",
-  OUTPUT_INVALID_TOKEN_BUNDLE_NOT_ARRAY = "invalid token bundle in an output (or mint field) - asset groups not an array",
-  OUTPUT_INVALID_TOKEN_BUNDLE_TOO_LARGE = "invalid token bundle in an output (or mint field) - too many asset groups",
-  OUTPUT_INVALID_TOKEN_BUNDLE_ORDERING = "invalid token bundle in an output (or mint field) - incorrect ordering of asset groups",
-  OUTPUT_INVALID_TOKEN_BUNDLE_NOT_UNIQUE = "invalid token bundle in an output (or mint field) - policyIds not unique",
-  OUTPUT_INVALID_ASSET_NAME = "invalid asset name in the token bundle in an output (or mint field)",
-  OUTPUT_INVALID_ASSET_GROUP_NOT_ARRAY = "invalid asset group in the token bundle in an output (or mint field) - tokens not an array",
-  OUTPUT_INVALID_ASSET_GROUP_TOO_LARGE = "invalid asset group in the token bundle in an output (or mint field) - too many tokens",
-  OUTPUT_INVALID_ASSET_GROUP_ORDERING = "invalid asset group in the token bundle in an output (or mint field) - incorrect ordering of tokens",
-  OUTPUT_INVALID_ASSET_GROUP_NOT_UNIQUE = "invalid asset group in the token bundle in an output (or mint field) - token names not unique",
-
+  OUTPUT_INVALID_AMOUNT = "invalid amount in an output",
   OUTPUT_INVALID_ADDRESS = "invalid address in an output",
+
+  MULTIASSET_INVALID_POLICY_NAME = "invalid policy id in a multiasset token bundle",
+  MULTIASSET_INVALID_TOKEN_BUNDLE_NOT_ARRAY = "invalid multiasset token bundle - asset groups not an array",
+  MULTIASSET_INVALID_TOKEN_BUNDLE_TOO_LARGE = "invalid multiasset token bundle - too many asset groups",
+  MULTIASSET_INVALID_TOKEN_BUNDLE_ORDERING = "invalid multiasset token bundle - incorrect ordering of asset groups",
+  MULTIASSET_INVALID_TOKEN_BUNDLE_NOT_UNIQUE = "invalid multiasset token bundle - policyIds not unique",
+  MULTIASSET_INVALID_TOKEN_AMOUNT = "invalid token amount in an asset group in a multiasset token bundle",
+  MULTIASSET_INVALID_ASSET_NAME = "invalid asset name in an asset group in a multiasset token bundle",
+  MULTIASSET_INVALID_ASSET_GROUP_NOT_ARRAY = "invalid asset group in multiasset token bundle - tokens not an array",
+  MULTIASSET_INVALID_ASSET_GROUP_TOO_LARGE = "invalid asset group in multiasset token bundle - too many tokens",
+  MULTIASSET_INVALID_ASSET_GROUP_ORDERING = "invalid asset group in multiasset token bundle - incorrect ordering of tokens",
+  MULTIASSET_INVALID_ASSET_GROUP_NOT_UNIQUE = "invalid asset group in multiasset token bundle - token names not unique",
 
   ADDRESS_UNKNOWN_TYPE = "unknown address type",
   ADDRESS_INVALID_SPENDING_PATH = "invalid address spending path",
