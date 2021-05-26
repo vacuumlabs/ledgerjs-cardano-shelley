@@ -51,14 +51,15 @@ export type ParsedCertificate = {
 export const TOKEN_POLICY_LENGTH = 28
 
 
-export type ParsedToken<Type> = {
+// this type is used with both uint64 for outputs and int64 for minting
+export type ParsedToken<IntegerType> = {
     assetNameHex: HexString,
-    amount: Type,
+    amount: IntegerType,
 };
 
-export type ParsedAssetGroup<Type> = {
+export type ParsedAssetGroup<T> = {
     policyIdHex: FixlenHexString<typeof TOKEN_POLICY_LENGTH>,
-    tokens: Array<ParsedToken<Type>>,
+    tokens: Array<ParsedToken<T>>,
 };
 
 
