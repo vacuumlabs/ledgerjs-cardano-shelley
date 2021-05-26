@@ -26,8 +26,8 @@ const enum P1 {
   STAGE_CERTIFICATES = 0x06,
   STAGE_WITHDRAWALS = 0x07,
   STAGE_VALIDITY_INTERVAL_START = 0x09,
-  STAGE_MINT = 0x0a,
-  STAGE_CONFIRM = 0x0b,
+  STAGE_CONFIRM = 0x0a,
+  STAGE_MINT = 0x0b,
   STAGE_WITNESSES = 0x0f,
 }
 
@@ -80,14 +80,12 @@ function* signTx_addOutput(
   }
 
   // Basic data
-  {
-      yield send({
-          p1: P1.STAGE_OUTPUTS,
-          p2: P2.BASIC_DATA,
-          data: serializeTxOutputBasicParams(output),
-          expectedResponseLength: 0,
-      })
-  }
+  yield send({
+      p1: P1.STAGE_OUTPUTS,
+      p2: P2.BASIC_DATA,
+      data: serializeTxOutputBasicParams(output),
+      expectedResponseLength: 0,
+  })
 
   yield* signTx_addTokenBundle(output.tokenBundle, P1.STAGE_OUTPUTS, uint64_to_buf)
 
@@ -99,9 +97,9 @@ function* signTx_addOutput(
   })
 }
 
-export type SerializingFunction<Type> = (val: Type) => Buffer
+export type SerializeTokenAmountFn<T> = (val: T) => Buffer
 
-function* signTx_addTokenBundle<Type>(tokenBundle: ParsedAssetGroup<Type>[], p1: number, parseFn: SerializingFunction<Type>) {
+function* signTx_addTokenBundle<T>(tokenBundle: ParsedAssetGroup<T>[], p1: number, serializeTokenAmountFn: SerializeTokenAmountFn<T>) {
     const enum P2 {
         ASSET_GROUP = 0x31,
         TOKEN = 0x32,
@@ -120,7 +118,7 @@ function* signTx_addTokenBundle<Type>(tokenBundle: ParsedAssetGroup<Type>[], p1:
             yield send({
                 p1: p1,
                 p2: P2.TOKEN,
-                data: serializeToken(token, parseFn),
+                data: serializeToken(token, serializeTokenAmountFn),
                 expectedResponseLength: 0,
             })
         }
@@ -452,14 +450,12 @@ function* signTx_setMint(
     }
 
     // Basic data
-    {
-        yield send({
-            p1: P1.STAGE_MINT,
-            p2: P2.BASIC_DATA,
-            data: serializeMintBasicParams(mint),
-            expectedResponseLength: 0,
-        })
-    }
+    yield send({
+        p1: P1.STAGE_MINT,
+        p2: P2.BASIC_DATA,
+        data: serializeMintBasicParams(mint),
+        expectedResponseLength: 0,
+    })
 
     yield* signTx_addTokenBundle(mint, P1.STAGE_MINT, int64_to_buf)
 
