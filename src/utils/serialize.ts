@@ -6,7 +6,7 @@ import { assert } from './assert'
 import { isHexString, isInt64str, isUint8, isUint16, isUint32, isUint64str, isValidPath } from "./parse"
 
 // We use bs10 as an easy way to parse/encode amount strings
-const bs10 = basex("0123456789")
+const bs10 = basex("-0123456789")
 
 export function uint8_to_buf(value: Uint8_t): Buffer {
     assert(isUint8(value), 'invalid uint8')
