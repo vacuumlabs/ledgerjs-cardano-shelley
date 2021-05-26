@@ -1,4 +1,4 @@
-import type { DeviceOwnedAddress, SignedTransactionData, Transaction, TxInput, TxOutput, TxOutputDestination } from "../../../src/Ada"
+import type { AssetGroup, DeviceOwnedAddress, SignedTransactionData, Transaction, TxInput, TxOutput, TxOutputDestination } from "../../../src/Ada"
 import {InvalidDataReason, TxAuxiliaryDataSupplementType} from "../../../src/Ada"
 import { AddressType, CertificateType, Networks, TxAuxiliaryDataType, TxOutputDestinationType, utils } from "../../../src/Ada"
 import { str_to_path } from "../../../src/utils/address"
@@ -158,6 +158,30 @@ const destinations: Record<
             },
         },
     },
+}
+
+export const mints: Record<
+  | 'standardMint'
+  , Array<AssetGroup>
+> = {
+    standardMint: [
+        {
+            // fingerprints taken from CIP 14 draft
+            policyIdHex: "7eae28af2208be856f7a119668ae52a49b73725e326dc16579dcc373",
+            tokens: [
+                {
+                    // fingerprint: asset1rjklcrnsdzqp65wjgrg55sy9723kw09mlgvlc3
+                    assetNameHex: "",
+                    amount: "3",
+                },
+                {
+                    // fingerprint: asset17jd78wukhtrnmjh3fngzasxm8rck0l2r4hhyyt
+                    assetNameHex: "1e349c9bdea19fd6c147626a5260bc44b71635f398b67c59881df209",
+                    amount: "-9",
+                },
+            ],
+        },
+    ],
 }
 
 export const outputs: Record<
@@ -1113,6 +1137,21 @@ export const testsMary: TestcaseMary[] = [
             "e5ee59942fba139b5547e5e1dae1389ed9edd6e7bd7f057b988973c2451b5e3e41901c1d9a0fa74d34dae356a064ee783205d731fee01105c904702826b66b04",
                 },
             ],
+            auxiliaryDataSupplement: null,
+        },
+    },
+    {
+        testname: "Sign tx with mint fields",
+        tx: {
+            ...maryBase,
+            outputs: [],
+            mint: mints.standardMint,
+        },
+        // todo: get remaining fields once minting can be processed by ledger
+        txBody: "",
+        result: {
+            txHashHex: "",
+            witnesses: [],
             auxiliaryDataSupplement: null,
         },
     },
