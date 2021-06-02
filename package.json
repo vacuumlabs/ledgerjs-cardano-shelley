@@ -25,6 +25,7 @@
     "@types/ledgerhq__hw-transport": "^4.21.3",
     "base-x": "^3.0.5",
     "bech32": "^1.1.4",
+    "int64-buffer": "^1.0.1",
     "node-int64": "^0.4.0"
   },
   "devDependencies": {
