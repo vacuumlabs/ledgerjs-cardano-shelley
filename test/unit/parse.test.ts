@@ -5,77 +5,56 @@ import {InvalidDataReason} from "../../src/errors"
 import {assert} from "../../src/utils/assert"
 import {parseInt64_str, parseUint64_str} from "../../src/utils/parse"
 
-describe('test parsing of integers', () => {
-    it("decode signed 1", () => {
-        let numberString = "-123456"
-        let int64Obj = new Int64BE(numberString, 10)
-        let bufferRep = int64Obj.toBuffer()
-        assert(bufferRep.length <= 8, "excessive data")
+type BasicParseTest = {
+    signed: boolean,
+    numberString: string,
+}
+
+const basicParseTests: BasicParseTest[] = [
+    {
+        signed: true,
+        numberString: "-123456",
+    },
+    {
+        signed: true,
+        numberString: "9223372036854775807",
+    },
+    {
+        signed: true,
+        numberString: "0",
+    },
+    {
+        signed: true,
+        numberString: "-9223372036854775808",
+    },
+    {
+        signed: false,
+        numberString: "0",
+    },
+    {
+        signed: false,
+        numberString: "9223372036854775807",
+    },
+    {
+        signed: false,
+        numberString: "18446744073709551615",
+    },
+]
+
+describe("basicParseTest", async () => {
+    for (const { signed, numberString } of basicParseTests) {
+        console.log(`parsing ${numberString} (${signed ? "signed" : "unsigned"})`)
+        const objectRepresentation = (signed ? new Int64BE(numberString, 10) : new Uint64BE(numberString, 10))
+        const bufferRep = objectRepresentation.toBuffer()
+
+        assert(bufferRep.length == 8, "invalid binary length")
         console.log(bufferRep)
 
-        expect(int64Obj.toString()).to.equal(numberString)
-    })
+        expect(objectRepresentation.toString()).to.equal(numberString)
+    }
+})
 
-    it("decode signed 2", () => {
-        let numberString = "9223372036854775807"
-        let int64Obj = new Int64BE(numberString, 10)
-        let bufferRep = int64Obj.toBuffer()
-        assert(bufferRep.length <= 8, "excessive data")
-        console.log(bufferRep)
-
-        expect(int64Obj.toString()).to.equal(numberString)
-    })
-
-    it("decode signed 3", () => {
-        let numberString = "0"
-        let int64Obj = new Int64BE(numberString, 10)
-        let bufferRep = int64Obj.toBuffer()
-        assert(bufferRep.length <= 8, "excessive data")
-        console.log(bufferRep)
-
-        expect(int64Obj.toString()).to.equal(numberString)
-    })
-
-    it("decode signed 4", () => {
-        let numberString = "-9223372036854775808"
-        let int64Obj = new Int64BE(numberString, 10)
-        let bufferRep = int64Obj.toBuffer()
-        assert(bufferRep.length <= 8, "excessive data")
-        console.log(bufferRep)
-
-        expect(int64Obj.toString()).to.equal(numberString)
-    })
-
-    it("decode unsigned 1", () => {
-        let numberString = "0"
-        let int64Obj = new Uint64BE(numberString, 10)
-        let bufferRep = int64Obj.toBuffer()
-        assert(bufferRep.length <= 8, "excessive data")
-        console.log(bufferRep)
-
-        expect(int64Obj.toString()).to.equal(numberString)
-    })
-
-    it("decode unsigned 2", () => {
-        let numberString = "9223372036854775807"
-        let int64Obj = new Uint64BE(numberString, 10)
-        let bufferRep = int64Obj.toBuffer()
-        assert(bufferRep.length <= 8, "excessive data")
-        console.log(bufferRep)
-
-        expect(int64Obj.toString()).to.equal(numberString)
-    })
-
-    it("decode unsigned 3", () => {
-        let numberString = "18446744073709551615"
-        let int64Obj = new Uint64BE(numberString, 10)
-        let bufferRep = int64Obj.toBuffer()
-        assert(bufferRep.length <= 8, "excessive data")
-        console.log(bufferRep)
-
-        expect(int64Obj.toString()).to.equal(numberString)
-    })
-
+describe('advancedParseTest', () => {
     it('parse int64 correctly', () => {
         let nmb = "1235543"
         let result = parseInt64_str(nmb, {}, InvalidDataReason.INPUT_INVALID_TX_HASH)
