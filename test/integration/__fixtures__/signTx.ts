@@ -162,8 +162,8 @@ const destinations: Record<
 
 export const mints: Record<
     | 'mintAmountVariety'
-    | 'mintCanonicalOrderingPolicy'
-    | 'mintCanonicalOrderingAssetName'
+    | 'mintInvalidCanonicalOrderingPolicy'
+    | 'mintInvalidCanonicalOrderingAssetName'
   , Array<AssetGroup>
 > = {
     mintAmountVariety: [
@@ -194,7 +194,7 @@ export const mints: Record<
             ],
         },
     ],
-    mintCanonicalOrderingPolicy: [
+    mintInvalidCanonicalOrderingPolicy: [
         {
             // fingerprints taken from CIP 14 draft (and incremented)
             policyIdHex: "7eae28af2208be856f7a119668ae52a49b73725e326dc16579dcc374",
@@ -223,7 +223,7 @@ export const mints: Record<
             ],
         },
     ],
-    mintCanonicalOrderingAssetName: [
+    mintInvalidCanonicalOrderingAssetName: [
         {
             // fingerprints taken from CIP 14 draft (and incremented)
             policyIdHex: "7eae28af2208be856f7a119668ae52a49b73725e326dc16579dcc374",
@@ -1397,7 +1397,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
         tx: {
             ...maryBase,
             outputs: [],
-            mint: mints.mintCanonicalOrderingPolicy,
+            mint: mints.mintInvalidCanonicalOrderingPolicy,
         },
         rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_ORDERING,
     },
@@ -1406,7 +1406,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
         tx: {
             ...maryBase,
             outputs: [],
-            mint: mints.mintCanonicalOrderingAssetName,
+            mint: mints.mintInvalidCanonicalOrderingAssetName,
         },
         rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_ORDERING,
     },
