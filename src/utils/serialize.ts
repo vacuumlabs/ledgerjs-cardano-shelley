@@ -1,12 +1,8 @@
+import { Int64BE, Uint64BE } from "int64-buffer"
 
-import basex from "base-x"
-
-import type { FixlenHexString, HexString, Uint8_t, Uint16_t, Uint32_t, Uint64_str } from "../types/internal"
+import type { FixlenHexString, HexString, Int64_str, Uint8_t, Uint16_t, Uint32_t, Uint64_str } from "../types/internal"
 import { assert } from './assert'
-import { isHexString, isUint8, isUint16, isUint32, isUint64str, isValidPath } from "./parse"
-
-// We use bs10 as an easy way to parse/encode amount strings
-const bs10 = basex("0123456789")
+import { isHexString, isInt64str, isUint8, isUint16, isUint32, isUint64str, isValidPath } from "./parse"
 
 export function uint8_to_buf(value: Uint8_t): Buffer {
     assert(isUint8(value), 'invalid uint8')
@@ -46,7 +42,17 @@ export function buf_to_uint32(data: Buffer): Uint32_t {
 export function uint64_to_buf(value: Uint64_str): Buffer {
     assert(isUint64str(value), 'invalid uint64_str')
 
-    const data = bs10.decode(value)
+    const data = new Uint64BE(value, 10).toBuffer()
+    assert(data.length <= 8, "excessive data")
+
+    const padding = Buffer.alloc(8 - data.length)
+    return Buffer.concat([padding, data])
+}
+
+export function int64_to_buf(value: Int64_str): Buffer {
+    assert(isInt64str(value), 'invalid int64_str')
+
+    const data = new Int64BE(value, 10).toBuffer()
     assert(data.length <= 8, "excessive data")
 
     const padding = Buffer.alloc(8 - data.length)

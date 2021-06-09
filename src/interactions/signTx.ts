@@ -1,10 +1,10 @@
 import { DeviceVersionUnsupported } from "../errors"
-import type { ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
+import type { Int64_str, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
 import { CertificateType, ED25519_SIGNATURE_LENGTH, PoolOwnerType, TX_HASH_LENGTH } from "../types/internal"
 import type { SignedTransactionData, TxAuxiliaryDataSupplement } from "../types/public"
 import { PoolKeyType, TransactionSigningMode, TxAuxiliaryDataSupplementType, TxAuxiliaryDataType } from "../types/public"
 import { assert } from "../utils/assert"
-import { buf_to_hex, hex_to_buf } from "../utils/serialize"
+import { buf_to_hex, hex_to_buf, int64_to_buf, uint64_to_buf } from "../utils/serialize"
 import { INS } from "./common/ins"
 import type { Interaction, SendParams } from "./common/types"
 import { ensureLedgerAppVersionCompatible, getCompatibility } from "./getVersion"
@@ -13,8 +13,8 @@ import { serializeFinancials, serializePoolInitialParams, serializePoolInitialPa
 import { serializeTxAuxiliaryData } from "./serialization/txAuxiliaryData"
 import { serializeTxCertificate } from "./serialization/txCertificate"
 import { serializeTxInit } from "./serialization/txInit"
-import { serializeTxFee, serializeTxInput, serializeTxTtl, serializeTxValidityStart, serializeTxWithdrawal, serializeTxWitnessRequest } from "./serialization/txOther"
-import { serializeAssetGroup, serializeToken, serializeTxOutputBasicParams } from "./serialization/txOutput"
+import { serializeAssetGroup, serializeMintBasicParams, serializeToken, serializeTxFee, serializeTxInput, serializeTxTtl, serializeTxValidityStart, serializeTxWithdrawal, serializeTxWitnessRequest } from "./serialization/txOther"
+import { serializeTxOutputBasicParams } from "./serialization/txOutput"
 
 const enum P1 {
   STAGE_INIT = 0x01,
@@ -27,6 +27,7 @@ const enum P1 {
   STAGE_WITHDRAWALS = 0x07,
   STAGE_VALIDITY_INTERVAL_START = 0x09,
   STAGE_CONFIRM = 0x0a,
+  STAGE_MINT = 0x0b,
   STAGE_WITNESSES = 0x0f,
 }
 
@@ -75,39 +76,18 @@ function* signTx_addOutput(
 ): Interaction<void> {
   const enum P2 {
     BASIC_DATA = 0x30,
-    ASSET_GROUP = 0x31,
-    TOKEN = 0x32,
     CONFIRM = 0x33,
   }
 
   // Basic data
-  {
-      yield send({
-          p1: P1.STAGE_OUTPUTS,
-          p2: P2.BASIC_DATA,
-          data: serializeTxOutputBasicParams(output),
-          expectedResponseLength: 0,
-      })
-  }
+  yield send({
+      p1: P1.STAGE_OUTPUTS,
+      p2: P2.BASIC_DATA,
+      data: serializeTxOutputBasicParams(output),
+      expectedResponseLength: 0,
+  })
 
-  // Assets
-  for (const assetGroup of output.tokenBundle) {
-      yield send({
-          p1: P1.STAGE_OUTPUTS,
-          p2: P2.ASSET_GROUP,
-          data: serializeAssetGroup(assetGroup),
-          expectedResponseLength: 0,
-      })
-
-      for (const token of assetGroup.tokens) {
-          yield send({
-              p1: P1.STAGE_OUTPUTS,
-              p2: P2.TOKEN,
-              data: serializeToken(token),
-              expectedResponseLength: 0,
-          })
-      }
-  }
+  yield* signTx_addTokenBundle(output.tokenBundle, P1.STAGE_OUTPUTS, uint64_to_buf)
 
   yield send({
       p1: P1.STAGE_OUTPUTS,
@@ -115,6 +95,34 @@ function* signTx_addOutput(
       data: Buffer.alloc(0),
       expectedResponseLength: 0,
   })
+}
+
+export type SerializeTokenAmountFn<T> = (val: T) => Buffer
+
+function* signTx_addTokenBundle<T>(tokenBundle: ParsedAssetGroup<T>[], p1: number, serializeTokenAmountFn: SerializeTokenAmountFn<T>) {
+    const enum P2 {
+        ASSET_GROUP = 0x31,
+        TOKEN = 0x32,
+    }
+
+    // Assets
+    for (const assetGroup of tokenBundle) {
+        yield send({
+            p1: p1,
+            p2: P2.ASSET_GROUP,
+            data: serializeAssetGroup(assetGroup),
+            expectedResponseLength: 0,
+        })
+
+        for (const token of assetGroup.tokens) {
+            yield send({
+                p1: p1,
+                p2: P2.TOKEN,
+                data: serializeToken(token, serializeTokenAmountFn),
+                expectedResponseLength: 0,
+            })
+        }
+    }
 }
 
 function* signTx_addCertificate(
@@ -433,6 +441,33 @@ function* signTx_setValidityIntervalStart(
   })
 }
 
+function* signTx_setMint(
+    mint: Array<ParsedAssetGroup<Int64_str>>
+): Interaction<void> {
+    const enum P2 {
+        BASIC_DATA = 0x30,
+        CONFIRM = 0x33,
+    }
+
+    // Basic data
+    yield send({
+        p1: P1.STAGE_MINT,
+        p2: P2.BASIC_DATA,
+        data: serializeMintBasicParams(mint),
+        expectedResponseLength: 0,
+    })
+
+    yield* signTx_addTokenBundle(mint, P1.STAGE_MINT, int64_to_buf)
+
+    yield send({
+        p1: P1.STAGE_MINT,
+        p2: P2.CONFIRM,
+        data: Buffer.alloc(0),
+        expectedResponseLength: 0,
+    })
+}
+
+
 function* signTx_awaitConfirm(
 ): Interaction<{ txHashHex: string; }> {
   const enum P2 {
@@ -591,6 +626,11 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
     // validity start
     if (tx.validityIntervalStart != null) {
         yield* signTx_setValidityIntervalStart(tx.validityIntervalStart)
+    }
+
+    // mint
+    if (tx.mint != null) {
+        yield* signTx_setMint(tx.mint)
     }
 
     // confirm

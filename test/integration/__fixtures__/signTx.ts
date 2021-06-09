@@ -1,4 +1,4 @@
-import type { DeviceOwnedAddress, SignedTransactionData, Transaction, TxInput, TxOutput, TxOutputDestination } from "../../../src/Ada"
+import type { AssetGroup, DeviceOwnedAddress, SignedTransactionData, Transaction, TxInput, TxOutput, TxOutputDestination } from "../../../src/Ada"
 import {InvalidDataReason, TxAuxiliaryDataSupplementType} from "../../../src/Ada"
 import { AddressType, CertificateType, Networks, TxAuxiliaryDataType, TxOutputDestinationType, utils } from "../../../src/Ada"
 import { str_to_path } from "../../../src/utils/address"
@@ -158,6 +158,89 @@ const destinations: Record<
             },
         },
     },
+}
+
+export const mints: Record<
+    | 'mintAmountVariety'
+    | 'mintInvalidCanonicalOrderingPolicy'
+    | 'mintInvalidCanonicalOrderingAssetName'
+  , Array<AssetGroup>
+> = {
+    mintAmountVariety: [
+        {
+            // fingerprints taken from CIP 14 draft
+            policyIdHex: "7eae28af2208be856f7a119668ae52a49b73725e326dc16579dcc373",
+            tokens: [
+                {
+                    // fingerprint: asset1rjklcrnsdzqp65wjgrg55sy9723kw09mlgvlc3
+                    assetNameHex: "",
+                    amount: "0",
+                },
+                {
+                    // fingerprint: asset17jd78wukhtrnmjh3fngzasxm8rck0l2r4hhyyt
+                    assetNameHex: "1e349c9bdea19fd6c147626a5260bc44b71635f398b67c59881df209",
+                    amount: "-1",
+                },
+                {
+                    // fingerprint: asset17jd78wukhtrnmjh3fngzasxm8rck0l2r4hhyyt (and incremented)
+                    assetNameHex: "1e349c9bdea19fd6c147626a5260bc44b71635f398b67c59881df20a",
+                    amount: "9223372036854775807",
+                },
+                {
+                    // fingerprint: asset17jd78wukhtrnmjh3fngzasxm8rck0l2r4hhyyt (and incremented)
+                    assetNameHex: "1e349c9bdea19fd6c147626a5260bc44b71635f398b67c59881df20b",
+                    amount: "-9223372036854775808",
+                },
+            ],
+        },
+    ],
+    mintInvalidCanonicalOrderingPolicy: [
+        {
+            // fingerprints taken from CIP 14 draft (and incremented)
+            policyIdHex: "7eae28af2208be856f7a119668ae52a49b73725e326dc16579dcc374",
+            tokens: [
+                {
+                    // fingerprint: asset1rjklcrnsdzqp65wjgrg55sy9723kw09mlgvlc3
+                    assetNameHex: "",
+                    amount: "0",
+                },
+                {
+                    // fingerprint: asset17jd78wukhtrnmjh3fngzasxm8rck0l2r4hhyyt
+                    assetNameHex: "1e349c9bdea19fd6c147626a5260bc44b71635f398b67c59881df209",
+                    amount: "-1",
+                },
+            ],
+        },
+        {
+            // fingerprints taken from CIP 14 draft
+            policyIdHex: "7eae28af2208be856f7a119668ae52a49b73725e326dc16579dcc373",
+            tokens: [
+                {
+                    // fingerprint: asset1rjklcrnsdzqp65wjgrg55sy9723kw09mlgvlc3
+                    assetNameHex: "",
+                    amount: "0",
+                },
+            ],
+        },
+    ],
+    mintInvalidCanonicalOrderingAssetName: [
+        {
+            // fingerprints taken from CIP 14 draft (and incremented)
+            policyIdHex: "7eae28af2208be856f7a119668ae52a49b73725e326dc16579dcc374",
+            tokens: [
+                {
+                    // fingerprint: asset17jd78wukhtrnmjh3fngzasxm8rck0l2r4hhyyt
+                    assetNameHex: "1e349c9bdea19fd6c147626a5260bc44b71635f398b67c59881df209",
+                    amount: "-1",
+                },
+                {
+                    // fingerprint: asset1rjklcrnsdzqp65wjgrg55sy9723kw09mlgvlc3
+                    assetNameHex: "",
+                    amount: "0",
+                },
+            ],
+        },
+    ],
 }
 
 export const outputs: Record<
@@ -889,7 +972,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                     txHashHex: "3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7",
                     outputIndex: 0,
                     path: str_to_path("1852'/1815'/0'/0/0"),
-                },      
+                },
             ],
             certificates: [
                 {
@@ -1114,6 +1197,61 @@ export const testsMary: TestcaseMary[] = [
             auxiliaryDataSupplement: null,
         },
     },
+    {
+        testname: "Sign tx with mint fields with various amounts",
+        tx: {
+            ...maryBase,
+            outputs: [],
+            mint: mints.mintAmountVariety,
+        },
+        // todo: get remaining fields once minting can be processed by ledger
+        txBody: "",
+        result: {
+            txHashHex: "8443704cc6a44c830d7966c4a57486762002b469c12850e115ba9ace728d9db8",
+            "witnesses": [  //TODO: witnessing mint is not yet implemented
+                {
+                    "path": [
+                        2147485500,
+                        2147485463,
+                        2147483648,
+                        0,
+                        0,
+                    ],
+                    "witnessSignatureHex": "be9645672ca75aab57b316d37e0a8ec68a263a77b41d035aa9ec32ca5cc315c18570c3b3a720b2f368882cf4076f2ccb7475c9f3cbaf18b659aa143a222dc40e",
+                },
+            ],
+            auxiliaryDataSupplement: null,
+        },
+    },
+    {
+        testname: "Sign tx with mint fields among other fields",
+        tx: {
+            ...maryBase,
+            outputs: [outputs.multiassetOneToken, outputs.internalBaseWithStakingPath],
+            fee: 10,
+            validityIntervalStart: 100,
+            ttl: 1000,
+            mint: mints.mintAmountVariety,
+        },
+        // todo: get remaining fields once minting can be processed by ledger
+        txBody: "",
+        result: {
+            txHashHex: "cd309799a0b7f20705683088149d08f223853c7fdf994d6e90f9d063b7f640ee",
+            witnesses: [
+                {
+                    "path": [
+                        2147485500,
+                        2147485463,
+                        2147483648,
+                        0,
+                        0,
+                    ],
+                    "witnessSignatureHex": "1791de7a1ef787e04a0782ae2af8b80678b7a9e479148e52e8d8c7c2b0b2eea32f45af687012004e251aba3abcb6456c1804db0f6ca3b6fe5ad4b658b081300e",
+                },
+            ],
+            auxiliaryDataSupplement: null,
+        },
+    },
 ]
 
 export const testsCatalystRegistration: TestcaseMary[] = [
@@ -1216,7 +1354,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
             ...maryBase,
             outputs: [outputs.multiassetInvalidAssetGroupOrdering],
         },
-        rejectReason: InvalidDataReason.OUTPUT_INVALID_TOKEN_BUNDLE_ORDERING,
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_ORDERING,
     },
     {
         testname: "Reject tx where asset groups are not unique",
@@ -1224,7 +1362,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
             ...maryBase,
             outputs: [outputs.multiassetAssetGroupsNotUnique],
         },
-        rejectReason: InvalidDataReason.OUTPUT_INVALID_TOKEN_BUNDLE_NOT_UNIQUE,
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_NOT_UNIQUE,
     },
     {
         testname: "Reject tx where tokens within an asset group are not ordered - alphabetical",
@@ -1232,7 +1370,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
             ...maryBase,
             outputs: [outputs.multiassetInvalidTokenOrderingSameLength],
         },
-        rejectReason: InvalidDataReason.OUTPUT_INVALID_ASSET_GROUP_ORDERING,
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_ORDERING,
     },
     {
         testname: "Reject tx where tokens within an asset group are not ordered - length",
@@ -1240,7 +1378,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
             ...maryBase,
             outputs: [outputs.multiassetInvalidTokenOrderingDifferentLengths],
         },
-        rejectReason: InvalidDataReason.OUTPUT_INVALID_ASSET_GROUP_ORDERING,
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_ORDERING,
     },
     {
         testname: "Reject tx where tokens within an asset group are not unique",
@@ -1248,7 +1386,24 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
             ...maryBase,
             outputs: [outputs.multiassetTokensNotUnique],
         },
-        rejectReason: InvalidDataReason.OUTPUT_INVALID_ASSET_GROUP_NOT_UNIQUE,
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_NOT_UNIQUE,
     },
-
+    {
+        testname: "Reject tx with mint fields with invalid canonical ordering of policies",
+        tx: {
+            ...maryBase,
+            outputs: [],
+            mint: mints.mintInvalidCanonicalOrderingPolicy,
+        },
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_ORDERING,
+    },
+    {
+        testname: "Reject tx with mint fields with invalid canonical ordering of asset names",
+        tx: {
+            ...maryBase,
+            outputs: [],
+            mint: mints.mintInvalidCanonicalOrderingAssetName,
+        },
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_ORDERING,
+    },
 ]

@@ -7,12 +7,14 @@ export type HexString = string & { __type: 'hex' }
 
 export type _Uint64_num = number & { __type: 'uint64_t' }
 export type _Uint64_bigint = bigint & { __type: 'uint64_t' }
-
-export type ValidBIP32Path = Array<Uint32_t> & { __type: 'bip32_path' }
 export type Uint64_str = string & { __type: 'uint64_t' }
 export type Uint32_t = number & { __type: 'uint32_t' }
 export type Uint16_t = number & { __type: 'uint16_t' }
 export type Uint8_t = number & { __type: 'uint8_t' }
+export type _Int64_num = number & { __type: 'int64_t' }
+export type _Int64_bigint = bigint & { __type: 'int64_t' }
+export type Int64_str = string & { __type: 'int64_t' }
+export type ValidBIP32Path = Array<Uint32_t> & { __type: 'bip32_path' }
 
 // Reexport blockchain spec
 export { AddressType, CertificateType, RelayType, PoolKeyType, PoolOwnerType, PoolRewardAccountType, TransactionSigningMode, TxAuxiliaryDataType, TxOutputDestinationType }
@@ -49,14 +51,15 @@ export type ParsedCertificate = {
 export const TOKEN_POLICY_LENGTH = 28
 
 
-export type ParsedToken = {
+// this type is used with both uint64 for outputs and int64 for minting
+export type ParsedToken<IntegerType> = {
     assetNameHex: HexString,
-    amount: Uint64_str,
+    amount: IntegerType,
 };
 
-export type ParsedAssetGroup = {
+export type ParsedAssetGroup<T> = {
     policyIdHex: FixlenHexString<typeof TOKEN_POLICY_LENGTH>,
-    tokens: Array<ParsedToken>,
+    tokens: Array<ParsedToken<T>>,
 };
 
 
@@ -95,6 +98,7 @@ export type ParsedTransaction = {
     withdrawals: ParsedWithdrawal[]
     auxiliaryData: ParsedTxAuxiliaryData | null
     validityIntervalStart: Uint64_str | null
+    mint: Array<ParsedAssetGroup<Int64_str>> | null
 }
 
 export type ParsedSigningRequest = {
@@ -254,7 +258,7 @@ export type OutputDestination = {
 
 export type ParsedOutput = {
     amount: Uint64_str
-    tokenBundle: ParsedAssetGroup[]
+    tokenBundle: ParsedAssetGroup<Uint64_str>[]
     destination: OutputDestination
 }
 
