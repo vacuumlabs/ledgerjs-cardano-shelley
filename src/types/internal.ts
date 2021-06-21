@@ -22,6 +22,7 @@ export { Version, DeviceCompatibility } from './public'
 // Our types
 export const EXTENDED_PUBLIC_KEY_LENGTH = 64
 export const KEY_HASH_LENGTH = 28
+export const SCRIPT_HASH_LENGTH = 28
 export const TX_HASH_LENGTH = 32
 export const AUXILIARY_DATA_HASH_LENGTH = 32
 export const KES_PUBLIC_KEY_LENGTH = 32
@@ -192,6 +193,7 @@ export const enum StakingChoiceType {
     STAKING_KEY_PATH = 'staking_key_path',
     STAKING_KEY_HASH = 'staking_key_hash',
     BLOCKCHAIN_POINTER = 'blockchain_pointer',
+    STAKING_SCRIPT_HASH = 'staking_script_hash',
 }
 
 type ParsedBlockchainPointer = {
@@ -215,9 +217,13 @@ type StakingChoicePointer = {
     type: StakingChoiceType.BLOCKCHAIN_POINTER,
     pointer: ParsedBlockchainPointer
 }
+type StakingChoiceScriptHash = {
+    type: StakingChoiceType.STAKING_SCRIPT_HASH,
+    hashHex: FixlenHexString<typeof SCRIPT_HASH_LENGTH>
+}
 
 
-export type StakingChoice = StakingChoiceNone | StakingChoicePath | StakingChoiceHash | StakingChoicePointer
+export type StakingChoice = StakingChoiceNone | StakingChoicePath | StakingChoiceHash | StakingChoicePointer | StakingChoiceScriptHash
 
 export type ByronAddressParams = {
     type: AddressType.BYRON,
@@ -227,21 +233,33 @@ export type ByronAddressParams = {
 }
 
 export type ShelleyAddressParams = {
-    type: AddressType.BASE | AddressType.ENTERPRISE | AddressType.POINTER | AddressType.REWARD,
+    type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY |
+        AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY |
+        AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT |
+        AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT |
+        AddressType.ENTERPRISE_KEY |
+        AddressType.ENTERPRISE_SCRIPT |
+        AddressType.POINTER_KEY |
+        AddressType.POINTER_SCRIPT |
+        AddressType.REWARD_KEY |
+        AddressType.REWARD_SCRIPT,
     networkId: Uint8_t,
     spendingPath: ValidBIP32Path
 } & ( // Extra properties
         {
-            type: AddressType.BASE,
+            type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY |
+                AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY |
+                AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT |
+                AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT
             stakingChoice: StakingChoicePath | StakingChoiceHash
         } | {
-            type: AddressType.ENTERPRISE,
+            type: AddressType.ENTERPRISE_KEY | AddressType.ENTERPRISE_SCRIPT
             stakingChoice: StakingChoiceNone
         } | {
-            type: AddressType.POINTER,
+            type: AddressType.POINTER_KEY | AddressType.POINTER_SCRIPT
             stakingChoice: StakingChoicePointer
         } | {
-            type: AddressType.REWARD
+            type: AddressType.REWARD_KEY | AddressType.REWARD_SCRIPT
             stakingChoice: StakingChoiceNone // included in spending path
         }
     )

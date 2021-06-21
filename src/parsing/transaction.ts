@@ -214,6 +214,7 @@ export function parseSigningMode(mode: TransactionSigningMode): TransactionSigni
     case TransactionSigningMode.ORDINARY_TRANSACTION:
     case TransactionSigningMode.POOL_REGISTRATION_AS_OWNER:
     case TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR:
+    case TransactionSigningMode.MULTISIGN_TRANSACTION:
         return mode
     default:
         throw new InvalidData(InvalidDataReason.SIGN_MODE_UNKNOWN)
@@ -302,6 +303,10 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
             InvalidDataReason.SIGN_MODE_POOL_OPERATOR__WITHDRAWALS_NOT_ALLOWED
         )
         break
+    }
+    case TransactionSigningMode.MULTISIGN_TRANSACTION: {
+        //TODO ???
+        break;
     }
     default:
         unreachable(signingMode)

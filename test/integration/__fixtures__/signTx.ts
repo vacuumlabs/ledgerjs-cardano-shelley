@@ -90,7 +90,7 @@ const destinations: Record<
     internalBaseWithStakingKeyHash: {
         type: TxOutputDestinationType.DEVICE_OWNED,
         params: {
-            type: AddressType.BASE,
+            type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY,
             params: {
                 spendingPath: str_to_path("1852'/1815'/0'/0/0"),
                 stakingKeyHashHex:
@@ -101,7 +101,7 @@ const destinations: Record<
     internalBaseWithStakingPath: {
         type: TxOutputDestinationType.DEVICE_OWNED,
         params: {
-            type: AddressType.BASE,
+            type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY,
             params: {
                 spendingPath: str_to_path("1852'/1815'/0'/0/0"),
                 stakingPath: str_to_path("1852'/1815'/0'/2/0"),
@@ -111,7 +111,7 @@ const destinations: Record<
     internalBaseWithStakingPathNonReasonable: {
         type: TxOutputDestinationType.DEVICE_OWNED,
         params: {
-            type: AddressType.BASE,
+            type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY,
             params: {
                 spendingPath: str_to_path("1852'/1815'/456'/0/5000000"),
                 stakingPath: str_to_path("1852'/1815'/456'/2/0"),
@@ -121,7 +121,7 @@ const destinations: Record<
     internalEnterprise: {
         type: TxOutputDestinationType.DEVICE_OWNED,
         params: {
-            type: AddressType.ENTERPRISE,
+            type: AddressType.ENTERPRISE_KEY,
             params: {
                 spendingPath: str_to_path("1852'/1815'/0'/0/0"),
             },
@@ -130,7 +130,7 @@ const destinations: Record<
     internalPointer: {
         type: TxOutputDestinationType.DEVICE_OWNED,
         params: {
-            type: AddressType.POINTER,
+            type: AddressType.POINTER_KEY,
             params: {
                 spendingPath: str_to_path("1852'/1815'/0'/0/0"),
                 stakingBlockchainPointer: {
@@ -152,7 +152,7 @@ const destinations: Record<
     rewardsInternal: {
         type: TxOutputDestinationType.DEVICE_OWNED,
         params: {
-            type: AddressType.REWARD,
+            type: AddressType.REWARD_KEY,
             params: {
                 stakingPath: str_to_path("1852'/1815'/0'/2/0"),
             },
@@ -635,6 +635,9 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             auxiliaryDataSupplement: null,
         },
     },
+    ///////////////////////////
+    // multisig
+    //  possibly with certificate (for the keyhash) ?
     {
         testname: "Sign tx without change address with Shelley scripthash output",
         tx: {
