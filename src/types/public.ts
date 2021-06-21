@@ -18,20 +18,25 @@ export type bigint_like = number | bigint | string
  */
 export enum AddressType {
     /**
-     * Shelley base address
+     * Shelley base addresses
      * @see [[AddressParamsBase]]
      */
-    BASE = 0b0000,
+    BASE_PAYMENT_KEY_STAKE_KEY = 0b0000,
+    BASE_PAYMENT_SCRIPT_STAKE_KEY = 0b0001,
+    BASE_PAYMENT_KEY_STAKE_SCRIPT = 0b0010,
+    BASE_PAYMENT_SCRIPT_STAKE_SCRIPT = 0b0011,
     /**
      * Shelley pointer address
      * @see [[AddressParamsPointer]]
      */
-    POINTER = 0b0100,
+    POINTER_KEY = 0b0100,
+    POINTER_SCRIPT = 0b0101,
     /**
      * Shelley enterprise address
      * @see [[AddressParamsEnterprise]]
      */
-    ENTERPRISE = 0b0110,
+    ENTERPRISE_KEY = 0b0110,
+    ENTERPRISE_SCRIPT = 0b0111,
     /**
      * Byron address
      * @see [[AddressParamsByron]]
@@ -41,7 +46,8 @@ export enum AddressType {
      * Shelley staking rewards address
      * @see [[AddressParamsReward]]
      */
-    REWARD = 0b1110,
+    REWARD_KEY = 0b1110,
+    REWARD_SCRIPT = 0b1111,
 }
 
 /** 
@@ -150,16 +156,19 @@ export type DeviceOwnedAddress = {
     type: AddressType.BYRON
     params: AddressParamsByron
 } | {
-    type: AddressType.BASE
+    type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY |
+    AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY |
+    AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT |
+    AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT,
     params: AddressParamsBase
 } | {
-    type: AddressType.ENTERPRISE
+    type: AddressType.ENTERPRISE_KEY | AddressType.ENTERPRISE_SCRIPT
     params: AddressParamsEnterprise
 } | {
-    type: AddressType.POINTER
+    type: AddressType.POINTER_KEY | AddressType.POINTER_SCRIPT,
     params: AddressParamsPointer
 } | {
-    type: AddressType.REWARD
+    type: AddressType.REWARD_KEY | AddressType.REWARD_SCRIPT,
     params: AddressParamsReward
 }
 
@@ -178,9 +187,9 @@ export type AddressParamsByron = {
  * @category Addresses
  * @see [[DeviceOwnedAddress]]
  */
-export type AddressParamsBase = {
-    spendingPath: BIP32Path
-} & AddressParamsBaseStaking
+export type AddressParamsBase =
+    | { spendingPath: BIP32Path} & AddressParamsBaseStaking
+    | { spendingScriptHash: string} & AddressParamsBaseStaking
 
 /**
  * Shelley *base* address parameters staking choice.
@@ -190,8 +199,9 @@ export type AddressParamsBase = {
  */
 // Not really worth the effort of disambiguation through additional tagged enum
 export type AddressParamsBaseStaking =
-    | { stakingPath: BIP32Path }
-    | { stakingKeyHashHex: string }
+| { stakingPath: BIP32Path }
+| { stakingKeyHashHex: string }
+| { stakingScriptHash: string}
 
 
 /**
@@ -199,15 +209,16 @@ export type AddressParamsBaseStaking =
  * @category Addresses
  * @see [[DeviceOwnedAddress]]
  * */
-export type AddressParamsEnterprise = {
-    spendingPath: BIP32Path
-}
+export type AddressParamsEnterprise =
+    | { spendingPath: BIP32Path }
+    | { spendingScriptHash: string}
 
 /**
  * Shelley *pointer* address parameters
  * @category Addresses
  * @see [[DeviceOwnedAddress]]
  * */
+// TODO finish the transformations
 export type AddressParamsPointer = {
     spendingPath: BIP32Path
     stakingBlockchainPointer: BlockchainPointer
@@ -1066,6 +1077,11 @@ export enum TransactionSigningMode {
      * - [[PoolKeyDeviceOwnedParams.path]] found in pool registration
      */
     POOL_REGISTRATION_AS_OPERATOR = 'pool_registration_as_operator',
+
+    /**
+     * TODO: no clue, but any amount of witnesses is fine
+     */
+    MULTISIGN_TRANSACTION = "multisig_transaction",
 }
 
 /**

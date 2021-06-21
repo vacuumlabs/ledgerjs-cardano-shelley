@@ -8,6 +8,7 @@ function serializeStakingChoice(stakingChoice: StakingChoice): Buffer {
         [StakingChoiceType.STAKING_KEY_PATH]: 0x22,
         [StakingChoiceType.STAKING_KEY_HASH]: 0x33,
         [StakingChoiceType.BLOCKCHAIN_POINTER]: 0x44,
+        [StakingChoiceType.STAKING_SCRIPT_HASH]: 0x55,
     } as const
 
     switch (stakingChoice.type) {
@@ -16,7 +17,8 @@ function serializeStakingChoice(stakingChoice: StakingChoice): Buffer {
             uint8_to_buf(stakingChoicesEncoding[stakingChoice.type] as Uint8_t),
         ])
     }
-    case StakingChoiceType.STAKING_KEY_HASH: {
+    case StakingChoiceType.STAKING_KEY_HASH:
+    case StakingChoiceType.STAKING_SCRIPT_HASH: {
         return Buffer.concat([
             uint8_to_buf(stakingChoicesEncoding[stakingChoice.type] as Uint8_t),
             hex_to_buf(stakingChoice.hashHex),

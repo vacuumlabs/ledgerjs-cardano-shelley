@@ -62,7 +62,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         testname: "base address 1",
         network: Networks.Fake,
         addressParams: {
-            type: AddressType.BASE,
+            type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY,
             params: {
                 spendingPath: str_to_path("1852'/1815'/0'/0/1"),
                 stakingPath: str_to_path("1852'/1815'/0'/2/0"),
@@ -74,7 +74,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         testname: "base address 2",
         network: Networks.Testnet,
         addressParams: {
-            type: AddressType.BASE,
+            type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY,
             params: {
                 spendingPath: str_to_path("1852'/1815'/0'/0/1"),
                 stakingPath: str_to_path("1852'/1815'/0'/2/0"),
@@ -86,7 +86,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         testname: "base with 3rd party staking key 1",
         network: Networks.Testnet,
         addressParams: {
-            type: AddressType.BASE,
+            type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY,
             params: {
                 spendingPath: str_to_path("1852'/1815'/0'/0/1"),
                 stakingKeyHashHex:
@@ -99,7 +99,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         testname: "base with 3rd party staking key 2",
         network: Networks.Fake,
         addressParams: {
-            type: AddressType.BASE,
+            type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY,
             params: {
                 spendingPath: str_to_path("1852'/1815'/0'/0/1"),
                 stakingKeyHashHex:
@@ -112,7 +112,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         testname: "enterprise 1",
         network: Networks.Testnet,
         addressParams: {
-            type: AddressType.ENTERPRISE,
+            type: AddressType.ENTERPRISE_KEY,
             params: {
                 spendingPath: str_to_path("1852'/1815'/0'/0/1"),
             },
@@ -123,7 +123,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         testname: "enterprise 2",
         network: Networks.Fake,
         addressParams: {
-            type: AddressType.ENTERPRISE,
+            type: AddressType.ENTERPRISE_KEY,
             params: {
                 spendingPath: str_to_path("1852'/1815'/0'/0/1"),
             },
@@ -134,7 +134,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         testname: "pointer 1",
         network: Networks.Testnet,
         addressParams: {
-            type: AddressType.POINTER,
+            type: AddressType.POINTER_KEY,
             params: {
                 spendingPath: str_to_path("1852'/1815'/0'/0/1"),
                 stakingBlockchainPointer: Pointer(1, 2, 3),
@@ -146,7 +146,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         testname: "pointer 2",
         network: Networks.Fake,
         addressParams: {
-            type: AddressType.POINTER,
+            type: AddressType.POINTER_KEY,
             params: {
                 spendingPath: str_to_path("1852'/1815'/0'/0/1"),
                 stakingBlockchainPointer: Pointer(24157, 177, 42),
@@ -158,7 +158,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         testname: "pointer 3",
         network: Networks.Fake,
         addressParams: {
-            type: AddressType.POINTER,
+            type: AddressType.POINTER_KEY,
             params: {
                 spendingPath: str_to_path("1852'/1815'/0'/0/1"),
                 stakingBlockchainPointer: Pointer(0, 0, 0),
@@ -170,7 +170,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         testname: "reward 1",
         network: Networks.Testnet,
         addressParams: {
-            type: AddressType.REWARD,
+            type: AddressType.REWARD_KEY,
             params: {
                 stakingPath: str_to_path("1852'/1815'/0'/2/0"),
             },
@@ -181,7 +181,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         testname: "reward 2",
         network: Networks.Fake,
         addressParams: {
-            type: AddressType.REWARD,
+            type: AddressType.REWARD_KEY,
             params: {
                 stakingPath: str_to_path("1852'/1815'/0'/2/0"),
             },

@@ -15,9 +15,11 @@ export function parseAddress(
     // Cast to union of all param fields
     const params = address.params as {
         spendingPath?: BIP32Path,
+        spendingScriptHash?: string,
         stakingPath?: BIP32Path
         stakingKeyHashHex?: string
         stakingBlockchainPointer?: BlockchainPointer
+        stakingScriptHash?: string
     }
 
     if (address.type === AddressType.BYRON) {
@@ -36,28 +38,55 @@ export function parseAddress(
     const networkId = parsedNetwork.networkId
 
     switch (address.type) {
-    case AddressType.BASE: {
-
-        validate(params.stakingBlockchainPointer == null, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
-
-        const spendingPath = parseBIP32Path(params.spendingPath, InvalidDataReason.ADDRESS_INVALID_SPENDING_PATH)
-
-        const _hash = params.stakingKeyHashHex != null ? 'hash' : ''
-        const _path = params.stakingPath != null ? 'path' : ''
-
-        switch (_hash + _path) {
-        case 'hash': {
-            const hashHex = parseHexStringOfLength(params.stakingKeyHashHex!, KEY_HASH_LENGTH, InvalidDataReason.ADDRESS_INVALID_STAKING_KEY_HASH)
-            return {
-                type: address.type,
-                networkId,
-                spendingPath,
-                stakingChoice: {
-                    type: StakingChoiceType.STAKING_KEY_HASH,
-                    hashHex,
-                },
+        /*
+        // TODO figure this one out
+        case AddressType.BASE_PAYMENT_KEY_STAKE_KEY:
+        case AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY:
+        case AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT:
+        case AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT:
+        case AddressType.POINTER_KEY:
+        case AddressType.POINTER_SCRIPT:
+        case AddressType.ENTERPRISE_KEY:
+        case AddressType.ENTERPRISE_SCRIPT:
+        case AddressType.REWARD_KEY:
+        case AddressType.REWARD_SCRIPT:
+*/
+        /*
+    return {
+            type: address.type,
+            networkId: parsedNetwork.networkId,
+            // networkId: Uint8_t(1),
+            spendingPath: parseBIP32Path(params.spendingPath, InvalidDataReason.ADDRESS_INVALID_SPENDING_PATH),
+            stakingChoice: {
+                type: StakingChoiceType.NO_STAKING
             }
-        }
+         }
+        break;
+        case AddressType.BASE: {
+            */
+/*
+            validate(params.stakingBlockchainPointer == null, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
+
+            const spendingPath = parseBIP32Path(params.spendingPath, InvalidDataReason.ADDRESS_INVALID_SPENDING_PATH)
+
+            const _hash = params.stakingKeyHashHex != null ? 'hash' : ''
+            const _path = params.stakingPath != null ? 'path' : ''
+
+            switch (_hash + _path) {
+                case 'hash': {
+                    const hashHex = parseHexStringOfLength(params.stakingKeyHashHex!, KEY_HASH_LENGTH, InvalidDataReason.ADDRESS_INVALID_STAKING_KEY_HASH)
+                    return {
+                        type: address.type,
+                        networkId,
+                        spendingPath,
+                        stakingChoice: {
+                            type: StakingChoiceType.STAKING_KEY_HASH,
+                            hashHex,
+                        },
+                    }
+                }
+*/
+                /*
 
         case 'path': {
             const path = parseBIP32Path(params.stakingPath!, InvalidDataReason.ADDRESS_INVALID_STAKING_KEY_PATH)
@@ -132,7 +161,7 @@ export function parseAddress(
                 type: StakingChoiceType.NO_STAKING,
             },
         }
-    }
+*/
     default:
         throw new InvalidData(InvalidDataReason.ADDRESS_UNKNOWN_TYPE)
     }
