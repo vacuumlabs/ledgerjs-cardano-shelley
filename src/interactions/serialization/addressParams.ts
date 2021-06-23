@@ -1,6 +1,15 @@
-import type { ParsedAddressParams, StakingChoice, Uint8_t } from "../../types/internal"
+import { ParsedAddressParams, SpendingChoice, SpendingChoiceType, StakingChoice, Uint8_t } from "../../types/internal"
 import { AddressType, StakingChoiceType } from "../../types/internal"
 import { hex_to_buf, path_to_buf, uint8_to_buf, uint32_to_buf } from "../../utils/serialize"
+
+function serializeSpendingChoice(spendingChoice: SpendingChoice): Buffer {
+    switch (spendingChoice.type) {
+    case SpendingChoiceType.PATH:
+        return path_to_buf(spendingChoice.path)
+    case SpendingChoiceType.SCRIPT_HASH:
+        return hex_to_buf(spendingChoice.scriptHash)
+    }
+}
 
 function serializeStakingChoice(stakingChoice: StakingChoice): Buffer {
     const stakingChoicesEncoding = {
@@ -49,7 +58,7 @@ export function serializeAddressParams(
         params.type === AddressType.BYRON
             ? uint32_to_buf(params.protocolMagic)
             : uint8_to_buf(params.networkId),
-        path_to_buf(params.spendingPath),
+        serializeSpendingChoice(params.spendingChoice),
         serializeStakingChoice(params.stakingChoice),
     ])
 }
