@@ -59,7 +59,7 @@ type ShelleyTestcase = {
 }
 export const shelleyTestcases: ShelleyTestcase[] = [
     {
-        testname: "base address 1",
+        testname: "base address path/path 1",
         network: Networks.Fake,
         addressParams: {
             type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY,
@@ -71,7 +71,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         result: "addr1qdd9xypc9xnnstp2kas3r7mf7ylxn4sksfxxypvwgnc63vcayfawlf9hwv2fzuygt2km5v92kvf8e3s3mk7ynxw77cwqdquehe",
     },
     {
-        testname: "base address 2",
+        testname: "base address path/path 2",
         network: Networks.Testnet,
         addressParams: {
             type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY,
@@ -83,7 +83,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         result: "addr_test1qpd9xypc9xnnstp2kas3r7mf7ylxn4sksfxxypvwgnc63vcayfawlf9hwv2fzuygt2km5v92kvf8e3s3mk7ynxw77cwq9nnhk4",
     },
     {
-        testname: "base with 3rd party staking key 1",
+        testname: "base address path/keyHash 1",
         network: Networks.Testnet,
         addressParams: {
             type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY,
@@ -96,7 +96,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         result: "addr_test1qpd9xypc9xnnstp2kas3r7mf7ylxn4sksfxxypvwgnc63vcayfawlf9hwv2fzuygt2km5v92kvf8e3s3mk7ynxw77cwq9nnhk4",
     },
     {
-        testname: "base with 3rd party staking key 2",
+        testname: "base address path/keyHash 2",
         network: Networks.Fake,
         addressParams: {
             type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY,
@@ -109,7 +109,45 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         result: "addr1qdd9xypc9xnnstp2kas3r7mf7ylxn4sksfxxypvwgnc63vcj922xhxkn6twlq2wn4q50q352annk3903tj00h45mgfmswz93l5",
     },
     {
-        testname: "enterprise 1",
+        testname: "base address scriptHash/path",
+        network: Networks.Fake,
+        addressParams: {
+            type: AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY,
+            params: {
+                spendingScriptHash: "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
+                stakingPath: str_to_path("1852'/1815'/0'/2/0"),
+            },
+        },
+        result: "addr1zvfz49rtntfa9h0s98f6s28sg69weemgjhc4e8hm66d5yacayfawlf9hwv2fzuygt2km5v92kvf8e3s3mk7ynxw77cwq8dxrpu",
+    },
+    {
+        testname: "base address path/scriptHash",
+        network: Networks.Fake,
+        addressParams: {
+            type: AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT,
+            params: {
+                spendingPath: str_to_path("1852'/1815'/0'/0/1"),
+                stakingScriptHash:
+                    "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
+            },
+        },
+        result: "addr1ydd9xypc9xnnstp2kas3r7mf7ylxn4sksfxxypvwgnc63vcj922xhxkn6twlq2wn4q50q352annk3903tj00h45mgfmssu7w24",
+    },
+    {
+        testname: "base address scriptHash/scriptHash",
+        network: Networks.Fake,
+        addressParams: {
+            type: AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT,
+            params: {
+                spendingScriptHash: "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
+                stakingScriptHash:
+                    "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
+            },
+        },
+        result: "addr1xvfz49rtntfa9h0s98f6s28sg69weemgjhc4e8hm66d5yacj922xhxkn6twlq2wn4q50q352annk3903tj00h45mgfms63y5us",
+    },
+    {
+        testname: "enterprise path 1",
         network: Networks.Testnet,
         addressParams: {
             type: AddressType.ENTERPRISE_KEY,
@@ -120,7 +158,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         result: "addr_test1vpd9xypc9xnnstp2kas3r7mf7ylxn4sksfxxypvwgnc63vc7t2fks",
     },
     {
-        testname: "enterprise 2",
+        testname: "enterprise path 2",
         network: Networks.Fake,
         addressParams: {
             type: AddressType.ENTERPRISE_KEY,
@@ -131,7 +169,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         result: "addr1vdd9xypc9xnnstp2kas3r7mf7ylxn4sksfxxypvwgnc63vc9wh7em",
     },
     {
-        testname: "pointer 1",
+        testname: "pointer path 1",
         network: Networks.Testnet,
         addressParams: {
             type: AddressType.POINTER_KEY,
@@ -143,7 +181,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         result: "addr_test1gpd9xypc9xnnstp2kas3r7mf7ylxn4sksfxxypvwgnc63vcpqgpsg6s2p6",
     },
     {
-        testname: "pointer 2",
+        testname: "pointer path 2",
         network: Networks.Fake,
         addressParams: {
             type: AddressType.POINTER_KEY,
@@ -155,7 +193,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         result: "addr1gdd9xypc9xnnstp2kas3r7mf7ylxn4sksfxxypvwgnc63vuph3wczvf288aeyu",
     },
     {
-        testname: "pointer 3",
+        testname: "pointer path 3",
         network: Networks.Fake,
         addressParams: {
             type: AddressType.POINTER_KEY,
@@ -167,7 +205,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         result: "addr1gdd9xypc9xnnstp2kas3r7mf7ylxn4sksfxxypvwgnc63vcqqqqqnnd32q",
     },
     {
-        testname: "reward 1",
+        testname: "reward path 1",
         network: Networks.Testnet,
         addressParams: {
             type: AddressType.REWARD_KEY,
@@ -178,7 +216,7 @@ export const shelleyTestcases: ShelleyTestcase[] = [
         result: "stake_test1uqwjy7h05jmhx9y3wzy94td6xz4txynuccgam0zfn800v8q8mmqwc",
     },
     {
-        testname: "reward 2",
+        testname: "reward path 2",
         network: Networks.Fake,
         addressParams: {
             type: AddressType.REWARD_KEY,
