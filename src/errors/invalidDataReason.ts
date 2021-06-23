@@ -33,9 +33,11 @@ export enum InvalidDataReason {
 
   ADDRESS_UNKNOWN_TYPE = "unknown address type",
   ADDRESS_INVALID_SPENDING_PATH = "invalid address spending path",
+  ADDRESS_INVALID_SPENDING_SCRIPT_HASH = "invalid address spending script hash",
   ADDRESS_INVALID_BLOCKCHAIN_POINTER = "invalid address blockchain pointer",
   ADDRESS_INVALID_STAKING_KEY_PATH = "invalid address staking key path",
   ADDRESS_INVALID_STAKING_KEY_HASH = "invalid address staking key hash",
+  ADDRESS_INVALID_STAKING_SCRIPT_HASH = "invalid address staking script hash",
   ADDRESS_INVALID_STAKING_INFO = "Invalid staking info in an output",
 
   FEE_INVALID = "invalid fee",

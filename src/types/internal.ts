@@ -187,6 +187,20 @@ export type ParsedPoolMetadata = {
     hashHex: FixlenHexString<32>,
 } & { __brand: 'pool_metadata' }
 
+//TODO no spending for REWARD
+export const enum SpendingChoiceType {
+    PATH = "spending_path",
+    SCRIPT_HASH = "spending_script_hash",
+}
+
+type SpendingChoicePath = {
+    type: SpendingChoiceType.PATH,
+    path: ValidBIP32Path,
+}
+type SpendingChoiceScriptHash = {
+    type: SpendingChoiceType.SCRIPT_HASH,
+    scriptHash: FixlenHexString<typeof SCRIPT_HASH_LENGTH>,
+}
 
 export const enum StakingChoiceType {
     NO_STAKING = 'no_staking',
@@ -222,13 +236,14 @@ type StakingChoiceScriptHash = {
     hashHex: FixlenHexString<typeof SCRIPT_HASH_LENGTH>
 }
 
-
 export type StakingChoice = StakingChoiceNone | StakingChoicePath | StakingChoiceHash | StakingChoicePointer | StakingChoiceScriptHash
+
+export type SpendingChoice = SpendingChoicePath | SpendingChoiceScriptHash
 
 export type ByronAddressParams = {
     type: AddressType.BYRON,
     protocolMagic: Uint32_t
-    spendingPath: ValidBIP32Path,
+    spendingChoice: SpendingChoicePath,
     stakingChoice: StakingChoiceNone,
 }
 
@@ -244,14 +259,31 @@ export type ShelleyAddressParams = {
         AddressType.REWARD_KEY |
         AddressType.REWARD_SCRIPT,
     networkId: Uint8_t,
-    spendingPath: ValidBIP32Path
-} & ( // Extra properties
+} & (   // TODO make "spendingChoice" object ?
         {
             type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY |
-                AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY |
                 AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT |
-                AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT
+                AddressType.ENTERPRISE_KEY |
+                AddressType.POINTER_KEY |
+                AddressType.REWARD_KEY
+            spendingChoice: SpendingChoicePath
+        } | {
+            type: AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY |
+            AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT |
+            AddressType.ENTERPRISE_SCRIPT |
+            AddressType.POINTER_SCRIPT |
+            AddressType.REWARD_SCRIPT
+            spendingChoice: SpendingChoiceScriptHash
+        }
+) & ( // Extra properties
+        {
+            type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY |
+                AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY
             stakingChoice: StakingChoicePath | StakingChoiceHash
+        } | {
+            type: AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT |
+                AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT
+            stakingChoice: StakingChoiceScriptHash
         } | {
             type: AddressType.ENTERPRISE_KEY | AddressType.ENTERPRISE_SCRIPT
             stakingChoice: StakingChoiceNone
