@@ -8,6 +8,8 @@ function serializeSpendingChoice(spendingChoice: SpendingChoice): Buffer {
         return path_to_buf(spendingChoice.path)
     case SpendingChoiceType.SCRIPT_HASH:
         return hex_to_buf(spendingChoice.scriptHash)
+    case SpendingChoiceType.NONE:
+        return Buffer.alloc(0)
     }
 }
 
