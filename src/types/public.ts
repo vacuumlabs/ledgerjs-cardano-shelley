@@ -188,8 +188,8 @@ export type AddressParamsByron = {
  * @see [[DeviceOwnedAddress]]
  */
 export type AddressParamsBase =
-    | { spendingPath: BIP32Path} & AddressParamsBaseStaking
-    | { spendingScriptHash: string} & AddressParamsBaseStaking
+    ({ spendingPath: BIP32Path} |
+    { spendingScriptHash: string}) & AddressParamsBaseStaking
 
 /**
  * Shelley *base* address parameters staking choice.
@@ -1086,7 +1086,7 @@ export enum TransactionSigningMode {
     /**
      * TODO: no clue, but any amount of witnesses is fine
      */
-    MULTISIGN_TRANSACTION = "multisig_transaction",
+    MULTISIG_TRANSACTION = "multisig_transaction",
 }
 
 /**
