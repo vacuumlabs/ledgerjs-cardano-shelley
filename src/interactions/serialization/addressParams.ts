@@ -1,47 +1,47 @@
-import { ParsedAddressParams, SpendingChoice, SpendingChoiceType, StakingChoice, Uint8_t } from "../../types/internal"
-import { AddressType, StakingChoiceType } from "../../types/internal"
+import { ParsedAddressParams, SpendingChoice, SpendingDataSourceType, StakingChoice, Uint8_t } from "../../types/internal"
+import { AddressType, StakingDataSource } from "../../types/internal"
 import { hex_to_buf, path_to_buf, uint8_to_buf, uint32_to_buf } from "../../utils/serialize"
 
 function serializeSpendingChoice(spendingChoice: SpendingChoice): Buffer {
     switch (spendingChoice.type) {
-    case SpendingChoiceType.PATH:
+    case SpendingDataSourceType.PATH:
         return path_to_buf(spendingChoice.path)
-    case SpendingChoiceType.SCRIPT_HASH:
+    case SpendingDataSourceType.SCRIPT_HASH:
         return hex_to_buf(spendingChoice.scriptHash)
-    case SpendingChoiceType.NONE:
+    case SpendingDataSourceType.NONE:
         return Buffer.alloc(0)
     }
 }
 
 function serializeStakingChoice(stakingChoice: StakingChoice): Buffer {
     const stakingChoicesEncoding = {
-        [StakingChoiceType.NO_STAKING]: 0x11,
-        [StakingChoiceType.STAKING_KEY_PATH]: 0x22,
-        [StakingChoiceType.STAKING_KEY_HASH]: 0x33,
-        [StakingChoiceType.BLOCKCHAIN_POINTER]: 0x44,
-        [StakingChoiceType.STAKING_SCRIPT_HASH]: 0x55,
+        [StakingDataSource.NONE]: 0x11,
+        [StakingDataSource.KEY_PATH]: 0x22,
+        [StakingDataSource.KEY_HASH]: 0x33,
+        [StakingDataSource.BLOCKCHAIN_POINTER]: 0x44,
+        [StakingDataSource.SCRIPT_HASH]: 0x55,
     } as const
 
     switch (stakingChoice.type) {
-    case StakingChoiceType.NO_STAKING: {
+    case StakingDataSource.NONE: {
         return Buffer.concat([
             uint8_to_buf(stakingChoicesEncoding[stakingChoice.type] as Uint8_t),
         ])
     }
-    case StakingChoiceType.STAKING_KEY_HASH:
-    case StakingChoiceType.STAKING_SCRIPT_HASH: {
+    case StakingDataSource.KEY_HASH:
+    case StakingDataSource.SCRIPT_HASH: {
         return Buffer.concat([
             uint8_to_buf(stakingChoicesEncoding[stakingChoice.type] as Uint8_t),
             hex_to_buf(stakingChoice.hashHex),
         ])
     }
-    case StakingChoiceType.STAKING_KEY_PATH: {
+    case StakingDataSource.KEY_PATH: {
         return Buffer.concat([
             uint8_to_buf(stakingChoicesEncoding[stakingChoice.type] as Uint8_t),
             path_to_buf(stakingChoice.path),
         ])
     }
-    case StakingChoiceType.BLOCKCHAIN_POINTER: {
+    case StakingDataSource.BLOCKCHAIN_POINTER: {
         return Buffer.concat([
             uint8_to_buf(stakingChoicesEncoding[stakingChoice.type] as Uint8_t),
             uint32_to_buf(stakingChoice.pointer.blockIndex),
