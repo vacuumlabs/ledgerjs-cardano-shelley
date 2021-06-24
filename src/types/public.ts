@@ -21,33 +21,33 @@ export enum AddressType {
      * Shelley base addresses
      * @see [[AddressParamsBase]]
      */
-    BASE_PAYMENT_KEY_STAKE_KEY = 0b0000,
-    BASE_PAYMENT_SCRIPT_STAKE_KEY = 0b0001,
-    BASE_PAYMENT_KEY_STAKE_SCRIPT = 0b0010,
-    BASE_PAYMENT_SCRIPT_STAKE_SCRIPT = 0b0011,
+    BASE_PAYMENT_KEY_STAKE_KEY          = 0b0000,
+    BASE_PAYMENT_SCRIPT_STAKE_KEY       = 0b0001,
+    BASE_PAYMENT_KEY_STAKE_SCRIPT       = 0b0010,
+    BASE_PAYMENT_SCRIPT_STAKE_SCRIPT    = 0b0011,
     /**
      * Shelley pointer address
      * @see [[AddressParamsPointer]]
      */
-    POINTER_KEY = 0b0100,
-    POINTER_SCRIPT = 0b0101,
+    POINTER_KEY                         = 0b0100,
+    POINTER_SCRIPT                      = 0b0101,
     /**
      * Shelley enterprise address
      * @see [[AddressParamsEnterprise]]
      */
-    ENTERPRISE_KEY = 0b0110,
-    ENTERPRISE_SCRIPT = 0b0111,
+    ENTERPRISE_KEY                      = 0b0110,
+    ENTERPRISE_SCRIPT                   = 0b0111,
     /**
      * Byron address
      * @see [[AddressParamsByron]]
      */
-    BYRON = 0b1000,
+    BYRON                               = 0b1000,
     /**
      * Shelley staking rewards address
      * @see [[AddressParamsReward]]
      */
-    REWARD_KEY = 0b1110,
-    REWARD_SCRIPT = 0b1111,
+    REWARD_KEY                          = 0b1110,
+    REWARD_SCRIPT                       = 0b1111,
 }
 
 /** 
@@ -219,8 +219,11 @@ export type AddressParamsEnterprise =
  * @see [[DeviceOwnedAddress]]
  * */
 // TODO finish the transformations
-export type AddressParamsPointer = {
+export type AddressParamsPointer = ({
     spendingPath: BIP32Path
+} | {
+    spendingScriptHash: string
+}) & {
     stakingBlockchainPointer: BlockchainPointer
 }
 
@@ -231,6 +234,8 @@ export type AddressParamsPointer = {
  */
 export type AddressParamsReward = {
     stakingPath: BIP32Path
+} | {
+    stakingScriptHash: string
 }
 
 /** Operational certificate

@@ -259,7 +259,7 @@ export type ShelleyAddressParams = {
         AddressType.REWARD_KEY |
         AddressType.REWARD_SCRIPT,
     networkId: Uint8_t,
-} & (   // TODO make "spendingChoice" object ?
+} & (
         {
             type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY |
                 AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT |
@@ -275,7 +275,7 @@ export type ShelleyAddressParams = {
             AddressType.REWARD_SCRIPT
             spendingChoice: SpendingChoiceScriptHash
         }
-) & ( // Extra properties
+) & (
         {
             type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY |
                 AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY
