@@ -11,8 +11,6 @@ function extractSpendingChoice(
     addressType: AddressType,
     spendingPath?: BIP32Path,
     spendingScriptHash?: string,
-    stakingPath?: BIP32Path,
-    stakingScriptHash?: string,
 ): SpendingChoice {
     switch (addressType) {
         case AddressType.BASE_PAYMENT_KEY_STAKE_KEY:
@@ -26,14 +24,6 @@ function extractSpendingChoice(
                 type: SpendingChoiceType.PATH,
                 path: parseBIP32Path(spendingPath, InvalidDataReason.ADDRESS_INVALID_SPENDING_KEY_PATH),
             }
-        case AddressType.REWARD_KEY:
-            validate(spendingPath == null, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
-            validate(spendingScriptHash == null, InvalidDataReason.ADDRESS_INVALID_SPENDING_SCRIPT_HASH)
-            validate(stakingPath != null, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
-            return {
-                type: SpendingChoiceType.PATH,
-                path: parseBIP32Path(stakingPath, InvalidDataReason.ADDRESS_INVALID_STAKING_KEY_PATH),
-            }
         case AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY:
         case AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT:
         case AddressType.POINTER_SCRIPT:
@@ -44,14 +34,14 @@ function extractSpendingChoice(
                 type: SpendingChoiceType.SCRIPT_HASH,
                 scriptHash: parseHexStringOfLength(spendingScriptHash, SCRIPT_HASH_LENGTH, InvalidDataReason.ADDRESS_INVALID_SPENDING_SCRIPT_HASH),
             }
+        case AddressType.REWARD_KEY:
         case AddressType.REWARD_SCRIPT:
-            validate(spendingPath == null, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
+            validate(spendingPath == null, InvalidDataReason.ADDRESS_INVALID_SPENDING_KEY_PATH)
             validate(spendingScriptHash == null, InvalidDataReason.ADDRESS_INVALID_SPENDING_SCRIPT_HASH)
-            validate(stakingScriptHash != null, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
             return {
-                type: SpendingChoiceType.SCRIPT_HASH,
-                scriptHash: parseHexStringOfLength(stakingScriptHash, SCRIPT_HASH_LENGTH, InvalidDataReason.ADDRESS_INVALID_STAKING_SCRIPT_HASH),
+                type: SpendingChoiceType.NONE,
             }
+            break;
         default:
             throw new InvalidData(InvalidDataReason.ADDRESS_UNKNOWN_TYPE)
     }
@@ -67,6 +57,7 @@ function extractStakingChoice(
     switch (addressType) {
         case AddressType.BASE_PAYMENT_KEY_STAKE_KEY:
         case AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY:
+        case AddressType.REWARD_KEY:
             validate(stakingBlockchainPointer == null, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
             validate(stakingScriptHash == null, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
             const stakingHashPresent = stakingKeyHashHex != null
@@ -86,6 +77,7 @@ function extractStakingChoice(
             }            
         case AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT:
         case AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT:
+        case AddressType.REWARD_SCRIPT:
             validate(stakingPath == null, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
             validate(stakingKeyHashHex == null, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
             validate(stakingBlockchainPointer == null, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
@@ -112,9 +104,11 @@ function extractStakingChoice(
             }
         case AddressType.BYRON:
         case AddressType.ENTERPRISE_KEY:
-        case AddressType.REWARD_KEY:
         case AddressType.ENTERPRISE_SCRIPT:
-        case AddressType.REWARD_SCRIPT:
+            validate(stakingPath == null, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
+            validate(stakingKeyHashHex == null, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
+            validate(stakingBlockchainPointer == null, InvalidDataReason.ADDRESS_INVALID_BLOCKCHAIN_POINTER)
+            validate(stakingScriptHash == null, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
             return {
                 type: StakingChoiceType.NO_STAKING,
             }
@@ -140,7 +134,7 @@ export function parseAddress(
     }
 
     // will be cast to 'any' since the extract functions guarantee the type match
-    const spendingChoice = extractSpendingChoice(address.type, params.spendingPath, params.spendingScriptHash, params.stakingPath, params.stakingScriptHash)
+    const spendingChoice = extractSpendingChoice(address.type, params.spendingPath, params.spendingScriptHash)
     const stakingChoice = extractStakingChoice(address.type, params.stakingPath, params.stakingKeyHashHex, params.stakingBlockchainPointer, params.stakingScriptHash)
     if (address.type === AddressType.BYRON) {
         return {
@@ -154,8 +148,8 @@ export function parseAddress(
         return {
             type: address.type,
             networkId,
-            spendingChoice: extractSpendingChoice(address.type, params.spendingPath, params.spendingScriptHash, params.stakingPath, params.stakingScriptHash) as any,
-            stakingChoice: extractStakingChoice(address.type, params.stakingPath, params.stakingKeyHashHex, params.stakingBlockchainPointer, params.stakingScriptHash) as any,
+            spendingChoice: spendingChoice as any,
+            stakingChoice: stakingChoice as any,
         }
     }
 }

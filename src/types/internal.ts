@@ -189,10 +189,14 @@ export type ParsedPoolMetadata = {
 
 //TODO no spending for REWARD
 export const enum SpendingChoiceType {
+    NONE = "no_spending",
     PATH = "spending_path",
     SCRIPT_HASH = "spending_script_hash",
 }
 
+type SpendingChoiceNone = {
+    type: SpendingChoiceType.NONE,
+}
 type SpendingChoicePath = {
     type: SpendingChoiceType.PATH,
     path: ValidBIP32Path,
@@ -236,9 +240,8 @@ type StakingChoiceScriptHash = {
     hashHex: FixlenHexString<typeof SCRIPT_HASH_LENGTH>
 }
 
+export type SpendingChoice = SpendingChoicePath | SpendingChoiceScriptHash | SpendingChoiceNone
 export type StakingChoice = StakingChoiceNone | StakingChoicePath | StakingChoiceHash | StakingChoicePointer | StakingChoiceScriptHash
-
-export type SpendingChoice = SpendingChoicePath | SpendingChoiceScriptHash
 
 export type ByronAddressParams = {
     type: AddressType.BYRON,
@@ -264,25 +267,28 @@ export type ShelleyAddressParams = {
             type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY |
                 AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT |
                 AddressType.ENTERPRISE_KEY |
-                AddressType.POINTER_KEY |
-                AddressType.REWARD_KEY
+                AddressType.POINTER_KEY
             spendingChoice: SpendingChoicePath
         } | {
             type: AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY |
             AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT |
             AddressType.ENTERPRISE_SCRIPT |
-            AddressType.POINTER_SCRIPT |
-            AddressType.REWARD_SCRIPT
+            AddressType.POINTER_SCRIPT
             spendingChoice: SpendingChoiceScriptHash
+        } | {
+            type: AddressType.REWARD_KEY | AddressType.REWARD_SCRIPT
+            spendingChoice: SpendingChoiceNone
         }
 ) & (
         {
             type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY |
-                AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY
+                AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY |
+                AddressType.REWARD_KEY
             stakingChoice: StakingChoicePath | StakingChoiceHash
         } | {
             type: AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT |
-                AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT
+                AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT |
+                AddressType.REWARD_SCRIPT
             stakingChoice: StakingChoiceScriptHash
         } | {
             type: AddressType.ENTERPRISE_KEY | AddressType.ENTERPRISE_SCRIPT
@@ -290,9 +296,6 @@ export type ShelleyAddressParams = {
         } | {
             type: AddressType.POINTER_KEY | AddressType.POINTER_SCRIPT
             stakingChoice: StakingChoicePointer
-        } | {
-            type: AddressType.REWARD_KEY | AddressType.REWARD_SCRIPT
-            stakingChoice: StakingChoiceNone // included in spending path
         }
     )
 
