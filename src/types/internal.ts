@@ -187,31 +187,30 @@ export type ParsedPoolMetadata = {
     hashHex: FixlenHexString<32>,
 } & { __brand: 'pool_metadata' }
 
-//TODO no spending for REWARD
-export const enum SpendingChoiceType {
+export const enum SpendingDataSourceType {
     NONE = "no_spending",
     PATH = "spending_path",
     SCRIPT_HASH = "spending_script_hash",
 }
 
-type SpendingChoiceNone = {
-    type: SpendingChoiceType.NONE,
+type SpendingDataSourceNone = {
+    type: SpendingDataSourceType.NONE,
 }
-type SpendingChoicePath = {
-    type: SpendingChoiceType.PATH,
+type SpendingDataSourcePath = {
+    type: SpendingDataSourceType.PATH,
     path: ValidBIP32Path,
 }
-type SpendingChoiceScriptHash = {
-    type: SpendingChoiceType.SCRIPT_HASH,
+type SpendingDataSourceScriptHash = {
+    type: SpendingDataSourceType.SCRIPT_HASH,
     scriptHash: FixlenHexString<typeof SCRIPT_HASH_LENGTH>,
 }
 
-export const enum StakingChoiceType {
-    NO_STAKING = 'no_staking',
-    STAKING_KEY_PATH = 'staking_key_path',
-    STAKING_KEY_HASH = 'staking_key_hash',
+export const enum StakingDataSource {
+    NONE = 'no_staking',
+    KEY_PATH = 'staking_key_path',
+    KEY_HASH = 'staking_key_hash',
     BLOCKCHAIN_POINTER = 'blockchain_pointer',
-    STAKING_SCRIPT_HASH = 'staking_script_hash',
+    SCRIPT_HASH = 'staking_script_hash',
 }
 
 type ParsedBlockchainPointer = {
@@ -220,34 +219,34 @@ type ParsedBlockchainPointer = {
     certificateIndex: Uint32_t,
 }
 
-type StakingChoiceNone = {
-    type: StakingChoiceType.NO_STAKING
+type StakingDataSourceNone = {
+    type: StakingDataSource.NONE
 }
-type StakingChoicePath = {
-    type: StakingChoiceType.STAKING_KEY_PATH,
+type StakingDataSourcePath = {
+    type: StakingDataSource.KEY_PATH,
     path: ValidBIP32Path
 }
-type StakingChoiceHash = {
-    type: StakingChoiceType.STAKING_KEY_HASH,
+type StakingDataSourceKeyHash = {
+    type: StakingDataSource.KEY_HASH,
     hashHex: FixlenHexString<typeof KEY_HASH_LENGTH>
 }
-type StakingChoicePointer = {
-    type: StakingChoiceType.BLOCKCHAIN_POINTER,
+type StakingDataSourcePointer = {
+    type: StakingDataSource.BLOCKCHAIN_POINTER,
     pointer: ParsedBlockchainPointer
 }
-type StakingChoiceScriptHash = {
-    type: StakingChoiceType.STAKING_SCRIPT_HASH,
+type StakingDataSourceScriptHash = {
+    type: StakingDataSource.SCRIPT_HASH,
     hashHex: FixlenHexString<typeof SCRIPT_HASH_LENGTH>
 }
 
-export type SpendingChoice = SpendingChoicePath | SpendingChoiceScriptHash | SpendingChoiceNone
-export type StakingChoice = StakingChoiceNone | StakingChoicePath | StakingChoiceHash | StakingChoicePointer | StakingChoiceScriptHash
+export type SpendingChoice = SpendingDataSourcePath | SpendingDataSourceScriptHash | SpendingDataSourceNone
+export type StakingChoice = StakingDataSourceNone | StakingDataSourcePath | StakingDataSourceKeyHash | StakingDataSourcePointer | StakingDataSourceScriptHash
 
 export type ByronAddressParams = {
     type: AddressType.BYRON,
     protocolMagic: Uint32_t
-    spendingChoice: SpendingChoicePath,
-    stakingChoice: StakingChoiceNone,
+    spendingChoice: SpendingDataSourcePath,
+    stakingChoice: StakingDataSourceNone,
 }
 
 export type ShelleyAddressParams = {
@@ -268,34 +267,34 @@ export type ShelleyAddressParams = {
                 AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT |
                 AddressType.ENTERPRISE_KEY |
                 AddressType.POINTER_KEY
-            spendingChoice: SpendingChoicePath
+            spendingChoice: SpendingDataSourcePath
         } | {
             type: AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY |
             AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT |
             AddressType.ENTERPRISE_SCRIPT |
             AddressType.POINTER_SCRIPT
-            spendingChoice: SpendingChoiceScriptHash
+            spendingChoice: SpendingDataSourceScriptHash
         } | {
             type: AddressType.REWARD_KEY | AddressType.REWARD_SCRIPT
-            spendingChoice: SpendingChoiceNone
+            spendingChoice: SpendingDataSourceNone
         }
 ) & (
         {
             type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY |
                 AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY |
                 AddressType.REWARD_KEY
-            stakingChoice: StakingChoicePath | StakingChoiceHash
+            stakingChoice: StakingDataSourcePath | StakingDataSourceKeyHash
         } | {
             type: AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT |
                 AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT |
                 AddressType.REWARD_SCRIPT
-            stakingChoice: StakingChoiceScriptHash
+            stakingChoice: StakingDataSourceScriptHash
         } | {
             type: AddressType.ENTERPRISE_KEY | AddressType.ENTERPRISE_SCRIPT
-            stakingChoice: StakingChoiceNone
+            stakingChoice: StakingDataSourceNone
         } | {
             type: AddressType.POINTER_KEY | AddressType.POINTER_SCRIPT
-            stakingChoice: StakingChoicePointer
+            stakingChoice: StakingDataSourcePointer
         }
     )
 
