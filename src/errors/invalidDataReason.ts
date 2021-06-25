@@ -156,4 +156,11 @@ export enum InvalidDataReason {
   "invalid operational certificate issue counter",
   OPERATIONAL_CERTIFICATE_INVALID_COLD_KEY_PATH =
   "invalid operational certificate cold key path",
+
+  DERIVE_SCRIPT_HASH_INVALID_KEY_HASH = "invalid key hash param",
+  DERIVE_SCRIPT_HASH_SCRIPTS_NOT_AN_ARRAY = "invalid scripts - scripts is not an array",
+  DERIVE_SCRIPT_HASH_INVALID_REQUIRED_COUNT = "invalid required count",
+  DERIVE_SCRIPT_HASH_INVALID_INVALID_BEFORE = "invalid invalid before",
+  DERIVE_SCRIPT_HASH_INVALID_INVALID_HEREAFTER = "invalid invalid hereafter",
+  DERIVE_SCRIPT_HASH_UNKNOWN_TYPE = "unknown script type",
 }

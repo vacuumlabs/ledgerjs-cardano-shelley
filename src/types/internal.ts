@@ -267,4 +267,36 @@ export type ParsedOperationalCertificate = {
     coldKeyPath: ValidBIP32Path,
 }
 
-export type ParsedScript = {}
+export const SCRIPT_HASH_LENGTH = 28
+
+export type ParsedSimpleScript = {
+    type: ScriptType.PUBKEY,
+    params: {
+        keyHashHex: FixlenHexString<typeof KEY_HASH_LENGTH>,
+    },
+} | {
+    type: ScriptType.INVALID_BEFORE,
+    params: {
+        invalidBefore: Uint64_str,
+    },
+} | {
+    type: ScriptType.INVALID_HEREAFTER,
+    params: {
+        invalidHereafter: Uint64_str,
+    },
+}
+
+export type ParsedComplexScript = {
+    type: ScriptType.ALL | ScriptType.ANY,
+    params: {
+        scripts: ParsedScript[],
+    },
+} | {
+    type: ScriptType.N_OF_K,
+    params: {
+        requiredCount: Uint32_t,
+        scripts: ParsedScript[],
+    },
+}
+
+export type ParsedScript = ParsedSimpleScript | ParsedComplexScript
