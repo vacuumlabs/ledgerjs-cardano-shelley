@@ -1078,3 +1078,139 @@ export type SignTransactionRequest = {
     tx: Transaction
 }
 
+/**
+ * Script type (as defined by the Cardano spec)
+ * @category Scripts
+ * @see [[NativeScript]]
+ */
+export enum ScriptType {
+    /**
+     * The signature of a key with a specific hash is required.
+     * @see [[ScriptParamsPubkey]]
+     */
+    PUBKEY = 0,
+    /**
+     * All scripts specified in the list are required.
+     * @see [[ScriptParamsAll]]
+     */
+    ALL = 1,
+    /**
+     * At least one script specified in the list is required.
+     * @see [[ScriptParamsAny]]
+     */
+    ANY = 2,
+    /**
+     * N of K scripts specified in the list are required.
+     * @see [[ScriptParamsNofK]]
+     */
+    N_OF_K = 3,
+    /**
+     * The script is invalid before the specified slot.
+     * Timelock validity intervals are half-open intervals `[a, b)`.
+     * This field specifies the left (included) endpoint `a`.
+     * @see [[ScriptParamsInvalidBefore]]
+     */
+    INVALID_BEFORE = 4,
+    /**
+     * The script is invalid after the specified slot.
+     * Timelock validity intervals are half-open intervals `[a, b)`.
+     * This field specifies the right (excluded) endpoint `b`.
+     * @see [[ScriptParamsInvalidHereafter]]
+     */
+    INVALID_HEREAFTER = 5,
+}
+
+/**
+ * Describes a script, that can be passed to a Ledger device,
+ * to generate it's hash.
+ * @category Scripts
+ * @see [[ScriptType]]
+ */
+export type NativeScript = {
+    type: ScriptType.PUBKEY,
+    params: ScriptParamsPubkey,
+} | {
+    type: ScriptType.ALL,
+    params: ScriptParamsAll,
+} | {
+    type: ScriptType.ANY,
+    params: ScriptParamsAny,
+} | {
+    type: ScriptType.N_OF_K,
+    params: ScriptParamsNofK,
+} | {
+    type: ScriptType.INVALID_BEFORE,
+    params: ScriptParamsInvalidBefore,
+} | {
+    type: ScriptType.INVALID_HEREAFTER,
+    params: ScriptParamsInvalidHereafter,
+}
+
+/**
+ * Script of type *pubkey* parameters.
+ * @category Scripts
+ * @see [[NativeScript]]
+ */
+export type ScriptParamsPubkey = {
+    keyHash: string,
+}
+
+/**
+ * Script of type *all* parameters.
+ * @category Scripts
+ * @see [[ScriptType.ALL]]
+ * @see [[NativeScript]]
+ */
+export type ScriptParamsAll = {
+    scripts: NativeScript[],
+}
+
+/**
+ * Script of type *any* parameters.
+ * @category Scripts
+ * @see [[ScriptType.ANY]]
+ * @see [[NativeScript]]
+ */
+export type ScriptParamsAny = {
+    scripts: NativeScript[],
+}
+
+/**
+ * Script of type *n_of_k* parameters.
+ * @category Scripts
+ * @see [[ScriptType.N_OF_K]]
+ * @see [[NativeScript]]
+ */
+export type ScriptParamsNofK = {
+    requiredCount: bigint_like,
+    scripts: NativeScript[],
+}
+
+/**
+ * Script of type *invalid_before* parameters.
+ * @category Scripts
+ * @see [[ScriptType.INVALID_BEFORE]]
+ * @see [[NativeScript]]
+ */
+export type ScriptParamsInvalidBefore = {
+    invalidBefore: bigint_like,
+}
+
+/**
+ * Script of type *invalid_hereafter* parameters.
+ * @category Scripts
+ * @see [[ScriptType.INVALID_HEREAFTER]]
+ * @see [[NativeScript]]
+ */
+export type ScriptParamsInvalidHereafter = {
+    invalidHereafter: bigint_like,
+}
+
+/**
+ * Response to [[Ada.deriveScriptHash]] call
+ * @category Scripts
+ * @see [[DeriveScriptHashRequest]]
+ */
+export type DerivedScriptHash = {
+    scriptHashHex: string,
+}
