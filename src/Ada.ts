@@ -20,6 +20,7 @@ import { DeviceStatusCodes, DeviceStatusError } from './errors'
 import { InvalidDataReason } from "./errors/invalidDataReason"
 import type { Interaction, SendParams } from './interactions/common/types'
 import { deriveAddress } from "./interactions/deriveAddress"
+import { deriveScriptHash } from "./interactions/deriveScriptHash"
 import { getExtendedPublicKeys } from "./interactions/getExtendedPublicKeys"
 import { getSerial } from "./interactions/getSerial"
 import { getCompatibility, getVersion } from "./interactions/getVersion"
@@ -29,15 +30,17 @@ import { signOperationalCertificate } from "./interactions/signOperationalCertif
 import { signTransaction } from "./interactions/signTx"
 import { parseAddress } from './parsing/address'
 import { parseOperationalCertificate } from "./parsing/operationalCertificate"
+import { parseScript } from "./parsing/script"
 import { parseSignTransactionRequest } from "./parsing/transaction"
 import type {
     ParsedAddressParams,
     ParsedOperationalCertificate,
+    ParsedScript,
     ParsedSigningRequest,
     ValidBIP32Path,
 } from './types/internal'
-import type { BIP32Path, DerivedAddress, DeviceCompatibility, DeviceOwnedAddress, ExtendedPublicKey, Network, OperationalCertificate, OperationalCertificateSignature, Serial, SignedTransactionData, SignTransactionRequest, Transaction, Version } from './types/public'
-import { AddressType, CertificateType, RelayType, TransactionSigningMode } from "./types/public"
+import type { BIP32Path, DerivedAddress, DerivedScriptHash, DeviceCompatibility, DeviceOwnedAddress, ExtendedPublicKey, NativeScript, Network, OperationalCertificate, OperationalCertificateSignature, Serial, SignedTransactionData, SignTransactionRequest, Transaction, Version } from './types/public'
+import { AddressType, CertificateType, RelayType, ScriptType,TransactionSigningMode } from "./types/public"
 import utils from "./utils"
 import { assert } from './utils/assert'
 import { isArray, parseBIP32Path, validate } from './utils/parse'
@@ -137,6 +140,7 @@ export class Ada {
           "signTransaction",
           "deriveAddress",
           "showAddress",
+          "deriveScriptHash",
       ]
       this.transport.decorateAppAPIMethods(this, methods, scrambleKey)
       this._send = async (params: SendParams): Promise<Buffer> => {
@@ -314,9 +318,28 @@ export class Ada {
       return interact(this._signOperationalCertificate(parsedOperationalCertificate), this._send)
   }
 
+  /** @ignore */
   * _signOperationalCertificate(request: ParsedOperationalCertificate): Interaction<OperationalCertificateSignature> {
       const version = yield* getVersion()
       return yield* signOperationalCertificate(version, request)
+  }
+
+  /**
+   * Derives a hash of the specified script
+   * @returns
+   */
+  async deriveScriptHash(
+      { script }: DeriveScriptHashRequest
+  ): Promise<DeriveScriptHashResponse> {
+      const parsedScript = parseScript(script)
+
+      return interact(this._deriveScriptHash(parsedScript), this._send)
+  }
+
+  /** @ignore */
+  * _deriveScriptHash(script: ParsedScript): Interaction<DerivedScriptHash> {
+      const version = yield* getVersion()
+      return yield* deriveScriptHash(version, script)
   }
 }
 
@@ -410,9 +433,24 @@ export type SignOperationalCertificateRequest = OperationalCertificate
  */
 export type SignOperationalCertificateResponse = OperationalCertificateSignature
 
+/**
+ * Derive script hash ([[Ada.deriveScriptHash]]) request data
+ * @category Main
+ * @see [[DeriveScriptHashResponse]]
+ */
+export type DeriveScriptHashRequest = {
+  script: NativeScript,
+}
+/**
+ * Derive script hash ([[Ada.deriveScriptHash]]) response data
+ * @category Main
+ * @see [[DeriveScriptHashRequest]]
+ */
+export type DeriveScriptHashResponse = DerivedScriptHash
+
 // reexport
 export type { Transaction, DeviceOwnedAddress }
-export { AddressType, CertificateType, RelayType, InvalidDataReason, TransactionSigningMode, utils }
+export { AddressType, CertificateType, RelayType, InvalidDataReason, TransactionSigningMode, ScriptType, utils }
 export default Ada
 
 /**
