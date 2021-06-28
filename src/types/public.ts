@@ -187,9 +187,10 @@ export type AddressParamsByron = {
  * @category Addresses
  * @see [[DeviceOwnedAddress]]
  */
-export type AddressParamsBase =
-    ({ spendingPath: BIP32Path} |
-    { spendingScriptHash: string}) & AddressParamsBaseStaking
+export type AddressParamsBase = (
+    { spendingPath: BIP32Path} |
+    { spendingScriptHash: string}
+) & AddressParamsBaseStaking
 
 /**
  * Shelley *base* address parameters staking choice.
@@ -792,6 +793,10 @@ export type DeviceCompatibility = {
      * Whether we support pool retirement certificate
      */
     supportsPoolRetirement: boolean
+    /**
+     * Whether we support multisig addresses
+     */
+    supportsMultisig: boolean
 }
 
 /**
