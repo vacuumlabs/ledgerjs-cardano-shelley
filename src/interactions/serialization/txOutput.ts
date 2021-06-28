@@ -1,10 +1,13 @@
 import type { OutputDestination, ParsedOutput, Uint8_t,Uint32_t } from "../../types/internal"
+import type { Version } from "../../types/public"
 import { TxOutputDestinationType } from "../../types/internal"
 import { unreachable } from "../../utils/assert"
 import { hex_to_buf, uint8_to_buf, uint32_to_buf, uint64_to_buf } from "../../utils/serialize"
 import { serializeAddressParams } from "./addressParams"
 
-function serializeTxOutputDestination(destination: OutputDestination) {
+function serializeTxOutputDestination(
+    destination: OutputDestination,
+    version: Version,) {
     const typeEncoding = {
         [TxOutputDestinationType.THIRD_PARTY]: 1 as Uint8_t,
         [TxOutputDestinationType.DEVICE_OWNED]: 2 as Uint8_t,
@@ -20,7 +23,7 @@ function serializeTxOutputDestination(destination: OutputDestination) {
     case TxOutputDestinationType.DEVICE_OWNED:
         return Buffer.concat([
             uint8_to_buf(typeEncoding[destination.type]),
-            serializeAddressParams(destination.addressParams),
+            serializeAddressParams(destination.addressParams, version),
         ])
     default:
         unreachable(destination)
@@ -29,9 +32,10 @@ function serializeTxOutputDestination(destination: OutputDestination) {
 
 export function serializeTxOutputBasicParams(
     output: ParsedOutput,
+    version: Version,
 ): Buffer {
     return Buffer.concat([
-        serializeTxOutputDestination(output.destination),
+        serializeTxOutputDestination(output.destination, version),
         uint64_to_buf(output.amount),
         uint32_to_buf(output.tokenBundle.length as Uint32_t),
     ])
