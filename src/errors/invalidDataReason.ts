@@ -32,6 +32,7 @@ export enum InvalidDataReason {
   MULTIASSET_INVALID_ASSET_GROUP_NOT_UNIQUE = "invalid asset group in multiasset token bundle - token names not unique",
 
   ADDRESS_UNKNOWN_TYPE = "unknown address type",
+  ADDRESS_INVALID_SPENDING_INFO = "invalid address spending information",
   ADDRESS_INVALID_SPENDING_KEY_PATH = "invalid address spending key path",
   ADDRESS_INVALID_SPENDING_SCRIPT_HASH = "invalid address spending script hash",
   ADDRESS_INVALID_BLOCKCHAIN_POINTER = "invalid address blockchain pointer",

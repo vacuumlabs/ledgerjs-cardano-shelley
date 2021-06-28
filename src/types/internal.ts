@@ -205,7 +205,7 @@ type SpendingDataSourceScriptHash = {
     scriptHash: FixlenHexString<typeof SCRIPT_HASH_LENGTH>,
 }
 
-export const enum StakingDataSource {
+export const enum StakingDataSourceType {
     NONE = 'no_staking',
     KEY_PATH = 'staking_key_path',
     KEY_HASH = 'staking_key_hash',
@@ -220,33 +220,33 @@ type ParsedBlockchainPointer = {
 }
 
 type StakingDataSourceNone = {
-    type: StakingDataSource.NONE
+    type: StakingDataSourceType.NONE
 }
 type StakingDataSourcePath = {
-    type: StakingDataSource.KEY_PATH,
+    type: StakingDataSourceType.KEY_PATH,
     path: ValidBIP32Path
 }
 type StakingDataSourceKeyHash = {
-    type: StakingDataSource.KEY_HASH,
+    type: StakingDataSourceType.KEY_HASH,
     hashHex: FixlenHexString<typeof KEY_HASH_LENGTH>
 }
 type StakingDataSourcePointer = {
-    type: StakingDataSource.BLOCKCHAIN_POINTER,
+    type: StakingDataSourceType.BLOCKCHAIN_POINTER,
     pointer: ParsedBlockchainPointer
 }
 type StakingDataSourceScriptHash = {
-    type: StakingDataSource.SCRIPT_HASH,
+    type: StakingDataSourceType.SCRIPT_HASH,
     hashHex: FixlenHexString<typeof SCRIPT_HASH_LENGTH>
 }
 
-export type SpendingChoice = SpendingDataSourcePath | SpendingDataSourceScriptHash | SpendingDataSourceNone
-export type StakingChoice = StakingDataSourceNone | StakingDataSourcePath | StakingDataSourceKeyHash | StakingDataSourcePointer | StakingDataSourceScriptHash
+export type SpendingDataSource = SpendingDataSourcePath | SpendingDataSourceScriptHash | SpendingDataSourceNone
+export type StakingDataSource = StakingDataSourceNone | StakingDataSourcePath | StakingDataSourceKeyHash | StakingDataSourcePointer | StakingDataSourceScriptHash
 
 export type ByronAddressParams = {
     type: AddressType.BYRON,
     protocolMagic: Uint32_t
-    spendingChoice: SpendingDataSourcePath,
-    stakingChoice: StakingDataSourceNone,
+    spendingDataSource: SpendingDataSourcePath,
+    stakingDataSource: StakingDataSourceNone,
 }
 
 export type ShelleyAddressParams = {
@@ -267,34 +267,34 @@ export type ShelleyAddressParams = {
                 AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT |
                 AddressType.ENTERPRISE_KEY |
                 AddressType.POINTER_KEY
-            spendingChoice: SpendingDataSourcePath
+            spendingDataSource: SpendingDataSourcePath
         } | {
             type: AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY |
             AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT |
             AddressType.ENTERPRISE_SCRIPT |
             AddressType.POINTER_SCRIPT
-            spendingChoice: SpendingDataSourceScriptHash
+            spendingDataSource: SpendingDataSourceScriptHash
         } | {
             type: AddressType.REWARD_KEY | AddressType.REWARD_SCRIPT
-            spendingChoice: SpendingDataSourceNone
+            spendingDataSource: SpendingDataSourceNone
         }
 ) & (
         {
             type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY |
                 AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY |
                 AddressType.REWARD_KEY
-            stakingChoice: StakingDataSourcePath | StakingDataSourceKeyHash
+            stakingDataSource: StakingDataSourcePath | StakingDataSourceKeyHash
         } | {
             type: AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT |
                 AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT |
                 AddressType.REWARD_SCRIPT
-            stakingChoice: StakingDataSourceScriptHash
+            stakingDataSource: StakingDataSourceScriptHash
         } | {
             type: AddressType.ENTERPRISE_KEY | AddressType.ENTERPRISE_SCRIPT
-            stakingChoice: StakingDataSourceNone
+            stakingDataSource: StakingDataSourceNone
         } | {
             type: AddressType.POINTER_KEY | AddressType.POINTER_SCRIPT
-            stakingChoice: StakingDataSourcePointer
+            stakingDataSource: StakingDataSourcePointer
         }
     )
 
