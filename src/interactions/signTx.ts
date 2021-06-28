@@ -73,6 +73,7 @@ function* signTx_addInput(
 
 function* signTx_addOutput(
     output: ParsedOutput,
+    version: Version,
 ): Interaction<void> {
   const enum P2 {
     BASIC_DATA = 0x30,
@@ -83,7 +84,7 @@ function* signTx_addOutput(
   yield send({
       p1: P1.STAGE_OUTPUTS,
       p2: P2.BASIC_DATA,
-      data: serializeTxOutputBasicParams(output),
+      data: serializeTxOutputBasicParams(output, version),
       expectedResponseLength: 0,
   })
 
@@ -333,7 +334,8 @@ function* signTx_setTtl(
 }
 
 function* signTx_setAuxiliaryData(
-    auxiliaryData: ParsedTxAuxiliaryData
+    auxiliaryData: ParsedTxAuxiliaryData,
+    version: Version,
 ): Interaction<TxAuxiliaryDataSupplement | null> {
   const enum P2 {
     UNUSED = 0x00,
@@ -381,7 +383,7 @@ function* signTx_setAuxiliaryData(
     yield send({
         p1: P1.STAGE_AUX_DATA,
         p2: P2.VOTING_REWARDS_ADDRESS,
-        data: serializeCatalystRegistrationRewardsDestination(params.rewardsDestination),
+        data: serializeCatalystRegistrationRewardsDestination(params.rewardsDestination, version),
         expectedResponseLength: 0,
     })
 
@@ -587,7 +589,7 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
     // auxiliary data
     let auxiliaryDataSupplement = null
     if (isCatalystRegistrationSupported && tx.auxiliaryData != null) {
-        auxiliaryDataSupplement = yield* signTx_setAuxiliaryData(tx.auxiliaryData)
+        auxiliaryDataSupplement = yield* signTx_setAuxiliaryData(tx.auxiliaryData, version)
     }
 
     // inputs
@@ -597,7 +599,7 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
 
     // outputs
     for (const output of tx.outputs) {
-        yield* signTx_addOutput(output)
+        yield* signTx_addOutput(output, version)
     }
 
     // fee
