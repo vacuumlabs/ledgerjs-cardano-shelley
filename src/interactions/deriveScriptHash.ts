@@ -1,8 +1,12 @@
-import type { ParsedScript } from "../types/internal"
+import { DeviceVersionUnsupported } from "../errors"
+import type { ParsedComplexScript, ParsedScript, ParsedSimpleScript} from "../types/internal"
+import { SCRIPT_HASH_LENGTH } from "../types/internal"
 import type { DerivedScriptHash, Version } from "../types/public"
+import { ScriptType } from "../types/public"
 import { INS } from "./common/ins"
 import type { Interaction, SendParams } from "./common/types"
-import { serializeScript } from "./serialization/script"
+import { ensureLedgerAppVersionCompatible, getCompatibility } from "./getVersion"
+import { serializeScript, serializeScriptFinished, serializeScriptHeader } from "./serialization/script"
 
 const send = (params: {
     p1: number,
@@ -11,20 +15,98 @@ const send = (params: {
     expectedResponseLength?: number
   }): SendParams => ({ ins: INS.DERIVE_SCRIPT_HASH, ...params })
 
+const enum P1 {
+    STAGE_SCRIPT_HEADER = 0x01,
+    STAGE_SCRIPT = 0x02,
+    STAGE_SCRIPT_FINISHED = 0x03,
+}
+
+const enum P2 {
+    UNUSED = 0x00,
+}
+
+type ScriptHashResponse<B> = B extends true ? { scriptHashHex: string } : void
+
+function responseIf<B extends boolean>(predicate: B, response: Buffer) {
+    return (predicate ? {
+        scriptHashHex: response.toString('hex'),
+    } : undefined) as ScriptHashResponse<B>
+}
+
+function *deriveScriptHash_scriptHeader(
+    script: ParsedComplexScript,
+): Interaction<void> {
+    yield send({
+        p1: P1.STAGE_SCRIPT_HEADER,
+        p2: P2.UNUSED,
+        data: serializeScriptHeader(script),
+        expectedResponseLength: 0,
+    })
+}
+
+function *deriveScriptHash_script<B extends boolean>(
+    script: ParsedSimpleScript,
+    expectsResponse: B,
+): Interaction<ScriptHashResponse<B>> {
+    const response = yield send({
+        p1: P1.STAGE_SCRIPT,
+        p2: P2.UNUSED,
+        data: serializeScript(script),
+        expectedResponseLength: expectsResponse ? SCRIPT_HASH_LENGTH : 0,
+    })
+    return responseIf(expectsResponse, response)
+}
+
+function *deriveScriptHash_scriptFinished<B extends boolean>(
+    script: ParsedComplexScript,
+    expectsResponse: B,
+): Interaction<ScriptHashResponse<B>> {
+    const response = yield send({
+        p1: P1.STAGE_SCRIPT_FINISHED,
+        p2: P2.UNUSED,
+        data: serializeScriptFinished(script),
+        expectedResponseLength: expectsResponse ? SCRIPT_HASH_LENGTH : 0,
+    })
+    return responseIf(expectsResponse, response)
+}
+
+function hasScriptSubscripts(script: ParsedScript): script is ParsedComplexScript {
+    return script.type === ScriptType.ALL || script.type === ScriptType.ANY || script.type === ScriptType.N_OF_K
+}
+
+function *deriveScriptHash_rec<B extends boolean>(
+    script: ParsedScript,
+    expectsResponse: B,
+): Interaction<ScriptHashResponse<B>> {
+    if (hasScriptSubscripts(script)) {
+        yield* deriveScriptHash_scriptHeader(script)
+        for (const subscript of script.params.scripts) {
+            yield* deriveScriptHash_rec(subscript, false)
+        }
+        return yield* deriveScriptHash_scriptFinished(script, expectsResponse)
+    } else {
+        return yield* deriveScriptHash_script(script, expectsResponse)
+    }
+}
+
+function ensureScriptHashDerivationSupportedByAppVersion(
+    version: Version
+): void {
+    if (!getCompatibility(version).supportsScriptHashDerivation) {
+        throw new DeviceVersionUnsupported(`Script hash derivation not supported by Ledger app version ${version}.`)
+    }
+}
+
 export function* deriveScriptHash(
-    _version: Version,
+    version: Version,
     script: ParsedScript,
 ): Interaction<DerivedScriptHash> {
-    const P1_RETURN = 0x01
-    const P2_UNUSED = 0x00
+    ensureLedgerAppVersionCompatible(version)
+    ensureScriptHashDerivationSupportedByAppVersion(version)
 
-    const response = yield send({
-        p1: P1_RETURN,
-        p2: P2_UNUSED,
-        data: serializeScript(script),
-    })
+    const { scriptHashHex } = yield* deriveScriptHash_rec(script, true)
 
     return {
-        scriptHashHex: response.toString("hex"),
+        scriptHashHex,
     }
 }
