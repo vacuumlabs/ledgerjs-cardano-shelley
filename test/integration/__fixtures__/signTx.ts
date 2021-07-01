@@ -832,7 +832,9 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 {
                     type: CertificateType.STAKE_REGISTRATION,
                     params: {
-                        path: str_to_path("1852'/1815'/0'/2/0"),
+                        identifier: {
+                            path: str_to_path("1852'/1815'/0'/2/0"),
+                        },
                     },
                 },
             ],
@@ -867,7 +869,9 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 {
                     type: CertificateType.STAKE_DELEGATION,
                     params: {
-                        path: str_to_path("1852'/1815'/0'/2/0"),
+                        identifier: {
+                            path: str_to_path("1852'/1815'/0'/2/0"),
+                        },
                         poolKeyHashHex: "f61c42cbf7c8c53af3f520508212ad3e72f674f957fe23ff0acb4973",
                     },
                 },
@@ -904,7 +908,9 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 {
                     type: CertificateType.STAKE_DEREGISTRATION,
                     params: {
-                        path: str_to_path("1852'/1815'/0'/2/0"),
+                        identifier: {
+                            path: str_to_path("1852'/1815'/0'/2/0"),
+                        },
                     },
                 },
             ],
@@ -939,13 +945,17 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 {
                     type: CertificateType.STAKE_DEREGISTRATION,
                     params: {
-                        path: str_to_path("1852'/1815'/0'/2/0"),
+                        identifier: {
+                            path: str_to_path("1852'/1815'/0'/2/0"),
+                        },
                     },
                 },
                 {
                     type: CertificateType.STAKE_DEREGISTRATION,
                     params: {
-                        path: str_to_path("1852'/1815'/0'/2/0"),
+                        identifier: {
+                            path: str_to_path("1852'/1815'/0'/2/0"),
+                        },
                     },
                 },
             ],
@@ -990,7 +1000,9 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 {
                     type: CertificateType.STAKE_REGISTRATION,
                     params: {
-                        path: str_to_path("1852'/1815'/0'/2/0"),
+                        identifier: {
+                            path: str_to_path("1852'/1815'/0'/2/0"),
+                        },
                     },
                 },
             ],
