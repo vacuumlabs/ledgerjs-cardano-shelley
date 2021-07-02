@@ -21,52 +21,72 @@ export function parseScript(
 
     switch (type) {
     case ScriptType.PUBKEY: {
-        const keyHashHex = parseHexStringOfLength(params.keyHash, KEY_HASH_LENGTH, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_KEY_HASH)
+        validate(params.requiredCount == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.invalidBefore == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.invalidHereafter == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.scripts == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+
         return {
             type,
             params: {
-                keyHashHex,
+                keyHashHex: parseHexStringOfLength(params.keyHash, KEY_HASH_LENGTH, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_KEY_HASH),
             },
         }
     }
     case ScriptType.ALL:
     case ScriptType.ANY: {
+        validate(params.keyHash == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.requiredCount == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.invalidBefore == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.invalidHereafter == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
         validate(isArray(params.scripts), InvalidDataReason.DERIVE_SCRIPT_HASH_SCRIPTS_NOT_AN_ARRAY)
-        const scripts = params.scripts.map(parseScript)
+        validate(params.scripts.length > 0, InvalidDataReason.DERIVE_SCRIPT_HASH_SCRIPTS_EMPTY_ARRAY)
+
         return {
             type,
             params: {
-                scripts,
+                scripts: params.scripts.map(parseScript),
             },
         }
     }
     case ScriptType.N_OF_K: {
+        validate(params.keyHash == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.invalidBefore == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.invalidHereafter == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
         validate(isArray(params.scripts), InvalidDataReason.DERIVE_SCRIPT_HASH_SCRIPTS_NOT_AN_ARRAY)
-        const requiredCount = parseUint32_t(params.requiredCount, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_REQUIRED_COUNT)
-        const scripts = params.scripts.map(parseScript)
+        validate(params.scripts.length > 0, InvalidDataReason.DERIVE_SCRIPT_HASH_SCRIPTS_EMPTY_ARRAY)
+
         return {
             type,
             params: {
-                requiredCount,
-                scripts,
+                requiredCount: parseUint32_t(params.requiredCount, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_REQUIRED_COUNT),
+                scripts: params.scripts.map(parseScript),
             },
         }
     }
     case ScriptType.INVALID_BEFORE: {
-        const invalidBefore = parseUint64_str(params.invalidBefore, {}, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_INVALID_BEFORE)
+        validate(params.keyHash == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.requiredCount == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.invalidHereafter == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.scripts == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+
         return {
             type,
             params: {
-                invalidBefore,
+                invalidBefore: parseUint64_str(params.invalidBefore, {}, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_INVALID_BEFORE),
             },
         }
     }
     case ScriptType.INVALID_HEREAFTER: {
-        const invalidHereafter = parseUint64_str(params.invalidHereafter, {}, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_INVALID_HEREAFTER)
+        validate(params.keyHash == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.requiredCount == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.invalidBefore == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.scripts == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+
         return {
             type,
             params: {
-                invalidHereafter,
+                invalidHereafter: parseUint64_str(params.invalidHereafter, {}, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_INVALID_HEREAFTER),
             },
         }
     }
