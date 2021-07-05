@@ -1127,5 +1127,7 @@ export type SignTransactionRequest = {
      * Transaction to be signed
      */
     tx: Transaction
+
+    multisigWitnessPaths: BIP32Path[]
 }
 
