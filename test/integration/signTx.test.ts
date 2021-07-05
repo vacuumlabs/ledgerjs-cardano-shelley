@@ -31,7 +31,11 @@ describe("signTxOrdinaryByron", async () => {
 
     for (const { testname, tx, result: expected } of testsByron) {
         it(testname, async () => {
-            const response = await ada.signTransaction({ tx, signingMode: TransactionSigningMode.ORDINARY_TRANSACTION })
+            const response = await ada.signTransaction({
+                tx,
+                signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+                multisigWitnessPaths: [],
+            })
             expect(response).to.deep.equal(expected)
         })
     }
@@ -52,7 +56,11 @@ describe("signTxOrdinaryShelleyNoCertificates", async () => {
 
     for (const { testname, tx, result: expected } of testsShelleyNoCertificates) {
         it(testname, async () => {
-            const response = await ada.signTransaction({ tx, signingMode: TransactionSigningMode.ORDINARY_TRANSACTION })
+            const response = await ada.signTransaction({
+                tx,
+                signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+                multisigWitnessPaths: [],
+            })
             expect(response).to.deep.equal(expected)
         })
     }
@@ -69,9 +77,13 @@ describe("signTxOrdinaryShelleyWithCertificates", async () => {
         await (ada as any).t.close()
     })
 
-    for (const { testname, tx, result: expected } of testsShelleyWithCertificates) {
+    for (const { testname, tx, multisigWitnessPaths, result: expected } of testsShelleyWithCertificates) {
         it(testname, async () => {
-            const response = await ada.signTransaction({ tx, signingMode: TransactionSigningMode.ORDINARY_TRANSACTION })
+            const response = await ada.signTransaction({
+                tx,
+                signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+                multisigWitnessPaths,
+            })
             expect(response).to.deep.equal(expected)
         })
     }
@@ -96,7 +108,11 @@ describe("signTxOrdinaryAllegra", async () => {
 
     for (const { testname, tx, result: expected } of testsAllegra) {
         it(testname, async () => {
-            const response = await ada.signTransaction({ tx, signingMode: TransactionSigningMode.ORDINARY_TRANSACTION })
+            const response = await ada.signTransaction({
+                tx,
+                signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+                multisigWitnessPaths: [],
+            })
             expect(response).to.deep.equal(expected)
         })
     }
@@ -120,21 +136,33 @@ describe("signTxOrdinaryMary", async () => {
 
     for (const { testname, tx, result: expected } of testsMary) {
         it(testname, async () => {
-            const response = await ada.signTransaction({ tx, signingMode: TransactionSigningMode.ORDINARY_TRANSACTION })
+            const response = await ada.signTransaction({
+                tx,
+                signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+                multisigWitnessPaths: [],
+            })
             expect(response).to.deep.equal(expected)
         })
     }
 
     for (const { testname, tx, result: expected } of testsCatalystRegistration) {
         it(testname, async () => {
-            const response = await ada.signTransaction({ tx, signingMode: TransactionSigningMode.ORDINARY_TRANSACTION })
+            const response = await ada.signTransaction({
+                tx,
+                signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+                multisigWitnessPaths: [],
+            })
             expect(response).to.deep.equal(expected)
         })
     }
 
     for (const {testname, tx, rejectReason } of testsInvalidTokenBundleOrdering) {
         it(testname, async() => {
-            const promise = ada.signTransaction({ tx, signingMode: TransactionSigningMode.ORDINARY_TRANSACTION })
+            const promise = ada.signTransaction({
+                tx,
+                signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+                multisigWitnessPaths: [],
+            })
             await expect(promise).to.be.rejectedWith(rejectReason)
         })
     }
