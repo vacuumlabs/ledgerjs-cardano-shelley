@@ -2,6 +2,7 @@ import type { AssetGroup, DeviceOwnedAddress, SignedTransactionData, Transaction
 import {InvalidDataReason, TxAuxiliaryDataSupplementType} from "../../../src/Ada"
 import { AddressType, CertificateType, Networks, TxAuxiliaryDataType, TxOutputDestinationType, utils } from "../../../src/Ada"
 import { str_to_path } from "../../../src/utils/address"
+import type { BIP32Path } from '../../../src/types/public'
 
 export const inputs: Record<
   | 'utxoByron'
@@ -590,6 +591,7 @@ const shelleyBase = {
 export type TestcaseShelley = {
   testname: string
   tx: Transaction
+  multisigWitnessPaths: BIP32Path[],
   txBody?: string,
   txAuxiliaryData?: string,
   result: SignedTransactionData
@@ -602,6 +604,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             ...shelleyBase,
             outputs: [],
         },
+        multisigWitnessPaths: [],
         result: {
             txHashHex:
         "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
@@ -621,6 +624,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             ...shelleyBase,
             outputs: [outputs.externalShelley],
         },
+        multisigWitnessPaths: [],
         txBody: "a400818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163f63dcfc000181825841017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b09da61d425f34611140102182a030a",
         result: {
             txHashHex:
@@ -645,6 +649,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             network: Networks.Testnet,
             outputs: [outputs.externalShelleyScripthash],
         },
+        multisigWitnessPaths: [],
         result: {
             txHashHex:
         "23d82edc8fbd2d55237cba955a2280161ebd5643b23844e9b5abdc843b966e62",
@@ -664,6 +669,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             ...shelleyBase,
             outputs: [outputs.externalByronMainnet, outputs.internalBaseWithStakingPath],
         },
+        multisigWitnessPaths: [],
         result: {
             txHashHex:
         "bd9e06485299c3c2be83135438f18fa4bde6e324420ae0a79dd2a12295f28597",
@@ -683,6 +689,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             ...shelleyBase,
             outputs: [outputs.externalByronMainnet, outputs.internalBaseWithStakingKeyHash],
         },
+        multisigWitnessPaths: [],
         result: {
             txHashHex:
         "f475a32afbf7b028fb794f81311a10f655afbbdf1d0201e5c801010a8cde9ea7",
@@ -702,6 +709,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             ...shelleyBase,
             outputs: [outputs.externalByronMainnet, outputs.internalEnterprise],
         },
+        multisigWitnessPaths: [],
         result: {
             txHashHex:
         "c192b24a87d45c768f7f33ed37998054db96d34558e59afebabe51cfb7034b65",
@@ -721,6 +729,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             ...shelleyBase,
             outputs: [outputs.externalByronMainnet, outputs.internalPointer],
         },
+        multisigWitnessPaths: [],
         result: {
             txHashHex:
         "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
@@ -747,6 +756,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
                 },
             },
         },
+        multisigWitnessPaths: [],
         result: {
             txHashHex:
         "40b3a79c645be040139078befee154d5f935c8ba2af6144cebcf447f8ef2e580",
@@ -771,6 +781,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
                 },
             ],
         },
+        multisigWitnessPaths: [],
         txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aa" +
       "d1c0b700018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2e1" +
       "a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a05a1581de11d227aefa4b77314917088" +
@@ -804,6 +815,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
                 },
             },
         },
+        multisigWitnessPaths: [],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
       "e1a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a075820deadbeefdeadbeefdeadbee" +
@@ -825,7 +837,45 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
 
 export const testsShelleyWithCertificates: TestcaseShelley[] = [
     {
-        testname: "Sign tx with a stake registration certificate",
+        testname: "Sign tx with a stake registration script certificate",
+        tx: {
+            ...shelleyBase,
+            certificates: [
+                {
+                    type: CertificateType.STAKE_REGISTRATION,
+                    params: {
+                        identifier: {
+                            scriptHash: "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
+                        },
+                    },
+                },
+            ],
+        },
+        multisigWitnessPaths: [str_to_path("1854'/1815'/0'/2/0"),],
+        txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
+      "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
+      "e1a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a048182008200581c1d227aefa4b77" +
+      "3149170885aadba30aab3127cc611ddbc4999def61c",
+        result: {
+            txHashHex:
+        "0742795ed9d622fda233fb10b5a89e1745115f68160b4b28f5dec5f8f5eb0cdd",
+            witnesses: [
+                {
+                    path: str_to_path("1852'/1815'/0'/0/0"),
+                    witnessSignatureHex:
+            "51fff5f1ff8180878e86f31bf5b776af4afbcf7d7c088217e7758ed82c82e12ece81cea1088f09cb5e3b1f7197113a24c4a6d7858dfb4616e78d14c1c500d807",
+                },
+                {
+                    path: str_to_path("1854'/1815'/0'/2/0"),
+                    witnessSignatureHex:
+            "e9a8e48c508fb269caa83901e1101f287265ba0c8cbb30cba73a5bfc7c5dfbf2a4d1a94ad3dafc97606920c8ee5df7cc80aebf8182fa39fc84beaa80acb5a20a",
+                },
+            ],
+            auxiliaryDataSupplement: null,
+        },
+    },
+    {
+        testname: "Sign tx with a stake registration path certificate",
         tx: {
             ...shelleyBase,
             certificates: [
@@ -839,6 +889,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
+        multisigWitnessPaths: [],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
       "e1a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a048182008200581c1d227aefa4b77" +
@@ -862,7 +913,47 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
         },
     },
     {
-        testname: "Sign tx with a stake delegation certificate",
+        testname: "Sign tx with a stake delegation script certificate",
+        tx: {
+            ...shelleyBase,
+            certificates: [
+                {
+                    type: CertificateType.STAKE_DELEGATION,
+                    params: {
+                        identifier: {
+                            scriptHash: "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
+                        },
+                        poolKeyHashHex: "f61c42cbf7c8c53af3f520508212ad3e72f674f957fe23ff0acb4973",
+                    },
+                },
+            ],
+        },
+        multisigWitnessPaths: [str_to_path("1854'/1815'/0'/2/0"),],
+        txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
+      "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
+      "e1a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a048183028200581c1d227aefa4b77" +
+      "3149170885aadba30aab3127cc611ddbc4999def61c581cf61c42cbf7c8c53af3f520508212ad" +
+      "3e72f674f957fe23ff0acb4973",
+        result: {
+            txHashHex:
+        "2b730b42452cc7426ffae0e1bcebcc22d8fea2ce29a7d6d9c2633102ed827cb2",
+            witnesses: [
+                {
+                    path: str_to_path("1852'/1815'/0'/0/0"),
+                    witnessSignatureHex:
+            "c5f95a8ba7fb9c4cfed1fb89c1dea1d261ffae0d9f0531997f6633fba7af7f8030ac437005513bbbb640575e3437e6e1c4fe43e50ee6734682e5e3abddc98d01",
+                },
+                {
+                    path: str_to_path("1854'/1815'/0'/2/0"),
+                    witnessSignatureHex:
+            "7f5f2a118e48ed53b8ef1f83e8a69f690715d6c3c5677245e83a11afbe47eeaf4290390e45c9c6697efadc010a65aee85f61a831d3082ebc87b95e4593e97703",
+                },
+            ],
+            auxiliaryDataSupplement: null,
+        },
+    },
+    {
+        testname: "Sign tx with a stake delegation path certificate",
         tx: {
             ...shelleyBase,
             certificates: [
@@ -877,6 +968,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
+        multisigWitnessPaths: [],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
       "e1a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a048183028200581c1d227aefa4b77" +
@@ -901,7 +993,45 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
         },
     },
     {
-        testname: "Sign tx with a stake deregistration certificate",
+        testname: "Sign tx with a stake deregistration script certificate",
+        tx: {
+            ...shelleyBase,
+            certificates: [
+                {
+                    type: CertificateType.STAKE_DEREGISTRATION,
+                    params: {
+                        identifier: {
+                            scriptHash: "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
+                        },
+                    },
+                },
+            ],
+        },
+        multisigWitnessPaths: [str_to_path("1854'/1815'/0'/2/0"),],
+        txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
+      "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
+      "e1a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a048182018200581c1d227aefa4b77" +
+      "3149170885aadba30aab3127cc611ddbc4999def61c",
+        result: {
+            txHashHex:
+        "3868fabfcbe5eb91fe237c6d231b04cd46b2ee62223467951cc298b59fc44b31",
+            witnesses: [
+                {
+                    path: str_to_path("1852'/1815'/0'/0/0"),
+                    witnessSignatureHex:
+            "431d258d1d385cac7f7e233f6a3cfe66502ac9a34fc6fbbc913030a646daa44cc96d98297f074248205efcc77553ac4fcc2f58a1592c0c4800b583ee4cd5380b",
+                },
+                {
+                    path: str_to_path("1854'/1815'/0'/2/0"),
+                    witnessSignatureHex:
+            "687ee1589bb3b81bfea9dfc5bbac80e3948776a1e20bc2169c644b7b1d2fbf05742939fe25a6a7d501d66759fecca1f8b3b24016141ad27d958e00e4ee47370f",
+                },
+            ],
+            auxiliaryDataSupplement: null,
+        },
+    },
+    {
+        testname: "Sign tx with a stake deregistration path certificate",
         tx: {
             ...shelleyBase,
             certificates: [
@@ -915,6 +1045,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
+        multisigWitnessPaths: [],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
       "e1a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a048182018200581c1d227aefa4b77" +
@@ -960,6 +1091,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
+        multisigWitnessPaths: [],
         result: {
             txHashHex:
         "8d720755bcbc724fc71a1868bafbd057d855a176362417f62711a34f2d9b896d",
@@ -1007,6 +1139,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
+        multisigWitnessPaths: [],
         result: {
             // WARNING: only as computed by ledger, not verified with cardano-cli
             txHashHex: "70aea83c8e5e9a3e0ec92860d5bd4750c34911193f092a96b9da6906d6ea6247",
