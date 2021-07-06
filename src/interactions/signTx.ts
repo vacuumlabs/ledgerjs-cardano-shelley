@@ -572,12 +572,22 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
 
     const certificates = request?.tx?.certificates
     const hasPoolRetirement = certificates && certificates.some(c => c.type === CertificateType.STAKE_POOL_RETIREMENT)
+    const hasScripthashIdentifiers = certificates && certificates.some(c =>
+        (c.type === CertificateType.STAKE_DELEGATION ||
+        c.type === CertificateType.STAKE_DEREGISTRATION ||
+        c.type === CertificateType.STAKE_REGISTRATION) &&
+        c.identifier.type === CertificateIdentifierType.SCRIPT_HASH)
 
     if (hasPoolRetirement && !getCompatibility(version).supportsPoolRetirement) {
         throw new DeviceVersionUnsupported(`Pool retirement certificate not supported by Ledger app version ${version}.`)
     }
-
-    //TODO KoMa check multisig scripthashes
+    
+    if (!getCompatibility(version).supportsMultisig) {
+        //TODO KoMa check multisig scripthashes in every new occurence
+        if (hasScripthashIdentifiers) {
+            throw new DeviceVersionUnsupported(`Scripthash based certificate not supported by Ledger app version ${version}.`)
+        }
+    }
 }
 
 export function* signTransaction(version: Version, request: ParsedSigningRequest): Interaction<SignedTransactionData> {
