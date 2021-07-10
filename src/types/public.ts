@@ -1,3 +1,4 @@
+import { FixlenHexString, SCRIPT_HASH_LENGTH } from './internal'
 /**
  * Type for 64-bit integers.
  * 
@@ -665,14 +666,21 @@ export type PoolRetirementParams = {
     retirementEpoch: bigint_like,
 }
 
+export type CertificateIdentifier = {
+    path?: BIP32Path,
+    scriptHash?: string,
+}
+
 /**
  * Stake key registration certificate parameters
  * @category Shelley
  * @see [[Certificate]]
  */
 export type StakeRegistrationParams = {
-    /** Path to staking key being registered */
-    path: BIP32Path
+    /**
+     * Id to be registered
+     */
+     identifier: CertificateIdentifier,
 }
 
 /**
@@ -682,9 +690,9 @@ export type StakeRegistrationParams = {
  */
 export type StakeDeregistrationParams = {
     /**
-     * Path to the staking key being deregistered
+     * Id to be deregistered
      */
-    path: BIP32Path
+    identifier: CertificateIdentifier,
 }
 
 /**
@@ -694,10 +702,10 @@ export type StakeDeregistrationParams = {
  * */
 export type StakeDelegationParams = {
     /**
-     * Path to the staking key / reward account that wants to delegate
+     * Id of the staking entity / reward account that wants to delegate
      */
-    path: BIP32Path
-    /**
+     identifier: CertificateIdentifier,
+     /**
      * Pool ID user wants to delegate to
      */
     poolKeyHashHex: string
@@ -1122,5 +1130,7 @@ export type SignTransactionRequest = {
      * Transaction to be signed
      */
     tx: Transaction
+
+    multisigWitnessPaths: BIP32Path[]
 }
 

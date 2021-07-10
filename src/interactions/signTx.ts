@@ -1,5 +1,5 @@
 import { DeviceVersionUnsupported } from "../errors"
-import type { Int64_str, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
+import { CertificateIdentifierType, Int64_str, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
 import { CertificateType, ED25519_SIGNATURE_LENGTH, PoolOwnerType, TX_HASH_LENGTH } from "../types/internal"
 import type { SignedTransactionData, TxAuxiliaryDataSupplement } from "../types/public"
 import { PoolKeyType, TransactionSigningMode, TxAuxiliaryDataSupplementType, TxAuxiliaryDataType } from "../types/public"
@@ -43,6 +43,7 @@ function* signTx_init(
     tx: ParsedTransaction,
     signingMode: TransactionSigningMode,
     wittnessPaths: ValidBIP32Path[],
+    multisigWitnessPaths: ValidBIP32Path[],
 ): Interaction<void> {
   const enum P2 {
     UNUSED = 0x00,
@@ -51,7 +52,7 @@ function* signTx_init(
   const _response = yield send({
       p1: P1.STAGE_INIT,
       p2: P2.UNUSED,
-      data: serializeTxInit(tx, signingMode, wittnessPaths.length),
+      data: serializeTxInit(tx, signingMode, wittnessPaths.length + multisigWitnessPaths.length),
       expectedResponseLength: 0,
   })
 }
@@ -537,8 +538,12 @@ function generateWitnessPaths(request: ParsedSigningRequest): ValidBIP32Path[] {
             if (cert.pool.poolKey.type === PoolKeyType.DEVICE_OWNED) {
                 _insert(cert.pool.poolKey.path)
             }
-        } else {
+        } else if (cert.type === CertificateType.STAKE_POOL_RETIREMENT) {
             _insert(cert.path)
+        } else {
+            if (CertificateIdentifierType.KEY_PATH == cert.identifier.type) {
+                _insert(cert.identifier.path)
+            }
         }
     }
   
@@ -567,9 +572,21 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
 
     const certificates = request?.tx?.certificates
     const hasPoolRetirement = certificates && certificates.some(c => c.type === CertificateType.STAKE_POOL_RETIREMENT)
+    const hasScripthashIdentifiers = certificates && certificates.some(c =>
+        (c.type === CertificateType.STAKE_DELEGATION ||
+        c.type === CertificateType.STAKE_DEREGISTRATION ||
+        c.type === CertificateType.STAKE_REGISTRATION) &&
+        c.identifier.type === CertificateIdentifierType.SCRIPT_HASH)
 
     if (hasPoolRetirement && !getCompatibility(version).supportsPoolRetirement) {
         throw new DeviceVersionUnsupported(`Pool retirement certificate not supported by Ledger app version ${version}.`)
+    }
+    
+    if (!getCompatibility(version).supportsMultisig) {
+        //TODO KoMa check multisig scripthashes in every new occurence
+        if (hasScripthashIdentifiers) {
+            throw new DeviceVersionUnsupported(`Scripthash based certificate not supported by Ledger app version ${version}.`)
+        }
     }
 }
 
@@ -580,10 +597,10 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
     const isCatalystRegistrationSupported = getCompatibility(version).supportsCatalystRegistration
 
     const witnessPaths = generateWitnessPaths(request)
-    const { tx, signingMode } = request
+    const { tx, signingMode, multisigWitnessPaths } = request
     // init
     yield* signTx_init(
-        tx, signingMode, witnessPaths,
+        tx, signingMode, witnessPaths, multisigWitnessPaths,
     )
 
     // auxiliary data
@@ -642,6 +659,11 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
     const witnesses = []
     for (const path of witnessPaths) {
         const witness = yield* signTx_getWitness(path)
+        witnesses.push(witness)
+    }
+
+    for (const multisigPath of multisigWitnessPaths) {
+        const witness = yield* signTx_getWitness(multisigPath)
         witnesses.push(witness)
     }
 
