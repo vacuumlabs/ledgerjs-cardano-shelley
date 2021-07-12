@@ -53,7 +53,7 @@ function extractStakingDataSource(
         const hashHex = parseHexStringOfLength(stakingKeyHashHex!, KEY_HASH_LENGTH, InvalidDataReason.ADDRESS_INVALID_STAKING_KEY_HASH)
         return {
             type: StakingDataSourceType.KEY_HASH,
-            hashHex,
+            keyHash: hashHex,
         }
     }
     if (null != stakingBlockchainPointer) {
@@ -77,7 +77,7 @@ function extractStakingDataSource(
         const stakingHash = parseHexStringOfLength(stakingScriptHash, SCRIPT_HASH_LENGTH, InvalidDataReason.ADDRESS_INVALID_STAKING_SCRIPT_HASH)
         return {
             type: StakingDataSourceType.SCRIPT_HASH,
-            hashHex: stakingHash,
+            scriptHash: stakingHash,
         }
     }
     return {

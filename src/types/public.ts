@@ -182,16 +182,19 @@ export type AddressParamsByron = {
     spendingPath: BIP32Path
 }
 
+export type SpendingParams = {
+    spendingPath: BIP32Path
+} | {
+    spendingScriptHash: string
+}
+
 /**
  * Shelley *base* address parameters.
  * The API allows for using device staking key, or supplying third-party staking key.
  * @category Addresses
  * @see [[DeviceOwnedAddress]]
  */
-export type AddressParamsBase = (
-    { spendingPath: BIP32Path} |
-    { spendingScriptHash: string}
-) & AddressParamsBaseStaking
+export type AddressParamsBase = SpendingParams & AddressParamsBaseStaking
 
 /**
  * Shelley *base* address parameters staking choice.
@@ -211,9 +214,7 @@ export type AddressParamsBaseStaking =
  * @category Addresses
  * @see [[DeviceOwnedAddress]]
  * */
-export type AddressParamsEnterprise =
-    | { spendingPath: BIP32Path }
-    | { spendingScriptHash: string}
+export type AddressParamsEnterprise = SpendingParams
 
 /**
  * Shelley *pointer* address parameters
@@ -221,11 +222,7 @@ export type AddressParamsEnterprise =
  * @see [[DeviceOwnedAddress]]
  * */
 // TODO finish the transformations
-export type AddressParamsPointer = ({
-    spendingPath: BIP32Path
-} | {
-    spendingScriptHash: string
-}) & {
+export type AddressParamsPointer = SpendingParams & {
     stakingBlockchainPointer: BlockchainPointer
 }
 
