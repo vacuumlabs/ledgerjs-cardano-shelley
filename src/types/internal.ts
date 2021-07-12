@@ -30,29 +30,29 @@ export const VRF_KEY_HASH_LENGTH = 32
 export const REWARD_ACCOUNT_HEX_LENGTH = 29
 export const ED25519_SIGNATURE_LENGTH = 64
 
-export const enum MultisigIdentifierType {
+export const enum StakeCredentialType {
     KEY_PATH = 0,
     SCRIPT_HASH = 1,
 }
 
-export type MultisigIdentifier2 = 
+export type ParsedStakeCredential = 
     {
-        type: MultisigIdentifierType.KEY_PATH,
+        type: StakeCredentialType.KEY_PATH,
         path: ValidBIP32Path,
     } | {
-        type: MultisigIdentifierType.SCRIPT_HASH,
+        type: StakeCredentialType.SCRIPT_HASH,
         scriptHash: FixlenHexString<typeof SCRIPT_HASH_LENGTH>,
     }
 
 export type ParsedCertificate = {
     type: CertificateType.STAKE_REGISTRATION
-    identifier: MultisigIdentifier2
+    identifier: ParsedStakeCredential
 } | {
     type: CertificateType.STAKE_DEREGISTRATION
-    identifier: MultisigIdentifier2
+    identifier: ParsedStakeCredential
 } | {
     type: CertificateType.STAKE_DELEGATION
-    identifier: MultisigIdentifier2
+    identifier: ParsedStakeCredential
     poolKeyHashHex: FixlenHexString<typeof KEY_HASH_LENGTH>
 } | {
     type: CertificateType.STAKE_POOL_REGISTRATION
@@ -132,7 +132,7 @@ export type ParsedInput = {
 
 export type ParsedWithdrawal = {
     amount: Uint64_str
-    identifier: MultisigIdentifier2
+    identifier: ParsedStakeCredential
 }
 
 

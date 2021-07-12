@@ -1,5 +1,5 @@
 import { DeviceVersionUnsupported } from "../errors"
-import { MultisigIdentifierType, Int64_str, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
+import { StakeCredentialType, Int64_str, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
 import { CertificateType, ED25519_SIGNATURE_LENGTH, PoolOwnerType, TX_HASH_LENGTH } from "../types/internal"
 import type { SignedTransactionData, TxAuxiliaryDataSupplement } from "../types/public"
 import { PoolKeyType, TransactionSigningMode, TxAuxiliaryDataSupplementType, TxAuxiliaryDataType } from "../types/public"
@@ -559,14 +559,14 @@ function generateWitnessPaths(request: ParsedSigningRequest): ValidBIP32Path[] {
         } else if (cert.type === CertificateType.STAKE_POOL_RETIREMENT) {
             _insert(cert.path)
         } else {
-            if (MultisigIdentifierType.KEY_PATH == cert.identifier.type) {
+            if (StakeCredentialType.KEY_PATH == cert.identifier.type) {
                 _insert(cert.identifier.path)
             }
         }
     }
   
     for (const withdrawal of tx.withdrawals) {
-        if (MultisigIdentifierType.KEY_PATH == withdrawal.identifier.type) {
+        if (StakeCredentialType.KEY_PATH == withdrawal.identifier.type) {
             _insert(withdrawal.identifier.path)
         }
     }
@@ -596,7 +596,7 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
         (c.type === CertificateType.STAKE_DELEGATION ||
         c.type === CertificateType.STAKE_DEREGISTRATION ||
         c.type === CertificateType.STAKE_REGISTRATION) &&
-        c.identifier.type === MultisigIdentifierType.SCRIPT_HASH)
+        c.identifier.type === StakeCredentialType.SCRIPT_HASH)
 
     if (hasPoolRetirement && !getCompatibility(version).supportsPoolRetirement) {
         throw new DeviceVersionUnsupported(`Pool retirement certificate not supported by Ledger app version ${version}.`)
