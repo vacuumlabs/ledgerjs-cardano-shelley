@@ -1089,39 +1089,44 @@ export type SignTransactionRequest = {
  */
 export enum ScriptType {
     /**
-     * The signature of a key with a specific hash is required.
-     * @see [[ScriptParamsPubkey]]
+     * The signature of a key with a specific path is required.
+     * @see [[ScriptParamsDeviceOwnedPubkey]]
      */
-    PUBKEY = 0,
+    PUBKEY_DEVICE_OWNED = 'pubkey_device_owned',
+     /**
+     * The signature of a key with a specific hash is required.
+     * @see [[ScriptParamsThirdPartyPubkey]]
+     */
+    PUBKEY_THIRD_PARTY = 'pubkey_third_party',
     /**
      * All scripts specified in the list are required.
      * @see [[ScriptParamsAll]]
      */
-    ALL = 1,
+    ALL = 'all',
     /**
      * At least one script specified in the list is required.
      * @see [[ScriptParamsAny]]
      */
-    ANY = 2,
+    ANY = 'any',
     /**
      * N of K scripts specified in the list are required.
      * @see [[ScriptParamsNofK]]
      */
-    N_OF_K = 3,
+    N_OF_K = 'n_of_k',
     /**
      * The script is invalid before the specified slot.
      * Timelock validity intervals are half-open intervals `[a, b)`.
      * This field specifies the left (included) endpoint `a`.
      * @see [[ScriptParamsInvalidBefore]]
      */
-    INVALID_BEFORE = 4,
+    INVALID_BEFORE = 'invalid_before',
     /**
      * The script is invalid after the specified slot.
      * Timelock validity intervals are half-open intervals `[a, b)`.
      * This field specifies the right (excluded) endpoint `b`.
      * @see [[ScriptParamsInvalidHereafter]]
      */
-    INVALID_HEREAFTER = 5,
+    INVALID_HEREAFTER = 'invalid_hereafter',
 }
 
 /**
@@ -1131,8 +1136,11 @@ export enum ScriptType {
  * @see [[ScriptType]]
  */
 export type NativeScript = {
-    type: ScriptType.PUBKEY,
-    params: ScriptParamsPubkey,
+    type: ScriptType.PUBKEY_DEVICE_OWNED,
+    params: ScriptParamsDeviceOwnedPubkey,
+} | {
+    type: ScriptType.PUBKEY_THIRD_PARTY,
+    params: ScriptParamsThirdPartyPubkey,
 } | {
     type: ScriptType.ALL,
     params: ScriptParamsAll,
@@ -1151,12 +1159,23 @@ export type NativeScript = {
 }
 
 /**
- * Script of type *pubkey* parameters.
+ * Pubkey is owned by the device, it is specified by key path
  * @category Scripts
+ * @see [[ScriptType.PUBKEY_DEVICE_OWNED]]
  * @see [[NativeScript]]
  */
-export type ScriptParamsPubkey = {
-    keyHash: string,
+export type ScriptParamsDeviceOwnedPubkey = {
+    path: BIP32Path,
+}
+
+/**
+ * Pubkey is third party, it is specified by a key hash in hex format
+ * @category Scripts
+ * @see [[ScriptType.PUBKEY_THIRD_PARTY]]
+ * @see [[NativeScript]]
+ */
+export type ScriptParamsThirdPartyPubkey = {
+    keyHashHex: string,
 }
 
 /**

@@ -10,11 +10,21 @@ type InvalidScriptTestcase = {
 
 export const InvalidScriptTestcases: InvalidScriptTestcase[] = [
     {
+        testname: "PUBKEY - invalid key path",
+        script: {
+            type: ScriptType.PUBKEY_DEVICE_OWNED,
+            params: {
+                path: [0, 0, 0, 0, 0, 0],
+            },
+        },
+        invalidDataReason: InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_KEY_PATH,
+    },
+    {
         testname: "PUBKEY - invalid key hash (too short)",
         script: {
-            type: ScriptType.PUBKEY,
+            type: ScriptType.PUBKEY_THIRD_PARTY,
             params: {
-                keyHash: '3a55d9f68255dfbefa1efd711f82d005fae1be2e145d616c90cf0fa',
+                keyHashHex: '3a55d9f68255dfbefa1efd711f82d005fae1be2e145d616c90cf0fa',
             },
         },
         invalidDataReason: InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_KEY_HASH,
@@ -22,9 +32,9 @@ export const InvalidScriptTestcases: InvalidScriptTestcase[] = [
     {
         testname: "PUBKEY - invalid key hash (not hex)",
         script: {
-            type: ScriptType.PUBKEY,
+            type: ScriptType.PUBKEY_THIRD_PARTY,
             params: {
-                keyHash: '3g55d9f68255dfbefa1efd711f82d005fae1be2e145d616c90cf0fa9',
+                keyHashHex: '3g55d9f68255dfbefa1efd711f82d005fae1be2e145d616c90cf0fa9',
             },
         },
         invalidDataReason: InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_KEY_HASH,
@@ -47,9 +57,9 @@ export const InvalidScriptTestcases: InvalidScriptTestcase[] = [
                 requiredCount: -1,
                 scripts: [
                     {
-                        type: ScriptType.PUBKEY,
+                        type: ScriptType.PUBKEY_THIRD_PARTY,
                         params: {
-                            keyHash: '3g55d9f68255dfbefa1efd711f82d005fae1be2e145d616c90cf0fa9',
+                            keyHashHex: '3g55d9f68255dfbefa1efd711f82d005fae1be2e145d616c90cf0fa9',
                         },
                     },
                 ],
@@ -96,9 +106,9 @@ export const InvalidScriptTestcases: InvalidScriptTestcase[] = [
                 requiredCount: -1,
                 scripts: [
                     {
-                        type: ScriptType.PUBKEY,
+                        type: ScriptType.PUBKEY_THIRD_PARTY,
                         params: {
-                            keyHash: '3a55d9f68255dfbefa1efd711f82d005fae1be2e145d616c90cf0fa9',
+                            keyHashHex: '3a55d9f68255dfbefa1efd711f82d005fae1be2e145d616c90cf0fa9',
                         },
                     },
                 ],
@@ -113,9 +123,9 @@ export const InvalidScriptTestcases: InvalidScriptTestcase[] = [
             params: {
                 scripts: [
                     {
-                        type: ScriptType.PUBKEY,
+                        type: ScriptType.PUBKEY_THIRD_PARTY,
                         params: {
-                            keyHash: '3a55d9f68255dfbefa1efd711f82d005fae1be2e145d616c90cf0fa9',
+                            keyHashHex: '3a55d9f68255dfbefa1efd711f82d005fae1be2e145d616c90cf0fa9',
                         },
                     },
                     {

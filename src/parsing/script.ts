@@ -1,16 +1,17 @@
 import { InvalidData, InvalidDataReason } from "../errors"
 import type { ParsedScript } from "../types/internal"
 import { KEY_HASH_LENGTH } from "../types/internal"
-import type { bigint_like, NativeScript} from "../types/public"
+import type { bigint_like, BIP32Path, NativeScript} from "../types/public"
 import { ScriptType } from "../types/public"
-import { isArray, parseHexStringOfLength, parseUint32_t, parseUint64_str, validate } from "../utils/parse"
+import { isArray, parseBIP32Path, parseHexStringOfLength, parseUint32_t, parseUint64_str, validate } from "../utils/parse"
 
 export function parseScript(
     script: NativeScript
 ): ParsedScript {
     // union of all param fields
     const params = script.params as {
-        keyHash?: string,
+        path?: BIP32Path,
+        keyHashHex?: string,
         requiredCount?: bigint_like,
         invalidBefore?: bigint_like,
         invalidHereafter?: bigint_like,
@@ -20,7 +21,8 @@ export function parseScript(
     const type = script.type
 
     switch (type) {
-    case ScriptType.PUBKEY: {
+    case ScriptType.PUBKEY_DEVICE_OWNED: {
+        validate(params.keyHashHex == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
         validate(params.requiredCount == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
         validate(params.invalidBefore == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
         validate(params.invalidHereafter == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
@@ -29,13 +31,28 @@ export function parseScript(
         return {
             type,
             params: {
-                keyHashHex: parseHexStringOfLength(params.keyHash, KEY_HASH_LENGTH, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_KEY_HASH),
+                path: parseBIP32Path(params.path, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_KEY_PATH),
+            },
+        }
+    }
+    case ScriptType.PUBKEY_THIRD_PARTY: {
+        validate(params.path == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.requiredCount == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.invalidBefore == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.invalidHereafter == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.scripts == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+
+        return {
+            type,
+            params: {
+                keyHashHex: parseHexStringOfLength(params.keyHashHex, KEY_HASH_LENGTH, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_KEY_HASH),
             },
         }
     }
     case ScriptType.ALL:
     case ScriptType.ANY: {
-        validate(params.keyHash == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.path == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.keyHashHex == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
         validate(params.requiredCount == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
         validate(params.invalidBefore == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
         validate(params.invalidHereafter == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
@@ -50,7 +67,8 @@ export function parseScript(
         }
     }
     case ScriptType.N_OF_K: {
-        validate(params.keyHash == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.path == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.keyHashHex == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
         validate(params.invalidBefore == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
         validate(params.invalidHereafter == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
         validate(isArray(params.scripts), InvalidDataReason.DERIVE_SCRIPT_HASH_SCRIPTS_NOT_AN_ARRAY)
@@ -65,7 +83,8 @@ export function parseScript(
         }
     }
     case ScriptType.INVALID_BEFORE: {
-        validate(params.keyHash == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.path == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.keyHashHex == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
         validate(params.requiredCount == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
         validate(params.invalidHereafter == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
         validate(params.scripts == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
@@ -78,7 +97,8 @@ export function parseScript(
         }
     }
     case ScriptType.INVALID_HEREAFTER: {
-        validate(params.keyHash == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.path == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
+        validate(params.keyHashHex == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
         validate(params.requiredCount == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
         validate(params.invalidBefore == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)
         validate(params.scripts == null, InvalidDataReason.DERIVE_SCRIPT_HASH_INVALID_DATA)

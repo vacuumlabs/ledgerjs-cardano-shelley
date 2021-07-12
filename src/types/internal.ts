@@ -270,10 +270,15 @@ export type ParsedOperationalCertificate = {
 export const SCRIPT_HASH_LENGTH = 28
 
 export type ParsedSimpleScript = {
-    type: ScriptType.PUBKEY,
+    type: ScriptType.PUBKEY_DEVICE_OWNED,
+    params: {
+        path: ValidBIP32Path,
+    },
+} | {
+    type: ScriptType.PUBKEY_THIRD_PARTY,
     params: {
         keyHashHex: FixlenHexString<typeof KEY_HASH_LENGTH>,
-    },
+    }
 } | {
     type: ScriptType.INVALID_BEFORE,
     params: {
