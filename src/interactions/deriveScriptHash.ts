@@ -33,7 +33,7 @@ function responseIf<B extends boolean>(predicate: B, response: Buffer) {
     } : undefined) as ScriptHashResponse<B>
 }
 
-function *deriveScriptHash_scriptHeader(
+function *deriveScriptHash_startComplexScript(
     script: ParsedComplexScript,
 ): Interaction<void> {
     yield send({
@@ -44,7 +44,7 @@ function *deriveScriptHash_scriptHeader(
     })
 }
 
-function *deriveScriptHash_script<B extends boolean>(
+function *deriveScriptHash_addSimpleScript<B extends boolean>(
     script: ParsedSimpleScript,
     expectsResponse: B,
 ): Interaction<ScriptHashResponse<B>> {
@@ -57,7 +57,7 @@ function *deriveScriptHash_script<B extends boolean>(
     return responseIf(expectsResponse, response)
 }
 
-function *deriveScriptHash_scriptFinished<B extends boolean>(
+function *deriveScriptHash_finishComplexScript<B extends boolean>(
     script: ParsedComplexScript,
     expectsResponse: B,
 ): Interaction<ScriptHashResponse<B>> {
@@ -70,22 +70,22 @@ function *deriveScriptHash_scriptFinished<B extends boolean>(
     return responseIf(expectsResponse, response)
 }
 
-function hasScriptSubscripts(script: ParsedScript): script is ParsedComplexScript {
+function isComplexScript(script: ParsedScript): script is ParsedComplexScript {
     return script.type === ScriptType.ALL || script.type === ScriptType.ANY || script.type === ScriptType.N_OF_K
 }
 
-function *deriveScriptHash_rec<B extends boolean>(
+function *deriveScriptHash_addScript<B extends boolean>(
     script: ParsedScript,
     expectsResponse: B,
 ): Interaction<ScriptHashResponse<B>> {
-    if (hasScriptSubscripts(script)) {
-        yield* deriveScriptHash_scriptHeader(script)
+    if (isComplexScript(script)) {
+        yield* deriveScriptHash_startComplexScript(script)
         for (const subscript of script.params.scripts) {
-            yield* deriveScriptHash_rec(subscript, false)
+            yield* deriveScriptHash_addScript(subscript, false)
         }
-        return yield* deriveScriptHash_scriptFinished(script, expectsResponse)
+        return yield* deriveScriptHash_finishComplexScript(script, expectsResponse)
     } else {
-        return yield* deriveScriptHash_script(script, expectsResponse)
+        return yield* deriveScriptHash_addSimpleScript(script, expectsResponse)
     }
 }
 
@@ -104,7 +104,7 @@ export function* deriveScriptHash(
     ensureLedgerAppVersionCompatible(version)
     ensureScriptHashDerivationSupportedByAppVersion(version)
 
-    const { scriptHashHex } = yield* deriveScriptHash_rec(script, true)
+    const { scriptHashHex } = yield* deriveScriptHash_addScript(script, true)
 
     return {
         scriptHashHex,
