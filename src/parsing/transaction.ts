@@ -24,7 +24,7 @@ import {
     TxOutputDestinationType,
 } from "../types/public"
 import { unreachable } from "../utils/assert"
-import { isArray, parseBIP32Path, validate } from "../utils/parse"
+import { isArray, parseBIP32Path, validate, parseMultisigIdentifier } from "../utils/parse"
 import { parseHexString, parseHexStringOfLength, parseInt64_str, parseUint32_t, parseUint64_str } from "../utils/parse"
 import { parseAddress } from "./address"
 import { parseCertificate } from "./certificate"
@@ -163,7 +163,7 @@ function parseTxInput(input: TxInput): ParsedInput {
 function parseWithdrawal(params: Withdrawal): ParsedWithdrawal {
     return {
         amount: parseUint64_str(params.amount, { max: MAX_LOVELACE_SUPPLY_STR }, InvalidDataReason.WITHDRAWAL_INVALID_AMOUNT),
-        path: parseBIP32Path(params.path, InvalidDataReason.WITHDRAWAL_INVALID_PATH),
+        identifier: parseMultisigIdentifier(params.identifier, InvalidDataReason.WITHDRAWAL_INVALID_IDENTIFIER),
     }
 }
 

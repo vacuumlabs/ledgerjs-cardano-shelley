@@ -507,7 +507,9 @@ export const withdrawals: Record<
   , Withdrawal
 > = {
     withdrawal0: {
-        path: str_to_path("1852'/1815'/0'/2/0"),
+        identifier: {
+            path: str_to_path("1852'/1815'/0'/2/0"),
+        },
         amount: "111",
     },
 }
