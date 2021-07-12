@@ -1,5 +1,5 @@
 import { DeviceVersionUnsupported } from "../errors"
-import { CertificateIdentifierType, Int64_str, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
+import { MultisigIdentifierType, Int64_str, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
 import { CertificateType, ED25519_SIGNATURE_LENGTH, PoolOwnerType, TX_HASH_LENGTH } from "../types/internal"
 import type { SignedTransactionData, TxAuxiliaryDataSupplement } from "../types/public"
 import { PoolKeyType, TransactionSigningMode, TxAuxiliaryDataSupplementType, TxAuxiliaryDataType } from "../types/public"
@@ -11,9 +11,9 @@ import { ensureLedgerAppVersionCompatible, getCompatibility } from "./getVersion
 import { serializeCatalystRegistrationNonce, serializeCatalystRegistrationRewardsDestination, serializeCatalystRegistrationStakingPath, serializeCatalystRegistrationVotingKey } from "./serialization/catalystRegistration"
 import { serializeFinancials, serializePoolInitialParams, serializePoolInitialParamsLegacy, serializePoolKey, serializePoolMetadata, serializePoolOwner, serializePoolRelay, serializePoolRewardAccount } from "./serialization/poolRegistrationCertificate"
 import { serializeTxAuxiliaryData } from "./serialization/txAuxiliaryData"
-import { serializeTxCertificate } from "./serialization/txCertificate"
+import { serializeTxCertificate, serializeTxCertificatePreMultisig } from "./serialization/txCertificate"
 import { serializeTxInit } from "./serialization/txInit"
-import { serializeAssetGroup, serializeMintBasicParams, serializeToken, serializeTxFee, serializeTxInput, serializeTxTtl, serializeTxValidityStart, serializeTxWithdrawal, serializeTxWitnessRequest } from "./serialization/txOther"
+import { serializeAssetGroup, serializeMintBasicParams, serializeToken, serializeTxFee, serializeTxInput, serializeTxTtl, serializeTxValidityStart, serializeTxWithdrawal, serializeTxWithdrawalPreMultisig, serializeTxWitnessRequest } from "./serialization/txOther"
 import { serializeTxOutputBasicParams } from "./serialization/txOutput"
 
 const enum P1 {
@@ -134,12 +134,21 @@ function* signTx_addCertificate(
   const enum P2 {
     UNUSED = 0x00,
   }
-  yield send({
-      p1: P1.STAGE_CERTIFICATES,
-      p2: P2.UNUSED,
-      data: serializeTxCertificate(certificate),
-      expectedResponseLength: 0,
-  })
+  if (getCompatibility(version).supportsMultisig) {
+      yield send({
+          p1: P1.STAGE_CERTIFICATES,
+          p2: P2.UNUSED,
+          data: serializeTxCertificate(certificate),
+          expectedResponseLength: 0,
+      })
+  } else {
+    yield send({
+        p1: P1.STAGE_CERTIFICATES,
+        p2: P2.UNUSED,
+        data: serializeTxCertificatePreMultisig(certificate),
+        expectedResponseLength: 0,
+    })
+}
 
   // additional data for pool certificate
   if (certificate.type === CertificateType.STAKE_POOL_REGISTRATION) {
@@ -292,18 +301,27 @@ function* signTx_addStakePoolRegistrationCertificateLegacy(
 }
 
 function* signTx_addWithdrawal(
-    withdrawal: ParsedWithdrawal
+    version: Version,
+    withdrawal: ParsedWithdrawal,
 ): Interaction<void> {
   const enum P2 {
     UNUSED = 0x00,
   }
-
-  yield send({
-      p1: P1.STAGE_WITHDRAWALS,
-      p2: P2.UNUSED,
-      data: serializeTxWithdrawal(withdrawal),
-      expectedResponseLength: 0,
-  })
+  if (getCompatibility(version).supportsMultisig) {
+        yield send({
+            p1: P1.STAGE_WITHDRAWALS,
+            p2: P2.UNUSED,
+            data: serializeTxWithdrawal(withdrawal),
+            expectedResponseLength: 0,
+        })
+    } else {
+        yield send({
+            p1: P1.STAGE_WITHDRAWALS,
+            p2: P2.UNUSED,
+            data: serializeTxWithdrawalPreMultisig(withdrawal),
+            expectedResponseLength: 0,
+        })
+    }
 }
 
 function* signTx_setFee(
@@ -541,14 +559,16 @@ function generateWitnessPaths(request: ParsedSigningRequest): ValidBIP32Path[] {
         } else if (cert.type === CertificateType.STAKE_POOL_RETIREMENT) {
             _insert(cert.path)
         } else {
-            if (CertificateIdentifierType.KEY_PATH == cert.identifier.type) {
+            if (MultisigIdentifierType.KEY_PATH == cert.identifier.type) {
                 _insert(cert.identifier.path)
             }
         }
     }
   
     for (const withdrawal of tx.withdrawals) {
-        _insert(withdrawal.path)
+        if (MultisigIdentifierType.KEY_PATH == withdrawal.identifier.type) {
+            _insert(withdrawal.identifier.path)
+        }
     }
 
     return Object.values(witnessPaths)
@@ -576,7 +596,7 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
         (c.type === CertificateType.STAKE_DELEGATION ||
         c.type === CertificateType.STAKE_DEREGISTRATION ||
         c.type === CertificateType.STAKE_REGISTRATION) &&
-        c.identifier.type === CertificateIdentifierType.SCRIPT_HASH)
+        c.identifier.type === MultisigIdentifierType.SCRIPT_HASH)
 
     if (hasPoolRetirement && !getCompatibility(version).supportsPoolRetirement) {
         throw new DeviceVersionUnsupported(`Pool retirement certificate not supported by Ledger app version ${version}.`)
@@ -634,7 +654,7 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
 
     // withdrawals
     for (const withdrawal of tx.withdrawals) {
-        yield* signTx_addWithdrawal(withdrawal)
+        yield* signTx_addWithdrawal(version, withdrawal)
     }
 
     // auxiliary data before Ledger app version 2.3.x

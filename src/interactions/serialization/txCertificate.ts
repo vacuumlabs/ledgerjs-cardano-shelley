@@ -1,9 +1,9 @@
 import { InvalidDataReason } from "../../errors/invalidDataReason"
 import { validate } from "../../utils/parse"
-import { CertificateIdentifier2, CertificateIdentifierType, ParsedCertificate, Uint8_t } from "../../types/internal"
+import { MultisigIdentifierType, ParsedCertificate, Uint8_t } from "../../types/internal"
 import { CertificateType } from "../../types/internal"
 import { unreachable } from "../../utils/assert"
-import { hex_to_buf, path_to_buf, uint8_to_buf, uint64_to_buf } from "../../utils/serialize"
+import { hex_to_buf, path_to_buf, uint8_to_buf, uint64_to_buf, multisig_identifier_to_buf } from "../../utils/serialize"
 
 export function serializeTxCertificatePreMultisig(
     certificate: ParsedCertificate,
@@ -11,14 +11,14 @@ export function serializeTxCertificatePreMultisig(
     switch (certificate.type) {
     case CertificateType.STAKE_REGISTRATION:
     case CertificateType.STAKE_DEREGISTRATION: {
-        validate(CertificateIdentifierType.KEY_PATH == certificate.identifier.type, InvalidDataReason.CERTIFICATE_INVALID_IDENTIFIER)
+        validate(MultisigIdentifierType.KEY_PATH == certificate.identifier.type, InvalidDataReason.CERTIFICATE_INVALID_IDENTIFIER)
         return Buffer.concat([
             uint8_to_buf(certificate.type as Uint8_t),
             path_to_buf(certificate.identifier.path),
         ])
     }
     case CertificateType.STAKE_DELEGATION: {
-        validate(CertificateIdentifierType.KEY_PATH == certificate.identifier.type, InvalidDataReason.CERTIFICATE_INVALID_IDENTIFIER)
+        validate(MultisigIdentifierType.KEY_PATH == certificate.identifier.type, InvalidDataReason.CERTIFICATE_INVALID_IDENTIFIER)
         return Buffer.concat([
             uint8_to_buf(certificate.type as Uint8_t),
             path_to_buf(certificate.identifier.path),
@@ -42,22 +42,6 @@ export function serializeTxCertificatePreMultisig(
     }
 }
 
-function serializeIdentifier(
-    identifier: CertificateIdentifier2
-): Buffer {
-    if (CertificateIdentifierType.KEY_PATH == identifier.type) {
-        return Buffer.concat([
-            uint8_to_buf(identifier.type as Uint8_t),
-            path_to_buf(identifier.path),
-        ])
-    } else {
-        return Buffer.concat([
-            uint8_to_buf(identifier.type as Uint8_t),
-            hex_to_buf(identifier.scriptHash),
-        ])
-    }
-}
-
 export function serializeTxCertificate(
     certificate: ParsedCertificate,
 ) {
@@ -66,13 +50,13 @@ export function serializeTxCertificate(
     case CertificateType.STAKE_DEREGISTRATION: {
         return Buffer.concat([
             uint8_to_buf(certificate.type as Uint8_t),
-            serializeIdentifier(certificate.identifier),
+            multisig_identifier_to_buf(certificate.identifier),
         ])
     }
     case CertificateType.STAKE_DELEGATION: {
         return Buffer.concat([
             uint8_to_buf(certificate.type as Uint8_t),
-            serializeIdentifier(certificate.identifier),
+            multisig_identifier_to_buf(certificate.identifier),
             hex_to_buf(certificate.poolKeyHashHex),
         ])
     }
