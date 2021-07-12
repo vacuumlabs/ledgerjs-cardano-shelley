@@ -1,8 +1,8 @@
 import { InvalidData } from "../errors"
 import type { InvalidDataReason } from "../errors/index"
-import type { _Int64_bigint, _Int64_num, _Uint64_bigint, _Uint64_num, FixlenHexString, HexString, Int64_str, Uint8_t, Uint16_t, Uint32_t, Uint64_str, ValidBIP32Path, VarlenAsciiString, MultisigIdentifier2 } from "../types/internal"
-import { MultisigIdentifierType, SCRIPT_HASH_LENGTH } from "../types/internal"
-import type { MultisigIdentifier } from "../types/public"
+import type { _Int64_bigint, _Int64_num, _Uint64_bigint, _Uint64_num, FixlenHexString, HexString, Int64_str, Uint8_t, Uint16_t, Uint32_t, Uint64_str, ValidBIP32Path, VarlenAsciiString, ParsedStakeCredential } from "../types/internal"
+import { StakeCredentialType, SCRIPT_HASH_LENGTH } from "../types/internal"
+import type { StakeCredentialParams } from "../types/public"
 
 export const MAX_UINT_64_STR = "18446744073709551615"
 export const MIN_INT_64_STR = "-9223372036854775808"
@@ -180,18 +180,18 @@ export function parseBIP32Path(value: unknown, errMsg: InvalidDataReason): Valid
     return value
 }
 
-export function parseMultisigIdentifier(identifier: MultisigIdentifier, errMsg: InvalidDataReason): MultisigIdentifier2 {
+export function parseStakeCredential(identifier: StakeCredentialParams, errMsg: InvalidDataReason): ParsedStakeCredential {
     const pathProvided = identifier.path != null
     const scriptHashProvided = identifier.scriptHash != null
     validate((pathProvided && !scriptHashProvided) || (!pathProvided && scriptHashProvided), errMsg)
     if (pathProvided) {
         return {
-            type: MultisigIdentifierType.KEY_PATH,
+            type: StakeCredentialType.KEY_PATH,
             path: parseBIP32Path(identifier.path, errMsg),
         }
     } else {
         return {
-            type: MultisigIdentifierType.SCRIPT_HASH,
+            type: StakeCredentialType.SCRIPT_HASH,
             scriptHash: parseHexStringOfLength(identifier.scriptHash, SCRIPT_HASH_LENGTH, errMsg)
         }
     }

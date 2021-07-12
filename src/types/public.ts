@@ -663,7 +663,7 @@ export type PoolRetirementParams = {
     retirementEpoch: bigint_like,
 }
 
-export type MultisigIdentifier = {
+export type StakeCredentialParams = {
     path?: BIP32Path,
     scriptHash?: string,
 }
@@ -677,7 +677,7 @@ export type StakeRegistrationParams = {
     /**
      * Id to be registered
      */
-     identifier: MultisigIdentifier,
+     identifier: StakeCredentialParams,
 }
 
 /**
@@ -689,7 +689,7 @@ export type StakeDeregistrationParams = {
     /**
      * Id to be deregistered
      */
-    identifier: MultisigIdentifier,
+    identifier: StakeCredentialParams,
 }
 
 /**
@@ -701,7 +701,7 @@ export type StakeDelegationParams = {
     /**
      * Id of the staking entity / reward account that wants to delegate
      */
-     identifier: MultisigIdentifier,
+     identifier: StakeCredentialParams,
      /**
      * Pool ID user wants to delegate to
      */
@@ -740,7 +740,7 @@ export type Withdrawal = {
     /**
      * Path to rewards account being withdrawn
      */
-    identifier: MultisigIdentifier,
+    identifier: StakeCredentialParams,
     /**
      * Amount (in Lovelace) being withdrawn.
      * Note that Amount *must* be all accumulated rewards.
