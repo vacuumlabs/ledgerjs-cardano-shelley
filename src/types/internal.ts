@@ -243,7 +243,7 @@ type StakingDataSourcePath = {
 }
 type StakingDataSourceKeyHash = {
     type: StakingDataSourceType.KEY_HASH,
-    hashHex: FixlenHexString<typeof KEY_HASH_LENGTH>
+    keyHash: FixlenHexString<typeof KEY_HASH_LENGTH>
 }
 type StakingDataSourcePointer = {
     type: StakingDataSourceType.BLOCKCHAIN_POINTER,
@@ -251,7 +251,7 @@ type StakingDataSourcePointer = {
 }
 type StakingDataSourceScriptHash = {
     type: StakingDataSourceType.SCRIPT_HASH,
-    hashHex: FixlenHexString<typeof SCRIPT_HASH_LENGTH>
+    scriptHash: FixlenHexString<typeof SCRIPT_HASH_LENGTH>
 }
 
 export type SpendingDataSource = SpendingDataSourcePath | SpendingDataSourceScriptHash | SpendingDataSourceNone

@@ -6,18 +6,18 @@ import { validate } from "../../utils/parse"
 import { hex_to_buf, path_to_buf, uint8_to_buf, uint32_to_buf } from "../../utils/serialize"
 import { getCompatibility } from "../getVersion"
 
-function serializeSpendingChoice(spendingChoice: SpendingDataSource): Buffer {
-    switch (spendingChoice.type) {
+function serializeSpendingDataSource(dataSource: SpendingDataSource): Buffer {
+    switch (dataSource.type) {
     case SpendingDataSourceType.PATH:
-        return path_to_buf(spendingChoice.path)
+        return path_to_buf(dataSource.path)
     case SpendingDataSourceType.SCRIPT_HASH:
-        return hex_to_buf(spendingChoice.scriptHash)
+        return hex_to_buf(dataSource.scriptHash)
     case SpendingDataSourceType.NONE:
         return Buffer.alloc(0)
     }
 }
 
-function serializeStakingChoice(stakingChoice: StakingDataSource): Buffer {
+function serializeStakingDataSource(dataSource: StakingDataSource): Buffer {
     const stakingChoicesEncoding = {
         [StakingDataSourceType.NONE]: 0x11,
         [StakingDataSourceType.KEY_PATH]: 0x22,
@@ -26,31 +26,36 @@ function serializeStakingChoice(stakingChoice: StakingDataSource): Buffer {
         [StakingDataSourceType.SCRIPT_HASH]: 0x55,
     } as const
 
-    switch (stakingChoice.type) {
+    switch (dataSource.type) {
     case StakingDataSourceType.NONE: {
         return Buffer.concat([
-            uint8_to_buf(stakingChoicesEncoding[stakingChoice.type] as Uint8_t),
+            uint8_to_buf(stakingChoicesEncoding[dataSource.type] as Uint8_t),
         ])
     }
-    case StakingDataSourceType.KEY_HASH:
+    case StakingDataSourceType.KEY_HASH: {
+        return Buffer.concat([
+            uint8_to_buf(stakingChoicesEncoding[dataSource.type] as Uint8_t),
+            hex_to_buf(dataSource.keyHash),
+        ])
+    }
     case StakingDataSourceType.SCRIPT_HASH: {
         return Buffer.concat([
-            uint8_to_buf(stakingChoicesEncoding[stakingChoice.type] as Uint8_t),
-            hex_to_buf(stakingChoice.hashHex),
+            uint8_to_buf(stakingChoicesEncoding[dataSource.type] as Uint8_t),
+            hex_to_buf(dataSource.scriptHash),
         ])
     }
     case StakingDataSourceType.KEY_PATH: {
         return Buffer.concat([
-            uint8_to_buf(stakingChoicesEncoding[stakingChoice.type] as Uint8_t),
-            path_to_buf(stakingChoice.path),
+            uint8_to_buf(stakingChoicesEncoding[dataSource.type] as Uint8_t),
+            path_to_buf(dataSource.path),
         ])
     }
     case StakingDataSourceType.BLOCKCHAIN_POINTER: {
         return Buffer.concat([
-            uint8_to_buf(stakingChoicesEncoding[stakingChoice.type] as Uint8_t),
-            uint32_to_buf(stakingChoice.pointer.blockIndex),
-            uint32_to_buf(stakingChoice.pointer.txIndex),
-            uint32_to_buf(stakingChoice.pointer.certificateIndex),
+            uint8_to_buf(stakingChoicesEncoding[dataSource.type] as Uint8_t),
+            uint32_to_buf(dataSource.pointer.blockIndex),
+            uint32_to_buf(dataSource.pointer.txIndex),
+            uint32_to_buf(dataSource.pointer.certificateIndex),
         ])
     }
     }
@@ -81,7 +86,7 @@ export function serializeAddressParams(
         params.type === AddressType.BYRON
             ? uint32_to_buf(params.protocolMagic)
             : uint8_to_buf(params.networkId),
-        serializeSpendingChoice(spending),
-        serializeStakingChoice(staking),
+        serializeSpendingDataSource(spending),
+        serializeStakingDataSource(staking),
     ])
 }
