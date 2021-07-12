@@ -1,6 +1,7 @@
 import { Int64BE, Uint64BE } from "int64-buffer"
 
-import type { FixlenHexString, HexString, Int64_str, Uint8_t, Uint16_t, Uint32_t, Uint64_str } from "../types/internal"
+import type { MultisigIdentifier2, FixlenHexString, HexString, Int64_str, Uint8_t, Uint16_t, Uint32_t, Uint64_str } from "../types/internal"
+import { MultisigIdentifierType } from "../types/internal"
 import { assert } from './assert'
 import { isHexString, isInt64str, isUint8, isUint16, isUint32, isUint64str, isValidPath } from "./parse"
 
@@ -81,3 +82,18 @@ export function path_to_buf(path: Array<number>): Buffer {
     }
     return data
 }
+
+export function multisig_identifier_to_buf(identifier: MultisigIdentifier2): Buffer {
+    if (MultisigIdentifierType.KEY_PATH == identifier.type) {
+        return Buffer.concat([
+            uint8_to_buf(identifier.type as Uint8_t),
+            path_to_buf(identifier.path),
+        ])
+    } else {
+        return Buffer.concat([
+            uint8_to_buf(identifier.type as Uint8_t),
+            hex_to_buf(identifier.scriptHash),
+        ])
+    }
+}
+
