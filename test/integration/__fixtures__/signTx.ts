@@ -771,12 +771,12 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
         },
     },
     {
-        testname: "Sign tx with withdrawal",
+        testname: "Sign tx with path based withdrawal",
         tx: {
             ...shelleyBase,
             withdrawals: [
                 {
-                    identifier: {
+                    stakeCredential: {
                         path: str_to_path("1852'/1815'/0'/2/0"),
                     },
                     amount: 111,
@@ -801,6 +801,42 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
                     path: str_to_path("1852'/1815'/0'/2/0"),
                     witnessSignatureHex:
             "04b995979c2072b469c1e0ace5331c3d188e3e65d5a6f06aa4e608fb18a3588621370ee1b5d39d55afe0744aa4906785baa07210dc4cb49594eba507f7215102",
+                },
+            ],
+            auxiliaryDataSupplement: null,
+        },
+    },
+    {
+        testname: "Sign tx with script based withdrawal",
+        tx: {
+            ...shelleyBase,
+            withdrawals: [
+                {
+                    stakeCredential: {
+                        scriptHash: "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
+                    },
+                    amount: 111,
+                },
+            ],
+        },
+        multisigWitnessPaths: [str_to_path("1854'/1815'/0'/2/0")],
+        txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aa" +
+      "d1c0b700018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2e1" +
+      "a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a05a1581de11d227aefa4b77314917088" +
+      "5aadba30aab3127cc611ddbc4999def61c186f",
+        result: {
+            txHashHex:
+        "54674fbc98676afe0033a1d2c7bd5840883c99e059161f7d74f10c4ce2a8ebd0",
+            witnesses: [
+                {
+                    path: str_to_path("1852'/1815'/0'/0/0"),
+                    witnessSignatureHex:
+            "0c3907b8a13656334891d0218778acd967a91b4481aed14326096fd20189870843e375b04ed0bd8b4e377cba82ed240852483b405842526aee66d1edaf9e8c00",
+                },
+                {
+                    path: str_to_path("1854'/1815'/0'/2/0"),
+                    witnessSignatureHex:
+            "0319fdf7b79a63869a765a460c4411b277951d6ed1596be7c7501d9f2a831d593f79d0098049881084cb4b1c5c5a96942071f8dbce1cf9a1e79b3ebd468db10c",
                 },
             ],
             auxiliaryDataSupplement: null,
