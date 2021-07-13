@@ -1,7 +1,7 @@
 import { InvalidDataReason } from "../../errors/invalidDataReason"
 import { validate } from "../../utils/parse"
 import { Int64_str, StakeCredentialType, ParsedAssetGroup, ParsedInput, ParsedToken, ParsedWithdrawal, Uint32_t, Uint64_str, ValidBIP32Path } from "../../types/internal"
-import { hex_to_buf, path_to_buf, uint32_to_buf, uint64_to_buf, multisig_identifier_to_buf } from "../../utils/serialize"
+import { hex_to_buf, path_to_buf, uint32_to_buf, uint64_to_buf, stake_credential_to_buf } from "../../utils/serialize"
 import type {SerializeTokenAmountFn} from "../signTx"
 
 export function serializeTxInput(
@@ -16,10 +16,10 @@ export function serializeTxInput(
 export function serializeTxWithdrawalPreMultisig(
     withdrawal: ParsedWithdrawal
 ) {
-    validate(StakeCredentialType.KEY_PATH == withdrawal.identifier.type, InvalidDataReason.WITHDRAWAL_INVALID_IDENTIFIER)
+    validate(StakeCredentialType.KEY_PATH == withdrawal.stakeCredential.type, InvalidDataReason.WITHDRAWAL_INVALID_IDENTIFIER)
     return Buffer.concat([
         uint64_to_buf(withdrawal.amount),
-        path_to_buf(withdrawal.identifier.path),
+        path_to_buf(withdrawal.stakeCredential.path),
     ])
 }
 
@@ -28,7 +28,7 @@ export function serializeTxWithdrawal(
 ) {
     return Buffer.concat([
         uint64_to_buf(withdrawal.amount),
-        multisig_identifier_to_buf(withdrawal.identifier),
+        stake_credential_to_buf(withdrawal.stakeCredential),
     ])
 }
 

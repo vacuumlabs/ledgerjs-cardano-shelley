@@ -559,15 +559,15 @@ function generateWitnessPaths(request: ParsedSigningRequest): ValidBIP32Path[] {
         } else if (cert.type === CertificateType.STAKE_POOL_RETIREMENT) {
             _insert(cert.path)
         } else {
-            if (StakeCredentialType.KEY_PATH == cert.identifier.type) {
-                _insert(cert.identifier.path)
+            if (StakeCredentialType.KEY_PATH == cert.stakeCredential.type) {
+                _insert(cert.stakeCredential.path)
             }
         }
     }
   
     for (const withdrawal of tx.withdrawals) {
-        if (StakeCredentialType.KEY_PATH == withdrawal.identifier.type) {
-            _insert(withdrawal.identifier.path)
+        if (StakeCredentialType.KEY_PATH == withdrawal.stakeCredential.type) {
+            _insert(withdrawal.stakeCredential.path)
         }
     }
 
@@ -596,7 +596,7 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
         (c.type === CertificateType.STAKE_DELEGATION ||
         c.type === CertificateType.STAKE_DEREGISTRATION ||
         c.type === CertificateType.STAKE_REGISTRATION) &&
-        c.identifier.type === StakeCredentialType.SCRIPT_HASH)
+        c.stakeCredential.type === StakeCredentialType.SCRIPT_HASH)
 
     if (hasPoolRetirement && !getCompatibility(version).supportsPoolRetirement) {
         throw new DeviceVersionUnsupported(`Pool retirement certificate not supported by Ledger app version ${version}.`)

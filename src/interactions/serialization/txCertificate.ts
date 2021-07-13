@@ -3,7 +3,7 @@ import { validate } from "../../utils/parse"
 import { StakeCredentialType, ParsedCertificate, Uint8_t } from "../../types/internal"
 import { CertificateType } from "../../types/internal"
 import { unreachable } from "../../utils/assert"
-import { hex_to_buf, path_to_buf, uint8_to_buf, uint64_to_buf, multisig_identifier_to_buf } from "../../utils/serialize"
+import { hex_to_buf, path_to_buf, uint8_to_buf, uint64_to_buf, stake_credential_to_buf } from "../../utils/serialize"
 
 export function serializeTxCertificatePreMultisig(
     certificate: ParsedCertificate,
@@ -11,17 +11,17 @@ export function serializeTxCertificatePreMultisig(
     switch (certificate.type) {
     case CertificateType.STAKE_REGISTRATION:
     case CertificateType.STAKE_DEREGISTRATION: {
-        validate(StakeCredentialType.KEY_PATH == certificate.identifier.type, InvalidDataReason.CERTIFICATE_INVALID_IDENTIFIER)
+        validate(StakeCredentialType.KEY_PATH == certificate.stakeCredential.type, InvalidDataReason.CERTIFICATE_INVALID_IDENTIFIER)
         return Buffer.concat([
             uint8_to_buf(certificate.type as Uint8_t),
-            path_to_buf(certificate.identifier.path),
+            path_to_buf(certificate.stakeCredential.path),
         ])
     }
     case CertificateType.STAKE_DELEGATION: {
-        validate(StakeCredentialType.KEY_PATH == certificate.identifier.type, InvalidDataReason.CERTIFICATE_INVALID_IDENTIFIER)
+        validate(StakeCredentialType.KEY_PATH == certificate.stakeCredential.type, InvalidDataReason.CERTIFICATE_INVALID_IDENTIFIER)
         return Buffer.concat([
             uint8_to_buf(certificate.type as Uint8_t),
-            path_to_buf(certificate.identifier.path),
+            path_to_buf(certificate.stakeCredential.path),
             hex_to_buf(certificate.poolKeyHashHex),
         ])
     }
@@ -50,13 +50,13 @@ export function serializeTxCertificate(
     case CertificateType.STAKE_DEREGISTRATION: {
         return Buffer.concat([
             uint8_to_buf(certificate.type as Uint8_t),
-            multisig_identifier_to_buf(certificate.identifier),
+            stake_credential_to_buf(certificate.stakeCredential),
         ])
     }
     case CertificateType.STAKE_DELEGATION: {
         return Buffer.concat([
             uint8_to_buf(certificate.type as Uint8_t),
-            multisig_identifier_to_buf(certificate.identifier),
+            stake_credential_to_buf(certificate.stakeCredential),
             hex_to_buf(certificate.poolKeyHashHex),
         ])
     }
