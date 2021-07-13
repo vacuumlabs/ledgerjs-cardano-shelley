@@ -46,13 +46,13 @@ export type ParsedStakeCredential =
 
 export type ParsedCertificate = {
     type: CertificateType.STAKE_REGISTRATION
-    identifier: ParsedStakeCredential
+    stakeCredential: ParsedStakeCredential
 } | {
     type: CertificateType.STAKE_DEREGISTRATION
-    identifier: ParsedStakeCredential
+    stakeCredential: ParsedStakeCredential
 } | {
     type: CertificateType.STAKE_DELEGATION
-    identifier: ParsedStakeCredential
+    stakeCredential: ParsedStakeCredential
     poolKeyHashHex: FixlenHexString<typeof KEY_HASH_LENGTH>
 } | {
     type: CertificateType.STAKE_POOL_REGISTRATION
@@ -132,7 +132,7 @@ export type ParsedInput = {
 
 export type ParsedWithdrawal = {
     amount: Uint64_str
-    identifier: ParsedStakeCredential
+    stakeCredential: ParsedStakeCredential
 }
 
 

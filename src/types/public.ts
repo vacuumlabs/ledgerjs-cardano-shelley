@@ -733,7 +733,7 @@ export type Withdrawal = {
     /**
      * Path to rewards account being withdrawn
      */
-    identifier: StakeCredentialParams,
+    stakeCredential: StakeCredentialParams,
     /**
      * Amount (in Lovelace) being withdrawn.
      * Note that Amount *must* be all accumulated rewards.

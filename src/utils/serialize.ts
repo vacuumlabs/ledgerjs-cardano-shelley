@@ -83,16 +83,16 @@ export function path_to_buf(path: Array<number>): Buffer {
     return data
 }
 
-export function multisig_identifier_to_buf(identifier: ParsedStakeCredential): Buffer {
-    if (StakeCredentialType.KEY_PATH == identifier.type) {
+export function stake_credential_to_buf(stakeCredential: ParsedStakeCredential): Buffer {
+    if (StakeCredentialType.KEY_PATH == stakeCredential.type) {
         return Buffer.concat([
-            uint8_to_buf(identifier.type as Uint8_t),
-            path_to_buf(identifier.path),
+            uint8_to_buf(stakeCredential.type as Uint8_t),
+            path_to_buf(stakeCredential.path),
         ])
     } else {
         return Buffer.concat([
-            uint8_to_buf(identifier.type as Uint8_t),
-            hex_to_buf(identifier.scriptHash),
+            uint8_to_buf(stakeCredential.type as Uint8_t),
+            hex_to_buf(stakeCredential.scriptHash),
         ])
     }
 }
