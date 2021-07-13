@@ -13,13 +13,13 @@ export function parseCertificate(cert: Certificate): ParsedCertificate {
         validate((cert.params as any).poolKeyHashHex == null, InvalidDataReason.CERTIFICATE_SUPERFLUOUS_POOL_KEY_HASH)
         return {
             type: cert.type,
-            identifier: parseStakeCredential(cert.params.identifier, InvalidDataReason.CERTIFICATE_INVALID_SCRIPT_HASH)
+            stakeCredential: parseStakeCredential(cert.params.identifier, InvalidDataReason.CERTIFICATE_INVALID_SCRIPT_HASH)
         }
     }
     case CertificateType.STAKE_DELEGATION: {
         return {
             type: cert.type,
-            identifier: parseStakeCredential(cert.params.identifier, InvalidDataReason.CERTIFICATE_INVALID_SCRIPT_HASH),
+            stakeCredential: parseStakeCredential(cert.params.identifier, InvalidDataReason.CERTIFICATE_INVALID_SCRIPT_HASH),
             poolKeyHashHex: parseHexStringOfLength(cert.params.poolKeyHashHex, KEY_HASH_LENGTH, InvalidDataReason.CERTIFICATE_INVALID_POOL_KEY_HASH),
         }
     }
