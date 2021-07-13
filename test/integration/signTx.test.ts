@@ -54,12 +54,12 @@ describe("signTxOrdinaryShelleyNoCertificates", async () => {
         await (ada as any).t.close()
     })
 
-    for (const { testname, tx, result: expected } of testsShelleyNoCertificates) {
+    for (const { testname, tx, multisigWitnessPaths, result: expected } of testsShelleyNoCertificates) {
         it(testname, async () => {
             const response = await ada.signTransaction({
                 tx,
                 signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-                multisigWitnessPaths: [],
+                multisigWitnessPaths,
             })
             expect(response).to.deep.equal(expected)
         })
