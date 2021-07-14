@@ -20,7 +20,7 @@ import { DeviceStatusCodes, DeviceStatusError } from './errors'
 import { InvalidDataReason } from "./errors/invalidDataReason"
 import type { Interaction, SendParams } from './interactions/common/types'
 import { deriveAddress } from "./interactions/deriveAddress"
-import { deriveScriptHash } from "./interactions/deriveScriptHash"
+import { deriveNativeScriptHash } from "./interactions/deriveNativeScriptHash"
 import { getExtendedPublicKeys } from "./interactions/getExtendedPublicKeys"
 import { getSerial } from "./interactions/getSerial"
 import { getCompatibility, getVersion } from "./interactions/getVersion"
@@ -29,18 +29,18 @@ import { showAddress } from "./interactions/showAddress"
 import { signOperationalCertificate } from "./interactions/signOperationalCertificate"
 import { signTransaction } from "./interactions/signTx"
 import { parseAddress } from './parsing/address'
+import { parseNativeScript } from "./parsing/nativeScript"
 import { parseOperationalCertificate } from "./parsing/operationalCertificate"
-import { parseScript } from "./parsing/script"
 import { parseSignTransactionRequest } from "./parsing/transaction"
 import type {
     ParsedAddressParams,
+    ParsedNativeScript,
     ParsedOperationalCertificate,
-    ParsedScript,
     ParsedSigningRequest,
     ValidBIP32Path,
 } from './types/internal'
-import type { BIP32Path, DerivedAddress, DerivedScriptHash, DeviceCompatibility, DeviceOwnedAddress, ExtendedPublicKey, NativeScript, Network, OperationalCertificate, OperationalCertificateSignature, Serial, SignedTransactionData, SignTransactionRequest, Transaction, Version } from './types/public'
-import { AddressType, CertificateType, RelayType, ScriptType,TransactionSigningMode } from "./types/public"
+import type { BIP32Path, DerivedAddress, DerivedNativeScriptHash, DeviceCompatibility, DeviceOwnedAddress, ExtendedPublicKey, NativeScript, Network, OperationalCertificate, OperationalCertificateSignature, Serial, SignedTransactionData, SignTransactionRequest, Transaction, Version } from './types/public'
+import { AddressType, CertificateType, NativeScriptType,RelayType, TransactionSigningMode } from "./types/public"
 import utils from "./utils"
 import { assert } from './utils/assert'
 import { isArray, parseBIP32Path, validate } from './utils/parse'
@@ -140,7 +140,7 @@ export class Ada {
           "signTransaction",
           "deriveAddress",
           "showAddress",
-          "deriveScriptHash",
+          "deriveNativeScriptHash",
       ]
       this.transport.decorateAppAPIMethods(this, methods, scrambleKey)
       this._send = async (params: SendParams): Promise<Buffer> => {
@@ -324,22 +324,18 @@ export class Ada {
       return yield* signOperationalCertificate(version, request)
   }
 
-  /**
-   * Derives a hash of the specified script
-   * @returns
-   */
-  async deriveScriptHash(
-      { script }: DeriveScriptHashRequest
-  ): Promise<DeriveScriptHashResponse> {
-      const parsedScript = parseScript(script)
+  async deriveNativeScriptHash(
+      { script }: DeriveNativeScriptHashRequest
+  ): Promise<DeriveNativeScriptHashResponse> {
+      const parsedScript = parseNativeScript(script)
 
-      return interact(this._deriveScriptHash(parsedScript), this._send)
+      return interact(this._deriveNativeScriptHash(parsedScript), this._send)
   }
 
   /** @ignore */
-  * _deriveScriptHash(script: ParsedScript): Interaction<DerivedScriptHash> {
+  * _deriveNativeScriptHash(script: ParsedNativeScript): Interaction<DerivedNativeScriptHash> {
       const version = yield* getVersion()
-      return yield* deriveScriptHash(version, script)
+      return yield* deriveNativeScriptHash(version, script)
   }
 }
 
@@ -434,23 +430,23 @@ export type SignOperationalCertificateRequest = OperationalCertificate
 export type SignOperationalCertificateResponse = OperationalCertificateSignature
 
 /**
- * Derive script hash ([[Ada.deriveScriptHash]]) request data
+ * Derive native script hash ([[Ada.deriveNativeScriptHash]]) request data
  * @category Main
  * @see [[DeriveScriptHashResponse]]
  */
-export type DeriveScriptHashRequest = {
+export type DeriveNativeScriptHashRequest = {
   script: NativeScript,
 }
 /**
- * Derive script hash ([[Ada.deriveScriptHash]]) response data
+ * Derive native script hash ([[Ada.deriveNativeScriptHash]]) response data
  * @category Main
  * @see [[DeriveScriptHashRequest]]
  */
-export type DeriveScriptHashResponse = DerivedScriptHash
+export type DeriveNativeScriptHashResponse = DerivedNativeScriptHash
 
 // reexport
 export type { Transaction, DeviceOwnedAddress }
-export { AddressType, CertificateType, RelayType, InvalidDataReason, TransactionSigningMode, ScriptType, utils }
+export { AddressType, CertificateType, RelayType, InvalidDataReason, TransactionSigningMode, NativeScriptType, utils }
 export default Ada
 
 /**

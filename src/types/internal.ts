@@ -1,4 +1,4 @@
-import { AddressType, CertificateType, PoolKeyType, PoolOwnerType, PoolRewardAccountType, RelayType, ScriptType, TransactionSigningMode, TxAuxiliaryDataType, TxOutputDestinationType } from './public'
+import { AddressType, CertificateType, NativeScriptType, PoolKeyType, PoolOwnerType, PoolRewardAccountType, RelayType, TransactionSigningMode, TxAuxiliaryDataType, TxOutputDestinationType } from './public'
 
 // Basic primitives
 export type VarlenAsciiString = string & { __type: 'ascii' }
@@ -15,7 +15,7 @@ export type Uint16_t = number & { __type: 'uint16_t' }
 export type Uint8_t = number & { __type: 'uint8_t' }
 
 // Reexport blockchain spec
-export { AddressType, CertificateType, RelayType, PoolKeyType, PoolOwnerType, PoolRewardAccountType, TransactionSigningMode, TxAuxiliaryDataType, TxOutputDestinationType, ScriptType }
+export { AddressType, CertificateType, RelayType, PoolKeyType, PoolOwnerType, PoolRewardAccountType, TransactionSigningMode, TxAuxiliaryDataType, TxOutputDestinationType, NativeScriptType }
 export { Version, DeviceCompatibility } from './public'
 // Our types
 export const EXTENDED_PUBLIC_KEY_LENGTH = 64
@@ -267,41 +267,41 @@ export type ParsedOperationalCertificate = {
     coldKeyPath: ValidBIP32Path,
 }
 
-export const SCRIPT_HASH_LENGTH = 28
+export const NATIVE_SCRIPT_HASH_LENGTH = 28
 
-export type ParsedSimpleScript = {
-    type: ScriptType.PUBKEY_DEVICE_OWNED,
+export type ParsedSimpleNativeScript = {
+    type: NativeScriptType.PUBKEY_DEVICE_OWNED,
     params: {
         path: ValidBIP32Path,
     },
 } | {
-    type: ScriptType.PUBKEY_THIRD_PARTY,
+    type: NativeScriptType.PUBKEY_THIRD_PARTY,
     params: {
         keyHashHex: FixlenHexString<typeof KEY_HASH_LENGTH>,
     }
 } | {
-    type: ScriptType.INVALID_BEFORE,
+    type: NativeScriptType.INVALID_BEFORE,
     params: {
         invalidBefore: Uint64_str,
     },
 } | {
-    type: ScriptType.INVALID_HEREAFTER,
+    type: NativeScriptType.INVALID_HEREAFTER,
     params: {
         invalidHereafter: Uint64_str,
     },
 }
 
-export type ParsedComplexScript = {
-    type: ScriptType.ALL | ScriptType.ANY,
+export type ParsedComplexNativeScript = {
+    type: NativeScriptType.ALL | NativeScriptType.ANY,
     params: {
-        scripts: ParsedScript[],
+        scripts: ParsedNativeScript[],
     },
 } | {
-    type: ScriptType.N_OF_K,
+    type: NativeScriptType.N_OF_K,
     params: {
         requiredCount: Uint32_t,
-        scripts: ParsedScript[],
+        scripts: ParsedNativeScript[],
     },
 }
 
-export type ParsedScript = ParsedSimpleScript | ParsedComplexScript
+export type ParsedNativeScript = ParsedSimpleNativeScript | ParsedComplexNativeScript
