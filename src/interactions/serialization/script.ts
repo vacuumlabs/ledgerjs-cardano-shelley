@@ -12,7 +12,7 @@ const TYPE_ENCODING = {
     [ScriptType.INVALID_HEREAFTER]: 5 as Uint8_t,
 }
 
-export function serializeScriptHeader(
+export function serializeComplexScriptStart(
     script: ParsedComplexScript
 ): Buffer {
     switch (script.type) {
@@ -33,7 +33,7 @@ export function serializeScriptHeader(
     }
 }
 
-export function serializeScript(
+export function serializeSimpleScript(
     script: ParsedSimpleScript
 ): Buffer {
     switch (script.type) {
@@ -57,7 +57,7 @@ export function serializeScript(
     }
 }
 
-export function serializeScriptFinished(
+export function serializeComplexScriptFinish(
     _script: ParsedComplexScript
 ): Buffer {
     return Buffer.from([])

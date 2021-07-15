@@ -6,7 +6,7 @@ import { ScriptType } from "../types/public"
 import { INS } from "./common/ins"
 import type { Interaction, SendParams } from "./common/types"
 import { ensureLedgerAppVersionCompatible, getCompatibility } from "./getVersion"
-import { serializeScript, serializeScriptFinished, serializeScriptHeader } from "./serialization/script"
+import { serializeSimpleScript, serializeComplexScriptFinish, serializeComplexScriptStart } from "./serialization/script"
 
 const send = (params: {
     p1: number,
@@ -39,7 +39,7 @@ function *deriveScriptHash_startComplexScript(
     yield send({
         p1: P1.STAGE_SCRIPT_HEADER,
         p2: P2.UNUSED,
-        data: serializeScriptHeader(script),
+        data: serializeComplexScriptStart(script),
         expectedResponseLength: 0,
     })
 }
@@ -51,7 +51,7 @@ function *deriveScriptHash_addSimpleScript<B extends boolean>(
     const response = yield send({
         p1: P1.STAGE_SCRIPT,
         p2: P2.UNUSED,
-        data: serializeScript(script),
+        data: serializeSimpleScript(script),
         expectedResponseLength: expectsResponse ? SCRIPT_HASH_LENGTH : 0,
     })
     return responseIf(expectsResponse, response)
@@ -64,7 +64,7 @@ function *deriveScriptHash_finishComplexScript<B extends boolean>(
     const response = yield send({
         p1: P1.STAGE_SCRIPT_FINISHED,
         p2: P2.UNUSED,
-        data: serializeScriptFinished(script),
+        data: serializeComplexScriptFinish(script),
         expectedResponseLength: expectsResponse ? SCRIPT_HASH_LENGTH : 0,
     })
     return responseIf(expectsResponse, response)
