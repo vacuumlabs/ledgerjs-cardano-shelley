@@ -775,6 +775,10 @@ export type DeviceCompatibility = {
      * Whether we support pool retirement certificate
      */
     supportsPoolRetirement: boolean
+    /**
+     * Whether we support script hash derivation
+     */
+    supportsNativeScriptHashDerivation: boolean
 }
 
 /**
@@ -1078,3 +1082,158 @@ export type SignTransactionRequest = {
     tx: Transaction
 }
 
+/**
+ * Native script type (as defined by the Cardano spec)
+ * @category Scripts
+ * @see [[NativeScript]]
+ */
+export enum NativeScriptType {
+    /**
+     * The signature of a key with a specific path is required.
+     * @see [[NativeScriptParamsDeviceOwnedPubkey]]
+     */
+    PUBKEY_DEVICE_OWNED = 'pubkey_device_owned',
+     /**
+     * The signature of a key with a specific hash is required.
+     * @see [[NativeScriptParamsThirdPartyPubkey]]
+     */
+    PUBKEY_THIRD_PARTY = 'pubkey_third_party',
+    /**
+     * All scripts specified in the list are required.
+     * @see [[NativeScriptParamsAll]]
+     */
+    ALL = 'all',
+    /**
+     * At least one script specified in the list is required.
+     * @see [[NativeScriptParamsAny]]
+     */
+    ANY = 'any',
+    /**
+     * N of K scripts specified in the list are required.
+     * @see [[NativeScriptParamsNofK]]
+     */
+    N_OF_K = 'n_of_k',
+    /**
+     * The script is invalid before the specified slot.
+     * Timelock validity intervals are half-open intervals `[a, b)`.
+     * This field specifies the left (included) endpoint `a`.
+     * @see [[NativeScriptParamsInvalidBefore]]
+     */
+    INVALID_BEFORE = 'invalid_before',
+    /**
+     * The script is invalid after the specified slot.
+     * Timelock validity intervals are half-open intervals `[a, b)`.
+     * This field specifies the right (excluded) endpoint `b`.
+     * @see [[NativeScriptParamsInvalidHereafter]]
+     */
+    INVALID_HEREAFTER = 'invalid_hereafter',
+}
+
+/**
+ * Describes a native script, that can be passed to a Ledger device,
+ * to generate it's hash.
+ * @category Scripts
+ * @see [[NativeScriptType]]
+ */
+export type NativeScript = {
+    type: NativeScriptType.PUBKEY_DEVICE_OWNED,
+    params: NativeScriptParamsDeviceOwnedPubkey,
+} | {
+    type: NativeScriptType.PUBKEY_THIRD_PARTY,
+    params: NativeScriptParamsThirdPartyPubkey,
+} | {
+    type: NativeScriptType.ALL,
+    params: NativeScriptParamsAll,
+} | {
+    type: NativeScriptType.ANY,
+    params: NativeScriptParamsAny,
+} | {
+    type: NativeScriptType.N_OF_K,
+    params: NativeScriptParamsNofK,
+} | {
+    type: NativeScriptType.INVALID_BEFORE,
+    params: NativeScriptParamsInvalidBefore,
+} | {
+    type: NativeScriptType.INVALID_HEREAFTER,
+    params: NativeScriptParamsInvalidHereafter,
+}
+
+/**
+ * Pubkey is owned by the device, it is specified by key path
+ * @category Scripts
+ * @see [[NativeScriptType.PUBKEY_DEVICE_OWNED]]
+ * @see [[NativeScript]]
+ */
+export type NativeScriptParamsDeviceOwnedPubkey = {
+    path: BIP32Path,
+}
+
+/**
+ * Pubkey is third party, it is specified by a key hash in hex format
+ * @category Scripts
+ * @see [[NativeScriptType.PUBKEY_THIRD_PARTY]]
+ * @see [[NativeScript]]
+ */
+export type NativeScriptParamsThirdPartyPubkey = {
+    keyHashHex: string,
+}
+
+/**
+ * Native script of type *all* parameters.
+ * @category Scripts
+ * @see [[NativeScriptType.ALL]]
+ * @see [[NativeScript]]
+ */
+export type NativeScriptParamsAll = {
+    scripts: NativeScript[],
+}
+
+/**
+ * Native script of type *any* parameters.
+ * @category Scripts
+ * @see [[NativeScriptType.ANY]]
+ * @see [[NativeScript]]
+ */
+export type NativeScriptParamsAny = {
+    scripts: NativeScript[],
+}
+
+/**
+ * Native script of type *n_of_k* parameters.
+ * @category Scripts
+ * @see [[NativeScriptType.N_OF_K]]
+ * @see [[NativeScript]]
+ */
+export type NativeScriptParamsNofK = {
+    requiredCount: bigint_like,
+    scripts: NativeScript[],
+}
+
+/**
+ * Native script of type *invalid_before* parameters.
+ * @category Scripts
+ * @see [[NativeScriptType.INVALID_BEFORE]]
+ * @see [[NativeScript]]
+ */
+export type NativeScriptParamsInvalidBefore = {
+    invalidBefore: bigint_like,
+}
+
+/**
+ * Native script of type *invalid_hereafter* parameters.
+ * @category Scripts
+ * @see [[NativeScriptType.INVALID_HEREAFTER]]
+ * @see [[NativeScript]]
+ */
+export type NativeScriptParamsInvalidHereafter = {
+    invalidHereafter: bigint_like,
+}
+
+/**
+ * Response to [[Ada.deriveNativeScriptHash]] call
+ * @category Scripts
+ * @see [[DeriveNativeScriptHashRequest]]
+ */
+export type DerivedNativeScriptHash = {
+    scriptHashHex: string,
+}
