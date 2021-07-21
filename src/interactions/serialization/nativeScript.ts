@@ -14,8 +14,8 @@ const TYPE_ENCODING = {
 }
 
 const PUBKEY_TYPE_ENCODING = {
-    [NativeScriptType.PUBKEY_DEVICE_OWNED]: 0 as Uint8_t,
-    [NativeScriptType.PUBKEY_THIRD_PARTY]: 1 as Uint8_t,
+    [NativeScriptType.PUBKEY_DEVICE_OWNED]: 1 as Uint8_t,
+    [NativeScriptType.PUBKEY_THIRD_PARTY]: 2 as Uint8_t,
 }
 
 export function serializeComplexNativeScriptStart(
