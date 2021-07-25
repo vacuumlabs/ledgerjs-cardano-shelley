@@ -67,7 +67,7 @@ function parseAssetGroup<T>(assetGroup: AssetGroup, parseTokenAmountFn: ParseTok
     }
 
     const assetNamesHex = parsedAssetGroup.tokens.map(t => t.assetNameHex)
-    validate(assetNamesHex.length == new Set(assetNamesHex).size, InvalidDataReason.OUTPUT_INVALID_ASSET_GROUP_NOT_UNIQUE)
+    validate(assetNamesHex.length == new Set(assetNamesHex).size, InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_NOT_UNIQUE)
 
     // enforcing of asset order is removed for now and will be added back after the ordering is properly defined by a CIP
     // const sortedAssetNames = [...assetNamesHex].sort( (n1, n2) => {
@@ -85,7 +85,7 @@ function parseTokenBundle<T>(tokenBundle: AssetGroup[], parseTokenAmountFn: Pars
     const parsedTokenBundle = tokenBundle.map(ag => parseAssetGroup(ag, parseTokenAmountFn))
 
     const policyIds = parsedTokenBundle.map(ag => ag.policyIdHex)
-    validate(policyIds.length == new Set(policyIds).size, InvalidDataReason.OUTPUT_INVALID_TOKEN_BUNDLE_NOT_UNIQUE)
+    validate(policyIds.length == new Set(policyIds).size, InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_NOT_UNIQUE)
 
     // enforcing of policies order is removed for now and will be added back after the ordering is properly defined by a CIP
     // const sortedPolicyIds = [...policyIds].sort()
