@@ -48,7 +48,6 @@ describe("basicParseTest", async () => {
         const bufferRep = objectRepresentation.toBuffer()
 
         assert(bufferRep.length == 8, "invalid binary length")
-        console.log(bufferRep)
 
         expect(objectRepresentation.toString()).to.equal(numberString)
     }
