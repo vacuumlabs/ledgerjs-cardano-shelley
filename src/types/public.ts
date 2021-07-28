@@ -667,7 +667,7 @@ export type StakeRegistrationParams = {
     /**
      * Id to be registered
      */
-     identifier: StakeCredentialParams,
+     stakeCredential: StakeCredentialParams,
 }
 
 /**
@@ -679,7 +679,7 @@ export type StakeDeregistrationParams = {
     /**
      * Id to be deregistered
      */
-    identifier: StakeCredentialParams,
+    stakeCredential: StakeCredentialParams,
 }
 
 /**
@@ -691,7 +691,7 @@ export type StakeDelegationParams = {
     /**
      * Id of the staking entity / reward account that wants to delegate
      */
-     identifier: StakeCredentialParams,
+     stakeCredential: StakeCredentialParams,
      /**
      * Pool ID user wants to delegate to
      */

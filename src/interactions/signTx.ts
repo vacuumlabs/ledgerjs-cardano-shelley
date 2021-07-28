@@ -592,7 +592,7 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
 
     const certificates = request?.tx?.certificates
     const hasPoolRetirement = certificates && certificates.some(c => c.type === CertificateType.STAKE_POOL_RETIREMENT)
-    const hasScripthashIdentifiers = certificates && certificates.some(c =>
+    const hasScripthashStakeCredentials = certificates && certificates.some(c =>
         (c.type === CertificateType.STAKE_DELEGATION ||
         c.type === CertificateType.STAKE_DEREGISTRATION ||
         c.type === CertificateType.STAKE_REGISTRATION) &&
@@ -604,7 +604,7 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
     
     if (!getCompatibility(version).supportsMultisig) {
         //TODO KoMa check multisig scripthashes in every new occurence
-        if (hasScripthashIdentifiers) {
+        if (hasScripthashStakeCredentials) {
             throw new DeviceVersionUnsupported(`Scripthash based certificate not supported by Ledger app version ${version}.`)
         }
     }

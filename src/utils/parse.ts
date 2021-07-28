@@ -180,19 +180,19 @@ export function parseBIP32Path(value: unknown, errMsg: InvalidDataReason): Valid
     return value
 }
 
-export function parseStakeCredential(identifier: StakeCredentialParams, errMsg: InvalidDataReason): ParsedStakeCredential {
-    const pathProvided = identifier.path != null
-    const scriptHashProvided = identifier.scriptHash != null
+export function parseStakeCredential(stakeCredential: StakeCredentialParams, errMsg: InvalidDataReason): ParsedStakeCredential {
+    const pathProvided = stakeCredential.path != null
+    const scriptHashProvided = stakeCredential.scriptHash != null
     validate((pathProvided && !scriptHashProvided) || (!pathProvided && scriptHashProvided), errMsg)
     if (pathProvided) {
         return {
             type: StakeCredentialType.KEY_PATH,
-            path: parseBIP32Path(identifier.path, errMsg),
+            path: parseBIP32Path(stakeCredential.path, errMsg),
         }
     } else {
         return {
             type: StakeCredentialType.SCRIPT_HASH,
-            scriptHash: parseHexStringOfLength(identifier.scriptHash, SCRIPT_HASH_LENGTH, errMsg)
+            scriptHash: parseHexStringOfLength(stakeCredential.scriptHash, SCRIPT_HASH_LENGTH, errMsg)
         }
     }
 }
