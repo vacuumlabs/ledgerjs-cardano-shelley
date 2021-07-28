@@ -49,7 +49,7 @@ export enum InvalidDataReason {
 
   CERTIFICATE_INVALID_PATH = "one of the certificates contains an invalid path",
   CERTIFICATE_INVALID_SCRIPT_HASH = "one of the certificates contains an invalid script hash",
-  CERTIFICATE_INVALID_IDENTIFIER = "one of the certificates contains both a path and a scripthash or neither",
+  CERTIFICATE_INVALID_STAKE_CREDENTIAL = "one of the certificates contains both a path and a scripthash or neither",
   CERTIFICATE_INVALID_POOL_KEY_HASH = "one of the certificates contains an invalid pool key hash",
   CERTIFICATE_SUPERFLUOUS_POOL_KEY_HASH =
   "superfluous pool key hash in a certificate",
