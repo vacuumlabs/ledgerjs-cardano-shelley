@@ -1425,10 +1425,10 @@ export const testsMary: TestcaseMary[] = [
             outputs: [],
             mint: mints.mintAmountVariety,
         },
-        // todo: get remaining fields once minting can be processed by ledger
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         txBody: "",
         result: {
-            txHashHex: "8443704cc6a44c830d7966c4a57486762002b469c12850e115ba9ace728d9db8",
+            txHashHex: "dd0b254a628cbfa271e580091bce114a1344cf037a07f4ad1d6afe7fa93501ac",
             "witnesses": [  //TODO: witnessing mint is not yet implemented
                 {
                     "path": [
@@ -1438,7 +1438,7 @@ export const testsMary: TestcaseMary[] = [
                         0,
                         0,
                     ],
-                    "witnessSignatureHex": "be9645672ca75aab57b316d37e0a8ec68a263a77b41d035aa9ec32ca5cc315c18570c3b3a720b2f368882cf4076f2ccb7475c9f3cbaf18b659aa143a222dc40e",
+                    "witnessSignatureHex": "10c83de863442e6aca75674b63429fd257323883e7c6195d53884a022d9742c607c30602986bd57f69c9560311b32b507f390a7fdfae9c7c724ba4d5203fd302",
                 },
             ],
             auxiliaryDataSupplement: null,
@@ -1454,10 +1454,11 @@ export const testsMary: TestcaseMary[] = [
             ttl: 1000,
             mint: mints.mintAmountVariety,
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         // todo: get remaining fields once minting can be processed by ledger
         txBody: "",
         result: {
-            txHashHex: "cd309799a0b7f20705683088149d08f223853c7fdf994d6e90f9d063b7f640ee",
+            txHashHex: "49686d9089cba67506537574dd0514038f813a2b9e648097aa49c2b93d14d549",
             witnesses: [
                 {
                     "path": [
@@ -1467,7 +1468,7 @@ export const testsMary: TestcaseMary[] = [
                         0,
                         0,
                     ],
-                    "witnessSignatureHex": "1791de7a1ef787e04a0782ae2af8b80678b7a9e479148e52e8d8c7c2b0b2eea32f45af687012004e251aba3abcb6456c1804db0f6ca3b6fe5ad4b658b081300e",
+                    "witnessSignatureHex": "2a4ec4e5eb03d24264d612923e62b01384d215a70c415b067cc109580cef1044fc9a5b17fe92f752b70702fd457e6ea455a4ef5f3afdd44548223e913bc43b08",
                 },
             ],
             auxiliaryDataSupplement: null,
