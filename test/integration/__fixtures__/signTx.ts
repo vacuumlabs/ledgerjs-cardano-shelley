@@ -2,7 +2,7 @@ import type { AssetGroup, DeviceOwnedAddress, SignedTransactionData, Transaction
 import {InvalidDataReason, TxAuxiliaryDataSupplementType} from "../../../src/Ada"
 import { AddressType, CertificateType, Networks, TxAuxiliaryDataType, TxOutputDestinationType, utils } from "../../../src/Ada"
 import { str_to_path } from "../../../src/utils/address"
-import type { BIP32Path } from '../../../src/types/public'
+import { BIP32Path, TransactionSigningMode } from '../../../src/types/public'
 
 export const inputs: Record<
   | 'utxoByron'
@@ -509,6 +509,7 @@ const byronBase = {
 export type TestcaseByron = {
   testname: string
   tx: Transaction
+  signingMode: TransactionSigningMode
   result: SignedTransactionData
 }
 
@@ -520,6 +521,7 @@ export const testsByron: TestcaseByron[] = [
             network: Networks.Mainnet,
             outputs: [outputs.externalByronMainnet],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         result: {
             /*
        * txBody: a400818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2e1a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a
@@ -544,6 +546,7 @@ export const testsByron: TestcaseByron[] = [
             network: Networks.Mainnet,
             outputs: [outputs.externalByronDaedalusMainnet],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         result: {
             txHashHex:
         "3cf35b4d9bfa87b8eab5de659e0520bdac37b0de0b3840c1d8abd683330a9756",
@@ -564,6 +567,7 @@ export const testsByron: TestcaseByron[] = [
             network: Networks.Testnet,
             outputs: [outputs.externalByronTestnet],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         result: {
             txHashHex:
         "e2319ee8317ac537af4c2c3322aaf9fb6c64a95e3921ad75ab91b4f5b5306963",
@@ -591,6 +595,7 @@ const shelleyBase = {
 export type TestcaseShelley = {
   testname: string
   tx: Transaction
+  signingMode: TransactionSigningMode
   scriptWitnessPaths: BIP32Path[],
   txBody?: string,
   txAuxiliaryData?: string,
@@ -604,6 +609,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             ...shelleyBase,
             outputs: [],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         scriptWitnessPaths: [],
         result: {
             txHashHex:
@@ -624,6 +630,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             ...shelleyBase,
             outputs: [outputs.externalShelley],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         scriptWitnessPaths: [],
         txBody: "a400818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163f63dcfc000181825841017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b09da61d425f34611140102182a030a",
         result: {
@@ -649,6 +656,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             network: Networks.Testnet,
             outputs: [outputs.externalShelleyScripthash],
         },
+        signingMode: TransactionSigningMode.MULTISIG_TRANSACTION,
         scriptWitnessPaths: [],
         result: {
             txHashHex:
@@ -669,6 +677,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             ...shelleyBase,
             outputs: [outputs.externalByronMainnet, outputs.internalBaseWithStakingPath],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         scriptWitnessPaths: [],
         result: {
             txHashHex:
@@ -689,6 +698,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             ...shelleyBase,
             outputs: [outputs.externalByronMainnet, outputs.internalBaseWithStakingKeyHash],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         scriptWitnessPaths: [],
         result: {
             txHashHex:
@@ -709,6 +719,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             ...shelleyBase,
             outputs: [outputs.externalByronMainnet, outputs.internalEnterprise],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         scriptWitnessPaths: [],
         result: {
             txHashHex:
@@ -729,6 +740,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             ...shelleyBase,
             outputs: [outputs.externalByronMainnet, outputs.internalPointer],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         scriptWitnessPaths: [],
         result: {
             txHashHex:
@@ -756,6 +768,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
                 },
             },
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         scriptWitnessPaths: [],
         result: {
             txHashHex:
@@ -783,6 +796,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
                 },
             ],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         scriptWitnessPaths: [],
         txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aa" +
       "d1c0b700018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2e1" +
@@ -819,6 +833,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
                 },
             ],
         },
+        signingMode: TransactionSigningMode.MULTISIG_TRANSACTION,
         scriptWitnessPaths: [str_to_path("1854'/1815'/0'/2/0")],
         txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aa" +
       "d1c0b700018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2e1" +
@@ -853,6 +868,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
                 },
             },
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         scriptWitnessPaths: [],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
@@ -889,6 +905,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
+        signingMode: TransactionSigningMode.MULTISIG_TRANSACTION,
         scriptWitnessPaths: [str_to_path("1854'/1815'/0'/2/0"),],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
@@ -927,6 +944,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         scriptWitnessPaths: [],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
@@ -966,6 +984,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
+        signingMode: TransactionSigningMode.MULTISIG_TRANSACTION,
         scriptWitnessPaths: [str_to_path("1854'/1815'/0'/2/0"),],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
@@ -1006,6 +1025,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         scriptWitnessPaths: [],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
@@ -1045,6 +1065,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
+        signingMode: TransactionSigningMode.MULTISIG_TRANSACTION,
         scriptWitnessPaths: [str_to_path("1854'/1815'/0'/2/0"),],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
@@ -1083,6 +1104,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         scriptWitnessPaths: [],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
@@ -1129,6 +1151,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         scriptWitnessPaths: [],
         result: {
             txHashHex:
@@ -1177,6 +1200,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         scriptWitnessPaths: [],
         result: {
             // WARNING: only as computed by ledger, not verified with cardano-cli
@@ -1213,7 +1237,8 @@ const allegraBase = {
 export type TestcaseAllegra = {
   testname: string
   tx: Transaction
-  txBody: string,
+  signingMode: TransactionSigningMode
+  txBody: string
   result: SignedTransactionData
 }
 export const testsAllegra: TestcaseAllegra[] = [
@@ -1224,6 +1249,7 @@ export const testsAllegra: TestcaseAllegra[] = [
             ttl: null,
             validityIntervalStart: null,
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         txBody: "a300818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825841017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b09da61d425f34611140102182a",
         result: {
             txHashHex:
@@ -1245,6 +1271,7 @@ export const testsAllegra: TestcaseAllegra[] = [
             ttl: null,
             validityIntervalStart: 47,
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         txBody: "a400818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825841017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b09da61d425f34611140102182a08182f",
         result: {
             txHashHex:
@@ -1273,6 +1300,7 @@ const maryBase = {
 export type TestcaseMary = {
   testname: string
   tx: Transaction
+  signingMode: TransactionSigningMode
   txBody: string,
   txAuxiliaryData?: string,
   result: SignedTransactionData
@@ -1285,6 +1313,7 @@ export const testsMary: TestcaseMary[] = [
             ...maryBase,
             outputs: [outputs.multiassetOneToken, outputs.internalBaseWithStakingPath],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018282583901eb0baa5e570cffbe2934db29df0b6a3d7c0430ee65d4c3a7ab2fefb91bc428e4720702ebd5dab4fb175324c192dc9bb76cc5da956e3c8dff821904d2a1581c95a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39a14874652474436f696e1a007838628258390114c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f11241d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c1a006ca79302182a030a08182f",
         result: {
             txHashHex:
@@ -1305,6 +1334,7 @@ export const testsMary: TestcaseMary[] = [
             ...maryBase,
             outputs: [outputs.multiassetManyTokens, outputs.internalBaseWithStakingPath],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018282583901eb0baa5e570cffbe2934db29df0b6a3d7c0430ee65d4c3a7ab2fefb91bc428e4720702ebd5dab4fb175324c192dc9bb76cc5da956e3c8dff821904d2a2581c75a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39a1487564247542686911182f581c95a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39a2401904d24874652474436f696e1a007838628258390114c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f11241d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c1a006ca79302182a030a08182f",
         result: {
             txHashHex:
@@ -1328,6 +1358,7 @@ export const testsMary: TestcaseMary[] = [
             ttl: "24103998870869519",
             validityIntervalStart: "24103998870869519",
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018182583901eb0baa5e570cffbe2934db29df0b6a3d7c0430ee65d4c3a7ab2fefb91bc428e4720702ebd5dab4fb175324c192dc9bb76cc5da956e3c8dff821b0055a275925d560fa1581c95a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39a14874652474436f696e1b0055a275925d560f021b0055a275925d560f031b0055a275925d560f081b0055a275925d560f",
         result: {
             txHashHex:
@@ -1348,6 +1379,7 @@ export const testsMary: TestcaseMary[] = [
             ...maryBase,
             outputs: [outputs.externalShelley, outputs.multiassetChange],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000182825841017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b09da61d425f3461114018258390114c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f11241d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c821904d2a1581c95a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39a14874652474436f696e1a0078386202182a030a08182f",
         result: {
             txHashHex:
@@ -1371,6 +1403,7 @@ export const testsMary: TestcaseMary[] = [
             validityIntervalStart: 0,
             outputs: [outputs.internalBaseWithStakingPath],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b70001818258390114c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f11241d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c1a006ca793020003000800",
         result: {
             txHashHex:
@@ -1458,6 +1491,7 @@ export const testsCatalystRegistration: TestcaseMary[] = [
                 },
             },
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad" +
       "1c0b70001818258390114c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f11241d" +
       "227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c1a006ca79302182a030a075" +
@@ -1500,6 +1534,7 @@ export const testsCatalystRegistration: TestcaseMary[] = [
                 },
             },
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3a" +
       "ad1c0b70001818258390114c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f1124" +
       "1d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c1a006ca79302182a030a0" +
@@ -1532,6 +1567,7 @@ export const testsCatalystRegistration: TestcaseMary[] = [
 export type InvalidTokenBundleOrderingTestcase = {
   testname: string,
   tx: Transaction,
+  signingMode: TransactionSigningMode
   rejectReason: InvalidDataReason
 }
 
@@ -1551,6 +1587,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
             ...maryBase,
             outputs: [outputs.multiassetAssetGroupsNotUnique],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_NOT_UNIQUE,
     },
     // enforcing of asset order is removed for now and will be added back after the ordering is properly defined by a CIP
@@ -1576,6 +1613,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
             ...maryBase,
             outputs: [outputs.multiassetTokensNotUnique],
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_NOT_UNIQUE,
     },
     {
@@ -1585,6 +1623,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
             outputs: [],
             mint: mints.mintInvalidCanonicalOrderingPolicy,
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_ORDERING,
     },
     {
@@ -1594,6 +1633,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
             outputs: [],
             mint: mints.mintInvalidCanonicalOrderingAssetName,
         },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_ORDERING,
     },
 ]
