@@ -1,5 +1,5 @@
-import { Int64BE, Uint64BE } from "int64-buffer"
 import {expect} from "chai"
+import { Int64BE, Uint64BE } from "int64-buffer"
 
 import {InvalidDataReason} from "../../src/errors"
 import {assert} from "../../src/utils/assert"
