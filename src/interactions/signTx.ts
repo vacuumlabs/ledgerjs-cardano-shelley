@@ -43,7 +43,7 @@ function* signTx_init(
     tx: ParsedTransaction,
     signingMode: TransactionSigningMode,
     wittnessPaths: ValidBIP32Path[],
-    multisigWitnessPaths: ValidBIP32Path[],
+    scriptWitnessPaths: ValidBIP32Path[],
 ): Interaction<void> {
   const enum P2 {
     UNUSED = 0x00,
@@ -52,7 +52,7 @@ function* signTx_init(
   const _response = yield send({
       p1: P1.STAGE_INIT,
       p2: P2.UNUSED,
-      data: serializeTxInit(tx, signingMode, wittnessPaths.length + multisigWitnessPaths.length),
+      data: serializeTxInit(tx, signingMode, wittnessPaths.length + scriptWitnessPaths.length),
       expectedResponseLength: 0,
   })
 }
@@ -617,10 +617,10 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
     const isCatalystRegistrationSupported = getCompatibility(version).supportsCatalystRegistration
 
     const witnessPaths = generateWitnessPaths(request)
-    const { tx, signingMode, multisigWitnessPaths } = request
+    const { tx, signingMode, scriptWitnessPaths } = request
     // init
     yield* signTx_init(
-        tx, signingMode, witnessPaths, multisigWitnessPaths,
+        tx, signingMode, witnessPaths, scriptWitnessPaths,
     )
 
     // auxiliary data
@@ -682,7 +682,7 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
         witnesses.push(witness)
     }
 
-    for (const multisigPath of multisigWitnessPaths) {
+    for (const multisigPath of scriptWitnessPaths) {
         const witness = yield* signTx_getWitness(multisigPath)
         witnesses.push(witness)
     }

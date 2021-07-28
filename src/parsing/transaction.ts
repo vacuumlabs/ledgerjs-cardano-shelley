@@ -225,7 +225,7 @@ export function parseSigningMode(mode: TransactionSigningMode): TransactionSigni
 export function parseSignTransactionRequest(request: SignTransactionRequest): ParsedSigningRequest {
     const tx = parseTransaction(request.tx)
     const signingMode = parseSigningMode(request.signingMode)
-    const multisigWitnessPaths = request.multisigWitnessPaths.map(path => parseBIP32Path(path, InvalidDataReason.INVALID_PATH))
+    const scriptWitnessPaths = request.scriptWitnessPaths.map(path => parseBIP32Path(path, InvalidDataReason.INVALID_PATH))
 
     // Additional restrictions based on signing mode
     switch (signingMode) {
@@ -314,5 +314,5 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
         unreachable(signingMode)
     }
 
-    return { tx, signingMode, multisigWitnessPaths }
+    return { tx, signingMode, scriptWitnessPaths }
 }
