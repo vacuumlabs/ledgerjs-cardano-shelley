@@ -34,7 +34,7 @@ describe("signTxOrdinaryByron", async () => {
             const response = await ada.signTransaction({
                 tx,
                 signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-                multisigWitnessPaths: [],
+                scriptWitnessPaths: [],
             })
             expect(response).to.deep.equal(expected)
         })
@@ -59,7 +59,7 @@ describe("signTxOrdinaryShelleyNoCertificates", async () => {
             const response = await ada.signTransaction({
                 tx,
                 signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-                multisigWitnessPaths,
+                scriptWitnessPaths,
             })
             expect(response).to.deep.equal(expected)
         })
@@ -82,7 +82,7 @@ describe("signTxOrdinaryShelleyWithCertificates", async () => {
             const response = await ada.signTransaction({
                 tx,
                 signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-                multisigWitnessPaths,
+                scriptWitnessPaths,
             })
             expect(response).to.deep.equal(expected)
         })
@@ -111,7 +111,7 @@ describe("signTxOrdinaryAllegra", async () => {
             const response = await ada.signTransaction({
                 tx,
                 signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-                multisigWitnessPaths: [],
+                scriptWitnessPaths: [],
             })
             expect(response).to.deep.equal(expected)
         })
@@ -139,7 +139,7 @@ describe("signTxOrdinaryMary", async () => {
             const response = await ada.signTransaction({
                 tx,
                 signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-                multisigWitnessPaths: [],
+                scriptWitnessPaths: [],
             })
             expect(response).to.deep.equal(expected)
         })
@@ -150,7 +150,7 @@ describe("signTxOrdinaryMary", async () => {
             const response = await ada.signTransaction({
                 tx,
                 signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-                multisigWitnessPaths: [],
+                scriptWitnessPaths: [],
             })
             expect(response).to.deep.equal(expected)
         })
@@ -161,7 +161,7 @@ describe("signTxOrdinaryMary", async () => {
             const promise = ada.signTransaction({
                 tx,
                 signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-                multisigWitnessPaths: [],
+                scriptWitnessPaths: [],
             })
             await expect(promise).to.be.rejectedWith(rejectReason)
         })
