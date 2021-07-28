@@ -1033,6 +1033,7 @@ export type Transaction = {
      *  * if two keys have different lengths, the shorter one sorts earlier;
      *  * if two keys have the same length, the one with the lower value in lexical order sorts earlier.
      */
+    // TODO update the docstring when CIP-0021 is approved
     mint?: Array<AssetGroup> | null,
 }
 
