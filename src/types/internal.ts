@@ -30,29 +30,29 @@ export const VRF_KEY_HASH_LENGTH = 32
 export const REWARD_ACCOUNT_HEX_LENGTH = 29
 export const ED25519_SIGNATURE_LENGTH = 64
 
-export const enum CertificateIdentifierType {
+export const enum StakeCredentialType {
     KEY_PATH = 0,
     SCRIPT_HASH = 1,
 }
 
-export type CertificateIdentifier2 = 
+export type ParsedStakeCredential = 
     {
-        type: CertificateIdentifierType.KEY_PATH,
+        type: StakeCredentialType.KEY_PATH,
         path: ValidBIP32Path,
     } | {
-        type: CertificateIdentifierType.SCRIPT_HASH,
+        type: StakeCredentialType.SCRIPT_HASH,
         scriptHash: FixlenHexString<typeof SCRIPT_HASH_LENGTH>,
     }
 
 export type ParsedCertificate = {
     type: CertificateType.STAKE_REGISTRATION
-    identifier: CertificateIdentifier2
+    stakeCredential: ParsedStakeCredential
 } | {
     type: CertificateType.STAKE_DEREGISTRATION
-    identifier: CertificateIdentifier2
+    stakeCredential: ParsedStakeCredential
 } | {
     type: CertificateType.STAKE_DELEGATION
-    identifier: CertificateIdentifier2
+    stakeCredential: ParsedStakeCredential
     poolKeyHashHex: FixlenHexString<typeof KEY_HASH_LENGTH>
 } | {
     type: CertificateType.STAKE_POOL_REGISTRATION

@@ -363,7 +363,7 @@ export const certificates: Record<
     stakeDelegation: {
         type: CertificateType.STAKE_DELEGATION,
         params: {
-            identifier: {
+            stakeCredential: {
                 path: str_to_path("1852'/1815'/0'/2/0"),
             },
             poolKeyHashHex: "f61c42cbf7c8c53af3f520508212ad3e72f674f957fe23ff0acb4973",
@@ -372,7 +372,7 @@ export const certificates: Record<
     stakeRegistration: {
         type: 0,
         params: {
-            identifier: {
+            stakeCredential: {
                 path: str_to_path("1852'/1815'/0'/2/0"),
             },
         },

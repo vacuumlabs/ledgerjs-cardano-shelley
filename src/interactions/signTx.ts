@@ -1,5 +1,5 @@
 import { DeviceVersionUnsupported } from "../errors"
-import { CertificateIdentifierType, Int64_str, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
+import { StakeCredentialType, Int64_str, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
 import { CertificateType, ED25519_SIGNATURE_LENGTH, PoolOwnerType, TX_HASH_LENGTH } from "../types/internal"
 import type { SignedTransactionData, TxAuxiliaryDataSupplement } from "../types/public"
 import { PoolKeyType, TransactionSigningMode, TxAuxiliaryDataSupplementType, TxAuxiliaryDataType } from "../types/public"
@@ -541,8 +541,8 @@ function generateWitnessPaths(request: ParsedSigningRequest): ValidBIP32Path[] {
         } else if (cert.type === CertificateType.STAKE_POOL_RETIREMENT) {
             _insert(cert.path)
         } else {
-            if (CertificateIdentifierType.KEY_PATH == cert.identifier.type) {
-                _insert(cert.identifier.path)
+            if (StakeCredentialType.KEY_PATH == cert.stakeCredential.type) {
+                _insert(cert.stakeCredential.path)
             }
         }
     }
@@ -572,11 +572,11 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
 
     const certificates = request?.tx?.certificates
     const hasPoolRetirement = certificates && certificates.some(c => c.type === CertificateType.STAKE_POOL_RETIREMENT)
-    const hasScripthashIdentifiers = certificates && certificates.some(c =>
+    const hasScripthashStakeCredentials = certificates && certificates.some(c =>
         (c.type === CertificateType.STAKE_DELEGATION ||
         c.type === CertificateType.STAKE_DEREGISTRATION ||
         c.type === CertificateType.STAKE_REGISTRATION) &&
-        c.identifier.type === CertificateIdentifierType.SCRIPT_HASH)
+        c.stakeCredential.type === StakeCredentialType.SCRIPT_HASH)
 
     if (hasPoolRetirement && !getCompatibility(version).supportsPoolRetirement) {
         throw new DeviceVersionUnsupported(`Pool retirement certificate not supported by Ledger app version ${version}.`)
@@ -584,7 +584,7 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
     
     if (!getCompatibility(version).supportsMultisig) {
         //TODO KoMa check multisig scripthashes in every new occurence
-        if (hasScripthashIdentifiers) {
+        if (hasScripthashStakeCredentials) {
             throw new DeviceVersionUnsupported(`Scripthash based certificate not supported by Ledger app version ${version}.`)
         }
     }

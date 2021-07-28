@@ -656,7 +656,7 @@ export type PoolRetirementParams = {
     retirementEpoch: bigint_like,
 }
 
-export type CertificateIdentifier = {
+export type StakeCredential = {
     path?: BIP32Path,
     scriptHash?: string,
 }
@@ -670,7 +670,7 @@ export type StakeRegistrationParams = {
     /**
      * Id to be registered
      */
-     identifier: CertificateIdentifier,
+     stakeCredential: StakeCredential,
 }
 
 /**
@@ -682,7 +682,7 @@ export type StakeDeregistrationParams = {
     /**
      * Id to be deregistered
      */
-    identifier: CertificateIdentifier,
+    stakeCredential: StakeCredential,
 }
 
 /**
@@ -694,7 +694,7 @@ export type StakeDelegationParams = {
     /**
      * Id of the staking entity / reward account that wants to delegate
      */
-     identifier: CertificateIdentifier,
+     stakeCredential: StakeCredential,
      /**
      * Pool ID user wants to delegate to
      */
