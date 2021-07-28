@@ -1,8 +1,8 @@
 import type { AssetGroup, DeviceOwnedAddress, SignedTransactionData, Transaction, TxInput, TxOutput, TxOutputDestination } from "../../../src/Ada"
 import {InvalidDataReason, TxAuxiliaryDataSupplementType} from "../../../src/Ada"
 import { AddressType, CertificateType, Networks, TxAuxiliaryDataType, TxOutputDestinationType, utils } from "../../../src/Ada"
-import { str_to_path } from "../../../src/utils/address"
 import type { BIP32Path } from '../../../src/types/public'
+import { str_to_path } from "../../../src/utils/address"
 
 export const inputs: Record<
   | 'utxoByron'
@@ -851,7 +851,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
-        multisigWitnessPaths: [str_to_path("1854'/1815'/0'/2/0"),],
+        multisigWitnessPaths: [str_to_path("1854'/1815'/0'/2/0")],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
       "e1a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a048182008200581c1d227aefa4b77" +
@@ -928,7 +928,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
-        multisigWitnessPaths: [str_to_path("1854'/1815'/0'/2/0"),],
+        multisigWitnessPaths: [str_to_path("1854'/1815'/0'/2/0")],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
       "e1a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a048183028200581c1d227aefa4b77" +
@@ -1007,7 +1007,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
-        multisigWitnessPaths: [str_to_path("1854'/1815'/0'/2/0"),],
+        multisigWitnessPaths: [str_to_path("1854'/1815'/0'/2/0")],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
       "e1a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a048182018200581c1d227aefa4b77" +

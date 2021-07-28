@@ -1,4 +1,3 @@
-import { FixlenHexString, SCRIPT_HASH_LENGTH } from './internal'
 /**
  * Type for 64-bit integers.
  * 

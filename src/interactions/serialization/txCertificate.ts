@@ -1,8 +1,9 @@
 import { InvalidDataReason } from "../../errors/invalidDataReason"
-import { validate } from "../../utils/parse"
-import { ParsedStakeCredential, StakeCredentialType, ParsedCertificate, Uint8_t } from "../../types/internal"
+import type { ParsedCertificate, ParsedStakeCredential, Uint8_t } from "../../types/internal"
+import { StakeCredentialType } from "../../types/internal"
 import { CertificateType } from "../../types/internal"
 import { unreachable } from "../../utils/assert"
+import { validate } from "../../utils/parse"
 import { hex_to_buf, path_to_buf, uint8_to_buf, uint64_to_buf } from "../../utils/serialize"
 
 export function serializeTxCertificatePreMultisig(

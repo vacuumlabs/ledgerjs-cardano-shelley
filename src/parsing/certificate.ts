@@ -1,8 +1,7 @@
-import path from "node:path"
 import { InvalidData } from "../errors"
 import { InvalidDataReason } from "../errors/invalidDataReason"
-import type { ParsedCertificate } from "../types/internal"
-import { CertificateType, StakeCredentialType, ParsedStakeCredential, KEY_HASH_LENGTH, SCRIPT_HASH_LENGTH } from "../types/internal"
+import type { ParsedCertificate , ParsedStakeCredential} from "../types/internal"
+import { CertificateType, KEY_HASH_LENGTH, SCRIPT_HASH_LENGTH,StakeCredentialType } from "../types/internal"
 import type { Certificate, StakeCredential } from "../types/public"
 import { parseBIP32Path, parseHexStringOfLength, parseUint64_str, validate } from "../utils/parse"
 import { parsePoolParams } from "./poolRegistration"
@@ -20,7 +19,7 @@ function parseStakeCredential(stakeCredential: StakeCredential): ParsedStakeCred
     } else {
         return {
             type: StakeCredentialType.SCRIPT_HASH,
-            scriptHash: parseHexStringOfLength(stakeCredential.scriptHash, SCRIPT_HASH_LENGTH, InvalidDataReason.CERTIFICATE_INVALID_SCRIPT_HASH)
+            scriptHash: parseHexStringOfLength(stakeCredential.scriptHash, SCRIPT_HASH_LENGTH, InvalidDataReason.CERTIFICATE_INVALID_SCRIPT_HASH),
         }
     }
 }
@@ -32,7 +31,7 @@ export function parseCertificate(cert: Certificate): ParsedCertificate {
         validate((cert.params as any).poolKeyHashHex == null, InvalidDataReason.CERTIFICATE_SUPERFLUOUS_POOL_KEY_HASH)
         return {
             type: cert.type,
-            stakeCredential: parseStakeCredential(cert.params.stakeCredential)
+            stakeCredential: parseStakeCredential(cert.params.stakeCredential),
         }
     }
     case CertificateType.STAKE_DELEGATION: {
