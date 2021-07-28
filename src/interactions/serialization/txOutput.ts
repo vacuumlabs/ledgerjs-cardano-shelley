@@ -1,6 +1,6 @@
 import type { OutputDestination, ParsedOutput, Uint8_t,Uint32_t } from "../../types/internal"
-import type { Version } from "../../types/public"
 import { TxOutputDestinationType } from "../../types/internal"
+import type { Version } from "../../types/public"
 import { unreachable } from "../../utils/assert"
 import { hex_to_buf, uint8_to_buf, uint32_to_buf, uint64_to_buf } from "../../utils/serialize"
 import { serializeAddressParams } from "./addressParams"
