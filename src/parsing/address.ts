@@ -1,8 +1,8 @@
 import { InvalidData } from "../errors"
 import { InvalidDataReason } from "../errors/invalidDataReason"
-import type { ParsedAddressParams } from "../types/internal"
-import { AddressType, KEY_HASH_LENGTH, SCRIPT_HASH_LENGTH, SpendingDataSource,
-    StakingDataSource, SpendingDataSourceType, StakingDataSourceType } from "../types/internal"
+import type { ParsedAddressParams , SpendingDataSource,     StakingDataSource} from "../types/internal"
+import { AddressType, KEY_HASH_LENGTH, SCRIPT_HASH_LENGTH,
+    SpendingDataSourceType, StakingDataSourceType } from "../types/internal"
 import type { BIP32Path, BlockchainPointer, DeviceOwnedAddress, Network } from "../types/public"
 import { parseBIP32Path, parseHexStringOfLength, parseUint32_t, validate } from "../utils/parse"
 import { parseNetwork } from "./network"
@@ -35,7 +35,7 @@ function extractStakingDataSource(
     stakingKeyHashHex?: string,
     stakingBlockchainPointer?: BlockchainPointer,
     stakingScriptHash?: string,
-    ) : StakingDataSource {
+) : StakingDataSource {
     if (null != stakingPath) {
         validate(stakingKeyHashHex == null, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
         validate(stakingBlockchainPointer == null, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
@@ -67,7 +67,7 @@ function extractStakingDataSource(
                 blockIndex: parseUint32_t(pointer.blockIndex, InvalidDataReason.ADDRESS_INVALID_BLOCKCHAIN_POINTER),
                 txIndex: parseUint32_t(pointer.txIndex, InvalidDataReason.ADDRESS_INVALID_BLOCKCHAIN_POINTER),
                 certificateIndex: parseUint32_t(pointer.certificateIndex, InvalidDataReason.ADDRESS_INVALID_BLOCKCHAIN_POINTER),
-            }
+            },
         }
     }
     if (null != stakingScriptHash) {
@@ -90,25 +90,25 @@ function validateSpendingDataSource(
     spending: SpendingDataSource,
 ) {
     switch (addressType) {
-        case AddressType.BASE_PAYMENT_KEY_STAKE_KEY:
-        case AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT:
-        case AddressType.POINTER_KEY:
-        case AddressType.ENTERPRISE_KEY:
-        case AddressType.BYRON:
-            validate(SpendingDataSourceType.PATH == spending.type, InvalidDataReason.ADDRESS_INVALID_SPENDING_INFO)
-            break;
-        case AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY:
-        case AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT:
-        case AddressType.POINTER_SCRIPT:
-        case AddressType.ENTERPRISE_SCRIPT:
-            validate(SpendingDataSourceType.SCRIPT_HASH == spending.type, InvalidDataReason.ADDRESS_INVALID_SPENDING_INFO)
-            break;
-        case AddressType.REWARD_KEY:
-        case AddressType.REWARD_SCRIPT:
-            validate(SpendingDataSourceType.NONE == spending.type, InvalidDataReason.ADDRESS_INVALID_SPENDING_INFO)
-            break;
-        default:
-            throw new InvalidData(InvalidDataReason.ADDRESS_UNKNOWN_TYPE)
+    case AddressType.BASE_PAYMENT_KEY_STAKE_KEY:
+    case AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT:
+    case AddressType.POINTER_KEY:
+    case AddressType.ENTERPRISE_KEY:
+    case AddressType.BYRON:
+        validate(SpendingDataSourceType.PATH == spending.type, InvalidDataReason.ADDRESS_INVALID_SPENDING_INFO)
+        break
+    case AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY:
+    case AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT:
+    case AddressType.POINTER_SCRIPT:
+    case AddressType.ENTERPRISE_SCRIPT:
+        validate(SpendingDataSourceType.SCRIPT_HASH == spending.type, InvalidDataReason.ADDRESS_INVALID_SPENDING_INFO)
+        break
+    case AddressType.REWARD_KEY:
+    case AddressType.REWARD_SCRIPT:
+        validate(SpendingDataSourceType.NONE == spending.type, InvalidDataReason.ADDRESS_INVALID_SPENDING_INFO)
+        break
+    default:
+        throw new InvalidData(InvalidDataReason.ADDRESS_UNKNOWN_TYPE)
     }
 }
 
@@ -117,28 +117,28 @@ function validateStakingDataSource(
     staking: StakingDataSource,
 ) {
     switch (addressType) {
-        case AddressType.BASE_PAYMENT_KEY_STAKE_KEY:
-        case AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY:
-        case AddressType.REWARD_KEY:
-            validate(StakingDataSourceType.KEY_PATH == staking.type ||
+    case AddressType.BASE_PAYMENT_KEY_STAKE_KEY:
+    case AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY:
+    case AddressType.REWARD_KEY:
+        validate(StakingDataSourceType.KEY_PATH == staking.type ||
                 StakingDataSourceType.KEY_HASH == staking.type, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
-            break;
-        case AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT:
-        case AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT:
-        case AddressType.REWARD_SCRIPT:
-            validate(StakingDataSourceType.SCRIPT_HASH == staking.type, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
-            break;
-        case AddressType.POINTER_KEY:
-        case AddressType.POINTER_SCRIPT:
-            validate(StakingDataSourceType.BLOCKCHAIN_POINTER == staking.type, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
-            break;
-        case AddressType.BYRON:
-        case AddressType.ENTERPRISE_KEY:
-        case AddressType.ENTERPRISE_SCRIPT:
-            validate(StakingDataSourceType.NONE == staking.type, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
-            break;
-        default:
-            throw new InvalidData(InvalidDataReason.ADDRESS_UNKNOWN_TYPE)
+        break
+    case AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT:
+    case AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT:
+    case AddressType.REWARD_SCRIPT:
+        validate(StakingDataSourceType.SCRIPT_HASH == staking.type, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
+        break
+    case AddressType.POINTER_KEY:
+    case AddressType.POINTER_SCRIPT:
+        validate(StakingDataSourceType.BLOCKCHAIN_POINTER == staking.type, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
+        break
+    case AddressType.BYRON:
+    case AddressType.ENTERPRISE_KEY:
+    case AddressType.ENTERPRISE_SCRIPT:
+        validate(StakingDataSourceType.NONE == staking.type, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
+        break
+    default:
+        throw new InvalidData(InvalidDataReason.ADDRESS_UNKNOWN_TYPE)
     }
 }
 

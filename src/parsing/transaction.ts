@@ -306,7 +306,7 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
     }
     case TransactionSigningMode.MULTISIG_TRANSACTION: {
         //TODO ???
-        break;
+        break
     }
     default:
         unreachable(signingMode)
