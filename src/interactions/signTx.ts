@@ -682,8 +682,8 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
         witnesses.push(witness)
     }
 
-    for (const multisigPath of scriptWitnessPaths) {
-        const witness = yield* signTx_getWitness(multisigPath)
+    for (const path of scriptWitnessPaths) {
+        const witness = yield* signTx_getWitness(path)
         witnesses.push(witness)
     }
 

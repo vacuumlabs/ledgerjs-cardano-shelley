@@ -69,7 +69,7 @@ export function serializeAddressParams(
     let staking: StakingDataSource = params.stakingDataSource
     if (!getCompatibility(version).supportsMultisig) {
         if (AddressType.REWARD_KEY == params.type) {
-            validate (StakingDataSourceType.KEY_PATH == staking.type, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
+            validate(StakingDataSourceType.KEY_PATH == staking.type, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
             spending = {
                 type: SpendingDataSourceType.PATH,
                 path: staking.path,
