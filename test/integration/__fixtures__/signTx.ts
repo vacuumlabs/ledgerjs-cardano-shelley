@@ -1429,7 +1429,7 @@ export const testsMary: TestcaseMary[] = [
         txBody: "",
         result: {
             txHashHex: "dd0b254a628cbfa271e580091bce114a1344cf037a07f4ad1d6afe7fa93501ac",
-            "witnesses": [  //TODO: witnessing mint is not yet implemented
+            "witnesses": [
                 {
                     "path": [
                         2147485500,
@@ -1455,7 +1455,6 @@ export const testsMary: TestcaseMary[] = [
             mint: mints.mintAmountVariety,
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        // todo: get remaining fields once minting can be processed by ledger
         txBody: "",
         result: {
             txHashHex: "49686d9089cba67506537574dd0514038f813a2b9e648097aa49c2b93d14d549",

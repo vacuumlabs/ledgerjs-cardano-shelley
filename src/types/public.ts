@@ -1054,7 +1054,7 @@ export enum TransactionSigningMode {
      * The API witnesses
      * - all non-null [[TxInput.path]] on `inputs`
      * - all [[Withdrawal.path]] on `withdrawals`
-     * - all `path` properties on `certificates` for Stake registering/deregistering/delegating certificate.
+     * - all [[StakeCredentialParams.path]] properties on `certificates` for Stake registering/deregistering/delegating certificate.
      */
     ORDINARY_TRANSACTION = 'ordinary_transaction',
 
@@ -1095,9 +1095,20 @@ export enum TransactionSigningMode {
     POOL_REGISTRATION_AS_OPERATOR = 'pool_registration_as_operator',
 
     /**
-     * TODO: no clue, but any amount of witnesses is fine
+     * Represents a transaction controlled by scripts.
+     *
+     * Like an ordinary transaction, but stake credentials and all similar elements are given as script hashes
+     * and witnesses are decoupled from transaction elements. The number of witnesess is not limited by transaction body.
+     *
+     * The transaction
+     * - *must* have `path=null` on all `inputs`
+     * - *must not* contain a pool registration certificate
+     * TODO
+     *
+     * The API witnesses
+     * - all given in [[SignTransactionRequest.scriptWitnessPaths]]
      */
-    MULTISIG_TRANSACTION = "multisig_transaction",
+    MULTISIG_TRANSACTION = 'multisig_transaction',
 }
 
 /**
