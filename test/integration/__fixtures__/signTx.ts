@@ -264,6 +264,7 @@ export const outputs: Record<
 //   | 'multiassetInvalidTokenOrderingSameLength'
 //   | 'multiassetInvalidTokenOrderingDifferentLengths'
   | 'multiassetTokensNotUnique'
+  | 'trezorParity'
   , TxOutput
 > = {
     externalByronMainnet: {
@@ -492,6 +493,21 @@ export const outputs: Record<
                     },
                     {
                         assetNameHex: "7564247542686911",
+                        amount: "7878754",
+                    },
+                ],
+            },
+        ],
+    },
+    trezorParity: {
+        destination: destinations.multiassetThirdParty,
+        amount: 2000000,
+        tokenBundle: [
+            {
+                policyIdHex: "0d63e8d2c5a00cbcffbdf9112487c443466e1ea7d8c834df5ac5c425",
+                tokens: [
+                    {
+                        assetNameHex: "74657374436f696e",
                         amount: "7878754",
                     },
                 ],
@@ -1220,6 +1236,93 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                     path: str_to_path("1852'/1815'/0'/2/0"),
                     witnessSignatureHex:
             "32d0be05a8103a834265aa9e29562d5dde4473e4d7596714c000ae3a980b8e55543db42dde19e407c40943591978f03b28106f75cbc77d21ea2c28ab1ad4c100",
+                },
+            ],
+            auxiliaryDataSupplement: null,
+        },
+    },
+    {
+        testname: "Full test for trezor feature parity",
+        tx: {
+            // "protocol_magic": 764824073,
+            // "network_id": 1,
+            // if Networks.Mainnet differs, the test should just explicitly give these
+            network: Networks.Mainnet,
+            inputs: [inputs.utxoShelley],
+            outputs: [outputs.trezorParity],
+            fee: 42,
+            ttl: 10,
+            validityIntervalStart: 47,
+            certificates: [
+                {
+                    type: CertificateType.STAKE_REGISTRATION,
+                    params: {
+                        stakeCredential: {
+                            scriptHash: "29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd",
+                        },
+                    },
+                },
+                {
+                    type: CertificateType.STAKE_DEREGISTRATION,
+                    params: {
+                        stakeCredential: {
+                            scriptHash: "29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd",
+                        },
+                    },
+                },
+                {
+                    type: CertificateType.STAKE_DELEGATION,
+                    params: {
+                        stakeCredential: {
+                            scriptHash: "29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd",
+                        },
+                        poolKeyHashHex: "f61c42cbf7c8c53af3f520508212ad3e72f674f957fe23ff0acb4973",
+                    },
+                }
+            ],
+            withdrawals: [
+                {
+                    stakeCredential: {
+                        scriptHash: "29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd",
+                    },
+                    amount: 1000,
+                },
+            ],
+            mint: [
+                {
+                    policyIdHex: "0d63e8d2c5a00cbcffbdf9112487c443466e1ea7d8c834df5ac5c425",
+                    tokens: [
+                        {
+                            assetNameHex: "74657374436f696e",
+                            amount: 7878754,
+                        },
+                        {
+                            assetNameHex: "75657374436f696e",
+                            amount: -7878754,
+                        },
+                    ],
+                },
+            ],
+            auxiliaryData: {
+                type: TxAuxiliaryDataType.ARBITRARY_HASH,
+                params: {
+                    hashHex: "58ec01578fcdfdc376f09631a7b2adc608eaf57e3720484c7ff37c13cff90fdf",
+                },
+            },
+        },
+        signingMode: TransactionSigningMode.MULTISIG_TRANSACTION,
+        scriptWitnessPaths: [str_to_path("1854'/1815'/0'/0/0"), str_to_path("1854'/1815'/0'/2/0"),],
+
+        result: {
+            txHashHex: "2be64c04ea3f5bac3c224ec47a4157ade91fc6ab4fd6b83ce3d57b2e9186720b",
+            witnesses: [
+                {
+                    path: str_to_path("1854'/1815'/0'/0/0"),
+                    witnessSignatureHex: "32557d65b2be5eb169e966d42bf59076adfd33e3e66622905c6aba831e2524b678251ed41a770dce35d27925eedb9c0fc0347e5e8383460ce1f346d056667f08",
+                },
+                {
+                    path: str_to_path("1854'/1815'/0'/2/0"),
+                    witnessSignatureHex: "3bfd800af9db4a26be9895321d548df57a2a65ff5a0ccf867f709117098a352bd803f6cdc9e806f676f2d6259cb961234260347fd283d196af5db8665703af0c",
                 },
             ],
             auxiliaryDataSupplement: null,

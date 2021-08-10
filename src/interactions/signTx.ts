@@ -52,7 +52,8 @@ function* signTx_init(
   const _response = yield send({
       p1: P1.STAGE_INIT,
       p2: P2.UNUSED,
-      data: serializeTxInit(tx, signingMode, wittnessPaths.length + scriptWitnessPaths.length),
+      data: serializeTxInit(tx, signingMode,
+        scriptWitnessPaths.length == 0 ? wittnessPaths.length : scriptWitnessPaths.length),
       expectedResponseLength: 0,
   })
 }
@@ -677,15 +678,18 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
 
     // witnesses
     const witnesses = []
-    for (const path of witnessPaths) {
-        const witness = yield* signTx_getWitness(path)
-        witnesses.push(witness)
+    if (scriptWitnessPaths.length == 0) {
+        for (const path of witnessPaths) {
+            const witness = yield* signTx_getWitness(path)
+            witnesses.push(witness)
+        }
+    } else {
+        for (const path of scriptWitnessPaths) {
+            const witness = yield* signTx_getWitness(path)
+            witnesses.push(witness)
+        }
     }
 
-    for (const path of scriptWitnessPaths) {
-        const witness = yield* signTx_getWitness(path)
-        witnesses.push(witness)
-    }
 
     return {
         txHashHex,
