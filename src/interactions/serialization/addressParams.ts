@@ -1,3 +1,4 @@
+import { InvalidData } from "../../errors"
 import { InvalidDataReason } from "../../errors/invalidDataReason"
 import type { ParsedAddressParams, SpendingDataSource, StakingDataSource, Uint8_t, Version } from "../../types/internal"
 import { SpendingDataSourceType } from "../../types/internal"
@@ -68,8 +69,8 @@ export function serializeAddressParams(
     let spending: SpendingDataSource = params.spendingDataSource
     let staking: StakingDataSource = params.stakingDataSource
     if (!getCompatibility(version).supportsMultisig) {
-        if (AddressType.REWARD_KEY == params.type) {
-            validate(StakingDataSourceType.KEY_PATH == staking.type, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
+        if (params.type == AddressType.REWARD_KEY) {
+            validate(staking.type == StakingDataSourceType.KEY_PATH, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
             spending = {
                 type: SpendingDataSourceType.PATH,
                 path: staking.path,
@@ -77,8 +78,8 @@ export function serializeAddressParams(
             staking = {
                 type: StakingDataSourceType.NONE,
             }
-        } else if (AddressType.REWARD_SCRIPT == params.type) {
-            // TODO we do not support this (sending hashes in the spending part) on ledger at all
+        } else if (params.type == AddressType.REWARD_SCRIPT) {
+            throw new InvalidData(InvalidDataReason.ADDRESS_INVALID_REWARD_ADDRESS)
         }
     }
     return Buffer.concat([

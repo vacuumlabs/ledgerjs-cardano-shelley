@@ -40,6 +40,7 @@ export enum InvalidDataReason {
   ADDRESS_INVALID_STAKING_KEY_HASH = "invalid address staking key hash",
   ADDRESS_INVALID_STAKING_SCRIPT_HASH = "invalid address staking script hash",
   ADDRESS_INVALID_STAKING_INFO = "Invalid staking info in an output",
+  ADDRESS_INVALID_REWARD_ADDRESS = "invalid reward address for this version of ledger",
 
   FEE_INVALID = "invalid fee",
 

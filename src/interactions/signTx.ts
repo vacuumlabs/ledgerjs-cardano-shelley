@@ -42,7 +42,7 @@ const send = (params: {
 function* signTx_init(
     tx: ParsedTransaction,
     signingMode: TransactionSigningMode,
-    wittnessPaths: ValidBIP32Path[],
+    witnessPaths: ValidBIP32Path[],
     scriptWitnessPaths: ValidBIP32Path[],
 ): Interaction<void> {
   const enum P2 {
@@ -53,7 +53,7 @@ function* signTx_init(
       p1: P1.STAGE_INIT,
       p2: P2.UNUSED,
       data: serializeTxInit(tx, signingMode,
-        scriptWitnessPaths.length == 0 ? wittnessPaths.length : scriptWitnessPaths.length),
+        scriptWitnessPaths.length == 0 ? witnessPaths.length : scriptWitnessPaths.length),
       expectedResponseLength: 0,
   })
 }
@@ -560,14 +560,14 @@ function generateWitnessPaths(request: ParsedSigningRequest): ValidBIP32Path[] {
         } else if (cert.type === CertificateType.STAKE_POOL_RETIREMENT) {
             _insert(cert.path)
         } else {
-            if (StakeCredentialType.KEY_PATH == cert.stakeCredential.type) {
+            if (cert.stakeCredential.type == StakeCredentialType.KEY_PATH) {
                 _insert(cert.stakeCredential.path)
             }
         }
     }
   
     for (const withdrawal of tx.withdrawals) {
-        if (StakeCredentialType.KEY_PATH == withdrawal.stakeCredential.type) {
+        if (withdrawal.stakeCredential.type == StakeCredentialType.KEY_PATH) {
             _insert(withdrawal.stakeCredential.path)
         }
     }

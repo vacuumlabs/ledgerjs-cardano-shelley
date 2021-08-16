@@ -16,7 +16,7 @@ export function serializeTxInput(
 export function serializeTxWithdrawalPreMultisig(
     withdrawal: ParsedWithdrawal
 ) {
-    validate(StakeCredentialType.KEY_PATH == withdrawal.stakeCredential.type, InvalidDataReason.WITHDRAWAL_INVALID_IDENTIFIER)
+    validate(withdrawal.stakeCredential.type == StakeCredentialType.KEY_PATH, InvalidDataReason.WITHDRAWAL_INVALID_IDENTIFIER)
     return Buffer.concat([
         uint64_to_buf(withdrawal.amount),
         path_to_buf(withdrawal.stakeCredential.path),

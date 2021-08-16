@@ -11,14 +11,14 @@ export function serializeTxCertificatePreMultisig(
     switch (certificate.type) {
     case CertificateType.STAKE_REGISTRATION:
     case CertificateType.STAKE_DEREGISTRATION: {
-        validate(StakeCredentialType.KEY_PATH == certificate.stakeCredential.type, InvalidDataReason.CERTIFICATE_INVALID_STAKE_CREDENTIAL)
+        validate(certificate.stakeCredential.type == StakeCredentialType.KEY_PATH, InvalidDataReason.CERTIFICATE_INVALID_STAKE_CREDENTIAL)
         return Buffer.concat([
             uint8_to_buf(certificate.type as Uint8_t),
             path_to_buf(certificate.stakeCredential.path),
         ])
     }
     case CertificateType.STAKE_DELEGATION: {
-        validate(StakeCredentialType.KEY_PATH == certificate.stakeCredential.type, InvalidDataReason.CERTIFICATE_INVALID_STAKE_CREDENTIAL)
+        validate(certificate.stakeCredential.type == StakeCredentialType.KEY_PATH, InvalidDataReason.CERTIFICATE_INVALID_STAKE_CREDENTIAL)
         return Buffer.concat([
             uint8_to_buf(certificate.type as Uint8_t),
             path_to_buf(certificate.stakeCredential.path),
