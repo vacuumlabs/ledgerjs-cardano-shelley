@@ -8,6 +8,7 @@ export const inputs: Record<
   | 'utxoByron'
   | 'utxoShelley'
   | 'utxoNonReasonable'
+  | 'utxoMultisig'
   , TxInput
 > = {
     utxoByron: {
@@ -27,6 +28,12 @@ export const inputs: Record<
       "3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7",
         outputIndex: 0,
         path: str_to_path("1852'/1815'/456'/0/0"),
+    },
+    utxoMultisig: {
+        txHashHex:
+      "3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7",
+        outputIndex: 0,
+        path: null,
     },
 }
 
@@ -1228,7 +1235,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
             // "network_id": 1,
             // if Networks.Mainnet differs, the test should just explicitly give these
             network: Networks.Mainnet,
-            inputs: [inputs.utxoShelley],
+            inputs: [inputs.utxoMultisig],
             outputs: [outputs.trezorParity],
             fee: 42,
             ttl: 10,
