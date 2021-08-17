@@ -43,7 +43,6 @@ function* signTx_init(
     tx: ParsedTransaction,
     signingMode: TransactionSigningMode,
     witnessPaths: ValidBIP32Path[],
-    scriptWitnessPaths: ValidBIP32Path[],
 ): Interaction<void> {
   const enum P2 {
     UNUSED = 0x00,
@@ -52,8 +51,7 @@ function* signTx_init(
   const _response = yield send({
       p1: P1.STAGE_INIT,
       p2: P2.UNUSED,
-      data: serializeTxInit(tx, signingMode,
-        scriptWitnessPaths.length == 0 ? witnessPaths.length : scriptWitnessPaths.length),
+      data: serializeTxInit(tx, signingMode, witnessPaths.length),
       expectedResponseLength: 0,
   })
 }
@@ -617,11 +615,16 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
 
     const isCatalystRegistrationSupported = getCompatibility(version).supportsCatalystRegistration
 
-    const witnessPaths = generateWitnessPaths(request)
-    const { tx, signingMode, scriptWitnessPaths } = request
+    const { tx, signingMode, additionalWitnessPaths } = request
+    let witnessPaths: ValidBIP32Path[] = []
+    if (signingMode != TransactionSigningMode.MULTISIG_TRANSACTION) {
+        witnessPaths = generateWitnessPaths(request)
+    }
+    witnessPaths.concat(additionalWitnessPaths)
+
     // init
     yield* signTx_init(
-        tx, signingMode, witnessPaths, scriptWitnessPaths,
+        tx, signingMode, witnessPaths,
     )
 
     // auxiliary data
@@ -678,18 +681,10 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
 
     // witnesses
     const witnesses = []
-    if (scriptWitnessPaths.length == 0) {
-        for (const path of witnessPaths) {
-            const witness = yield* signTx_getWitness(path)
-            witnesses.push(witness)
-        }
-    } else {
-        for (const path of scriptWitnessPaths) {
-            const witness = yield* signTx_getWitness(path)
-            witnesses.push(witness)
-        }
+    for (const path of witnessPaths) {
+        const witness = yield* signTx_getWitness(path)
+        witnesses.push(witness)
     }
-
 
     return {
         txHashHex,

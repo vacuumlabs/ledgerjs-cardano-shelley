@@ -314,5 +314,5 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
         unreachable(signingMode)
     }
 
-    return { tx, signingMode, scriptWitnessPaths }
+    return { tx, signingMode, additionalWitnessPaths: scriptWitnessPaths }
 }

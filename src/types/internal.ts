@@ -119,7 +119,7 @@ export type ParsedTransaction = {
 export type ParsedSigningRequest = {
     tx: ParsedTransaction
     signingMode: TransactionSigningMode
-    scriptWitnessPaths: ValidBIP32Path[]
+    additionalWitnessPaths: ValidBIP32Path[]
 }
 
 
