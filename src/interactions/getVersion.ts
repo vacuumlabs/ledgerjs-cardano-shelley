@@ -50,7 +50,7 @@ export function getCompatibility(version: Version): DeviceCompatibility {
         supportsZeroTtl: v2_3,
         supportsPoolRegistrationAsOperator: v2_4,
         supportsPoolRetirement: v2_4,
-        supportsMultisig: v2_5
+        supportsScriptTransaction: v2_5
     }
 }
 

@@ -133,7 +133,7 @@ function* signTx_addCertificate(
   const enum P2 {
     UNUSED = 0x00,
   }
-  if (getCompatibility(version).supportsMultisig) {
+    if (getCompatibility(version).supportsScriptTransaction) {
       yield send({
           p1: P1.STAGE_CERTIFICATES,
           p2: P2.UNUSED,
@@ -306,7 +306,7 @@ function* signTx_addWithdrawal(
   const enum P2 {
     UNUSED = 0x00,
   }
-  if (getCompatibility(version).supportsMultisig) {
+    if (getCompatibility(version).supportsScriptTransaction) {
         yield send({
             p1: P1.STAGE_WITHDRAWALS,
             p2: P2.UNUSED,
@@ -601,7 +601,7 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
         throw new DeviceVersionUnsupported(`Pool retirement certificate not supported by Ledger app version ${version}.`)
     }
     
-    if (!getCompatibility(version).supportsMultisig) {
+    if (!getCompatibility(version).supportsScriptTransaction) {
         //TODO KoMa check multisig scripthashes in every new occurence
         if (hasScripthashStakeCredentials) {
             throw new DeviceVersionUnsupported(`Scripthash based certificate not supported by Ledger app version ${version}.`)
@@ -617,10 +617,10 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
 
     const { tx, signingMode, additionalWitnessPaths } = request
     let witnessPaths: ValidBIP32Path[] = []
-    if (signingMode != TransactionSigningMode.MULTISIG_TRANSACTION) {
+    if (signingMode != TransactionSigningMode.SCRIPT_TRANSACTION) {
         witnessPaths = generateWitnessPaths(request)
     }
-    witnessPaths.concat(additionalWitnessPaths)
+    witnessPaths = witnessPaths.concat(additionalWitnessPaths)
 
     // init
     yield* signTx_init(

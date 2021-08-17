@@ -801,7 +801,7 @@ export type DeviceCompatibility = {
     /**
      * Whether we support multisig addresses
      */
-    supportsMultisig: boolean
+    supportsScriptTransaction: boolean
 }
 
 /**
@@ -1108,7 +1108,7 @@ export enum TransactionSigningMode {
      * The API witnesses
      * - all given in [[SignTransactionRequest.scriptWitnessPaths]]
      */
-    MULTISIG_TRANSACTION = 'multisig_transaction',
+    SCRIPT_TRANSACTION = 'multisig_transaction',
 }
 
 /**

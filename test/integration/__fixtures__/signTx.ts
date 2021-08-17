@@ -679,7 +679,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             network: Networks.Testnet,
             outputs: [outputs.externalShelleyScripthash],
         },
-        signingMode: TransactionSigningMode.MULTISIG_TRANSACTION,
+        signingMode: TransactionSigningMode.SCRIPT_TRANSACTION,
         scriptWitnessPaths: [str_to_path("1854'/1815'/0'/0/0"),],
         result: {
             txHashHex:
@@ -856,7 +856,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
                 },
             ],
         },
-        signingMode: TransactionSigningMode.MULTISIG_TRANSACTION,
+        signingMode: TransactionSigningMode.SCRIPT_TRANSACTION,
         scriptWitnessPaths: [str_to_path("1854'/1815'/0'/2/0")],
         txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aa" +
       "d1c0b700018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2e1" +
@@ -923,7 +923,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
-        signingMode: TransactionSigningMode.MULTISIG_TRANSACTION,
+        signingMode: TransactionSigningMode.SCRIPT_TRANSACTION,
         scriptWitnessPaths: [str_to_path("1854'/1815'/0'/2/0"),],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
@@ -997,7 +997,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
-        signingMode: TransactionSigningMode.MULTISIG_TRANSACTION,
+        signingMode: TransactionSigningMode.SCRIPT_TRANSACTION,
         scriptWitnessPaths: [str_to_path("1854'/1815'/0'/2/0"),],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
@@ -1073,7 +1073,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             ],
         },
-        signingMode: TransactionSigningMode.MULTISIG_TRANSACTION,
+        signingMode: TransactionSigningMode.SCRIPT_TRANSACTION,
         scriptWitnessPaths: [str_to_path("1854'/1815'/0'/2/0"),],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
@@ -1297,7 +1297,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                 },
             },
         },
-        signingMode: TransactionSigningMode.MULTISIG_TRANSACTION,
+        signingMode: TransactionSigningMode.SCRIPT_TRANSACTION,
         scriptWitnessPaths: [str_to_path("1854'/1815'/0'/0/0"), str_to_path("1854'/1815'/0'/2/0"),],
 
         result: {
