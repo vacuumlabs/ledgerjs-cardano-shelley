@@ -1706,24 +1706,25 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_NOT_UNIQUE,
     },
-    {
-        testname: "Reject tx with mint fields with invalid canonical ordering of policies",
-        tx: {
-            ...maryBase,
-            outputs: [],
-            mint: mints.mintInvalidCanonicalOrderingPolicy,
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_ORDERING,
-    },
-    {
-        testname: "Reject tx with mint fields with invalid canonical ordering of asset names",
-        tx: {
-            ...maryBase,
-            outputs: [],
-            mint: mints.mintInvalidCanonicalOrderingAssetName,
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_ORDERING,
-    },
+    // !! canonical ordering is temporarily out of the codebase !!
+    // {
+    //     testname: "Reject tx with mint fields with invalid canonical ordering of policies",
+    //     tx: {
+    //         ...maryBase,
+    //         outputs: [],
+    //         mint: mints.mintInvalidCanonicalOrderingPolicy,
+    //     },
+    //     signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+    //     rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_ORDERING,
+    // },
+    // {
+    //     testname: "Reject tx with mint fields with invalid canonical ordering of asset names",
+    //     tx: {
+    //         ...maryBase,
+    //         outputs: [],
+    //         mint: mints.mintInvalidCanonicalOrderingAssetName,
+    //     },
+    //     signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+    //     rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_ORDERING,
+    // },
 ]
