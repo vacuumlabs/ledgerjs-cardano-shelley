@@ -61,6 +61,7 @@ function parseToken<T>(token: Token, parseTokenAmountFn: ParseTokenAmountFn<T>):
 function parseAssetGroup<T>(assetGroup: AssetGroup, parseTokenAmountFn: ParseTokenAmountFn<T>): ParsedAssetGroup<T> {
     validate(isArray(assetGroup.tokens), InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_NOT_ARRAY)
     validate(assetGroup.tokens.length <= TOKENS_IN_GROUP_MAX, InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_TOO_LARGE)
+    validate(assetGroup.tokens.length > 0, InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_EMPTY)
 
     const parsedAssetGroup = {
         policyIdHex: parseHexStringOfLength(assetGroup.policyIdHex, TOKEN_POLICY_LENGTH, InvalidDataReason.MULTIASSET_INVALID_POLICY_NAME),
@@ -80,9 +81,10 @@ function parseAssetGroup<T>(assetGroup: AssetGroup, parseTokenAmountFn: ParseTok
     return parsedAssetGroup
 }
 
-function parseTokenBundle<T>(tokenBundle: AssetGroup[], parseTokenAmountFn: ParseTokenAmountFn<T>): ParsedAssetGroup<T>[] {
+function parseTokenBundle<T>(tokenBundle: AssetGroup[], emptyTokenBundleAllowed: boolean, parseTokenAmountFn: ParseTokenAmountFn<T>): ParsedAssetGroup<T>[] {
     validate(isArray(tokenBundle), InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_NOT_ARRAY)
     validate(tokenBundle.length <= ASSET_GROUPS_MAX, InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_TOO_LARGE)
+    validate(emptyTokenBundleAllowed || tokenBundle.length > 0, InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_EMPTY)
     const parsedTokenBundle = tokenBundle.map(ag => parseAssetGroup(ag, parseTokenAmountFn))
 
     const policyIds = parsedTokenBundle.map(ag => ag.policyIdHex)
@@ -134,7 +136,7 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
     // mint instructions
     const mint = tx.mint == null
         ? null
-        : parseTokenBundle(tx.mint, parseInt64_str)
+        : parseTokenBundle(tx.mint, false, parseInt64_str)
 
     return {
         network,
@@ -200,7 +202,7 @@ function parseTxOutput(
 ): ParsedOutput {
     const amount = parseUint64_str(output.amount, { max: MAX_LOVELACE_SUPPLY_STR }, InvalidDataReason.OUTPUT_INVALID_AMOUNT)
 
-    const tokenBundle = parseTokenBundle(output.tokenBundle ?? [], parseUint64_str)
+    const tokenBundle = parseTokenBundle(output.tokenBundle ?? [], true, parseUint64_str)
 
     const destination = parseTxDestination(network, output.destination)
     return {
@@ -225,7 +227,7 @@ export function parseSigningMode(mode: TransactionSigningMode): TransactionSigni
 export function parseSignTransactionRequest(request: SignTransactionRequest): ParsedSigningRequest {
     const tx = parseTransaction(request.tx)
     const signingMode = parseSigningMode(request.signingMode)
-    const scriptWitnessPaths = request.scriptWitnessPaths.map(path => parseBIP32Path(path, InvalidDataReason.INVALID_PATH))
+    const additionalWitnessPaths = request.additionalWitnessPaths.map(path => parseBIP32Path(path, InvalidDataReason.INVALID_PATH))
 
     // Additional restrictions based on signing mode
     switch (signingMode) {
@@ -314,5 +316,5 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
         unreachable(signingMode)
     }
 
-    return { tx, signingMode, additionalWitnessPaths: scriptWitnessPaths }
+    return { tx, signingMode, additionalWitnessPaths: additionalWitnessPaths }
 }

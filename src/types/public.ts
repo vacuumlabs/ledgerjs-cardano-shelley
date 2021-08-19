@@ -799,9 +799,13 @@ export type DeviceCompatibility = {
      */
     supportsPoolRetirement: boolean
     /**
-     * Whether we support multisig addresses
+     * Whether we support script transaction
      */
     supportsScriptTransaction: boolean
+    /**
+     * Whether we support mint
+     */
+    supportsMint: boolean
 }
 
 /**
@@ -1106,7 +1110,7 @@ export enum TransactionSigningMode {
      * TODO
      *
      * The API witnesses
-     * - all given in [[SignTransactionRequest.scriptWitnessPaths]]
+     * - all given in [[SignTransactionRequest.additionalWitnessPaths]]
      */
     SCRIPT_TRANSACTION = 'multisig_transaction',
 }
@@ -1130,6 +1134,6 @@ export type SignTransactionRequest = {
      */
     tx: Transaction
 
-    scriptWitnessPaths: BIP32Path[]
+    additionalWitnessPaths: BIP32Path[]
 }
 

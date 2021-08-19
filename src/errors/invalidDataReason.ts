@@ -24,10 +24,12 @@ export enum InvalidDataReason {
   MULTIASSET_INVALID_TOKEN_BUNDLE_TOO_LARGE = "invalid multiasset token bundle - too many asset groups",
   MULTIASSET_INVALID_TOKEN_BUNDLE_ORDERING = "invalid multiasset token bundle - incorrect ordering of asset groups",
   MULTIASSET_INVALID_TOKEN_BUNDLE_NOT_UNIQUE = "invalid multiasset token bundle - policyIds not unique",
+  MULTIASSET_INVALID_TOKEN_BUNDLE_EMPTY = "invalid multiasset token bundle - token bundle is not allowed to be empty",
   MULTIASSET_INVALID_TOKEN_AMOUNT = "invalid token amount in an asset group in a multiasset token bundle",
   MULTIASSET_INVALID_ASSET_NAME = "invalid asset name in an asset group in a multiasset token bundle",
   MULTIASSET_INVALID_ASSET_GROUP_NOT_ARRAY = "invalid asset group in multiasset token bundle - tokens not an array",
   MULTIASSET_INVALID_ASSET_GROUP_TOO_LARGE = "invalid asset group in multiasset token bundle - too many tokens",
+  MULTIASSET_INVALID_ASSET_GROUP_EMPTY = "invalid asset group in multiasset token bundle - zero tokens",
   MULTIASSET_INVALID_ASSET_GROUP_ORDERING = "invalid asset group in multiasset token bundle - incorrect ordering of tokens",
   MULTIASSET_INVALID_ASSET_GROUP_NOT_UNIQUE = "invalid asset group in multiasset token bundle - token names not unique",
 

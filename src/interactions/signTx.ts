@@ -1,7 +1,7 @@
 import { DeviceVersionUnsupported } from "../errors"
 import { StakeCredentialType, Int64_str, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
 import { CertificateType, ED25519_SIGNATURE_LENGTH, PoolOwnerType, TX_HASH_LENGTH } from "../types/internal"
-import type { SignedTransactionData, TxAuxiliaryDataSupplement } from "../types/public"
+import { AddressType, SignedTransactionData, TxAuxiliaryDataSupplement, TxOutputDestinationType } from "../types/public"
 import { PoolKeyType, TransactionSigningMode, TxAuxiliaryDataSupplementType, TxAuxiliaryDataType } from "../types/public"
 import { assert } from "../utils/assert"
 import { buf_to_hex, hex_to_buf, int64_to_buf, uint64_to_buf } from "../utils/serialize"
@@ -589,22 +589,48 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
         throw new DeviceVersionUnsupported(`Pool registration as operator not supported by Ledger app version ${version}.`)
     }
 
+    
     const certificates = request?.tx?.certificates
     const hasPoolRetirement = certificates && certificates.some(c => c.type === CertificateType.STAKE_POOL_RETIREMENT)
-    const hasScripthashStakeCredentials = certificates && certificates.some(c =>
-        (c.type === CertificateType.STAKE_DELEGATION ||
-        c.type === CertificateType.STAKE_DEREGISTRATION ||
-        c.type === CertificateType.STAKE_REGISTRATION) &&
-        c.stakeCredential.type === StakeCredentialType.SCRIPT_HASH)
-
+            
     if (hasPoolRetirement && !getCompatibility(version).supportsPoolRetirement) {
         throw new DeviceVersionUnsupported(`Pool retirement certificate not supported by Ledger app version ${version}.`)
     }
     
+    if (request?.tx?.mint && !getCompatibility(version).supportsMint) {
+        throw new DeviceVersionUnsupported(`Mint not supported by Ledger app version ${version}.`)
+    }
+
     if (!getCompatibility(version).supportsScriptTransaction) {
-        //TODO KoMa check multisig scripthashes in every new occurence
-        if (hasScripthashStakeCredentials) {
-            throw new DeviceVersionUnsupported(`Scripthash based certificate not supported by Ledger app version ${version}.`)
+        {
+            const scriptAddressTypes = [
+                AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT,
+                AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY,
+                AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT,
+                AddressType.ENTERPRISE_SCRIPT,
+                AddressType.POINTER_SCRIPT,
+                AddressType.REWARD_SCRIPT,
+            ]
+            if (request?.tx?.outputs && request.tx.outputs.some(o =>
+                o.destination.type == TxOutputDestinationType.DEVICE_OWNED &&
+                o.destination.addressParams.type in scriptAddressTypes)) {
+                    throw new DeviceVersionUnsupported(`Scripthash based address not supported by Ledger app version ${version}.`)
+                }
+        }
+        {
+            const hasScripthashStakeCredentials = certificates && certificates.some(c =>
+                (c.type === CertificateType.STAKE_DELEGATION ||
+                c.type === CertificateType.STAKE_DEREGISTRATION ||
+                c.type === CertificateType.STAKE_REGISTRATION) &&
+                c.stakeCredential.type === StakeCredentialType.SCRIPT_HASH)
+            if (hasScripthashStakeCredentials) {
+                throw new DeviceVersionUnsupported(`Scripthash based certificate not supported by Ledger app version ${version}.`)
+            }
+        }
+        const withdrawals = request?.tx?.withdrawals
+        const hasScripthashWithdrawals = withdrawals && withdrawals.some(w => w.stakeCredential.type == StakeCredentialType.SCRIPT_HASH)
+        if (hasScripthashWithdrawals) {
+            throw new DeviceVersionUnsupported(`Scripthash based withdrawal not supported by Ledger app version ${version}.`)
         }
     }
 }
@@ -616,11 +642,12 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
     const isCatalystRegistrationSupported = getCompatibility(version).supportsCatalystRegistration
 
     const { tx, signingMode, additionalWitnessPaths } = request
-    let witnessPaths: ValidBIP32Path[] = []
+    let witnessPaths = additionalWitnessPaths
     if (signingMode != TransactionSigningMode.SCRIPT_TRANSACTION) {
-        witnessPaths = generateWitnessPaths(request)
+        witnessPaths = witnessPaths.concat(generateWitnessPaths(request))
     }
-    witnessPaths = witnessPaths.concat(additionalWitnessPaths)
+    // throw out repeated paths
+    witnessPaths = Array.from(new Set(witnessPaths))
 
     // init
     yield* signTx_init(

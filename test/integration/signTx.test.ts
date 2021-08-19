@@ -34,7 +34,7 @@ describe("signTxOrdinaryByron", async () => {
             const response = await ada.signTransaction({
                 tx,
                 signingMode,
-                scriptWitnessPaths: [],
+                additionalWitnessPaths: [],
             })
             expect(response).to.deep.equal(expected)
         })
@@ -54,12 +54,12 @@ describe("signTxOrdinaryShelleyNoCertificates", async () => {
         await (ada as any).t.close()
     })
 
-    for (const { testname, tx, signingMode, scriptWitnessPaths, result: expected } of testsShelleyNoCertificates) {
+    for (const { testname, tx, signingMode, additionalWitnessPaths, result: expected } of testsShelleyNoCertificates) {
         it(testname, async () => {
             const response = await ada.signTransaction({
                 tx,
                 signingMode,
-                scriptWitnessPaths,
+                additionalWitnessPaths,
             })
             expect(response).to.deep.equal(expected)
         })
@@ -77,12 +77,12 @@ describe("signTxOrdinaryShelleyWithCertificates", async () => {
         await (ada as any).t.close()
     })
 
-    for (const { testname, tx, signingMode, scriptWitnessPaths, result: expected } of testsShelleyWithCertificates) {
+    for (const { testname, tx, signingMode, additionalWitnessPaths, result: expected } of testsShelleyWithCertificates) {
         it(testname, async () => {
             const response = await ada.signTransaction({
                 tx,
                 signingMode,
-                scriptWitnessPaths,
+                additionalWitnessPaths,
             })
             expect(response).to.deep.equal(expected)
         })
@@ -111,7 +111,7 @@ describe("signTxOrdinaryAllegra", async () => {
             const response = await ada.signTransaction({
                 tx,
                 signingMode,
-                scriptWitnessPaths: [],
+                additionalWitnessPaths: [],
             })
             expect(response).to.deep.equal(expected)
         })
@@ -139,7 +139,7 @@ describe("signTxOrdinaryMary", async () => {
             const response = await ada.signTransaction({
                 tx,
                 signingMode,
-                scriptWitnessPaths: [],
+                additionalWitnessPaths: [],
             })
             expect(response).to.deep.equal(expected)
         })
@@ -150,7 +150,7 @@ describe("signTxOrdinaryMary", async () => {
             const response = await ada.signTransaction({
                 tx,
                 signingMode,
-                scriptWitnessPaths: [],
+                additionalWitnessPaths: [],
             })
             expect(response).to.deep.equal(expected)
         })
@@ -161,7 +161,7 @@ describe("signTxOrdinaryMary", async () => {
             const promise = ada.signTransaction({
                 tx,
                 signingMode,
-                scriptWitnessPaths: [],
+                additionalWitnessPaths: [],
             })
             await expect(promise).to.be.rejectedWith(rejectReason)
         })

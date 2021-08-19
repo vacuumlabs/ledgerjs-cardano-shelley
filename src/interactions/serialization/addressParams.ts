@@ -1,4 +1,4 @@
-import { InvalidData } from "../../errors"
+import { DeviceVersionUnsupported } from "../../errors"
 import { InvalidDataReason } from "../../errors/invalidDataReason"
 import type { ParsedAddressParams, SpendingDataSource, StakingDataSource, Uint8_t, Version } from "../../types/internal"
 import { SpendingDataSourceType } from "../../types/internal"
@@ -79,7 +79,7 @@ export function serializeAddressParams(
                 type: StakingDataSourceType.NONE,
             }
         } else if (params.type == AddressType.REWARD_SCRIPT) {
-            throw new InvalidData(InvalidDataReason.ADDRESS_INVALID_REWARD_ADDRESS)
+            throw new DeviceVersionUnsupported(`Scripthash based address derivation not supported by Ledger app version ${version}.`)
         }
     }
     return Buffer.concat([
