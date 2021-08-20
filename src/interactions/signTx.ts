@@ -531,16 +531,10 @@ function* signTx_getWitness(
 function generateWitnessPaths(request: ParsedSigningRequest): ValidBIP32Path[] {
     const { tx } = request
   
-    const witnessPaths: Record<string, ValidBIP32Path> = {}
-    // eslint-disable-next-line no-inner-declarations
-    function _insert(path: ValidBIP32Path) {
-        const pathKey = JSON.stringify(path)
-        witnessPaths[pathKey] = path
-    }
-
+    const witnessPaths: ValidBIP32Path[] = []
     for (const input of tx.inputs) {
         if (input.path != null) {
-            _insert(input.path)
+            witnessPaths.push(input.path)
         }
     }
 
@@ -549,28 +543,28 @@ function generateWitnessPaths(request: ParsedSigningRequest): ValidBIP32Path[] {
             const deviceOwnedPoolOwner = cert.pool.owners.find((owner) => owner.type === PoolOwnerType.DEVICE_OWNED)
             if (deviceOwnedPoolOwner != null) {
                 assert(deviceOwnedPoolOwner.type === PoolOwnerType.DEVICE_OWNED, "bad witness owner type")
-                _insert(deviceOwnedPoolOwner.path)
+                witnessPaths.push(deviceOwnedPoolOwner.path)
             }
 
             if (cert.pool.poolKey.type === PoolKeyType.DEVICE_OWNED) {
-                _insert(cert.pool.poolKey.path)
+                witnessPaths.push(cert.pool.poolKey.path)
             }
         } else if (cert.type === CertificateType.STAKE_POOL_RETIREMENT) {
-            _insert(cert.path)
+            witnessPaths.push(cert.path)
         } else {
             if (cert.stakeCredential.type == StakeCredentialType.KEY_PATH) {
-                _insert(cert.stakeCredential.path)
+                witnessPaths.push(cert.stakeCredential.path)
             }
         }
     }
   
     for (const withdrawal of tx.withdrawals) {
         if (withdrawal.stakeCredential.type == StakeCredentialType.KEY_PATH) {
-            _insert(withdrawal.stakeCredential.path)
+            witnessPaths.push(withdrawal.stakeCredential.path)
         }
     }
 
-    return Object.values(witnessPaths)
+    return witnessPaths
 }
 
 function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSigningRequest): void {
@@ -611,11 +605,12 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
                 AddressType.POINTER_SCRIPT,
                 AddressType.REWARD_SCRIPT,
             ]
-            if (request?.tx?.outputs && request.tx.outputs.some(o =>
+            const hasScripthashOutputs = request?.tx?.outputs && request.tx.outputs.some(o =>
                 o.destination.type == TxOutputDestinationType.DEVICE_OWNED &&
-                o.destination.addressParams.type in scriptAddressTypes)) {
-                    throw new DeviceVersionUnsupported(`Scripthash based address not supported by Ledger app version ${version}.`)
-                }
+                o.destination.addressParams.type in scriptAddressTypes)
+            if (hasScripthashOutputs) {
+                throw new DeviceVersionUnsupported(`Scripthash based address not supported by Ledger app version ${version}.`)
+            }
         }
         {
             const hasScripthashStakeCredentials = certificates && certificates.some(c =>
@@ -627,12 +622,21 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
                 throw new DeviceVersionUnsupported(`Scripthash based certificate not supported by Ledger app version ${version}.`)
             }
         }
-        const withdrawals = request?.tx?.withdrawals
-        const hasScripthashWithdrawals = withdrawals && withdrawals.some(w => w.stakeCredential.type == StakeCredentialType.SCRIPT_HASH)
-        if (hasScripthashWithdrawals) {
-            throw new DeviceVersionUnsupported(`Scripthash based withdrawal not supported by Ledger app version ${version}.`)
+        {
+            const withdrawals = request?.tx?.withdrawals
+            const hasScripthashWithdrawals = withdrawals && withdrawals.some(w => w.stakeCredential.type == StakeCredentialType.SCRIPT_HASH)
+            if (hasScripthashWithdrawals) {
+                throw new DeviceVersionUnsupported(`Scripthash based withdrawal not supported by Ledger app version ${version}.`)
+            }
         }
-    }
+}
+}
+
+// general name, because it should work with any type if generalized
+function uniquify(witnessPaths: ValidBIP32Path[]): ValidBIP32Path[] {
+    const uniquifier: Record<string, ValidBIP32Path> = {}
+    witnessPaths.forEach(p => uniquifier[JSON.stringify(p)] = p)
+    return Object.values(uniquifier)
 }
 
 export function* signTransaction(version: Version, request: ParsedSigningRequest): Interaction<SignedTransactionData> {
@@ -646,8 +650,7 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
     if (signingMode != TransactionSigningMode.SCRIPT_TRANSACTION) {
         witnessPaths = witnessPaths.concat(generateWitnessPaths(request))
     }
-    // throw out repeated paths
-    witnessPaths = Array.from(new Set(witnessPaths))
+    witnessPaths = uniquify(witnessPaths)
 
     // init
     yield* signTx_init(
