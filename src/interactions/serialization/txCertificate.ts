@@ -2,7 +2,7 @@ import { InvalidDataReason } from "../../errors/invalidDataReason"
 import { validate } from "../../utils/parse"
 import { StakeCredentialType, ParsedCertificate, Uint8_t } from "../../types/internal"
 import { CertificateType } from "../../types/internal"
-import { unreachable } from "../../utils/assert"
+import { assert, unreachable } from "../../utils/assert"
 import { hex_to_buf, path_to_buf, uint8_to_buf, uint64_to_buf, stake_credential_to_buf } from "../../utils/serialize"
 
 export function serializeTxCertificatePreMultisig(
@@ -11,14 +11,14 @@ export function serializeTxCertificatePreMultisig(
     switch (certificate.type) {
     case CertificateType.STAKE_REGISTRATION:
     case CertificateType.STAKE_DEREGISTRATION: {
-        validate(certificate.stakeCredential.type == StakeCredentialType.KEY_PATH, InvalidDataReason.CERTIFICATE_INVALID_STAKE_CREDENTIAL)
+        assert(certificate.stakeCredential.type == StakeCredentialType.KEY_PATH, InvalidDataReason.CERTIFICATE_INVALID_STAKE_CREDENTIAL)
         return Buffer.concat([
             uint8_to_buf(certificate.type as Uint8_t),
             path_to_buf(certificate.stakeCredential.path),
         ])
     }
     case CertificateType.STAKE_DELEGATION: {
-        validate(certificate.stakeCredential.type == StakeCredentialType.KEY_PATH, InvalidDataReason.CERTIFICATE_INVALID_STAKE_CREDENTIAL)
+        assert(certificate.stakeCredential.type == StakeCredentialType.KEY_PATH, InvalidDataReason.CERTIFICATE_INVALID_STAKE_CREDENTIAL)
         return Buffer.concat([
             uint8_to_buf(certificate.type as Uint8_t),
             path_to_buf(certificate.stakeCredential.path),

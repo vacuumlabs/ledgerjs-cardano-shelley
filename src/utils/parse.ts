@@ -3,6 +3,7 @@ import type { InvalidDataReason } from "../errors/index"
 import type { _Int64_bigint, _Int64_num, _Uint64_bigint, _Uint64_num, FixlenHexString, HexString, Int64_str, Uint8_t, Uint16_t, Uint32_t, Uint64_str, ValidBIP32Path, VarlenAsciiString, ParsedStakeCredential } from "../types/internal"
 import { StakeCredentialType, SCRIPT_HASH_LENGTH } from "../types/internal"
 import type { StakeCredentialParams } from "../types/public"
+import { StakeCredentialParamsType } from "../types/public"
 
 export const MAX_UINT_64_STR = "18446744073709551615"
 export const MIN_INT_64_STR = "-9223372036854775808"
@@ -181,13 +182,10 @@ export function parseBIP32Path(value: unknown, errMsg: InvalidDataReason): Valid
 }
 
 export function parseStakeCredential(stakeCredential: StakeCredentialParams, errMsg: InvalidDataReason): ParsedStakeCredential {
-    const pathProvided = stakeCredential.path != null
-    const scriptHashProvided = stakeCredential.scriptHash != null
-    validate((pathProvided && !scriptHashProvided) || (!pathProvided && scriptHashProvided), errMsg)
-    if (pathProvided) {
+    if (stakeCredential.type == StakeCredentialParamsType.KEY_PATH) {
         return {
             type: StakeCredentialType.KEY_PATH,
-            path: parseBIP32Path(stakeCredential.path, errMsg),
+            path: parseBIP32Path(stakeCredential.keyPath, errMsg),
         }
     } else {
         return {

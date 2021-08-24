@@ -1,3 +1,4 @@
+import { Key } from 'readline';
 import { FixlenHexString, SCRIPT_HASH_LENGTH } from './internal'
 /**
  * Type for 64-bit integers.
@@ -653,10 +654,22 @@ export type PoolRetirementParams = {
     retirementEpoch: bigint_like,
 }
 
-export type StakeCredentialParams = {
-    path?: BIP32Path,
-    scriptHash?: string,
+export enum StakeCredentialParamsType {
+    KEY_PATH,
+    SCRIPT_HASH
 }
+
+export type KeyStakeCredential = {
+    type: StakeCredentialParamsType.KEY_PATH,
+    keyPath: BIP32Path,
+}
+
+export type ScriptStakeCredential = {
+    type: StakeCredentialParamsType.SCRIPT_HASH,
+    scriptHash: string,
+}
+
+export type StakeCredentialParams = KeyStakeCredential | ScriptStakeCredential
 
 /**
  * Stake key registration certificate parameters

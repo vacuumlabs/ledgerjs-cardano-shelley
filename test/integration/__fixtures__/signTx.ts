@@ -2,7 +2,7 @@ import type { AssetGroup, DeviceOwnedAddress, SignedTransactionData, Transaction
 import {InvalidDataReason, TxAuxiliaryDataSupplementType} from "../../../src/Ada"
 import { AddressType, CertificateType, Networks, TxAuxiliaryDataType, TxOutputDestinationType, utils } from "../../../src/Ada"
 import { str_to_path } from "../../../src/utils/address"
-import { BIP32Path, TransactionSigningMode } from '../../../src/types/public'
+import { BIP32Path, StakeCredentialParamsType, TransactionSigningMode } from '../../../src/types/public'
 
 export const inputs: Record<
   | 'utxoByron'
@@ -813,7 +813,8 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             withdrawals: [
                 {
                     stakeCredential: {
-                        path: str_to_path("1852'/1815'/0'/2/0"),
+                        type: StakeCredentialParamsType.KEY_PATH,
+                        keyPath: str_to_path("1852'/1815'/0'/2/0"),
                     },
                     amount: 111,
                 },
@@ -850,6 +851,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             withdrawals: [
                 {
                     stakeCredential: {
+                        type: StakeCredentialParamsType.SCRIPT_HASH,
                         scriptHash: "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
                     },
                     amount: 111,
@@ -917,6 +919,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                     type: CertificateType.STAKE_REGISTRATION,
                     params: {
                         stakeCredential: {
+                            type: StakeCredentialParamsType.SCRIPT_HASH,
                             scriptHash: "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
                         },
                     },
@@ -951,7 +954,8 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                     type: CertificateType.STAKE_REGISTRATION,
                     params: {
                         stakeCredential: {
-                            path: str_to_path("1852'/1815'/0'/2/0"),
+                            type: StakeCredentialParamsType.KEY_PATH,
+                            keyPath: str_to_path("1852'/1815'/0'/2/0"),
                         },
                     },
                 },
@@ -990,6 +994,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                     type: CertificateType.STAKE_DELEGATION,
                     params: {
                         stakeCredential: {
+                            type: StakeCredentialParamsType.SCRIPT_HASH,
                             scriptHash: "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
                         },
                         poolKeyHashHex: "f61c42cbf7c8c53af3f520508212ad3e72f674f957fe23ff0acb4973",
@@ -1026,7 +1031,8 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                     type: CertificateType.STAKE_DELEGATION,
                     params: {
                         stakeCredential: {
-                            path: str_to_path("1852'/1815'/0'/2/0"),
+                            type: StakeCredentialParamsType.KEY_PATH,
+                            keyPath: str_to_path("1852'/1815'/0'/2/0"),
                         },
                         poolKeyHashHex: "f61c42cbf7c8c53af3f520508212ad3e72f674f957fe23ff0acb4973",
                     },
@@ -1067,6 +1073,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                     type: CertificateType.STAKE_DEREGISTRATION,
                     params: {
                         stakeCredential: {
+                            type: StakeCredentialParamsType.SCRIPT_HASH,
                             scriptHash: "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
                         },
                     },
@@ -1101,7 +1108,8 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                     type: CertificateType.STAKE_DEREGISTRATION,
                     params: {
                         stakeCredential: {
-                            path: str_to_path("1852'/1815'/0'/2/0"),
+                            type: StakeCredentialParamsType.KEY_PATH,
+                            keyPath: str_to_path("1852'/1815'/0'/2/0"),
                         },
                     },
                 },
@@ -1140,7 +1148,8 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                     type: CertificateType.STAKE_DEREGISTRATION,
                     params: {
                         stakeCredential: {
-                            path: str_to_path("1852'/1815'/0'/2/0"),
+                            type: StakeCredentialParamsType.KEY_PATH,
+                            keyPath: str_to_path("1852'/1815'/0'/2/0"),
                         },
                     },
                 },
@@ -1148,7 +1157,8 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                     type: CertificateType.STAKE_DEREGISTRATION,
                     params: {
                         stakeCredential: {
-                            path: str_to_path("1852'/1815'/0'/2/0"),
+                            type: StakeCredentialParamsType.KEY_PATH,
+                            keyPath: str_to_path("1852'/1815'/0'/2/0"),
                         },
                     },
                 },
@@ -1197,7 +1207,8 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                     type: CertificateType.STAKE_REGISTRATION,
                     params: {
                         stakeCredential: {
-                            path: str_to_path("1852'/1815'/0'/2/0"),
+                            type: StakeCredentialParamsType.KEY_PATH,
+                            keyPath: str_to_path("1852'/1815'/0'/2/0"),
                         },
                     },
                 },
@@ -1245,6 +1256,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                     type: CertificateType.STAKE_REGISTRATION,
                     params: {
                         stakeCredential: {
+                            type: StakeCredentialParamsType.SCRIPT_HASH,
                             scriptHash: "29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd",
                         },
                     },
@@ -1253,6 +1265,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                     type: CertificateType.STAKE_DEREGISTRATION,
                     params: {
                         stakeCredential: {
+                            type: StakeCredentialParamsType.SCRIPT_HASH,
                             scriptHash: "29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd",
                         },
                     },
@@ -1261,6 +1274,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                     type: CertificateType.STAKE_DELEGATION,
                     params: {
                         stakeCredential: {
+                            type: StakeCredentialParamsType.SCRIPT_HASH,
                             scriptHash: "29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd",
                         },
                         poolKeyHashHex: "f61c42cbf7c8c53af3f520508212ad3e72f674f957fe23ff0acb4973",
@@ -1270,6 +1284,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
             withdrawals: [
                 {
                     stakeCredential: {
+                        type: StakeCredentialParamsType.SCRIPT_HASH,
                         scriptHash: "29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd",
                     },
                     amount: 1000,

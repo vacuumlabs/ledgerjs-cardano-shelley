@@ -44,20 +44,18 @@ export function uint64_to_buf(value: Uint64_str): Buffer {
     assert(isUint64str(value), 'invalid uint64_str')
 
     const data = new Uint64BE(value, 10).toBuffer()
-    assert(data.length <= 8, "excessive data")
+    assert(data.length == 8, "excessive data")
 
-    const padding = Buffer.alloc(8 - data.length)
-    return Buffer.concat([padding, data])
+    return data
 }
 
 export function int64_to_buf(value: Int64_str): Buffer {
     assert(isInt64str(value), 'invalid int64_str')
 
     const data = new Int64BE(value, 10).toBuffer()
-    assert(data.length <= 8, "excessive data")
+    assert(data.length == 8, "excessive data")
 
-    const padding = Buffer.alloc(8 - data.length)
-    return Buffer.concat([padding, data])
+    return data
 }
 
 export function hex_to_buf(data: HexString | FixlenHexString<any>): Buffer {

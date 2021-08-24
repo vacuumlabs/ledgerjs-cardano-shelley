@@ -629,7 +629,7 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
                 throw new DeviceVersionUnsupported(`Scripthash based withdrawal not supported by Ledger app version ${version}.`)
             }
         }
-}
+    }
 }
 
 // general name, because it should work with any type if generalized
