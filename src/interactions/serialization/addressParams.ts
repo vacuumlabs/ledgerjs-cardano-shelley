@@ -1,3 +1,4 @@
+import { assert } from "../../utils/assert"
 import { DeviceVersionUnsupported } from "../../errors"
 import { InvalidDataReason } from "../../errors/invalidDataReason"
 import type { ParsedAddressParams, SpendingDataSource, StakingDataSource, Uint8_t, Version } from "../../types/internal"
@@ -70,7 +71,7 @@ export function serializeAddressParams(
     let staking: StakingDataSource = params.stakingDataSource
     if (!getCompatibility(version).supportsScriptTransaction) {
         if (params.type == AddressType.REWARD_KEY) {
-            validate(staking.type == StakingDataSourceType.KEY_PATH, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
+            assert(staking.type == StakingDataSourceType.KEY_PATH, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
             spending = {
                 type: SpendingDataSourceType.PATH,
                 path: staking.path,

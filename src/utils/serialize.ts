@@ -44,7 +44,7 @@ export function uint64_to_buf(value: Uint64_str): Buffer {
     assert(isUint64str(value), 'invalid uint64_str')
 
     const data = new Uint64BE(value, 10).toBuffer()
-    assert(data.length == 8, "excessive data")
+    assert(data.length == 8, "invalid data length")
 
     return data
 }
@@ -53,7 +53,7 @@ export function int64_to_buf(value: Int64_str): Buffer {
     assert(isInt64str(value), 'invalid int64_str')
 
     const data = new Int64BE(value, 10).toBuffer()
-    assert(data.length == 8, "excessive data")
+    assert(data.length == 8, "invalid data length")
 
     return data
 }
