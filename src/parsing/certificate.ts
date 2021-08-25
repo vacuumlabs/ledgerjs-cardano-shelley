@@ -11,14 +11,12 @@ export function parseCertificate(cert: Certificate): ParsedCertificate {
     case CertificateType.STAKE_REGISTRATION:
     case CertificateType.STAKE_DEREGISTRATION: {
         validate((cert.params as any).poolKeyHashHex == null, InvalidDataReason.CERTIFICATE_SUPERFLUOUS_POOL_KEY_HASH)
-        validate(cert.params.stakeCredential.type == StakeCredentialParamsType.KEY_PATH, InvalidDataReason.CERTIFICATE_INVALID_STAKE_CREDENTIAL)
         return {
             type: cert.type,
             stakeCredential: parseStakeCredential(cert.params.stakeCredential, InvalidDataReason.CERTIFICATE_INVALID_SCRIPT_HASH)
         }
     }
     case CertificateType.STAKE_DELEGATION: {
-        validate(cert.params.stakeCredential.type == StakeCredentialParamsType.KEY_PATH, InvalidDataReason.CERTIFICATE_INVALID_STAKE_CREDENTIAL)
         return {
             type: cert.type,
             stakeCredential: parseStakeCredential(cert.params.stakeCredential, InvalidDataReason.CERTIFICATE_INVALID_SCRIPT_HASH),
