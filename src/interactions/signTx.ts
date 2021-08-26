@@ -1,7 +1,9 @@
 import { DeviceVersionUnsupported } from "../errors"
-import { StakeCredentialType, Int64_str, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
+import type { Int64_str, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
+import { StakeCredentialType } from "../types/internal"
 import { CertificateType, ED25519_SIGNATURE_LENGTH, PoolOwnerType, TX_HASH_LENGTH } from "../types/internal"
-import { AddressType, SignedTransactionData, TxAuxiliaryDataSupplement, TxOutputDestinationType } from "../types/public"
+import type { SignedTransactionData, TxAuxiliaryDataSupplement} from "../types/public"
+import { AddressType, TxOutputDestinationType } from "../types/public"
 import { PoolKeyType, TransactionSigningMode, TxAuxiliaryDataSupplementType, TxAuxiliaryDataType } from "../types/public"
 import { assert } from "../utils/assert"
 import { buf_to_hex, hex_to_buf, int64_to_buf, uint64_to_buf } from "../utils/serialize"
@@ -133,7 +135,7 @@ function* signTx_addCertificate(
   const enum P2 {
     UNUSED = 0x00,
   }
-    if (getCompatibility(version).supportsScriptTransaction) {
+  if (getCompatibility(version).supportsScriptTransaction) {
       yield send({
           p1: P1.STAGE_CERTIFICATES,
           p2: P2.UNUSED,
@@ -141,13 +143,13 @@ function* signTx_addCertificate(
           expectedResponseLength: 0,
       })
   } else {
-    yield send({
-        p1: P1.STAGE_CERTIFICATES,
-        p2: P2.UNUSED,
-        data: serializeTxCertificatePreMultisig(certificate),
-        expectedResponseLength: 0,
-    })
-}
+      yield send({
+          p1: P1.STAGE_CERTIFICATES,
+          p2: P2.UNUSED,
+          data: serializeTxCertificatePreMultisig(certificate),
+          expectedResponseLength: 0,
+      })
+  }
 
   // additional data for pool certificate
   if (certificate.type === CertificateType.STAKE_POOL_REGISTRATION) {
@@ -306,21 +308,21 @@ function* signTx_addWithdrawal(
   const enum P2 {
     UNUSED = 0x00,
   }
-    if (getCompatibility(version).supportsScriptTransaction) {
-        yield send({
-            p1: P1.STAGE_WITHDRAWALS,
-            p2: P2.UNUSED,
-            data: serializeTxWithdrawal(withdrawal),
-            expectedResponseLength: 0,
-        })
-    } else {
-        yield send({
-            p1: P1.STAGE_WITHDRAWALS,
-            p2: P2.UNUSED,
-            data: serializeTxWithdrawalPreMultisig(withdrawal),
-            expectedResponseLength: 0,
-        })
-    }
+  if (getCompatibility(version).supportsScriptTransaction) {
+      yield send({
+          p1: P1.STAGE_WITHDRAWALS,
+          p2: P2.UNUSED,
+          data: serializeTxWithdrawal(withdrawal),
+          expectedResponseLength: 0,
+      })
+  } else {
+      yield send({
+          p1: P1.STAGE_WITHDRAWALS,
+          p2: P2.UNUSED,
+          data: serializeTxWithdrawalPreMultisig(withdrawal),
+          expectedResponseLength: 0,
+      })
+  }
 }
 
 function* signTx_setFee(

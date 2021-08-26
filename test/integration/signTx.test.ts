@@ -1,7 +1,6 @@
 import { expect } from "chai"
 
 import type Ada from "../../src/Ada"
-import { TransactionSigningMode } from "../../src/Ada"
 import { getAda } from "../test_utils"
 import {
     testsAllegra,

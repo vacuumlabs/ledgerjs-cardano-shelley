@@ -1,5 +1,3 @@
-import { Key } from 'readline';
-import { FixlenHexString, SCRIPT_HASH_LENGTH } from './internal'
 /**
  * Type for 64-bit integers.
  * 
@@ -656,7 +654,7 @@ export type PoolRetirementParams = {
 
 export enum StakeCredentialParamsType {
     KEY_PATH,
-    SCRIPT_HASH
+    SCRIPT_HASH,
 }
 
 type KeyStakeCredentialParams = {

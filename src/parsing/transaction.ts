@@ -1,10 +1,9 @@
 import { InvalidData } from "../errors"
 import { InvalidDataReason } from "../errors/invalidDataReason"
-import type { OutputDestination, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedToken, ParsedTransaction, ParsedWithdrawal, ValidBIP32Path } from "../types/internal"
+import type { OutputDestination, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedToken, ParsedTransaction, ParsedWithdrawal } from "../types/internal"
 import { ASSET_NAME_LENGTH_MAX, CertificateType, TOKEN_POLICY_LENGTH, TX_HASH_LENGTH } from "../types/internal"
 import type {
     AssetGroup,
-    BIP32Path,
     Certificate,
     Network,
     SignTransactionRequest,
@@ -24,7 +23,7 @@ import {
     TxOutputDestinationType,
 } from "../types/public"
 import { unreachable } from "../utils/assert"
-import { isArray, parseBIP32Path, validate, parseStakeCredential } from "../utils/parse"
+import { isArray, parseBIP32Path, parseStakeCredential,validate } from "../utils/parse"
 import { parseHexString, parseHexStringOfLength, parseInt64_str, parseUint32_t, parseUint64_str } from "../utils/parse"
 import { parseAddress } from "./address"
 import { parseCertificate } from "./certificate"

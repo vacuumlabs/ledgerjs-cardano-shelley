@@ -1,7 +1,7 @@
 import { InvalidData } from "../errors"
 import type { InvalidDataReason } from "../errors/index"
-import type { _Int64_bigint, _Int64_num, _Uint64_bigint, _Uint64_num, FixlenHexString, HexString, Int64_str, Uint8_t, Uint16_t, Uint32_t, Uint64_str, ValidBIP32Path, VarlenAsciiString, ParsedStakeCredential } from "../types/internal"
-import { StakeCredentialType, SCRIPT_HASH_LENGTH } from "../types/internal"
+import type { _Int64_bigint, _Int64_num, _Uint64_bigint, _Uint64_num, FixlenHexString, HexString, Int64_str, ParsedStakeCredential,Uint8_t, Uint16_t, Uint32_t, Uint64_str, ValidBIP32Path, VarlenAsciiString } from "../types/internal"
+import { SCRIPT_HASH_LENGTH,StakeCredentialType } from "../types/internal"
 import type { StakeCredentialParams } from "../types/public"
 import { StakeCredentialParamsType } from "../types/public"
 
@@ -190,7 +190,7 @@ export function parseStakeCredential(stakeCredential: StakeCredentialParams, err
     } else {
         return {
             type: StakeCredentialType.SCRIPT_HASH,
-            scriptHash: parseHexStringOfLength(stakeCredential.scriptHash, SCRIPT_HASH_LENGTH, errMsg)
+            scriptHash: parseHexStringOfLength(stakeCredential.scriptHash, SCRIPT_HASH_LENGTH, errMsg),
         }
     }
 }

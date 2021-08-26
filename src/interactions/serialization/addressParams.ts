@@ -1,10 +1,9 @@
-import { assert } from "../../utils/assert"
 import { DeviceVersionUnsupported } from "../../errors"
 import { InvalidDataReason } from "../../errors/invalidDataReason"
 import type { ParsedAddressParams, SpendingDataSource, StakingDataSource, Uint8_t, Version } from "../../types/internal"
 import { SpendingDataSourceType } from "../../types/internal"
 import { AddressType, StakingDataSourceType } from "../../types/internal"
-import { validate } from "../../utils/parse"
+import { assert } from "../../utils/assert"
 import { hex_to_buf, path_to_buf, uint8_to_buf, uint32_to_buf } from "../../utils/serialize"
 import { getCompatibility } from "../getVersion"
 

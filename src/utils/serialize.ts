@@ -1,6 +1,6 @@
 import { Int64BE, Uint64BE } from "int64-buffer"
 
-import type { ParsedStakeCredential, FixlenHexString, HexString, Int64_str, Uint8_t, Uint16_t, Uint32_t, Uint64_str } from "../types/internal"
+import type { FixlenHexString, HexString, Int64_str, ParsedStakeCredential, Uint8_t, Uint16_t, Uint32_t, Uint64_str } from "../types/internal"
 import { StakeCredentialType } from "../types/internal"
 import { assert } from './assert'
 import { isHexString, isInt64str, isUint8, isUint16, isUint32, isUint64str, isValidPath } from "./parse"

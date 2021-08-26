@@ -1,8 +1,9 @@
 import type { AssetGroup, DeviceOwnedAddress, SignedTransactionData, Transaction, TxInput, TxOutput, TxOutputDestination } from "../../../src/Ada"
 import {InvalidDataReason, TxAuxiliaryDataSupplementType} from "../../../src/Ada"
 import { AddressType, CertificateType, Networks, TxAuxiliaryDataType, TxOutputDestinationType, utils } from "../../../src/Ada"
+import type { BIP32Path} from '../../../src/types/public'
+import { StakeCredentialParamsType, TransactionSigningMode } from '../../../src/types/public'
 import { str_to_path } from "../../../src/utils/address"
-import { BIP32Path, StakeCredentialParamsType, TransactionSigningMode } from '../../../src/types/public'
 
 export const inputs: Record<
   | 'utxoByron'
@@ -680,7 +681,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             outputs: [outputs.externalShelleyScripthash],
         },
         signingMode: TransactionSigningMode.SCRIPT_TRANSACTION,
-        additionalWitnessPaths: [str_to_path("1854'/1815'/0'/0/0"),],
+        additionalWitnessPaths: [str_to_path("1854'/1815'/0'/0/0")],
         result: {
             txHashHex:
         "23d82edc8fbd2d55237cba955a2280161ebd5643b23844e9b5abdc843b966e62",
@@ -927,7 +928,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
             ],
         },
         signingMode: TransactionSigningMode.SCRIPT_TRANSACTION,
-        additionalWitnessPaths: [str_to_path("1854'/1815'/0'/2/0"),],
+        additionalWitnessPaths: [str_to_path("1854'/1815'/0'/2/0")],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
       "e1a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a048182008200581c1d227aefa4b77" +
@@ -1003,7 +1004,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
             ],
         },
         signingMode: TransactionSigningMode.SCRIPT_TRANSACTION,
-        additionalWitnessPaths: [str_to_path("1854'/1815'/0'/2/0"),],
+        additionalWitnessPaths: [str_to_path("1854'/1815'/0'/2/0")],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
       "e1a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a048183028200581c1d227aefa4b77" +
@@ -1081,7 +1082,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
             ],
         },
         signingMode: TransactionSigningMode.SCRIPT_TRANSACTION,
-        additionalWitnessPaths: [str_to_path("1854'/1815'/0'/2/0"),],
+        additionalWitnessPaths: [str_to_path("1854'/1815'/0'/2/0")],
         txBody: "a500818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163" +
       "f63dcfc00018182582b82d818582183581c9e1c71de652ec8b85fec296f0685ca3988781c94a2" +
       "e1a5d89d92f45fa0001a0d0c25611a002dd2e802182a030a048182018200581c1d227aefa4b77" +
@@ -1279,7 +1280,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                         },
                         poolKeyHashHex: "f61c42cbf7c8c53af3f520508212ad3e72f674f957fe23ff0acb4973",
                     },
-                }
+                },
             ],
             withdrawals: [
                 {
@@ -1313,7 +1314,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
             },
         },
         signingMode: TransactionSigningMode.SCRIPT_TRANSACTION,
-        additionalWitnessPaths: [str_to_path("1854'/1815'/0'/0/0"), str_to_path("1854'/1815'/0'/2/0"),],
+        additionalWitnessPaths: [str_to_path("1854'/1815'/0'/0/0"), str_to_path("1854'/1815'/0'/2/0")],
 
         result: {
             txHashHex: "2be64c04ea3f5bac3c224ec47a4157ade91fc6ab4fd6b83ce3d57b2e9186720b",

@@ -1,8 +1,9 @@
 import { InvalidDataReason } from "../../errors/invalidDataReason"
-import { Int64_str, StakeCredentialType, ParsedAssetGroup, ParsedInput, ParsedToken, ParsedWithdrawal, Uint32_t, Uint64_str, ValidBIP32Path } from "../../types/internal"
-import { hex_to_buf, path_to_buf, uint32_to_buf, uint64_to_buf, stake_credential_to_buf } from "../../utils/serialize"
-import type {SerializeTokenAmountFn} from "../signTx"
+import type { Int64_str, ParsedAssetGroup, ParsedInput, ParsedToken, ParsedWithdrawal, Uint32_t, Uint64_str, ValidBIP32Path } from "../../types/internal"
+import { StakeCredentialType } from "../../types/internal"
 import { assert } from "../../utils/assert"
+import { hex_to_buf, path_to_buf, stake_credential_to_buf,uint32_to_buf, uint64_to_buf } from "../../utils/serialize"
+import type {SerializeTokenAmountFn} from "../signTx"
 
 export function serializeTxInput(
     input: ParsedInput
