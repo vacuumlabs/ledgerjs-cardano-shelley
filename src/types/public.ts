@@ -1126,7 +1126,7 @@ export enum TransactionSigningMode {
      * Represents a transaction controlled by scripts.
      *
      * Like an ordinary transaction, but stake credentials and all similar elements are given as script hashes
-     * and witnesses are decoupled from transaction elements. The number of witnesess is not limited by transaction body.
+     * and witnesses are decoupled from transaction elements.
      *
      * The transaction
      * - *must* have `path=null` on all `inputs`

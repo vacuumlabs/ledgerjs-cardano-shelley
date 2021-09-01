@@ -1,6 +1,7 @@
 import { InvalidData } from "../errors"
 import { InvalidDataReason } from "../errors/invalidDataReason"
 import type { OutputDestination, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedToken, ParsedTransaction, ParsedWithdrawal } from "../types/internal"
+import { StakeCredentialType } from "../types/internal"
 import { ASSET_NAME_LENGTH_MAX, CertificateType, TOKEN_POLICY_LENGTH, TX_HASH_LENGTH } from "../types/internal"
 import type {
     AssetGroup,
@@ -229,10 +230,69 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
 
     // Additional restrictions based on signing mode
     switch (signingMode) {
+
     case TransactionSigningMode.ORDINARY_TRANSACTION: {
+        // pool registrations have separate signing modes
         validate(
             tx.certificates.every(certificate => certificate.type !== CertificateType.STAKE_POOL_REGISTRATION),
             InvalidDataReason.SIGN_MODE_ORDINARY__POOL_REGISTRATION_NOT_ALLOWED,
+        )
+        // certificate stake credentials given by paths
+        validate(
+            tx.certificates.every(certificate => {
+                switch (certificate.type) {
+                case CertificateType.STAKE_REGISTRATION:
+                case CertificateType.STAKE_DEREGISTRATION:
+                case CertificateType.STAKE_DELEGATION:
+                    return certificate.stakeCredential.type === StakeCredentialType.KEY_PATH
+                default:
+                    return true
+                }
+            }),
+            InvalidDataReason.SIGN_MODE_ORDINARY__CERTIFICATE_STAKE_CREDENTIAL_ONLY_AS_PATH
+        )
+        // withdrawals as paths
+        validate(
+            tx.withdrawals.every(withdrawal => withdrawal.stakeCredential.type === StakeCredentialType.KEY_PATH),
+            InvalidDataReason.SIGN_MODE_ORDINARY__WITHDRAWAL_ONLY_AS_PATH,
+        )
+        break
+    }
+
+    case TransactionSigningMode.SCRIPT_TRANSACTION: {
+        // pool registrations have separate signing modes
+        validate(
+            tx.certificates.every(certificate => certificate.type !== CertificateType.STAKE_POOL_REGISTRATION),
+            InvalidDataReason.SIGN_MODE_SCRIPT__POOL_REGISTRATION_NOT_ALLOWED,
+        )
+        // pool retirement is not allowed
+        validate(
+            tx.certificates.every(certificate => certificate.type !== CertificateType.STAKE_POOL_RETIREMENT),
+            InvalidDataReason.SIGN_MODE_SCRIPT__POOL_RETIREMENT_NOT_ALLOWED,
+        )
+        // certificate stake credentials given by scripts
+        validate(
+            tx.certificates.every(certificate => {
+                switch (certificate.type) {
+                case CertificateType.STAKE_REGISTRATION:
+                case CertificateType.STAKE_DEREGISTRATION:
+                case CertificateType.STAKE_DELEGATION:
+                    return certificate.stakeCredential.type === StakeCredentialType.SCRIPT_HASH
+                default:
+                    return true
+                }
+            }),
+            InvalidDataReason.SIGN_MODE_SCRIPT__CERTIFICATE_STAKE_CREDENTIAL_ONLY_AS_SCRIPT,
+        )
+        // withdrawals as scripts
+        validate(
+            tx.withdrawals.every(withdrawal => withdrawal.stakeCredential.type === StakeCredentialType.SCRIPT_HASH),
+            InvalidDataReason.SIGN_MODE_SCRIPT__WITHDRAWAL_ONLY_AS_SCRIPT,
+        )
+        // only third-party outputs
+        validate(
+            tx.outputs.every(output => output.destination.type === TxOutputDestinationType.THIRD_PARTY),
+            InvalidDataReason.SIGN_MODE_SCRIPT__DEVICE_OWNED_ADDRESS_NOT_ALLOWED,
         )
         break
     }
@@ -304,10 +364,6 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
             tx.withdrawals.length === 0,
             InvalidDataReason.SIGN_MODE_POOL_OPERATOR__WITHDRAWALS_NOT_ALLOWED
         )
-        break
-    }
-    case TransactionSigningMode.SCRIPT_TRANSACTION: {
-        //TODO ???
         break
     }
     default:
