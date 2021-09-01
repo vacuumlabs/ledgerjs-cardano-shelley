@@ -193,20 +193,13 @@ export type SpendingParams = {
  * @category Addresses
  * @see [[DeviceOwnedAddress]]
  */
-export type AddressParamsBase = SpendingParams & AddressParamsBaseStaking
-
-/**
- * Shelley *base* address parameters staking choice.
- * The API allows for using device staking key, or supplying third-party staking key.
- * @category Addresses
- * @see [[DeviceOwnedAddress]]
- */
-// Not really worth the effort of disambiguation through additional tagged enum
-export type AddressParamsBaseStaking =
-| { stakingPath: BIP32Path }
-| { stakingKeyHashHex: string }
-| { stakingScriptHash: string}
-
+export type AddressParamsBase = SpendingParams & {
+    stakingPath: BIP32Path
+} | {
+    stakingKeyHashHex: string
+} | {
+    stakingScriptHash: string
+}
 
 /**
  * Shelley *enterprise* address parameters
@@ -220,7 +213,6 @@ export type AddressParamsEnterprise = SpendingParams
  * @category Addresses
  * @see [[DeviceOwnedAddress]]
  * */
-// TODO finish the transformations
 export type AddressParamsPointer = SpendingParams & {
     stakingBlockchainPointer: BlockchainPointer
 }
