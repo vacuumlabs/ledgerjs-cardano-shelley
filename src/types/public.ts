@@ -308,6 +308,10 @@ export type TxOutput = {
     amount: bigint_like
     /**
      * Additional assets sent to the output.
+     * If not null, the entries' keys (policyIds) must be sorted lowest value to highest to reflect a canonical CBOR.
+     * The sorting rules (as described in the [CBOR RFC](https://datatracker.ietf.org/doc/html/rfc7049#section-3.9)) are:
+     *  * if two keys have different lengths, the shorter one sorts earlier;
+     *  * if two keys have the same length, the one with the lower value in lexical order sorts earlier.
      */
     tokenBundle?: Array<AssetGroup> | null
     /**
@@ -1031,6 +1035,10 @@ export type Transaction = {
     certificates?: Array<Certificate> | null,
     /**
      * Withdrawals (if any) from rewards accounts
+     * If not null, the entries' keys (hash generated from the stake credential) must be sorted ascending to reflect a canonical CBOR.
+     * The sorting rules (as described in the [CBOR RFC](https://datatracker.ietf.org/doc/html/rfc7049#section-3.9)) are:
+     *  * if two keys have different lengths, the shorter one sorts earlier;
+     *  * if two keys have the same length, the one with the lower value in lexical order sorts earlier.
      */
     withdrawals?: Array<Withdrawal> | null,
     /**
