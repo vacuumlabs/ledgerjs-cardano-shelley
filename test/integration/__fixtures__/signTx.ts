@@ -1,5 +1,5 @@
-import type { AssetGroup, DeviceOwnedAddress, SignedTransactionData, Transaction, TxInput, TxOutput, TxOutputDestination, ErrorBase } from "../../../src/Ada"
-import {DeviceStatusError, InvalidData, TxAuxiliaryDataSupplementType} from "../../../src/Ada"
+import type { AssetGroup, DeviceOwnedAddress, ErrorBase,SignedTransactionData, Transaction, TxInput, TxOutput, TxOutputDestination } from "../../../src/Ada"
+import {DeviceStatusError, InvalidDataReason, TxAuxiliaryDataSupplementType} from "../../../src/Ada"
 import { AddressType, CertificateType, Networks, TxAuxiliaryDataType, TxOutputDestinationType, utils } from "../../../src/Ada"
 import type { BIP32Path} from '../../../src/types/public'
 import { StakeCredentialParamsType, TransactionSigningMode } from '../../../src/types/public'
@@ -1676,6 +1676,7 @@ export type InvalidTokenBundleOrderingTestcase = {
   signingMode: TransactionSigningMode
   errCls: new (...args: any[]) => ErrorBase,
   errMsg: string,
+  rejectReason: InvalidDataReason,
 }
 
 export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase[] = [
@@ -1689,6 +1690,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         errCls: DeviceStatusError,
         errMsg: "Invalid data supplied to Ledger",
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_ORDERING,
     },
     {
         testname: "Reject tx where asset groups are not unique",
@@ -1699,6 +1701,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         errCls: DeviceStatusError,
         errMsg: "Invalid data supplied to Ledger",
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_NOT_UNIQUE,
     },
     // enforcing of asset order is removed for now and will be added back after the ordering is properly defined by a CIP
     {
@@ -1710,6 +1713,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         errCls: DeviceStatusError,
         errMsg: "Invalid data supplied to Ledger",
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_ORDERING,
     },
     {
         testname: "Reject tx where tokens within an asset group are not ordered - length",
@@ -1720,6 +1724,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         errCls: DeviceStatusError,
         errMsg: "Invalid data supplied to Ledger",
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_ORDERING,
     },
     {
         testname: "Reject tx where tokens within an asset group are not unique",
@@ -1730,6 +1735,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         errCls: DeviceStatusError,
         errMsg: "Invalid data supplied to Ledger",
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_NOT_UNIQUE,
     },
     // !! canonical ordering is temporarily out of the codebase !!
     {
@@ -1742,6 +1748,7 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         errCls: DeviceStatusError,
         errMsg: "Invalid data supplied to Ledger",
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_ORDERING,
     },
     {
         testname: "Reject tx with mint fields with invalid canonical ordering of asset names",
@@ -1753,5 +1760,6 @@ export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         errCls: DeviceStatusError,
         errMsg: "Invalid data supplied to Ledger",
+        rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_ORDERING,
     },
 ]

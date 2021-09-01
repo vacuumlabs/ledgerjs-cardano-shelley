@@ -1,7 +1,7 @@
 import { expect } from "chai"
 
 import type Ada from "../../src/Ada"
-import { getAda, describeWithoutValidation } from "../test_utils"
+import { describeWithoutValidation,getAda } from "../test_utils"
 import {
     testsAllegra,
     testsByron,
@@ -152,6 +152,17 @@ describe("signTxOrdinaryMary", async () => {
                 additionalWitnessPaths: [],
             })
             expect(response).to.deep.equal(expected)
+        })
+    }
+
+    for (const {testname, tx, signingMode, rejectReason } of testsInvalidTokenBundleOrdering) {
+        it(testname, async() => {
+            const response = ada.signTransaction({
+                tx,
+                signingMode,
+                additionalWitnessPaths: [],
+            })
+            await expect(response).to.be.rejectedWith(rejectReason)
         })
     }
 })
