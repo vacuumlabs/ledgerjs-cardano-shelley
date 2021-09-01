@@ -119,6 +119,7 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
     const certificates = parseCertificates(tx.certificates ?? [])
 
     // withdrawals
+    // we can't check here, but withdrawal keys (the StakeCredential) should be in canonical ordering
     validate(isArray(tx.withdrawals ?? []), InvalidDataReason.WITHDRAWALS_NOT_ARRAY)
     const withdrawals = (tx.withdrawals ?? []).map(w => parseWithdrawal(w))
 
