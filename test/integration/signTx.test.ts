@@ -154,6 +154,17 @@ describe("signTxOrdinaryMary", async () => {
             expect(response).to.deep.equal(expected)
         })
     }
+
+    for (const {testname, tx, signingMode, rejectReason } of testsInvalidTokenBundleOrdering) {
+        it(testname, async() => {
+            const response = ada.signTransaction({
+                tx,
+                signingMode,
+                additionalWitnessPaths: [],
+            })
+            await expect(response).to.be.rejectedWith(rejectReason)
+        })
+    }
 })
 
 describeWithoutValidation("signTxOrdinaryMaryRejects", async () => {
