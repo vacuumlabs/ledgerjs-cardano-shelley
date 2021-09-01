@@ -163,7 +163,7 @@ function parseTxInput(input: TxInput): ParsedInput {
 function parseWithdrawal(params: Withdrawal): ParsedWithdrawal {
     return {
         amount: parseUint64_str(params.amount, { max: MAX_LOVELACE_SUPPLY_STR }, InvalidDataReason.WITHDRAWAL_INVALID_AMOUNT),
-        stakeCredential: parseStakeCredential(params.stakeCredential, InvalidDataReason.WITHDRAWAL_INVALID_IDENTIFIER),
+        stakeCredential: parseStakeCredential(params.stakeCredential, InvalidDataReason.WITHDRAWAL_INVALID_STAKE_CREDENTIAL),
     }
 }
 

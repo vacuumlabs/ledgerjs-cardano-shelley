@@ -117,7 +117,7 @@ export enum InvalidDataReason {
 
   WITHDRAWAL_INVALID_AMOUNT = "invalid withdrawal amount",
   WITHDRAWAL_INVALID_PATH = "invalid withdrawal path",
-  WITHDRAWAL_INVALID_IDENTIFIER = "withdrawal identifier contains a path and a scripthash or neither",
+  WITHDRAWAL_INVALID_STAKE_CREDENTIAL = "withdrawal stake credential contains both a path and a scripthash or neither",
 
   AUXILIARY_DATA_UNKNOWN_TYPE = "unknown auxiliary data type",
   AUXILIARY_DATA_INVALID_HASH = "invalid auxiliary data hash",
