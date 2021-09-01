@@ -1,4 +1,4 @@
-import type { AssetGroup, DeviceOwnedAddress, SignedTransactionData, Transaction, TxInput, TxOutput, TxOutputDestination, ErrorBase } from "../../../src/Ada"
+import type { AssetGroup, DeviceOwnedAddress, ErrorBase,SignedTransactionData, Transaction, TxInput, TxOutput, TxOutputDestination } from "../../../src/Ada"
 import {DeviceStatusError, InvalidDataReason, TxAuxiliaryDataSupplementType} from "../../../src/Ada"
 import { AddressType, CertificateType, Networks, TxAuxiliaryDataType, TxOutputDestinationType, utils } from "../../../src/Ada"
 import type { BIP32Path} from '../../../src/types/public'

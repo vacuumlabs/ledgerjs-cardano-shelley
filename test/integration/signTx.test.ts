@@ -1,7 +1,7 @@
 import { expect } from "chai"
 
 import type Ada from "../../src/Ada"
-import { getAda, describeWithoutValidation } from "../test_utils"
+import { describeWithoutValidation,getAda } from "../test_utils"
 import {
     testsAllegra,
     testsByron,
