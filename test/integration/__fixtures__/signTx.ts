@@ -912,6 +912,28 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             auxiliaryDataSupplement: null,
         },
     },
+    {
+        testname: "Sign tx with only script data hash",
+        tx: {
+            ...shelleyBase,
+            outputs: [],
+            scriptDataHash: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
+        },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+        additionalWitnessPaths: [],
+        result: {
+            txHashHex:
+        "7c5aac719dd3e0888deef0c59d6daba9e578d0dc27f82ff4978fc2893cdc2202",
+            witnesses: [
+                {
+                    path: str_to_path("1852'/1815'/0'/0/0"),
+                    witnessSignatureHex:
+            "5c66a4f75359a62b4b32751fe30a1adbf7ed2839fd4cb762e9a4d2b086de82fca2310bcf07efc2b03086211faa19941dbe059bbfb747e128863f339720e71304",
+                },
+            ],
+            auxiliaryDataSupplement: null,
+        },
+    },
 ]
 
 export const testsShelleyWithCertificates: TestcaseShelley[] = [

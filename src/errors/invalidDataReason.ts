@@ -132,6 +132,8 @@ export enum InvalidDataReason {
 
   VALIDITY_INTERVAL_START_INVALID = "invalid validity interval start",
 
+  SCRIPT_DATA_HASH_WRONG_LENGTH = "script data hash not 32 long",
+
   SIGN_MODE_UNKNOWN = "unknown signing mode",
 
   SIGN_MODE_ORDINARY__POOL_REGISTRATION_NOT_ALLOWED =
