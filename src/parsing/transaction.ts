@@ -137,9 +137,9 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
         ? null
         : parseTokenBundle(tx.mint, false, parseInt64_str)
 
-    const scriptDataHash = tx.scriptDataHash == null
+    const scriptDataHash = tx.scriptDataHashHex == null
         ? null
-        : parseHexStringOfLength(tx.scriptDataHash, SCRIPT_DATA_HASH_LENGTH, InvalidDataReason.SCRIPT_DATA_HASH_WRONG_LENGTH)
+        : parseHexStringOfLength(tx.scriptDataHashHex, SCRIPT_DATA_HASH_LENGTH, InvalidDataReason.SCRIPT_DATA_HASH_WRONG_LENGTH)
 
     return {
         network,
@@ -152,7 +152,7 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
         certificates,
         fee,
         mint,
-        scriptDataHash,
+        scriptDataHashHex: scriptDataHash,
     }
 }
 
@@ -210,10 +210,16 @@ function parseTxOutput(
     const tokenBundle = parseTokenBundle(output.tokenBundle ?? [], true, parseUint64_str)
 
     const destination = parseTxDestination(network, output.destination)
+
+    const scriptDataHash = output.dataHashHex
+        ? parseHexStringOfLength(output.dataHashHex, SCRIPT_DATA_HASH_LENGTH, InvalidDataReason.SCRIPT_DATA_HASH_WRONG_LENGTH)
+        : null
+
     return {
         amount,
         tokenBundle,
         destination,
+        dataHashHex: scriptDataHash,
     }
 }
 

@@ -115,7 +115,7 @@ export type ParsedTransaction = {
     auxiliaryData: ParsedTxAuxiliaryData | null
     validityIntervalStart: Uint64_str | null
     mint: Array<ParsedAssetGroup<Int64_str>> | null
-    scriptDataHash: ScriptDataHash | null
+    scriptDataHashHex: ScriptDataHash | null
 }
 
 export type ParsedSigningRequest = {
@@ -330,6 +330,7 @@ export type ParsedOutput = {
     amount: Uint64_str
     tokenBundle: ParsedAssetGroup<Uint64_str>[]
     destination: OutputDestination
+    dataHashHex?: ScriptDataHash | null
 }
 
 export const ASSET_NAME_LENGTH_MAX = 32

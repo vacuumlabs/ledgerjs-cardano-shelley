@@ -95,3 +95,15 @@ export function stake_credential_to_buf(stakeCredential: ParsedStakeCredential):
     }
 }
 
+export function serializeOptionFlag(included: boolean) {
+    const SignTxIncluded = {
+        NO: 1 as Uint8_t,
+        YES: 2 as Uint8_t,
+    }
+
+    const value = included
+        ? SignTxIncluded.YES
+        : SignTxIncluded.NO
+
+    return uint8_to_buf(value)
+}

@@ -81,6 +81,7 @@ function* signTx_addOutput(
 ): Interaction<void> {
   const enum P2 {
     BASIC_DATA = 0x30,
+    SCRIPT_DATA_HASH = 0x34,
     CONFIRM = 0x33,
   }
 
@@ -93,6 +94,15 @@ function* signTx_addOutput(
   })
 
   yield* signTx_addTokenBundle(output.tokenBundle, P1.STAGE_OUTPUTS, uint64_to_buf)
+
+  if (output.dataHashHex) {
+      yield send({
+          p1: P1.STAGE_OUTPUTS,
+          p2: P2.SCRIPT_DATA_HASH,
+          data: hex_to_buf(output.dataHashHex),
+          expectedResponseLength: 0,
+      })
+  }
 
   yield send({
       p1: P1.STAGE_OUTPUTS,
@@ -582,7 +592,14 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
         throw new DeviceVersionUnsupported(`Pool registration as operator not supported by Ledger app version ${getVersionString(version)}.`)
     }
 
-    
+    {
+        const hasScriptDataHashInOutputs = request?.tx?.outputs && request.tx.outputs.some(o =>
+            o.dataHashHex != null)
+        if (hasScriptDataHashInOutputs && !getCompatibility(version).supportsAlonso) {
+            throw new DeviceVersionUnsupported(`Alonso not supported by Ledger app version ${version}.`)
+        }
+    }
+            
     const certificates = request?.tx?.certificates
     const hasPoolRetirement = certificates && certificates.some(c => c.type === CertificateType.STAKE_POOL_RETIREMENT)
             
@@ -630,7 +647,7 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
         }
     }
 
-    if (request?.tx?.scriptDataHash && !getCompatibility(version).supportsAlonso) {
+    if (request?.tx?.scriptDataHashHex && !getCompatibility(version).supportsAlonso) {
         throw new DeviceVersionUnsupported(`Alonso not supported by Ledger app version ${version}.`)
     }
 }
@@ -710,8 +727,8 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
     }
 
     // script data hash
-    if (tx.scriptDataHash != null) {
-        yield* signTx_setScriptDataHash(tx.scriptDataHash)
+    if (tx.scriptDataHashHex != null) {
+        yield* signTx_setScriptDataHash(tx.scriptDataHashHex)
     }
 
     // confirm

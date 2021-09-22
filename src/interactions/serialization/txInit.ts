@@ -1,7 +1,7 @@
 import type { ParsedTransaction, Uint8_t, Uint32_t, Version } from "../../types/internal"
 import { TransactionSigningMode } from "../../types/internal"
 import { assert } from "../../utils/assert"
-import { uint8_to_buf, uint32_to_buf } from "../../utils/serialize"
+import { uint8_to_buf, uint32_to_buf, serializeOptionFlag } from "../../utils/serialize"
 import { getCompatibility } from "../getVersion"
 
 const _serializeSigningMode = (
@@ -19,19 +19,6 @@ const _serializeSigningMode = (
     return uint8_to_buf(value)
 }
 
-function _serializeOptionFlag(included: boolean) {
-    const SignTxIncluded = {
-        NO: 1 as Uint8_t,
-        YES: 2 as Uint8_t,
-    }
-
-    const value = included
-        ? SignTxIncluded.YES
-        : SignTxIncluded.NO
-
-    return uint8_to_buf(value)
-}
-
 export function serializeTxInit(
     tx: ParsedTransaction,
     signingMode: TransactionSigningMode,
@@ -39,18 +26,18 @@ export function serializeTxInit(
     version: Version,
 ) {
     const mintBuffer = getCompatibility(version).supportsMint
-        ? _serializeOptionFlag(tx.mint != null)
+        ? serializeOptionFlag(tx.mint != null)
         : Buffer.from([])
     const scriptDataHashBuffer = getCompatibility(version).supportsAlonso
-        ? _serializeOptionFlag(tx.scriptDataHash != null)
+        ? serializeOptionFlag(tx.scriptDataHashHex != null)
         : Buffer.from([])
 
     return Buffer.concat([
         uint8_to_buf(tx.network.networkId),
         uint32_to_buf(tx.network.protocolMagic),
-        _serializeOptionFlag(tx.ttl != null),
-        _serializeOptionFlag(tx.auxiliaryData != null),
-        _serializeOptionFlag(tx.validityIntervalStart != null),
+        serializeOptionFlag(tx.ttl != null),
+        serializeOptionFlag(tx.auxiliaryData != null),
+        serializeOptionFlag(tx.validityIntervalStart != null),
         mintBuffer,
         scriptDataHashBuffer,
         _serializeSigningMode(signingMode),
