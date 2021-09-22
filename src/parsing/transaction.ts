@@ -1,8 +1,8 @@
 import { InvalidData } from "../errors"
 import { InvalidDataReason } from "../errors/invalidDataReason"
-import type { OutputDestination, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedToken, ParsedTransaction, ParsedWithdrawal } from "../types/internal"
+import { OutputDestination, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedToken, ParsedTransaction, ParsedWithdrawal } from "../types/internal"
 import { StakeCredentialType } from "../types/internal"
-import { ASSET_NAME_LENGTH_MAX, CertificateType, SpendingDataSourceType, TOKEN_POLICY_LENGTH, TX_HASH_LENGTH } from "../types/internal"
+import { ASSET_NAME_LENGTH_MAX, CertificateType, SpendingDataSourceType, TOKEN_POLICY_LENGTH, TX_HASH_LENGTH, SCRIPT_DATA_HASH_LENGTH } from "../types/internal"
 import type {
     AssetGroup,
     Certificate,
@@ -137,6 +137,10 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
         ? null
         : parseTokenBundle(tx.mint, false, parseInt64_str)
 
+    const scriptDataHash = tx.scriptDataHash == null
+        ? null
+        : parseHexStringOfLength(tx.scriptDataHash, SCRIPT_DATA_HASH_LENGTH, InvalidDataReason.SCRIPT_DATA_HASH_WRONG_LENGTH)
+
     return {
         network,
         inputs,
@@ -148,6 +152,7 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
         certificates,
         fee,
         mint,
+        scriptDataHash,
     }
 }
 

@@ -1,5 +1,5 @@
 import { DeviceVersionUnsupported } from "../errors"
-import type { Int64_str, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
+import type { Int64_str, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, ScriptDataHash, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
 import { StakeCredentialType } from "../types/internal"
 import { CertificateType, ED25519_SIGNATURE_LENGTH, PoolOwnerType, TX_HASH_LENGTH } from "../types/internal"
 import type { SignedTransactionData, TxAuxiliaryDataSupplement} from "../types/public"
@@ -16,7 +16,7 @@ import { serializeFinancials, serializePoolInitialParams, serializePoolInitialPa
 import { serializeTxAuxiliaryData } from "./serialization/txAuxiliaryData"
 import { serializeTxCertificate } from "./serialization/txCertificate"
 import { serializeTxInit } from "./serialization/txInit"
-import { serializeAssetGroup, serializeMintBasicParams, serializeToken, serializeTxFee, serializeTxInput, serializeTxTtl, serializeTxValidityStart, serializeTxWithdrawal, serializeTxWitnessRequest } from "./serialization/txOther"
+import { serializeAssetGroup, serializeMintBasicParams, serializeToken, serializeTxFee, serializeTxInput, serializeTxTtl, serializeTxValidityStart, serializeTxWithdrawal, serializeTxWitnessRequest, serializeScriptDataHash } from "./serialization/txOther"
 import { serializeTxOutputBasicParams } from "./serialization/txOutput"
 
 const enum P1 {
@@ -31,6 +31,7 @@ const enum P1 {
   STAGE_VALIDITY_INTERVAL_START = 0x09,
   STAGE_CONFIRM = 0x0a,
   STAGE_MINT = 0x0b,
+  STAGE_SCRIPT_DATA_HASH = 0x0c,
   STAGE_WITNESSES = 0x0f,
 }
 
@@ -473,6 +474,18 @@ function* signTx_setMint(
     })
 }
 
+function* signTx_setScriptDataHash(
+    scriptDataHash: ScriptDataHash
+): Interaction<void> {
+  const enum P2 {
+    UNUSED = 0x00,
+  }
+  yield send({
+      p1: P1.STAGE_SCRIPT_DATA_HASH,
+      p2: P2.UNUSED,
+      data: serializeScriptDataHash(scriptDataHash),
+  })
+}
 
 function* signTx_awaitConfirm(
 ): Interaction<{ txHashHex: string; }> {
@@ -616,6 +629,10 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
             }
         }
     }
+
+    if (request?.tx?.scriptDataHash && !getCompatibility(version).supportsAlonso) {
+        throw new DeviceVersionUnsupported(`Alonso not supported by Ledger app version ${version}.`)
+    }
 }
 
 // general name, because it should work with any type if generalized
@@ -690,6 +707,11 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
     // mint
     if (tx.mint != null) {
         yield* signTx_setMint(tx.mint)
+    }
+
+    // script data hash
+    if (tx.scriptDataHash != null) {
+        yield* signTx_setScriptDataHash(tx.scriptDataHash)
     }
 
     // confirm

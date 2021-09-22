@@ -820,6 +820,10 @@ export type DeviceCompatibility = {
      * Whether we support mint
      */
     supportsMint: boolean
+    /**
+     * Whether we support Alonso
+     */
+    supportsAlonso: boolean
 }
 
 /**
@@ -1053,6 +1057,10 @@ export type Transaction = {
      * i.e. the key with the lower value in lexical order sorts earlier.
      */
     mint?: Array<AssetGroup> | null,
+    /**
+     * Script Data hash (if any)
+     */
+    scriptDataHash?: string | null,
 }
 
 /**

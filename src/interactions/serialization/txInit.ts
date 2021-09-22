@@ -41,6 +41,9 @@ export function serializeTxInit(
     const mintBuffer = getCompatibility(version).supportsMint
         ? _serializeOptionFlag(tx.mint != null)
         : Buffer.from([])
+    const scriptDataHashBuffer = getCompatibility(version).supportsAlonso
+        ? _serializeOptionFlag(tx.scriptDataHash != null)
+        : Buffer.from([])
 
     return Buffer.concat([
         uint8_to_buf(tx.network.networkId),
@@ -49,6 +52,7 @@ export function serializeTxInit(
         _serializeOptionFlag(tx.auxiliaryData != null),
         _serializeOptionFlag(tx.validityIntervalStart != null),
         mintBuffer,
+        scriptDataHashBuffer,
         _serializeSigningMode(signingMode),
         uint32_to_buf(tx.inputs.length as Uint32_t),
         uint32_to_buf(tx.outputs.length as Uint32_t),

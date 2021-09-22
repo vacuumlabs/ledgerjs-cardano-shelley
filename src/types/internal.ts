@@ -29,6 +29,7 @@ export const KES_PUBLIC_KEY_LENGTH = 32
 export const VRF_KEY_HASH_LENGTH = 32
 export const REWARD_ACCOUNT_HEX_LENGTH = 29
 export const ED25519_SIGNATURE_LENGTH = 64
+export const SCRIPT_DATA_HASH_LENGTH = 32
 
 export const enum StakeCredentialType {
     KEY_PATH = 0,
@@ -114,6 +115,7 @@ export type ParsedTransaction = {
     auxiliaryData: ParsedTxAuxiliaryData | null
     validityIntervalStart: Uint64_str | null
     mint: Array<ParsedAssetGroup<Int64_str>> | null
+    scriptDataHash: ScriptDataHash | null
 }
 
 export type ParsedSigningRequest = {
@@ -135,6 +137,7 @@ export type ParsedWithdrawal = {
     stakeCredential: ParsedStakeCredential
 }
 
+export type ScriptDataHash = FixlenHexString<typeof SCRIPT_DATA_HASH_LENGTH>
 
 export type ParsedMargin = {
     numerator: Uint64_str,
