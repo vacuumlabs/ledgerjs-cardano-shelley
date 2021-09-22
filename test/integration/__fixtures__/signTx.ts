@@ -273,6 +273,8 @@ export const outputs: Record<
   | 'multiassetInvalidTokenOrderingDifferentLengths'
   | 'multiassetTokensNotUnique'
   | 'trezorParity'
+  | 'dataHash'
+  | 'dataHashWithTokens'
   , TxOutput
 > = {
     externalByronMainnet: {
@@ -519,6 +521,31 @@ export const outputs: Record<
                 ],
             },
         ],
+    },
+    dataHash: {
+        destination: destinations.internalBaseWithStakingPath,
+        amount: 7120787,
+        dataHashHex: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
+    },
+    dataHashWithTokens: {
+        destination: destinations.internalBaseWithStakingPath,
+        amount: 7120787,
+        tokenBundle: [
+            {
+                policyIdHex: "75a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39",
+                tokens: [
+                    {
+                        assetNameHex: "7564247542686911",
+                        amount: "47",
+                    },
+                    {
+                        assetNameHex: "7564247542686912",
+                        amount: "7878754",
+                    },
+                ],
+            },
+        ],
+        dataHashHex: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
     },
 }
 
@@ -917,7 +944,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
         tx: {
             ...shelleyBase,
             outputs: [],
-            scriptDataHash: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
+            scriptDataHashHex: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         additionalWitnessPaths: [],
@@ -929,6 +956,50 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
                     path: str_to_path("1852'/1815'/0'/0/0"),
                     witnessSignatureHex:
             "5c66a4f75359a62b4b32751fe30a1adbf7ed2839fd4cb762e9a4d2b086de82fca2310bcf07efc2b03086211faa19941dbe059bbfb747e128863f339720e71304",
+                },
+            ],
+            auxiliaryDataSupplement: null,
+        },
+    },
+    {
+        testname: "Sign tx with data hash in output",
+        tx: {
+            ...shelleyBase,
+            outputs: [outputs.dataHash],
+        },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+        additionalWitnessPaths: [],
+        txBody: "a400818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163f63dcfc000181825841017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b09da61d425f34611140102182a030a",
+        result: {
+            txHashHex:
+        "8afb464f2ce1993d394590f5b1ea698aa7b420984664cf7a7e02824b6f29ad53",
+            witnesses: [
+                {
+                    path: str_to_path("1852'/1815'/0'/0/0"),
+                    witnessSignatureHex:
+            "479c5669756570ee2056d3fa5b5ba333594950f382e2f8d7e88d2bf64a69a589c697c0107861c10db84af27ce064af8b3331c63e54ccb73969b41d029b8bca08",
+                },
+            ],
+            auxiliaryDataSupplement: null,
+        },
+    },
+    {
+        testname: "Sign tx with data hash in output with tokens",
+        tx: {
+            ...shelleyBase,
+            outputs: [outputs.dataHashWithTokens],
+        },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+        additionalWitnessPaths: [],
+        txBody: "a400818258201af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163f63dcfc000181825841017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b09da61d425f34611140102182a030a",
+        result: {
+            txHashHex:
+        "e556aaa9fa11946c8b12210be8ce7aa78d46a56bc2b1026f6893ab2c5306bd2c",
+            witnesses: [
+                {
+                    path: str_to_path("1852'/1815'/0'/0/0"),
+                    witnessSignatureHex:
+            "e40a3b9a49661b83141af47685c9845db6f59e820f7d13539dd756aac5fa3055ecafb355175add84a6f9da9263689d36a5a123fc12df7003b35f3efd16a8550d",
                 },
             ],
             auxiliaryDataSupplement: null,

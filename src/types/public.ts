@@ -298,6 +298,10 @@ export type AssetGroup = {
  */
 export type TxOutput = {
     /**
+     * Destination address of the output
+     */
+    destination: TxOutputDestination
+    /**
      * Output amount.
      * Specified in Lovelace
      */
@@ -310,9 +314,9 @@ export type TxOutput = {
      */
     tokenBundle?: Array<AssetGroup> | null
     /**
-     * Destination address of the output
+     * Optional script data hash
      */
-    destination: TxOutputDestination
+    dataHashHex?: string | null
 }
 
 /**
@@ -1060,7 +1064,7 @@ export type Transaction = {
     /**
      * Script Data hash (if any)
      */
-    scriptDataHash?: string | null,
+    scriptDataHashHex?: string | null,
 }
 
 /**
