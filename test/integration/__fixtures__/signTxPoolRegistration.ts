@@ -538,12 +538,12 @@ export const poolRegistrationOwnerTestcases: Testcase[] = [
        * txBody: a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825839017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b090102182a030a04818a03581c13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad582007821cd344d7fd7e3ae5f2ed863218cb979ff1d59e50c4276bdc479b0d0844501b0000000ba43b74001a1443fd00d81e82031864581de1794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad82581c1d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c581c794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad848400190bb84436e44b9af68400190bb84436e44b9b500178ff2483e3a2330a34c4a5e576c2078301190bb86d616161612e626262622e636f6d82026d616161612e626262632e636f6d82782968747470733a2f2f7777772e76616375756d6c6162732e636f6d2f73616d706c6555726c2e6a736f6e5820cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb
        */
             txHashHex:
-        "bc678441767b195382f00f9f4c4bddc046f73e6116fa789035105ecddfdee949",
+        "b6ad77bb329945299a387446998e5750c6f1dcfff3a3ed7295c2c3c105083888",
             witnesses: [
                 {
                     path: str_to_path("1852'/1815'/0'/2/0"),
                     witnessSignatureHex:
-            "61fc06451462426b14fa3a31008a5f7d32b2f1793022060c02939bd0004b07f2bd737d542c2db6cef6dad912b9bdca1829a5dc2b45bab3c72afe374cef59cc04",
+            "340f068744fa9aa8375a927569e1d2b34717fa2d3d0b1e3ddcfe1b6f2ba285654f1c241e27478d6af83da76e2bcc5295bd2808d8da48af0b4e993ea2af3dcf07",
                 },
             ],
             auxiliaryDataSupplement: null,
@@ -558,12 +558,12 @@ export const poolRegistrationOwnerTestcases: Testcase[] = [
         result: {
             // WARNING: only as computed by ledger, not verified with cardano-cli
             txHashHex:
-        "4ea6c33b8f9714996080700d0e8480b2ab1136641ea8c3b08572be189c9825ab",
+        "842855c4ceded0d83d718978a5b18a99afbcf33cbe8eb21b86a118ba71f73af0",
             witnesses: [
                 {
                     path: str_to_path("1852'/1815'/0'/2/0"),
                     witnessSignatureHex:
-            "f03947901bcfc96ac8e359825091db88900a470947c60220fcd3892683ec7fe949ef4e28a446d78a883f034cd77cbca669529a9da3f2316b762eb97033797a07",
+            "01553602c0880980ed54a27a9927fd119bb647f7c2fe909544ab808712f2c35dcd953ac5458e2b0211526c9ac36d2d9845641f39b57eaa8d84a9d0d2af761d07",
                 },
             ],
             auxiliaryDataSupplement: null,
@@ -578,12 +578,12 @@ export const poolRegistrationOwnerTestcases: Testcase[] = [
         result: {
             // WARNING: only as computed by ledger, not verified with cardano-cli
             txHashHex:
-        "322872680d2f13e2d50c806572b28a95e12bbea2e8e27db44e369e5d304929df",
+        "bd935accb6489fd823397194b635456ca04e4094a55dec934fd4efb87025a92f",
             witnesses: [
                 {
                     path: str_to_path("1852'/1815'/0'/2/0"),
                     witnessSignatureHex:
-            "c1b454f3cf868007d2850084ff404bc4b91d9b541a78af9014288504143bd6b4f12df2163b7efb1817636eb625a62967fb66281ecae4d1b461770deafb65ba0f",
+            "dc90b84e0cf061d43c0686ce9ba5c625cd51023d9637531b38275f9a116162016b176b6e8c35a35833a50d0f860a7e7d58cda3bc041e4574ad11688cf5c68e05",
                 },
             ],
             auxiliaryDataSupplement: null,
@@ -598,12 +598,12 @@ export const poolRegistrationOwnerTestcases: Testcase[] = [
         result: {
             // WARNING: only as computed by ledger, not verified with cardano-cli
             txHashHex:
-        "a41a6e4e00ad04824455773302f95a179c03f583f969862a479d4805b53a708f",
+        "25ab245b246144fe919fc496bafa2ec91832c166deeb0f5d93092b190e882ec3",
             witnesses: [
                 {
                     path: str_to_path("1852'/1815'/0'/2/0"),
                     witnessSignatureHex:
-            "8bb8c10b390ac92f617ba6895e3b138f43dc741e3589a9548166d1eda995becf4a229e9e95f6300336f7e92345b244c5dc78cfe0cc12cac6ff6fbb5731671c0e",
+            "1538dc1d08a842875b27ccfd9ba84ccc588c191ef4a5a451af8ba73ee1637451bade160b9859afe7437dbabfe5017b8d48c55b54494f240db755b55d03b19309",
                 },
             ],
             auxiliaryDataSupplement: null,
@@ -618,12 +618,12 @@ export const poolRegistrationOwnerTestcases: Testcase[] = [
         result: {
             // WARNING: only as computed by ledger, not verified with cardano-cli
             txHashHex:
-        "ab64050759a4221d4a8568badf06c444b42dae05fb2d22b0dff5749a49e5d332",
+        "284f27c5f92d379181047e635b9c939cf4d2d5fbb52e933d19c1239d1305b221",
             witnesses: [
                 {
                     path: str_to_path("1852'/1815'/0'/2/0"),
                     witnessSignatureHex:
-            "b0e6796ca5f97a0776c798e602afd0f6541996d431a3cbec8e3fe77eb49416cd812dcf6084672e40c9ae2b8cc8a5513d1b1a6c3ad408864d4a771e315c50d808",
+            "726ebaaca21d2f4cc863acddcc097fde4c1b213cd61ea81800fc8a60290b15286ce4c128c2fbb62dcaed3a5d89a7585afc61368f10bc0436201108fd0c2f510c",
                 },
             ],
             auxiliaryDataSupplement: null,
@@ -638,12 +638,12 @@ export const poolRegistrationOwnerTestcases: Testcase[] = [
         result: {
             // WARNING: only as computed by ledger, not verified with cardano-cli
             txHashHex:
-        "fc4778c13fadb8b69249b4cd98ef45f42145e1ce081c5466170a670829dc2184",
+        "cc229d17c6a6fa0b6e122bad4a2d606f06c968cbbacf470bf9d9752706c0d615",
             witnesses: [
                 {
                     path: str_to_path("1852'/1815'/0'/2/0"),
                     witnessSignatureHex:
-            "adc06e34dc66f01b16496b04fc4ce5058e3be7290398cf2728f8463dda15c87866314449bdb309d0cdc22f3ca9bee310458f2769df6a1486f1b470a3227a030b",
+            "63dc0b738d825b7ec81fc3af0aee85ec45d2f867d521653412d386b180a868b17a32a850ca5b3fe59bd90d4d682796d8aedee4477def1e44d6458ba112419d0d",
                 },
             ],
             auxiliaryDataSupplement: null,
@@ -659,12 +659,12 @@ export const poolRegistrationOwnerTestcases: Testcase[] = [
         result: {
             // WARNING: only as computed by ledger, not verified with cardano-cli
             txHashHex:
-        "a97b2258962537e0ad3cbcb1fbf9d454f55bc9b7feb2bea0da23f82c1e956f67",
+        "7bc723b062c5b4b6ae2bae0eca0421f53304024119a943674ce284851d8a721e",
             witnesses: [
                 {
                     path: str_to_path("1852'/1815'/0'/2/0"),
                     witnessSignatureHex:
-            "06e66f6a2d510a8a5446597c59c79cbf4f9e7af9073da0651ea59bbdc2340dc933ed292aa282e6ea7068bed9f6bcb44228573e661c211e6dc61f4dd73ff41f04",
+            "afe3234f647db594ae17c520ada1bc2a7eabd2f4d2e414f61cb9fa31ff7f5f6fcf8185bdbfdb16ca4c4b4fefe0da296a274dc1558191ef3b6e55046da213d701",
                 },
             ],
             auxiliaryDataSupplement: null,
@@ -680,12 +680,12 @@ export const poolRegistrationOwnerTestcases: Testcase[] = [
         result: {
             // WARNING: only as computed by ledger, not verified with cardano-cli
             txHashHex:
-        "600114fd1c50a7e857fdcaaea73d94f7435c9fce63cfde597f7c48b8dda3b0ba",
+        "036d541c7dfc377f857ba4cc5aec0337180893cdbda46b182f12cae988817b56",
             witnesses: [
                 {
                     path: str_to_path("1852'/1815'/0'/2/0"),
                     witnessSignatureHex:
-            "91c09ad95d5d0f87f61a62e2f5e2dda4245eb4011887a04a53bdf085282002ccc712718e855e36a30cfcf7ecd43bcdc795aa87647be9c716b65e7fcf376e0503",
+            "3a211fa972da1c5998a90a2dda1480d533f0a93b20b3b2dd44239113e1eb4c52422ab22574b5c430dbd3dc6b8fabb4d2fd4cde5ba8ef36c0fb7828a7079c430f",
                 },
             ],
             auxiliaryDataSupplement: null,
@@ -754,17 +754,17 @@ export const poolRegistrationOperatorTestcases: Testcase[] = [
         result: {
             // WARNING: only as computed by ledger, not verified with cardano-cli
             txHashHex:
-        "75a57a27893443eb7bb6e4746b6d52ba74c401ece0d2a2570322d6b7d07c29a7",
+        "59e83a6409ff2cd2ee215a3e9142da2672085ca50fdddc18ed54290aa36a82aa",
             witnesses: [
                 {
                     path: str_to_path("1852'/1815'/0'/0/0"),
                     witnessSignatureHex:
-            "2bff91cbd14ae53a2d476bd27306a7117d705c4fb58248af4f9b86c770991ea9785a39924d824a75b9ee0632b52c4267e6afec41e206a03b4753c5a397275807",
+            "b2d97387235215398d65e09371b6543e74481e29b579ca1fae292dbc65578b5b42aa3be795af67acb00012643587813841496392a68ed5e9493144858fedd400",
                 },
                 {
                     path: str_to_path("1853'/1815'/0'/0'"),
                     witnessSignatureHex:
-            "a92f621f48c785103b1dab862715beef0f0dc2408d0668422286a1dbc268db9a32cacd3b689a0c6af32ab2ac5057caac13910f09363e2d2db0dde4a27b2b5a09",
+            "47b567b6ea4d9d6fe0eb11558ee2915a0cc07bd22a432bfdb908685d4acaea802925ee233bc3a9b6a49ebe9cfaeb6254e54bb6c0555e4ac640da5c99a585b006",
                 },
             ],
             auxiliaryDataSupplement: null,
@@ -780,17 +780,17 @@ export const poolRegistrationOperatorTestcases: Testcase[] = [
         result: {
             // WARNING: only as computed by ledger, not verified with cardano-cli
             txHashHex:
-        "486d70234b174592fffb1e750fe9580e4d88a39cd7668514b244a885251e5344",
+        "2f41dbce90ecc13d154e1e5e3d3503bd7e43a1a8edae6bca721ce35ba905ed10",
             witnesses: [
                 {
                     path: str_to_path("1852'/1815'/0'/0/0"),
                     witnessSignatureHex:
-            "12776e69a6ea50ad42cdf0e164afc5a8b4fab612868ab990ead677ba4ced3ea2ad25b27ef5b27296add22c7378689a8572eb10ce24483b2ab8140b8aa5b1f70c",
+            "c0109f65d6aa6cef68b8a64ca6d9a540e5091b99b3f82081c5369931e067e2eca4ff6735322a8e0ee61be72cd8b02fb1cc394203a6801539e927246fbbd59503",
                 },
                 {
                     path: str_to_path("1853'/1815'/0'/0'"),
                     witnessSignatureHex:
-            "d8851757cf6dc978fc4b3db42111124e83e99d58739a21ecf23c6b5de316a8fe6d03767df45e62ad7b64872a73a68427ce83f6a856ebd196897e4d96c3173d06",
+            "3465a02596afd308ef2ff5652defa62ca080ba947dbd977363d502e7f451f7af4809e3d4fbd01077a20185feb7f0e5270a2ee001bb0216462fac17fc226e7608",
                 },
             ],
             auxiliaryDataSupplement: null,
@@ -806,17 +806,17 @@ export const poolRegistrationOperatorTestcases: Testcase[] = [
         result: {
             // WARNING: only as computed by ledger, not verified with cardano-cli
             txHashHex:
-        "7ece5d431b09770f2e24c190e96c3884866ba4c9cd3292d4b42d286af5f3f872",
+        "caa0503401960eabd4747707ba14100d41567aa8c4e0079257920b787ae778e7",
             witnesses: [
                 {
                     path: str_to_path("1852'/1815'/0'/0/0"),
                     witnessSignatureHex:
-            "9f6da51173411ba82e76695ccf7c222f1df7444b0bbc1af354800acf244a4eaf72e95853406918e3ef461569fe99b39e33164ab440510f75df06e4ff89ca9107",
+            "03c680921585607dfdf0fc2c37a75fd9beaa214be9866cba00d0334ff402c9e5f508c7fd535aff41e4c9f2f380b420507c39de2c109722440e4f6b3b33bc6004",
                 },
                 {
                     path: str_to_path("1853'/1815'/0'/0'"),
                     witnessSignatureHex:
-            "8957a7768bc9389cd7ab6fa3b3e2fa089785715a5298f9cb38abf99a6e0da5bef734c4862ca7948fb69575ccb9ed8ae1d92cc971742f674632f6f03e22c5b103",
+            "5a797cde87da1309b68be01adc96205c6c6118052e94ea3a1ba40d2c53d2eaddaeda90bc3348729ef18d85e4000fe081a37f358e244714504f7f2c413cc0a400",
                 },
             ],
             auxiliaryDataSupplement: null,
