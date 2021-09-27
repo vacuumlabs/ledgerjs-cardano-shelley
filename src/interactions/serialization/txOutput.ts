@@ -4,6 +4,7 @@ import type { Version } from "../../types/public"
 import { unreachable } from "../../utils/assert"
 import { hex_to_buf, uint8_to_buf, uint32_to_buf, uint64_to_buf, serializeOptionFlag } from "../../utils/serialize"
 import { serializeAddressParams } from "./addressParams"
+import { getCompatibility } from "../getVersion"
 
 function serializeTxOutputDestination(
     destination: OutputDestination,
@@ -34,10 +35,14 @@ export function serializeTxOutputBasicParams(
     output: ParsedOutput,
     version: Version,
 ): Buffer {
+    const dataHashHexBuffer = getCompatibility(version).supportsAlonso
+        ? serializeOptionFlag(output.dataHashHex != null)
+        : Buffer.from([])
+
     return Buffer.concat([
         serializeTxOutputDestination(output.destination, version),
         uint64_to_buf(output.amount),
         uint32_to_buf(output.tokenBundle.length as Uint32_t),
-        serializeOptionFlag(output.dataHashHex != null),
+        dataHashHexBuffer,
     ])
 }
