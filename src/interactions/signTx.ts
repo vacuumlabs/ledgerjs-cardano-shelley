@@ -537,14 +537,14 @@ function generateWitnessPaths(request: ParsedSigningRequest): ValidBIP32Path[] {
         } else if (cert.type === CertificateType.STAKE_POOL_RETIREMENT) {
             witnessPaths.push(cert.path)
         } else {
-            if (cert.stakeCredential.type == StakeCredentialType.KEY_PATH) {
+            if (cert.stakeCredential.type === StakeCredentialType.KEY_PATH) {
                 witnessPaths.push(cert.stakeCredential.path)
             }
         }
     }
   
     for (const withdrawal of tx.withdrawals) {
-        if (withdrawal.stakeCredential.type == StakeCredentialType.KEY_PATH) {
+        if (withdrawal.stakeCredential.type === StakeCredentialType.KEY_PATH) {
             witnessPaths.push(withdrawal.stakeCredential.path)
         }
     }
@@ -554,7 +554,7 @@ function generateWitnessPaths(request: ParsedSigningRequest): ValidBIP32Path[] {
 
 function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSigningRequest): void {
     const auxiliaryData = request?.tx?.auxiliaryData
-    const hasCatalystRegistration = auxiliaryData?.type == TxAuxiliaryDataType.CATALYST_REGISTRATION
+    const hasCatalystRegistration = auxiliaryData?.type === TxAuxiliaryDataType.CATALYST_REGISTRATION
 
     if (hasCatalystRegistration && !getCompatibility(version).supportsCatalystRegistration) {
         throw new DeviceVersionUnsupported(`Catalyst registration not supported by Ledger app version ${version}.`)
@@ -591,7 +591,7 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
                 AddressType.REWARD_SCRIPT,
             ]
             const hasScripthashOutputs = request?.tx?.outputs && request.tx.outputs.some(o =>
-                o.destination.type == TxOutputDestinationType.DEVICE_OWNED &&
+                o.destination.type === TxOutputDestinationType.DEVICE_OWNED &&
                 scriptAddressTypes.includes(o.destination.addressParams.type))
             if (hasScripthashOutputs) {
                 throw new DeviceVersionUnsupported(`Scripthash based address not supported by Ledger app version ${version}.`)
@@ -609,7 +609,7 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
         }
         {
             const withdrawals = request?.tx?.withdrawals
-            const hasScripthashWithdrawals = withdrawals && withdrawals.some(w => w.stakeCredential.type == StakeCredentialType.SCRIPT_HASH)
+            const hasScripthashWithdrawals = withdrawals && withdrawals.some(w => w.stakeCredential.type === StakeCredentialType.SCRIPT_HASH)
             if (hasScripthashWithdrawals) {
                 throw new DeviceVersionUnsupported(`Scripthash based withdrawal not supported by Ledger app version ${version}.`)
             }

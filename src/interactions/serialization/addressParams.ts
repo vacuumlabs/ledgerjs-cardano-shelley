@@ -69,8 +69,8 @@ export function serializeAddressParams(
     let spending: SpendingDataSource = params.spendingDataSource
     let staking: StakingDataSource = params.stakingDataSource
     if (!getCompatibility(version).supportsMultisigTransaction) {
-        if (params.type == AddressType.REWARD_KEY) {
-            assert(staking.type == StakingDataSourceType.KEY_PATH, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
+        if (params.type === AddressType.REWARD_KEY) {
+            assert(staking.type === StakingDataSourceType.KEY_PATH, InvalidDataReason.ADDRESS_INVALID_STAKING_INFO)
             spending = {
                 type: SpendingDataSourceType.PATH,
                 path: staking.path,
@@ -78,8 +78,8 @@ export function serializeAddressParams(
             staking = {
                 type: StakingDataSourceType.NONE,
             }
-        } else if (params.type == AddressType.REWARD_SCRIPT) {
-            throw new DeviceVersionUnsupported(`Scripthash based address derivation not supported by Ledger app version ${version}.`)
+        } else if (params.type === AddressType.REWARD_SCRIPT) {
+            throw new DeviceVersionUnsupported(`Scripthash based address derivation not supported by Ledger app version ${getVersionString(version)}.`)
         }
     }
     return Buffer.concat([
