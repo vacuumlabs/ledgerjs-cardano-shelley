@@ -273,8 +273,8 @@ export const outputs: Record<
   | 'multiassetInvalidTokenOrderingDifferentLengths'
   | 'multiassetTokensNotUnique'
   | 'trezorParity'
-  | 'dataHash'
-  | 'dataHashWithTokens'
+  | 'datumHash'
+  | 'datumHashWithTokens'
   , TxOutput
 > = {
     externalByronMainnet: {
@@ -522,12 +522,12 @@ export const outputs: Record<
             },
         ],
     },
-    dataHash: {
+    datumHash: {
         destination: destinations.internalBaseWithStakingPath,
         amount: 7120787,
-        dataHashHex: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
+        datumHashHex: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
     },
-    dataHashWithTokens: {
+    datumHashWithTokens: {
         destination: destinations.internalBaseWithStakingPath,
         amount: 7120787,
         tokenBundle: [
@@ -545,7 +545,7 @@ export const outputs: Record<
                 ],
             },
         ],
-        dataHashHex: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
+        datumHashHex: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
     },
 }
 
@@ -962,10 +962,10 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
         },
     },
     {
-        testname: "Sign tx with data hash in output",
+        testname: "Sign tx with datum hash in output",
         tx: {
             ...shelleyBase,
-            outputs: [outputs.dataHash],
+            outputs: [outputs.datumHash],
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         additionalWitnessPaths: [],
@@ -984,10 +984,10 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
         },
     },
     {
-        testname: "Sign tx with data hash in output with tokens",
+        testname: "Sign tx with datum hash in output with tokens",
         tx: {
             ...shelleyBase,
-            outputs: [outputs.dataHashWithTokens],
+            outputs: [outputs.datumHashWithTokens],
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         additionalWitnessPaths: [],

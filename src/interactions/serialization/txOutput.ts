@@ -35,14 +35,14 @@ export function serializeTxOutputBasicParams(
     output: ParsedOutput,
     version: Version,
 ): Buffer {
-    const dataHashHexBuffer = getCompatibility(version).supportsAlonso
-        ? serializeOptionFlag(output.dataHashHex != null)
+    const datumHashHexBuffer = getCompatibility(version).supportsAlonso
+        ? serializeOptionFlag(output.datumHashHex != null)
         : Buffer.from([])
 
     return Buffer.concat([
         serializeTxOutputDestination(output.destination, version),
         uint64_to_buf(output.amount),
         uint32_to_buf(output.tokenBundle.length as Uint32_t),
-        dataHashHexBuffer,
+        datumHashHexBuffer,
     ])
 }
