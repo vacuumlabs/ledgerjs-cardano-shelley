@@ -95,11 +95,11 @@ function* signTx_addOutput(
 
   yield* signTx_addTokenBundle(output.tokenBundle, P1.STAGE_OUTPUTS, uint64_to_buf)
 
-  if (output.dataHashHex) {
+  if (output.datumHashHex) {
       yield send({
           p1: P1.STAGE_OUTPUTS,
           p2: P2.SCRIPT_DATA_HASH,
-          data: hex_to_buf(output.dataHashHex),
+          data: hex_to_buf(output.datumHashHex),
           expectedResponseLength: 0,
       })
   }
@@ -594,7 +594,7 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
 
     {
         const hasScriptDataHashInOutputs = request?.tx?.outputs && request.tx.outputs.some(o =>
-            o.dataHashHex != null)
+            o.datumHashHex != null)
         if (hasScriptDataHashInOutputs && !getCompatibility(version).supportsAlonso) {
             throw new DeviceVersionUnsupported(`Alonso not supported by Ledger app version ${version}.`)
         }

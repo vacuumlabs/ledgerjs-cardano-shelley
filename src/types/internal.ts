@@ -30,6 +30,7 @@ export const VRF_KEY_HASH_LENGTH = 32
 export const REWARD_ACCOUNT_HEX_LENGTH = 29
 export const ED25519_SIGNATURE_LENGTH = 64
 export const SCRIPT_DATA_HASH_LENGTH = 32
+export const DATUM_HASH_LENGTH = 32
 
 export const enum StakeCredentialType {
     KEY_PATH = 0,
@@ -326,11 +327,13 @@ export type OutputDestination = {
     addressParams: ParsedAddressParams
 }
 
+export type DatumHash = FixlenHexString<typeof DATUM_HASH_LENGTH>
+
 export type ParsedOutput = {
     amount: Uint64_str
     tokenBundle: ParsedAssetGroup<Uint64_str>[]
     destination: OutputDestination
-    dataHashHex?: ScriptDataHash | null
+    datumHashHex?: DatumHash | null
 }
 
 export const ASSET_NAME_LENGTH_MAX = 32

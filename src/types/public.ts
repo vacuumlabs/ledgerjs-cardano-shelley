@@ -316,7 +316,7 @@ export type TxOutput = {
     /**
      * Optional script data hash
      */
-    dataHashHex?: string | null
+    datumHashHex?: string | null
 }
 
 /**
