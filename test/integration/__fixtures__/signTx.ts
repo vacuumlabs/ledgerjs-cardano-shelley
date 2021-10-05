@@ -1058,6 +1058,29 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             auxiliaryDataSupplement: null,
         },
     },
+    {
+        testname: "Sign tx with collaterals",
+        tx: {
+            ...shelleyBase,
+            outputs: [],
+            collaterals: [inputs.utxoShelley],
+        },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+        additionalWitnessPaths: [],
+        txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a0d818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000f01",
+        result: {
+            txHashHex:
+        "4e94b319a7e5a28f333932b0e2337b7c16da22f5eacae684edf2b2fbca2bf2f7",
+            witnesses: [
+                {
+                    path: str_to_path("1852'/1815'/0'/0/0"),
+                    witnessSignatureHex:
+            "8c1cbf88de350d9817aab84f878005342c677319d6c16210db28477eff9355a689a210ea14c449b455f7e77165055f4de4314efbab9a3c7aceae5288f8a73f0d",
+                },
+            ],
+            auxiliaryDataSupplement: null,
+        },
+    },
 ]
 
 export const testsShelleyWithCertificates: TestcaseShelley[] = [

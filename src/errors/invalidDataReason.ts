@@ -50,7 +50,7 @@ export enum InvalidDataReason {
   TTL_INVALID = "invalid ttl",
 
   CERTIFICATES_NOT_ARRAY = "certificates not an array",
-
+  
   CERTIFICATE_INVALID_PATH = "one of the certificates contains an invalid path",
   CERTIFICATE_INVALID_SCRIPT_HASH = "one of the certificates contains an invalid script hash",
   CERTIFICATE_INVALID_STAKE_CREDENTIAL = "one of the certificates contains both a path and a scripthash or neither",
@@ -133,6 +133,8 @@ export enum InvalidDataReason {
   VALIDITY_INTERVAL_START_INVALID = "invalid validity interval start",
 
   SCRIPT_DATA_HASH_WRONG_LENGTH = "script data hash not 32 bytes long",
+
+  COLLATERALS_NOT_ARRAY = "collaterals not an array",
 
   SIGN_MODE_UNKNOWN = "unknown signing mode",
 

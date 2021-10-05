@@ -117,6 +117,7 @@ export type ParsedTransaction = {
     validityIntervalStart: Uint64_str | null
     mint: Array<ParsedAssetGroup<Int64_str>> | null
     scriptDataHashHex: ScriptDataHash | null
+    collaterals: ParsedInput[]
 }
 
 export type ParsedSigningRequest = {
