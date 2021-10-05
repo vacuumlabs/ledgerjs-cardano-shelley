@@ -141,6 +141,9 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
         ? null
         : parseHexStringOfLength(tx.scriptDataHashHex, SCRIPT_DATA_HASH_LENGTH, InvalidDataReason.SCRIPT_DATA_HASH_WRONG_LENGTH)
 
+    validate(isArray(tx.collaterals ?? []), InvalidDataReason.COLLATERALS_NOT_ARRAY)
+    const collaterals = (tx.collaterals ?? []).map(inp => parseTxInput(inp))
+
     return {
         network,
         inputs,
@@ -153,6 +156,7 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
         fee,
         mint,
         scriptDataHashHex: scriptDataHash,
+        collaterals
     }
 }
 

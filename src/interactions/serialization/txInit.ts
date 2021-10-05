@@ -31,6 +31,9 @@ export function serializeTxInit(
     const scriptDataHashBuffer = getCompatibility(version).supportsAlonzo
         ? serializeOptionFlag(tx.scriptDataHashHex != null)
         : Buffer.from([])
+    const collateralsBuffer = getCompatibility(version).supportsAlonso
+        ? uint32_to_buf(tx.collaterals.length as Uint32_t)
+        : Buffer.from([])
 
     return Buffer.concat([
         uint8_to_buf(tx.network.networkId),
@@ -46,5 +49,6 @@ export function serializeTxInit(
         uint32_to_buf(tx.certificates.length as Uint32_t),
         uint32_to_buf(tx.withdrawals.length as Uint32_t),
         uint32_to_buf(numWitnesses as Uint32_t),
+        collateralsBuffer,
     ])
 }

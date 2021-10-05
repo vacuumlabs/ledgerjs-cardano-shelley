@@ -31,6 +31,7 @@ const enum P1 {
   STAGE_VALIDITY_INTERVAL_START = 0x09,
   STAGE_MINT = 0x0b,
   STAGE_SCRIPT_DATA_HASH = 0x0c,
+  STAGE_COLLATERALS = 0x0d,
   STAGE_CONFIRM = 0x0a,
   STAGE_WITNESSES = 0x0f,
 }
@@ -497,6 +498,21 @@ function* signTx_setScriptDataHash(
   })
 }
 
+function* signTx_addCollateral(
+    input: ParsedInput
+): Interaction<void> {
+  const enum P2 {
+    UNUSED = 0x00,
+  }
+
+  yield send({
+      p1: P1.STAGE_COLLATERALS,
+      p2: P2.UNUSED,
+      data: serializeTxInput(input),
+      expectedResponseLength: 0,
+  })
+}
+
 function* signTx_awaitConfirm(
 ): Interaction<{ txHashHex: string; }> {
   const enum P2 {
@@ -650,6 +666,10 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
     if (request?.tx?.scriptDataHashHex && !getCompatibility(version).supportsAlonzo) {
         throw new DeviceVersionUnsupported(`Script data hash not supported by Ledger app version ${version}.`)
     }
+
+    if (request?.tx.collaterals.length != 0 && !getCompatibility(version).supportsAlonzo) {
+        throw new DeviceVersionUnsupported(`Collaterals not supported by Ledger app version ${version}.`)
+    }
 }
 
 // general name, because it should work with any type if generalized
@@ -729,6 +749,10 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
     // script data hash
     if (tx.scriptDataHashHex != null) {
         yield* signTx_setScriptDataHash(tx.scriptDataHashHex)
+    }
+
+    for (const input of tx.collaterals) {
+        yield* signTx_addCollateral(input)
     }
 
     // confirm
