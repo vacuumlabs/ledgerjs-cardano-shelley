@@ -1074,6 +1074,10 @@ export type Transaction = {
      * Collaterals (if any)
      */
     collaterals?: Array<TxInput> | null,
+    /**
+     * Required Signers by key (if any)
+     */
+    requiredSigners?: Array<string> | null,
 }
 
 /**

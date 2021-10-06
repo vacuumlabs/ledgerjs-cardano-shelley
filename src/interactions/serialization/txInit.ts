@@ -34,6 +34,9 @@ export function serializeTxInit(
     const collateralsBuffer = getCompatibility(version).supportsAlonso
         ? uint32_to_buf(tx.collaterals.length as Uint32_t)
         : Buffer.from([])
+    const requiredSignersBuffer = getCompatibility(version).supportsAlonso
+        ? uint32_to_buf(tx.requiredSigners.length as Uint32_t)
+        : Buffer.from([])
 
     return Buffer.concat([
         uint8_to_buf(tx.network.networkId),
@@ -50,5 +53,6 @@ export function serializeTxInit(
         uint32_to_buf(tx.withdrawals.length as Uint32_t),
         uint32_to_buf(numWitnesses as Uint32_t),
         collateralsBuffer,
+        requiredSignersBuffer,
     ])
 }

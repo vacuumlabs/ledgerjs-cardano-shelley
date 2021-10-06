@@ -1,5 +1,5 @@
 import { DeviceVersionUnsupported } from "../errors"
-import type { Int64_str, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedWithdrawal, ScriptDataHash, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
+import type { Int64_str, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedVKey, ParsedWithdrawal, ScriptDataHash, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
 import { StakeCredentialType } from "../types/internal"
 import { CertificateType, ED25519_SIGNATURE_LENGTH, PoolOwnerType, TX_HASH_LENGTH } from "../types/internal"
 import type { SignedTransactionData, TxAuxiliaryDataSupplement} from "../types/public"
@@ -32,6 +32,7 @@ const enum P1 {
   STAGE_MINT = 0x0b,
   STAGE_SCRIPT_DATA_HASH = 0x0c,
   STAGE_COLLATERALS = 0x0d,
+  STAGE_REQUIRED_SIGNERS = 0x0e,
   STAGE_CONFIRM = 0x0a,
   STAGE_WITNESSES = 0x0f,
 }
@@ -513,6 +514,21 @@ function* signTx_addCollateral(
   })
 }
 
+function* signTx_addRequiredSigner(
+    vkey: ParsedVKey
+): Interaction<void> {
+  const enum P2 {
+    UNUSED = 0x00,
+  }
+
+  yield send({
+      p1: P1.STAGE_REQUIRED_SIGNERS,
+      p2: P2.UNUSED,
+      data: hex_to_buf(vkey),
+      expectedResponseLength: 0,
+  })
+}
+
 function* signTx_awaitConfirm(
 ): Interaction<{ txHashHex: string; }> {
   const enum P2 {
@@ -670,6 +686,10 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
     if (request?.tx.collaterals.length != 0 && !getCompatibility(version).supportsAlonzo) {
         throw new DeviceVersionUnsupported(`Collaterals not supported by Ledger app version ${version}.`)
     }
+
+    if (request?.tx.requiredSigners.length != 0 && !getCompatibility(version).supportsAlonzo) {
+        throw new DeviceVersionUnsupported(`Required signers not supported by Ledger app version ${version}.`)
+    }
 }
 
 // general name, because it should work with any type if generalized
@@ -753,6 +773,10 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
 
     for (const input of tx.collaterals) {
         yield* signTx_addCollateral(input)
+    }
+
+    for (const input of tx.requiredSigners) {
+        yield* signTx_addRequiredSigner(input)
     }
 
     // confirm
