@@ -31,6 +31,7 @@ export const REWARD_ACCOUNT_HEX_LENGTH = 29
 export const ED25519_SIGNATURE_LENGTH = 64
 export const SCRIPT_DATA_HASH_LENGTH = 32
 export const DATUM_HASH_LENGTH = 32
+export const VKEY_LENGTH = 32
 
 export const enum StakeCredentialType {
     KEY_PATH = 0,
@@ -118,6 +119,7 @@ export type ParsedTransaction = {
     mint: Array<ParsedAssetGroup<Int64_str>> | null
     scriptDataHashHex: ScriptDataHash | null
     collaterals: ParsedInput[]
+    requiredSigners: ParsedVKey[]
 }
 
 export type ParsedSigningRequest = {
@@ -141,11 +143,12 @@ export type ParsedWithdrawal = {
 
 export type ScriptDataHash = FixlenHexString<typeof SCRIPT_DATA_HASH_LENGTH>
 
+export type ParsedVKey = FixlenHexString<typeof VKEY_LENGTH>
+
 export type ParsedMargin = {
     numerator: Uint64_str,
     denominator: Uint64_str
 }
-
 
 export type ParsedPoolParams = {
     poolKey: ParsedPoolKey,

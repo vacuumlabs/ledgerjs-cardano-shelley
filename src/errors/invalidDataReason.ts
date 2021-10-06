@@ -135,6 +135,9 @@ export enum InvalidDataReason {
   SCRIPT_DATA_HASH_WRONG_LENGTH = "script data hash not 32 bytes long",
 
   COLLATERALS_NOT_ARRAY = "collaterals not an array",
+  
+  REQUIRED_SIGNERS_NOT_ARRAY = "required signers not an array",
+  VKEY_WRONG_LENGTH = "vkey not 32 long",
 
   SIGN_MODE_UNKNOWN = "unknown signing mode",
 

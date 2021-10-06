@@ -1081,6 +1081,32 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             auxiliaryDataSupplement: null,
         },
     },
+    {
+        testname: "Sign tx with required signers",
+        tx: {
+            ...shelleyBase,
+            outputs: [],
+            requiredSigners: [
+                "fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca5330",
+                "eea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca5330"
+            ],
+        },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+        additionalWitnessPaths: [],
+        txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a0e825820fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53305820eea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53300f01",
+        result: {
+            txHashHex:
+        "c80e96df14dabe295b9a089aa5e25bfb09daf7a9a0ffa8b2b90f83e92e5cc3d7",
+            witnesses: [
+                {
+                    path: str_to_path("1852'/1815'/0'/0/0"),
+                    witnessSignatureHex:
+            "8c3f85a2b7e9d462970c7817b33850d817fff5969852616396a561ee9ceaa5c626340852fbadb6dce2df373ecb6d2dc2a884f90c08c0162cbad106a057bc4909",
+                },
+            ],
+            auxiliaryDataSupplement: null,
+        },
+    },
 ]
 
 export const testsShelleyWithCertificates: TestcaseShelley[] = [
