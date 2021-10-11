@@ -1,6 +1,6 @@
 import type { AssetGroup, DeviceOwnedAddress, ErrorBase, Transaction, TxInput, TxOutput, TxOutputDestination } from "../../../src/Ada"
 import {DeviceStatusError, InvalidDataReason, TxAuxiliaryDataSupplementType} from "../../../src/Ada"
-import { AddressType, CertificateType, Networks, TxAuxiliaryDataType, TxOutputDestinationType, utils } from "../../../src/Ada"
+import { AddressType, CertificateType, Networks, TxAuxiliaryDataType, TxOutputDestinationType, utils, TxRequiredSignerType } from "../../../src/Ada"
 import type { BIP32Path} from '../../../src/types/public'
 import { StakeCredentialParamsType, TransactionSigningMode } from '../../../src/types/public'
 import { str_to_path } from "../../../src/utils/address"
@@ -1082,13 +1082,83 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
         },
     },
     {
-        testname: "Sign tx with required signers",
+        testname: "Sign tx with required signers - path",
         tx: {
             ...shelleyBase,
             outputs: [],
             requiredSigners: [
-                "fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca5330",
-                "eea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca5330"
+                {
+                    type: TxRequiredSignerType.PATH,
+                    path: str_to_path("1852'/1815'/0'/0/0"),
+                },
+                {
+                    type: TxRequiredSignerType.PATH,
+                    path: str_to_path("1852'/1815'/0'/0/1"),
+                }
+            ],
+        },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+        additionalWitnessPaths: [],
+        txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a0e825820fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53305820eea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53300f01",
+        result: {
+            txHashHex:
+        "e9aeb91ca8ad9f6cf4c8691562ac70f302f8f4cd49fb6ac63f83741b08904a5c",
+            witnesses: [
+                {
+                    path: str_to_path("1852'/1815'/0'/0/0"),
+                    witnessSignatureHex:
+            "524454194c6e2cd33494ee1f7144a24b5567ccd200139fbd800a13c95137fa151d1f63ca05c44bd6c45a931daed6818e2f17e67a72ec8afe1ca3819fb41d7d03",
+                },
+            ],
+            auxiliaryDataSupplement: null,
+        },
+    },
+    {
+        testname: "Sign tx with required signers - mixed",
+        tx: {
+            ...shelleyBase,
+            outputs: [],
+            requiredSigners: [
+                {
+                    type: TxRequiredSignerType.HASH,
+                    hash: "fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca5330",
+                },
+                {
+                    type: TxRequiredSignerType.PATH,
+                    path: str_to_path("1852'/1815'/0'/0/0"),
+                }
+            ],
+        },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+        additionalWitnessPaths: [],
+        txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a0e825820fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53305820eea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53300f01",
+        result: {
+            txHashHex:
+        "488b0eb90d6752879b08dfc1b4db27b25c62a498758fefae672e1e1e3b6defc2",
+            witnesses: [
+                {
+                    path: str_to_path("1852'/1815'/0'/0/0"),
+                    witnessSignatureHex:
+            "41e65f78149c6e31eb237dac2127fc78fcb86e40510934693d49cada2b28cb6e8ea616b74f2e7dc161f3184743800d4000bc7c125b166ce4725568ca00e07c05",
+                },
+            ],
+            auxiliaryDataSupplement: null,
+        },
+    },
+    {
+        testname: "Sign tx with required signers - hash",
+        tx: {
+            ...shelleyBase,
+            outputs: [],
+            requiredSigners: [
+                {
+                    type: TxRequiredSignerType.HASH,
+                    hash: "fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca5330",
+                },
+                {
+                    type: TxRequiredSignerType.HASH,
+                    hash: "eea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca5330",
+                }
             ],
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
