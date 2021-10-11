@@ -119,7 +119,7 @@ export type ParsedTransaction = {
     mint: Array<ParsedAssetGroup<Int64_str>> | null
     scriptDataHashHex: ScriptDataHash | null
     collaterals: ParsedInput[]
-    requiredSigners: ParsedVKey[]
+    requiredSigners: ParsedRequiredSigner[]
 }
 
 export type ParsedSigningRequest = {
@@ -143,7 +143,18 @@ export type ParsedWithdrawal = {
 
 export type ScriptDataHash = FixlenHexString<typeof SCRIPT_DATA_HASH_LENGTH>
 
-export type ParsedVKey = FixlenHexString<typeof VKEY_LENGTH>
+export const enum RequiredSignerType {
+    PATH = 0,
+    HASH = 1,
+}
+
+export type ParsedRequiredSigner = {
+    type: RequiredSignerType.HASH
+    hash: FixlenHexString<typeof VKEY_LENGTH>
+} | {
+    type: RequiredSignerType.PATH
+    path: ValidBIP32Path
+}
 
 export type ParsedMargin = {
     numerator: Uint64_str,

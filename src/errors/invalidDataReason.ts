@@ -138,6 +138,8 @@ export enum InvalidDataReason {
   
   REQUIRED_SIGNERS_NOT_ARRAY = "required signers not an array",
   VKEY_WRONG_LENGTH = "vkey not 32 long",
+  UNKNOWN_REQUIRED_SIGNER_TYPE = "unknown required signer type",
+  REQUIRED_SIGNER_INVALID_PATH = "invalid path for required signer",
 
   SIGN_MODE_UNKNOWN = "unknown signing mode",
 

@@ -1,6 +1,6 @@
 import { InvalidData } from "../errors"
 import { InvalidDataReason } from "../errors/invalidDataReason"
-import { OutputDestination, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedToken, ParsedTransaction, ParsedWithdrawal, VKEY_LENGTH } from "../types/internal"
+import { OutputDestination, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedToken, ParsedTransaction, ParsedRequiredSigner, ParsedWithdrawal, RequiredSignerType, VKEY_LENGTH } from "../types/internal"
 import { StakeCredentialType } from "../types/internal"
 import { ASSET_NAME_LENGTH_MAX, CertificateType, SCRIPT_DATA_HASH_LENGTH,SpendingDataSourceType, TOKEN_POLICY_LENGTH, TX_HASH_LENGTH } from "../types/internal"
 import type {
@@ -14,6 +14,7 @@ import type {
     TxOutput,
     TxOutputDestination,
     Withdrawal,
+    RequiredSigner,
 } from "../types/public"
 import {
     PoolKeyType,
@@ -22,6 +23,7 @@ import {
     PoolOwnerType,
     TransactionSigningMode,
     TxOutputDestinationType,
+    TxRequiredSignerType,
 } from "../types/public"
 import { unreachable } from "../utils/assert"
 import { isArray, parseBIP32Path, parseStakeCredential,validate } from "../utils/parse"
@@ -145,7 +147,7 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
     const collaterals = (tx.collaterals ?? []).map(inp => parseTxInput(inp))
 
     validate(isArray(tx.requiredSigners ?? []), InvalidDataReason.REQUIRED_SIGNERS_NOT_ARRAY)
-    const requiredSigners = (tx.requiredSigners ?? []).map(vkey => parseHexStringOfLength(vkey, VKEY_LENGTH, InvalidDataReason.VKEY_WRONG_LENGTH))
+    const requiredSigners = (tx.requiredSigners ?? []).map(vkey => parseRequiredSigner(vkey))
 
     return {
         network,
@@ -228,6 +230,23 @@ function parseTxOutput(
         tokenBundle,
         destination,
         datumHashHex,
+    }
+}
+
+function parseRequiredSigner(requiredSigner: RequiredSigner): ParsedRequiredSigner {
+    switch (requiredSigner.type) {
+    case TxRequiredSignerType.PATH:
+        return {
+            type: RequiredSignerType.PATH,
+            path: parseBIP32Path(requiredSigner.path, InvalidDataReason.REQUIRED_SIGNER_INVALID_PATH)
+        }
+    case TxRequiredSignerType.HASH:
+        return {
+            type: RequiredSignerType.HASH,
+            hash: parseHexStringOfLength(requiredSigner.hash, VKEY_LENGTH, InvalidDataReason.VKEY_WRONG_LENGTH),
+        }
+    default:
+        throw new InvalidData(InvalidDataReason.UNKNOWN_REQUIRED_SIGNER_TYPE)
     }
 }
 

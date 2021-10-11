@@ -1,5 +1,5 @@
 import { DeviceVersionUnsupported } from "../errors"
-import type { Int64_str, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedVKey, ParsedWithdrawal, ScriptDataHash, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
+import type { Int64_str, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedTransaction, ParsedTxAuxiliaryData, ParsedRequiredSigner, ParsedWithdrawal, ScriptDataHash, Uint64_str, ValidBIP32Path, Version } from "../types/internal"
 import { StakeCredentialType } from "../types/internal"
 import { CertificateType, ED25519_SIGNATURE_LENGTH, PoolOwnerType, TX_HASH_LENGTH } from "../types/internal"
 import type { SignedTransactionData, TxAuxiliaryDataSupplement} from "../types/public"
@@ -16,7 +16,7 @@ import { serializeFinancials, serializePoolInitialParams, serializePoolInitialPa
 import { serializeTxAuxiliaryData } from "./serialization/txAuxiliaryData"
 import { serializeTxCertificate } from "./serialization/txCertificate"
 import { serializeTxInit } from "./serialization/txInit"
-import { serializeAssetGroup, serializeMintBasicParams, serializeToken, serializeTxFee, serializeTxInput, serializeTxTtl, serializeTxValidityStart, serializeTxWithdrawal, serializeTxWitnessRequest } from "./serialization/txOther"
+import { serializeAssetGroup, serializeMintBasicParams, serializeToken, serializeTxFee, serializeTxInput, serializeTxTtl, serializeTxValidityStart, serializeTxWithdrawal, serializeTxWitnessRequest, serializeRequiredSigner } from "./serialization/txOther"
 import { serializeTxOutputBasicParams } from "./serialization/txOutput"
 
 const enum P1 {
@@ -515,7 +515,7 @@ function* signTx_addCollateral(
 }
 
 function* signTx_addRequiredSigner(
-    vkey: ParsedVKey
+    requiredSigner: ParsedRequiredSigner
 ): Interaction<void> {
   const enum P2 {
     UNUSED = 0x00,
@@ -524,7 +524,7 @@ function* signTx_addRequiredSigner(
   yield send({
       p1: P1.STAGE_REQUIRED_SIGNERS,
       p2: P2.UNUSED,
-      data: hex_to_buf(vkey),
+      data: serializeRequiredSigner(requiredSigner),
       expectedResponseLength: 0,
   })
 }
