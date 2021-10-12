@@ -49,6 +49,7 @@ const destinations: Record<
   | 'externalShelleyScripthash'
   | 'internalBaseWithStakingKeyHash'
   | 'internalBaseWithStakingPath'
+  | 'internalBaseWithStakingScript'
   | 'internalBaseWithStakingPathNonReasonable'
   | 'internalEnterprise'
   | 'internalPointer'
@@ -114,6 +115,16 @@ const destinations: Record<
             params: {
                 spendingPath: str_to_path("1852'/1815'/0'/0/0"),
                 stakingPath: str_to_path("1852'/1815'/0'/2/0"),
+            },
+        },
+    },
+    internalBaseWithStakingScript: {
+        type: TxOutputDestinationType.DEVICE_OWNED,
+        params: {
+            type: AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT,
+            params: {
+                spendingPath: str_to_path("1852'/1815'/0'/0/0"),
+                stakingScriptHash: "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
             },
         },
     },
@@ -274,7 +285,10 @@ export const outputs: Record<
   | 'multiassetTokensNotUnique'
   | 'trezorParity'
   | 'datumHash'
+  | 'datumHashExternal'
   | 'datumHashWithTokens'
+  | 'datumHashStakePath'
+  | 'datumHashStakePathExternal'
   , TxOutput
 > = {
     externalByronMainnet: {
@@ -523,12 +537,18 @@ export const outputs: Record<
         ],
     },
     datumHash: {
-        destination: destinations.internalBaseWithStakingPath,
+        destination: destinations.internalBaseWithStakingScript,
+        amount: 7120787,
+        datumHashHex: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
+    },
+    datumHashExternal: {
+        // destination: destinations.multiassetThirdParty,
+        destination: destinations.externalShelleyScripthash,
         amount: 7120787,
         datumHashHex: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
     },
     datumHashWithTokens: {
-        destination: destinations.internalBaseWithStakingPath,
+        destination: destinations.internalBaseWithStakingScript,
         amount: 7120787,
         tokenBundle: [
             {
@@ -545,6 +565,16 @@ export const outputs: Record<
                 ],
             },
         ],
+        datumHashHex: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
+    },
+    datumHashStakePath: {
+        destination: destinations.internalBaseWithStakingPath,
+        amount: 7120787,
+        datumHashHex: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
+    },
+    datumHashStakePathExternal: {
+        destination: destinations.externalShelley,
+        amount: 7120787,
         datumHashHex: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
     },
 }
@@ -962,7 +992,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
         },
     },
     {
-        testname: "Sign tx with datum hash in output",
+        testname: "Sign tx with datum hash in output - internal address",
         tx: {
             ...shelleyBase,
             outputs: [outputs.datumHash],
@@ -978,6 +1008,29 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
                     path: str_to_path("1852'/1815'/0'/0/0"),
                     witnessSignatureHex:
             "479c5669756570ee2056d3fa5b5ba333594950f382e2f8d7e88d2bf64a69a589c697c0107861c10db84af27ce064af8b3331c63e54ccb73969b41d029b8bca08",
+                },
+            ],
+            auxiliaryDataSupplement: null,
+        },
+    },
+    {
+        testname: "Sign tx with datum hash in output - external address",
+        tx: {
+            ...shelleyBase,
+            network: Networks.Testnet,
+            outputs: [outputs.datumHashExternal],
+        },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+        additionalWitnessPaths: [],
+        txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b70001818358390114c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f11241d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c1a006ca7935820ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce18802182a030a0f01",
+        result: {
+            txHashHex:
+        "b3a20534d53101c40d2011811e6dbf7644aa3d9baebba1e72161bf94b4a2db2b",
+            witnesses: [
+                {
+                    path: str_to_path("1852'/1815'/0'/0/0"),
+                    witnessSignatureHex:
+            "3051ab97dcaab66c31be3ab1255db7176e1aaa38193e4f233694797afaa40bce48c7c0557dcc537117dc1c851ee0f132714fe9167f57c12e9fd124ae9629bb0f",
                 },
             ],
             auxiliaryDataSupplement: null,
@@ -1541,6 +1594,28 @@ export const testsShelleyRejects: TestcaseRejectShelley[] = [
         errCls: DeviceStatusError,
         errMsg: "Action rejected by Ledger's security policy",
         rejectReason: InvalidDataReason.OUTPUT_INVALID_ADDRESS_PARAMS,
+    },
+    {
+        testname: "Reject tx for datum hash without script hash part - internal address",
+        tx: {
+            ...shelleyBase,
+            outputs: [outputs.datumHashStakePath],
+        },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+        errCls: DeviceStatusError,
+        errMsg: "Action rejected by Ledger's security policy",
+        rejectReason: InvalidDataReason.LEDGER_POLICY,
+    },
+    {
+        testname: "Reject tx for datum hash without script hash part - external address",
+        tx: {
+            ...shelleyBase,
+            outputs: [outputs.datumHashStakePathExternal],
+        },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+        errCls: DeviceStatusError,
+        errMsg: "Action rejected by Ledger's security policy",
+        rejectReason: InvalidDataReason.LEDGER_POLICY,
     },
     {
         testname: "Input and change output account mismatch",

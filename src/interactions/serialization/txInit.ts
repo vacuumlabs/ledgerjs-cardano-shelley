@@ -1,7 +1,7 @@
 import type { ParsedTransaction, Uint8_t, Uint32_t, Version } from "../../types/internal"
 import { TransactionSigningMode } from "../../types/internal"
 import { assert } from "../../utils/assert"
-import { uint8_to_buf, uint32_to_buf, serializeOptionFlag } from "../../utils/serialize"
+import { serializeOptionFlag,uint8_to_buf, uint32_to_buf } from "../../utils/serialize"
 import { getCompatibility } from "../getVersion"
 
 const _serializeSigningMode = (
