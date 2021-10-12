@@ -11,7 +11,6 @@ import {
     testsShelleyNoCertificates,
     testsShelleyRejects,
     testsShelleyWithCertificates,
-    testsShelleyRejects,
 } from "./__fixtures__/signTx"
 
 function describePositiveTest(name: string, tests: any[]) {

@@ -16,7 +16,7 @@ import { serializeFinancials, serializePoolInitialParams, serializePoolInitialPa
 import { serializeTxAuxiliaryData } from "./serialization/txAuxiliaryData"
 import { serializeTxCertificate } from "./serialization/txCertificate"
 import { serializeTxInit } from "./serialization/txInit"
-import { serializeAssetGroup, serializeMintBasicParams, serializeToken, serializeTxFee, serializeTxInput, serializeTxTtl, serializeTxValidityStart, serializeTxWithdrawal, serializeTxWitnessRequest, serializeScriptDataHash } from "./serialization/txOther"
+import { serializeAssetGroup, serializeMintBasicParams, serializeScriptDataHash,serializeToken, serializeTxFee, serializeTxInput, serializeTxTtl, serializeTxValidityStart, serializeTxWithdrawal, serializeTxWitnessRequest } from "./serialization/txOther"
 import { serializeTxOutputBasicParams } from "./serialization/txOutput"
 
 const enum P1 {
