@@ -1002,12 +1002,12 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
         txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b70001818358390114c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f11241d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c1a006ca7935820ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce18802182a030a0f01",
         result: {
             txHashHex:
-        "8afb464f2ce1993d394590f5b1ea698aa7b420984664cf7a7e02824b6f29ad53",
+        "135b8b94af310e3ea23988840f5f1124ec75f4f0ff2739e0211b360d3abfc9e1",
             witnesses: [
                 {
                     path: str_to_path("1852'/1815'/0'/0/0"),
                     witnessSignatureHex:
-            "479c5669756570ee2056d3fa5b5ba333594950f382e2f8d7e88d2bf64a69a589c697c0107861c10db84af27ce064af8b3331c63e54ccb73969b41d029b8bca08",
+            "7718b4f9bb9ee6870dba480da3d5675ee5a3a88ad759d703c57446220bb181ede4f820afc93833113b2eef6095b153803407adcf06f7fc5787a98e96860b2209",
                 },
             ],
             auxiliaryDataSupplement: null,
@@ -1047,12 +1047,12 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
         txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b70001818358390114c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f11241d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c821a006ca793a1581c75a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39a2487564247542686911182f4875642475426869121a007838625820ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce18802182a030a0f01",
         result: {
             txHashHex:
-        "e556aaa9fa11946c8b12210be8ce7aa78d46a56bc2b1026f6893ab2c5306bd2c",
+        "bbe0459205842ce25aa115a4d3de7e90837cffd62082ad4fc669f1a6439ba37e",
             witnesses: [
                 {
                     path: str_to_path("1852'/1815'/0'/0/0"),
                     witnessSignatureHex:
-            "e40a3b9a49661b83141af47685c9845db6f59e820f7d13539dd756aac5fa3055ecafb355175add84a6f9da9263689d36a5a123fc12df7003b35f3efd16a8550d",
+            "054834b1e47ea22011748f4eb92aa283f26859135650af09be4ff3b59aba87199cf7a0c2a9f9475055c5aed5942b7d4502b608f9bc63c945701cb0ef829df107",
                 },
             ],
             auxiliaryDataSupplement: null,
