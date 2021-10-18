@@ -256,6 +256,7 @@ export function parseSigningMode(mode: TransactionSigningMode): TransactionSigni
     case TransactionSigningMode.POOL_REGISTRATION_AS_OWNER:
     case TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR:
     case TransactionSigningMode.MULTISIG_TRANSACTION:
+    case TransactionSigningMode.PLUTUS_TRANSACTION:
         return mode
     default:
         throw new InvalidData(InvalidDataReason.SIGN_MODE_UNKNOWN)
@@ -403,6 +404,16 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
         validate(
             tx.withdrawals.length === 0,
             InvalidDataReason.SIGN_MODE_POOL_OPERATOR__WITHDRAWALS_NOT_ALLOWED
+        )
+        break
+    }
+    case TransactionSigningMode.PLUTUS_TRANSACTION: {
+        validate(tx.outputs.every(o => o.destination.type != TxOutputDestinationType.DEVICE_OWNED),
+        InvalidDataReason.SIGN_MODE_PLUTUS__DEVICE_OWNED_ADDRESS_NOT_ALLOWED)
+
+        validate(
+            tx.certificates.every(certificate => certificate.type !== CertificateType.STAKE_POOL_REGISTRATION),
+            InvalidDataReason.SIGN_MODE_PLUTUS__POOL_REGISTRATION_NOT_ALLOWED,
         )
         break
     }

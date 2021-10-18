@@ -1176,6 +1176,15 @@ export enum TransactionSigningMode {
      * - all given in [[SignTransactionRequest.additionalWitnessPaths]]
      */
     MULTISIG_TRANSACTION = 'multisig_transaction',
+
+    /**
+     * Represents a transaction that is followed by a Plutus script running
+     * 
+     * Allows transaction to have collaterals and required signers.
+     * The transaction
+     * - TODO
+     */
+    PLUTUS_TRANSACTION = 'plutus_transaction',
 }
 
 /**
