@@ -1065,7 +1065,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             outputs: [],
             collaterals: [inputs.utxoShelley],
         },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+        signingMode: TransactionSigningMode.PLUTUS_TRANSACTION,
         additionalWitnessPaths: [],
         txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a0d818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000f01",
         result: {
@@ -1594,6 +1594,19 @@ export type TestcaseRejectShelley = {
 }
 
 export const testsShelleyRejects: TestcaseRejectShelley[] = [
+    {
+        testname: "Reject tx for collaterals in Ordinary transaction",
+        tx: {
+            ...shelleyBase,
+            outputs: [],
+            collaterals: [inputs.utxoShelley],
+        },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+        additionalWitnessPaths: [],
+        errCls: DeviceStatusError,
+        errMsg: "Action rejected by Ledger's security policy",
+        rejectReason: InvalidDataReason.LEDGER_POLICY,
+    },
     {
         testname: "Reject tx for invalid address params: reward address",
         tx: {

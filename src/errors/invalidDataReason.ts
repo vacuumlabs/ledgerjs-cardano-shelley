@@ -183,6 +183,11 @@ export enum InvalidDataReason {
 
   ADDITIONAL_WITNESSES_NOT_ARRAY = "additional witnesses not an array",
 
+  SIGN_MODE_PLUTUS__DEVICE_OWNED_ADDRESS_NOT_ALLOWED =
+  "outputs given by path are not allowed in TransactionSigningMode.PLUTUS_TRANSACTION",
+  SIGN_MODE_PLUTUS__POOL_REGISTRATION_NOT_ALLOWED =
+  "pool registration is not allowed in TransactionSigningMode.PLUTUS_TRANSACTION",
+
   OPERATIONAL_CERTIFICATE_INVALID_KES_KEY =
   "invalid operational certificate kes key",
   OPERATIONAL_CERTIFICATE_INVALID_KES_PERIOD =

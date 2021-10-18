@@ -690,6 +690,10 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
     if (request?.tx.requiredSigners.length != 0 && !getCompatibility(version).supportsAlonzo) {
         throw new DeviceVersionUnsupported(`Required signers not supported by Ledger app version ${version}.`)
     }
+
+    if (request?.signingMode === TransactionSigningMode.PLUTUS_TRANSACTION && !getCompatibility(version).supportsAlonso) {
+        throw new DeviceVersionUnsupported(`Plutus transaction not supported by Ledger app version ${getVersionString(version)}.`)
+    }
 }
 
 // general name, because it should work with any type if generalized
