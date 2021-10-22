@@ -285,6 +285,7 @@ export const outputs: Record<
   | 'multiassetInvalidTokenOrderingDifferentLengths'
   | 'multiassetTokensNotUnique'
   | 'trezorParity'
+  | 'trezorParityDatumHash'
   | 'datumHash'
   | 'datumHashExternal'
   | 'datumHashWithTokens'
@@ -536,6 +537,18 @@ export const outputs: Record<
                 ],
             },
         ],
+    },
+    trezorParityDatumHash: {
+        destination: {
+            type: TxOutputDestinationType.THIRD_PARTY,
+            params: {
+                addressHex: bech32_to_hex(
+                    "addr1w9rhu54nz94k9l5v6d9rzfs47h7dv7xffcwkekuxcx3evnqpvuxu0"
+                ),
+            },
+        },
+        amount: 1,
+        datumHashHex: "3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7",
     },
     datumHash: {
         destination: destinations.internalBaseWithStakingScript,
@@ -1498,7 +1511,7 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
             // if Networks.Mainnet differs, the test should just explicitly give these
             network: Networks.Mainnet,
             inputs: [inputs.utxoMultisig],
-            outputs: [outputs.trezorParity],
+            outputs: [outputs.trezorParity, outputs.trezorParityDatumHash],
             fee: 42,
             ttl: 10,
             validityIntervalStart: 47,
@@ -1562,10 +1575,11 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
                     hashHex: "58ec01578fcdfdc376f09631a7b2adc608eaf57e3720484c7ff37c13cff90fdf",
                 },
             },
+            scriptDataHashHex: "3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7",
         },
         signingMode: TransactionSigningMode.MULTISIG_TRANSACTION,
         additionalWitnessPaths: [str_to_path("1854'/1815'/0'/0/0"), str_to_path("1854'/1815'/0'/2/0")],
-        txBody: "aa00818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018182583901eb0baa5e570cffbe2934db29df0b6a3d7c0430ee65d4c3a7ab2fefb91bc428e4720702ebd5dab4fb175324c192dc9bb76cc5da956e3c8dff821a001e8480a1581c0d63e8d2c5a00cbcffbdf9112487c443466e1ea7d8c834df5ac5c425a14874657374436f696e1a0078386202182a030a048382008201581c29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd82018201581c29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd83028201581c29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd581cf61c42cbf7c8c53af3f520508212ad3e72f674f957fe23ff0acb497305a1581df129fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd1903e807582058ec01578fcdfdc376f09631a7b2adc608eaf57e3720484c7ff37c13cff90fdf08182f09a1581c0d63e8d2c5a00cbcffbdf9112487c443466e1ea7d8c834df5ac5c425a24874657374436f696e1a007838624875657374436f696e3a007838610f01",
+        txBody: "ab00818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018282583901eb0baa5e570cffbe2934db29df0b6a3d7c0430ee65d4c3a7ab2fefb91bc428e4720702ebd5dab4fb175324c192dc9bb76cc5da956e3c8dff821a001e8480a1581c0d63e8d2c5a00cbcffbdf9112487c443466e1ea7d8c834df5ac5c425a14874657374436f696e1a0078386283581d71477e52b3116b62fe8cd34a312615f5fcd678c94e1d6cdb86c1a3964c0158203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b702182a030a048382008201581c29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd82018201581c29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd83028201581c29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd581cf61c42cbf7c8c53af3f520508212ad3e72f674f957fe23ff0acb497305a1581df129fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd1903e807582058ec01578fcdfdc376f09631a7b2adc608eaf57e3720484c7ff37c13cff90fdf08182f09a1581c0d63e8d2c5a00cbcffbdf9112487c443466e1ea7d8c834df5ac5c425a24874657374436f696e1a007838624875657374436f696e3a007838610b58203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b70f01",
         result: {
             txHashHex: "1ad44235e0a25c13002ddff58dbf3f926745ccd24401f2d9fc93b1879e2afb89",
             witnesses: [
