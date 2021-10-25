@@ -35,7 +35,7 @@ export function serializeTxOutputBasicParams(
     output: ParsedOutput,
     version: Version,
 ): Buffer {
-    const datumHashHexBuffer = getCompatibility(version).supportsAlonso
+    const datumHashHexBuffer = getCompatibility(version).supportsAlonzo
         ? serializeOptionFlag(output.datumHashHex != null)
         : Buffer.from([])
 

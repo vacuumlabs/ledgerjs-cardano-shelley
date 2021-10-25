@@ -86,7 +86,3 @@ export function serializeMintBasicParams(mint: Array<ParsedAssetGroup<Int64_str>
         uint32_to_buf(mint.length as Uint32_t),
     ])
 }
-
-export function serializeScriptDataHash(scriptDataHash: ScriptDataHash) {
-    return hex_to_buf(scriptDataHash)
-}

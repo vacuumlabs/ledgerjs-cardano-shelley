@@ -28,7 +28,7 @@ export function serializeTxInit(
     const mintBuffer = getCompatibility(version).supportsMint
         ? serializeOptionFlag(tx.mint != null)
         : Buffer.from([])
-    const scriptDataHashBuffer = getCompatibility(version).supportsAlonso
+    const scriptDataHashBuffer = getCompatibility(version).supportsAlonzo
         ? serializeOptionFlag(tx.scriptDataHashHex != null)
         : Buffer.from([])
 
