@@ -32,10 +32,10 @@ export function serializeTxInit(
     const scriptDataHashBuffer = getCompatibility(version).supportsAlonzo
         ? serializeOptionFlag(tx.scriptDataHashHex != null)
         : Buffer.from([])
-    const collateralsBuffer = getCompatibility(version).supportsAlonso
+    const collateralsBuffer = getCompatibility(version).supportsAlonzo
         ? uint32_to_buf(tx.collaterals.length as Uint32_t)
         : Buffer.from([])
-    const requiredSignersBuffer = getCompatibility(version).supportsAlonso
+    const requiredSignersBuffer = getCompatibility(version).supportsAlonzo
         ? uint32_to_buf(tx.requiredSigners.length as Uint32_t)
         : Buffer.from([])
 
