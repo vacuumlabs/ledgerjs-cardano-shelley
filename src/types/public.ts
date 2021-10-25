@@ -314,7 +314,7 @@ export type TxOutput = {
      */
     tokenBundle?: Array<AssetGroup> | null
     /**
-     * Optional script data hash
+     * Optional datum hash
      */
     datumHashHex?: string | null
 }
@@ -827,7 +827,7 @@ export type DeviceCompatibility = {
     /**
      * Whether we support Alonso
      */
-    supportsAlonso: boolean
+    supportsAlonzo: boolean
 }
 
 /**

@@ -55,7 +55,7 @@ export function getCompatibility(version: Version): DeviceCompatibility {
         supportsNativeScriptHashDerivation: v3_0,
         supportsMultisigTransaction: v3_0,
         supportsMint: v3_0,
-        supportsAlonso: vAlonso,
+        supportsAlonzo: vAlonso,
     }
 }
 

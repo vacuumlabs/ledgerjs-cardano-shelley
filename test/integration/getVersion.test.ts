@@ -30,7 +30,7 @@ describe("getVersion", async () => {
             supportsPoolRegistrationAsOperator: true,
             supportsPoolRetirement: true,
             supportsNativeScriptHashDerivation: true,
-            supportsAlonso: true,
+            supportsAlonzo: true,
         })
     })
 })

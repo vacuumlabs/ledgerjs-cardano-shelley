@@ -16,7 +16,7 @@ import { serializeFinancials, serializePoolInitialParams, serializePoolInitialPa
 import { serializeTxAuxiliaryData } from "./serialization/txAuxiliaryData"
 import { serializeTxCertificate } from "./serialization/txCertificate"
 import { serializeTxInit } from "./serialization/txInit"
-import { serializeAssetGroup, serializeMintBasicParams, serializeScriptDataHash,serializeToken, serializeTxFee, serializeTxInput, serializeTxTtl, serializeTxValidityStart, serializeTxWithdrawal, serializeTxWitnessRequest } from "./serialization/txOther"
+import { serializeAssetGroup, serializeMintBasicParams, serializeToken, serializeTxFee, serializeTxInput, serializeTxTtl, serializeTxValidityStart, serializeTxWithdrawal, serializeTxWitnessRequest } from "./serialization/txOther"
 import { serializeTxOutputBasicParams } from "./serialization/txOutput"
 
 const enum P1 {
@@ -493,7 +493,7 @@ function* signTx_setScriptDataHash(
   yield send({
       p1: P1.STAGE_SCRIPT_DATA_HASH,
       p2: P2.UNUSED,
-      data: serializeScriptDataHash(scriptDataHash),
+      data: hex_to_buf(scriptDataHash),
   })
 }
 
@@ -595,8 +595,8 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
     {
         const hasScriptDataHashInOutputs = request?.tx?.outputs && request.tx.outputs.some(o =>
             o.datumHashHex != null)
-        if (hasScriptDataHashInOutputs && !getCompatibility(version).supportsAlonso) {
-            throw new DeviceVersionUnsupported(`Alonso not supported by Ledger app version ${version}.`)
+        if (hasScriptDataHashInOutputs && !getCompatibility(version).supportsAlonzo) {
+            throw new DeviceVersionUnsupported(`Datum hash in output not supported by Ledger app version ${version}.`)
         }
     }
             
@@ -647,8 +647,8 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
         }
     }
 
-    if (request?.tx?.scriptDataHashHex && !getCompatibility(version).supportsAlonso) {
-        throw new DeviceVersionUnsupported(`Alonso not supported by Ledger app version ${version}.`)
+    if (request?.tx?.scriptDataHashHex && !getCompatibility(version).supportsAlonzo) {
+        throw new DeviceVersionUnsupported(`Script data hash not supported by Ledger app version ${version}.`)
     }
 }
 
