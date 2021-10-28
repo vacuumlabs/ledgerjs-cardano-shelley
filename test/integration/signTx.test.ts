@@ -1,18 +1,30 @@
 import { expect } from "chai"
 
 import type Ada from "../../src/Ada"
-import { describeWithoutValidation, getAda, hashTxBody } from "../test_utils"
 import type { NetworkIdlessTestResult } from "../test_utils"
+import { describeRejects, getAda, hashTxBody } from "../test_utils"
 import {
     testsAllegra,
     testsByron,
     testsCatalystRegistration,
-    testsInvalidTokenBundleOrdering,
     testsMary,
     testsShelleyNoCertificates,
-    testsShelleyRejects,
     testsShelleyWithCertificates,
 } from "./__fixtures__/signTx"
+import {
+    addressBytesRejectTestcases,
+    addressParamsRejectTestcases,
+    certificateRejectTestcases,
+    certificateStakePoolRetirementRejectTestcases,
+    certificateStakingRejectTestcases,
+    singleAccountRejectTestcases,
+    stakePoolRegistrationOwnerRejectTestcases,
+    stakePoolRegistrationPoolIdRejectTestcases,
+    testsInvalidTokenBundleOrdering,
+    transactionInitRejectTestcases,
+    withdrawalRejectTestcases,
+    witnessRejectTestcases,
+} from "./__fixtures__/signTxRejects"
 
 function describePositiveTest(name: string, tests: any[]) {
     describe(name, async () => {
@@ -58,96 +70,16 @@ describePositiveTest("signTxOrdinaryAllegra", testsAllegra)
 describePositiveTest("signTxOrdinaryMary", testsMary)
 describePositiveTest("signTxOrdinaryMaryCatalyst", testsCatalystRegistration)
 
-// Shelley transaction format, but includes legacy Byron addresses in outputs
-describe("signTxShelleyRejectsJS", async () => {
-    let ada: Ada = {} as Ada
+describeRejects("signTxInitPolicyRejects", transactionInitRejectTestcases)
+describeRejects("signTxAddressBytesPolicyRejects", addressBytesRejectTestcases)
+describeRejects("signTxAddressParamsPolicyRejects", addressParamsRejectTestcases)
+describeRejects("signTxCertificatePolicyRejects", certificateRejectTestcases)
+describeRejects("signTxCertificateStakingPolicyRejects", certificateStakingRejectTestcases)
+describeRejects("signTxCertificateStakePoolRetirementPolicyRejects", certificateStakePoolRetirementRejectTestcases)
+describeRejects("signTxStakePoolRegistrationPoolIdRejects", stakePoolRegistrationPoolIdRejectTestcases)
+describeRejects("signTxStakePoolRegistrationOwnerRejects", stakePoolRegistrationOwnerRejectTestcases)
+describeRejects("signTxWithdrawalRejects", withdrawalRejectTestcases)
+describeRejects("signTxWitnessRejects", witnessRejectTestcases)
+describeRejects("signTxInvalidMultiassetRejects", testsInvalidTokenBundleOrdering)
+describeRejects("signTxSingleAccountRejects", singleAccountRejectTestcases)
 
-    beforeEach(async () => {
-        ada = await getAda()
-    })
-
-    afterEach(async () => {
-        await (ada as any).t.close()
-    })
-
-    for (const {testname, tx, signingMode, rejectReason } of testsShelleyRejects) {
-        it(testname, async() => {
-            const response = ada.signTransaction({
-                tx,
-                signingMode,
-                additionalWitnessPaths: [],
-            })
-            await expect(response).to.be.rejectedWith(rejectReason)
-        })
-    }
-})
-
-describeWithoutValidation("signTxShelleyRejectsLedger", async () => {
-    let ada: Ada = {} as Ada
-
-    beforeEach(async () => {
-        ada = await getAda()
-    })
-
-    afterEach(async () => {
-        await (ada as any).t.close()
-    })
-
-    for (const {testname, tx, signingMode, errCls, errMsg } of testsShelleyRejects) {
-        it(testname, async() => {
-            const response = ada.signTransaction({
-                tx,
-                signingMode,
-                additionalWitnessPaths: [],
-            })
-            await expect(response).to.be.rejectedWith(errCls, errMsg)
-        })
-    }
-})
-
-
-describe("signTxOrdinaryMary", async () => {
-    let ada: Ada = {} as Ada
-
-    beforeEach(async () => {
-        ada = await getAda()
-    })
-
-    afterEach(async () => {
-        await (ada as any).t.close()
-    })
-
-    for (const {testname, tx, signingMode, rejectReason } of testsInvalidTokenBundleOrdering) {
-        it(testname, async() => {
-            const response = ada.signTransaction({
-                tx,
-                signingMode,
-                additionalWitnessPaths: [],
-            })
-            await expect(response).to.be.rejectedWith(rejectReason)
-        })
-    }
-})
-
-describeWithoutValidation("signTxOrdinaryMaryRejects", async () => {
-    let ada: Ada = {} as Ada
-
-    beforeEach(async () => {
-        ada = await getAda()
-    })
-
-    afterEach(async () => {
-        await (ada as any).t.close()
-    })
-
-    for (const {testname, tx, signingMode, errCls, errMsg } of testsInvalidTokenBundleOrdering) {
-        it(testname, async() => {
-            const response = ada.signTransaction({
-                tx,
-                signingMode,
-                additionalWitnessPaths: [],
-            })
-            await expect(response).to.be.rejectedWith(errCls, errMsg)
-        })
-    }
-})

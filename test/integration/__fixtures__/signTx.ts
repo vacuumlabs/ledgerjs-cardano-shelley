@@ -1,10 +1,11 @@
-import type { AssetGroup, DeviceOwnedAddress, ErrorBase, Transaction, TxInput, TxOutput, TxOutputDestination } from "../../../src/Ada"
-import {DeviceStatusError, InvalidDataReason, TxAuxiliaryDataSupplementType} from "../../../src/Ada"
+import type { AssetGroup, DeviceOwnedAddress, Transaction, TxInput, TxOutput, TxOutputDestination } from "../../../src/Ada"
+import { TxAuxiliaryDataSupplementType } from "../../../src/Ada"
 import { AddressType, CertificateType, Networks, TxAuxiliaryDataType, TxOutputDestinationType, TxRequiredSignerType,utils } from "../../../src/Ada"
 import type { BIP32Path} from '../../../src/types/public'
 import { StakeCredentialParamsType, TransactionSigningMode } from '../../../src/types/public'
 import { str_to_path } from "../../../src/utils/address"
 import type { NetworkIdlessTestResult } from "../../test_utils"
+import { bech32_to_hex } from "../../test_utils"
 
 export const inputs: Record<
   | 'utxoByron'
@@ -40,14 +41,15 @@ export const inputs: Record<
 }
 
 const base58_to_hex = (str: string): string => utils.buf_to_hex(utils.base58_decode(str))
-const bech32_to_hex = (str: string): string => utils.buf_to_hex(utils.bech32_decodeAddress(str))
+// const bech32_to_hex = (str: string): string => utils.buf_to_hex(utils.bech32_decodeAddress(str))
 
-const destinations: Record<
+export const destinations: Record<
   | 'externalByronMainnet'
   | 'externalByronDaedalusMainnet'
   | 'externalByronTestnet'
   | 'externalShelley'
   | 'externalShelleyScripthash'
+  | 'internalByronMainnet'
   | 'internalBaseWithStakingKeyHash'
   | 'internalBaseWithStakingPath'
   | 'internalBaseWithStakingScript'
@@ -56,6 +58,7 @@ const destinations: Record<
   | 'internalPointer'
   | 'multiassetThirdParty'
   | 'rewardsInternal'
+  | 'rewardsExternal'
   , TxOutputDestination
 > = {
     externalByronMainnet: {
@@ -96,6 +99,15 @@ const destinations: Record<
             addressHex: bech32_to_hex(
                 "addr_test1zp0z7zqwhya6mpk5q929ur897g3pp9kkgalpreny8y304rfw6j2jxnwq6enuzvt0lp89wgcsufj7mvcnxpzgkd4hz70z3h2pnc8lhq8r"
             ),
+        },
+    },
+    internalByronMainnet: {
+        type: TxOutputDestinationType.DEVICE_OWNED,
+        params: {
+            type: AddressType.BYRON,
+            params: {
+                spendingPath: str_to_path("44'/1815'/0'/0/0"),
+            },
         },
     },
     internalBaseWithStakingKeyHash: {
@@ -176,6 +188,15 @@ const destinations: Record<
             type: AddressType.REWARD_KEY,
             params: {
                 stakingPath: str_to_path("1852'/1815'/0'/2/0"),
+            },
+        },
+    },
+    rewardsExternal: {
+        type: TxOutputDestinationType.DEVICE_OWNED,
+        params: {
+            type: AddressType.REWARD_SCRIPT,
+            params: {
+                stakingScriptHash: "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
             },
         },
     },
@@ -676,7 +697,7 @@ export const testsByron: TestcaseByron[] = [
 ]
 
 
-const shelleyBase = {
+export const shelleyBase = {
     network: Networks.Mainnet,
     inputs: [inputs.utxoShelley],
     outputs: [outputs.externalByronMainnet],
@@ -1640,462 +1661,6 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
     },
 ]
 
-export type TestcaseRejectShelley = {
-    testname: string
-    tx: Transaction
-    signingMode: TransactionSigningMode
-    additionalWitnessPaths?: BIP32Path[],
-    errCls: new (...args: any[]) => ErrorBase,
-    errMsg: string,
-    rejectReason: InvalidDataReason,
-}
-
-export const testsShelleyRejects: TestcaseRejectShelley[] = [
-    {
-        testname: "Reject tx for collaterals in Ordinary transaction",
-        tx: {
-            ...shelleyBase,
-            outputs: [],
-            collaterals: [inputs.utxoShelley],
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        additionalWitnessPaths: [],
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.LEDGER_POLICY,
-    },
-    {
-        testname: "Reject tx for invalid address params: reward address",
-        tx: {
-            ...shelleyBase,
-            outputs: [
-                {
-                    amount: 3003112,
-                    destination: destinations.rewardsInternal,
-                },
-            ],
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.OUTPUT_INVALID_ADDRESS_PARAMS,
-    },
-    {
-        testname: "Reject tx for invalid address params: base address 1",
-        tx: {
-            ...shelleyBase,
-            outputs: [
-                {
-                    amount: 3003112,
-                    destination: {
-                        type: TxOutputDestinationType.DEVICE_OWNED,
-                        params: {
-                            type: AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY,
-                            params: {
-                                spendingScriptHash: "29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd",
-                                stakingKeyHashHex:
-                          "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
-                            },
-                        },
-                    },
-                },
-            ],
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.OUTPUT_INVALID_ADDRESS_PARAMS,
-    },
-    {
-        testname: "Reject tx for invalid address params: base address 2",
-        tx: {
-            ...shelleyBase,
-            outputs: [
-                {
-                    amount: 3003112,
-                    destination: {
-                        type: TxOutputDestinationType.DEVICE_OWNED,
-                        params: {
-                            type: AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT,
-                            params: {
-                                spendingScriptHash: "29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd",
-                                stakingScriptHash:  "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
-                            },
-                        },
-                    },
-                },
-            ],
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.OUTPUT_INVALID_ADDRESS_PARAMS,
-    },
-    {
-        testname: "Reject tx for invalid address params: enterprise",
-        tx: {
-            ...shelleyBase,
-            outputs: [
-                {
-                    amount: 3003112,
-                    destination: {
-                        type: TxOutputDestinationType.DEVICE_OWNED,
-                        params: {
-                            type: AddressType.ENTERPRISE_SCRIPT,
-                            params: {
-                                spendingScriptHash: "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
-                            },
-                        },
-                    },
-                },
-            ],
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.OUTPUT_INVALID_ADDRESS_PARAMS,
-    },
-    {
-        testname: "Reject tx for invalid address params: pointer",
-        tx: {
-            ...shelleyBase,
-            outputs: [
-                {
-                    amount: 3003112,
-                    destination: {
-                        type: TxOutputDestinationType.DEVICE_OWNED,
-                        params: {
-                            type: AddressType.POINTER_SCRIPT,
-                            params: {
-                                spendingScriptHash: "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
-                                stakingBlockchainPointer: {
-                                    blockIndex: 1,
-                                    txIndex: 2,
-                                    certificateIndex: 3,
-                                },
-                            },
-                        },
-                    },
-                },
-            ],
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.OUTPUT_INVALID_ADDRESS_PARAMS,
-    },
-    {
-        testname: "Reject tx for datum hash without script hash part - internal address",
-        tx: {
-            ...shelleyBase,
-            outputs: [outputs.datumHashStakePath],
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.LEDGER_POLICY,
-    },
-    {
-        testname: "Reject tx for datum hash without script hash part - external address",
-        tx: {
-            ...shelleyBase,
-            outputs: [outputs.datumHashStakePathExternal],
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.LEDGER_POLICY,
-    },
-    {
-        testname: "Input and change output account mismatch",
-        tx: {
-            network: Networks.Mainnet,
-            inputs: [inputs.utxoShelley],
-            outputs: [
-                {
-                    amount: 1,
-                    destination: {
-                        type: TxOutputDestinationType.THIRD_PARTY,
-                        params: {
-                            addressHex: bech32_to_hex("addr1q84sh2j72ux0l03fxndjnhctdg7hcppsaejafsa84vh7lwgmcs5wgus8qt4atk45lvt4xfxpjtwfhdmvchdf2m3u3hlsd5tq5r"),
-                        },
-                    },
-                },
-                {
-                    amount: 7120787,
-                    destination: {
-                        type: TxOutputDestinationType.DEVICE_OWNED,
-                        params: {
-                            type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY,
-                            params: {
-                                spendingPath: str_to_path("1852'/1815'/1'/0/0"),
-                                stakingPath: str_to_path("1852'/1815'/0'/2/0"),
-                            },
-                        },
-                    },
-                },
-            ],
-            fee: 42,
-            ttl: 10,    
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.LEDGER_POLICY,
-    },
-    {
-        testname: "Input and stake deregistration certificate account mismatch",
-        tx: {
-            network: Networks.Mainnet,
-            inputs: [inputs.utxoShelley],
-            outputs: [
-                {
-                    amount: 1,
-                    destination: {
-                        type: TxOutputDestinationType.THIRD_PARTY,
-                        params: {
-                            addressHex: bech32_to_hex("addr1q84sh2j72ux0l03fxndjnhctdg7hcppsaejafsa84vh7lwgmcs5wgus8qt4atk45lvt4xfxpjtwfhdmvchdf2m3u3hlsd5tq5r"),
-                        },
-                    },
-                },
-            ],
-            certificates: [
-                {
-                    type: CertificateType.STAKE_DEREGISTRATION,
-                    params: {
-                        stakeCredential: {
-                            type: StakeCredentialParamsType.KEY_PATH,
-                            keyPath: str_to_path("1852'/1815'/1'/2/0"),
-                        },
-                    },
-                },
-            ],
-            fee: 42,
-            ttl: 10,    
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.LEDGER_POLICY,
-    },
-    {
-        testname: "Input and withdrawal account mismatch",
-        tx: {
-            network: Networks.Mainnet,
-            inputs: [inputs.utxoShelley],
-            outputs: [
-                {
-                    amount: 1,
-                    destination: {
-                        type: TxOutputDestinationType.THIRD_PARTY,
-                        params: {
-                            addressHex: bech32_to_hex("addr1q84sh2j72ux0l03fxndjnhctdg7hcppsaejafsa84vh7lwgmcs5wgus8qt4atk45lvt4xfxpjtwfhdmvchdf2m3u3hlsd5tq5r"),
-                        },
-                    },
-                },
-            ],
-            withdrawals: [
-                {
-                    amount: 1000,
-                    stakeCredential: {
-                        type: StakeCredentialParamsType.KEY_PATH,
-                        keyPath: str_to_path("1852'/1815'/1'/2/0"),
-                    },
-                },
-            ],
-            fee: 42,
-            ttl: 10,    
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.LEDGER_POLICY,
-    },
-    {
-        testname: "Change output and stake deregistration account mismatch",
-        tx: {
-            network: Networks.Mainnet,
-            inputs: [inputs.utxoShelley],
-            outputs: [
-                {
-                    amount: 1,
-                    destination: {
-                        type: TxOutputDestinationType.THIRD_PARTY,
-                        params: {
-                            addressHex: bech32_to_hex("addr1q84sh2j72ux0l03fxndjnhctdg7hcppsaejafsa84vh7lwgmcs5wgus8qt4atk45lvt4xfxpjtwfhdmvchdf2m3u3hlsd5tq5r"),
-                        },
-                    },
-                },
-                outputs.internalBaseWithStakingPath,
-            ],
-            certificates: [
-                {
-                    type: CertificateType.STAKE_DEREGISTRATION,
-                    params: {
-                        stakeCredential: {
-                            type: StakeCredentialParamsType.KEY_PATH,
-                            keyPath: str_to_path("1852'/1815'/1'/2/0"),
-                        },
-                    },
-                },
-            ],
-            fee: 42,
-            ttl: 10,    
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.LEDGER_POLICY,
-    },
-    {
-        testname: "Change output and withdrawal account mismatch",
-        tx: {
-            network: Networks.Mainnet,
-            inputs: [inputs.utxoShelley],
-            outputs: [
-                {
-                    amount: 1,
-                    destination: {
-                        type: TxOutputDestinationType.THIRD_PARTY,
-                        params: {
-                            addressHex: bech32_to_hex("addr1q84sh2j72ux0l03fxndjnhctdg7hcppsaejafsa84vh7lwgmcs5wgus8qt4atk45lvt4xfxpjtwfhdmvchdf2m3u3hlsd5tq5r"),
-                        },
-                    },
-                },
-                outputs.internalBaseWithStakingPath,
-            ],
-            withdrawals: [
-                {
-                    amount: 1000,
-                    stakeCredential: {
-                        type: StakeCredentialParamsType.KEY_PATH,
-                        keyPath: str_to_path("1852'/1815'/1'/2/0"),
-                    },
-                },
-            ],
-            fee: 42,
-            ttl: 10,    
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.LEDGER_POLICY,
-    },
-    {
-        testname: "Stake deregistration certificate and withdrawal account mismatch",
-        tx: {
-            network: Networks.Mainnet,
-            inputs: [inputs.utxoShelley],
-            outputs: [
-                {
-                    amount: 1,
-                    destination: {
-                        type: TxOutputDestinationType.THIRD_PARTY,
-                        params: {
-                            addressHex: bech32_to_hex("addr1q84sh2j72ux0l03fxndjnhctdg7hcppsaejafsa84vh7lwgmcs5wgus8qt4atk45lvt4xfxpjtwfhdmvchdf2m3u3hlsd5tq5r"),
-                        },
-                    },
-                },
-            ],
-            certificates: [
-                {
-                    type: CertificateType.STAKE_DEREGISTRATION,
-                    params: {
-                        stakeCredential: {
-                            type: StakeCredentialParamsType.KEY_PATH,
-                            keyPath: str_to_path("1852'/1815'/0'/2/0"),
-                        },
-                    },
-                },
-            ],
-            withdrawals: [
-                {
-                    amount: 1000,
-                    stakeCredential: {
-                        type: StakeCredentialParamsType.KEY_PATH,
-                        keyPath: str_to_path("1852'/1815'/1'/2/0"),
-                    },
-                },
-            ],
-            fee: 42,
-            ttl: 10,    
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.LEDGER_POLICY,
-    },
-    {
-        testname: "Byron to Shelley transfer input account mismatch",
-        tx: {
-            network: Networks.Mainnet,
-            inputs: [
-                {
-                    ...inputs.utxoByron,
-                    txHashHex: "3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7",
-                    path: str_to_path("44'/1815'/1'/0/0"),
-                },
-                {
-                    ...inputs.utxoShelley,
-                    path: str_to_path("1852'/1815'/1'/0/0"),
-                },
-            ],
-            outputs: [
-                {
-                    amount: 1,
-                    destination: {
-                        type: TxOutputDestinationType.THIRD_PARTY,
-                        params: {
-                            addressHex: bech32_to_hex("addr1z90z7zqwhya6mpk5q929ur897g3pp9kkgalpreny8y304r2dcrtx0sf3dluyu4erzr3xtmdnzvcyfzekkuteu2xagx0qeva0pr"),
-                        },
-                    },
-                },
-            ],
-            fee: 42,
-            ttl: 10,    
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.LEDGER_POLICY,
-    },
-    {
-        testname: "Byron to Shelley transfer output account mismatch",
-        tx: {
-            network: Networks.Mainnet,
-            inputs: [
-                {
-                    ...inputs.utxoByron,
-                    txHashHex: "3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7",
-                    path: str_to_path("44'/1815'/1'/0/0"),
-                },
-            ],
-            outputs: [
-                {
-                    amount: 7120787,
-                    destination: {
-                        type: TxOutputDestinationType.DEVICE_OWNED,
-                        params: {
-                            type: AddressType.BASE_PAYMENT_KEY_STAKE_KEY,
-                            params: {
-                                spendingPath: str_to_path("1852'/1815'/1'/0/0"),
-                                stakingPath: str_to_path("1852'/1815'/1'/2/0"),
-                            },
-                        },
-                    },
-                },
-            ],
-            fee: 42,
-            ttl: 10,    
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.LEDGER_POLICY,
-    },
-]
-  
-
 const allegraBase = {
     network: Networks.Mainnet,
     inputs: [inputs.utxoShelley],
@@ -2157,7 +1722,7 @@ export const testsAllegra: TestcaseAllegra[] = [
     },
 ]
 
-const maryBase = {
+export const maryBase = {
     network: Networks.Mainnet,
     inputs: [inputs.utxoShelley],
     fee: 42,
@@ -2424,96 +1989,5 @@ export const testsCatalystRegistration: TestcaseMary[] = [
                 catalystRegistrationSignatureHex: "1514b6bbc582b33edcf5fa30ec04dcaa62128de8755c786768ae5922132c2aa50b9ba17be28072de979f45b0f429c7f5d489c549a1e22bc8e7d0b2445c103609",
             },
         },
-    },
-]
-
-export type InvalidTokenBundleOrderingTestcase = {
-  testname: string,
-  tx: Transaction,
-  signingMode: TransactionSigningMode
-  errCls: new (...args: any[]) => ErrorBase,
-  errMsg: string,
-  rejectReason: InvalidDataReason,
-}
-
-export const testsInvalidTokenBundleOrdering: InvalidTokenBundleOrderingTestcase[] = [
-    {
-        testname: "Reject tx where asset groups are not ordered",
-        tx: {
-            ...maryBase,
-            outputs: [outputs.multiassetInvalidAssetGroupOrdering],
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Invalid data supplied to Ledger",
-        rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_ORDERING,
-    },
-    {
-        testname: "Reject tx where asset groups are not unique",
-        tx: {
-            ...maryBase,
-            outputs: [outputs.multiassetAssetGroupsNotUnique],
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Invalid data supplied to Ledger",
-        rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_NOT_UNIQUE,
-    },
-    {
-        testname: "Reject tx where tokens within an asset group are not ordered - alphabetical",
-        tx: {
-            ...maryBase,
-            outputs: [outputs.multiassetInvalidTokenOrderingSameLength],
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Invalid data supplied to Ledger",
-        rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_ORDERING,
-    },
-    {
-        testname: "Reject tx where tokens within an asset group are not ordered - length",
-        tx: {
-            ...maryBase,
-            outputs: [outputs.multiassetInvalidTokenOrderingDifferentLengths],
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Invalid data supplied to Ledger",
-        rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_ORDERING,
-    },
-    {
-        testname: "Reject tx where tokens within an asset group are not unique",
-        tx: {
-            ...maryBase,
-            outputs: [outputs.multiassetTokensNotUnique],
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Invalid data supplied to Ledger",
-        rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_NOT_UNIQUE,
-    },
-    {
-        testname: "Reject tx with mint fields with invalid canonical ordering of policies",
-        tx: {
-            ...maryBase,
-            outputs: [],
-            mint: mints.mintInvalidCanonicalOrderingPolicy,
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Invalid data supplied to Ledger",
-        rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_ORDERING,
-    },
-    {
-        testname: "Reject tx with mint fields with invalid canonical ordering of asset names",
-        tx: {
-            ...maryBase,
-            outputs: [],
-            mint: mints.mintInvalidCanonicalOrderingAssetName,
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: "Invalid data supplied to Ledger",
-        rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_ORDERING,
     },
 ]

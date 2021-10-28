@@ -2,10 +2,11 @@
 import TransportNodeHid from "@ledgerhq/hw-transport-node-hid"
 import SpeculosTransport from "@ledgerhq/hw-transport-node-speculos"
 import * as blake2 from "blake2"
+import { expect } from "chai"
 import { ImportMock } from "ts-mock-imports"
 import type { FixlenHexString} from "types/internal"
 
-import Ada from "../src/Ada"
+import { Ada, utils } from "../src/Ada"
 import { InvalidDataReason } from "../src/errors/index"
 import * as parseModule from "../src/utils/parse"
 import type { Witness, TxAuxiliaryDataSupplement } from "../src/types/public"
@@ -94,4 +95,56 @@ export type NetworkIdlessTestResult = {
     txHashHex: string,
     witnesses: Array<Witness>,
     auxiliaryDataSupplement: TxAuxiliaryDataSupplement | null,
+}
+
+export function bech32_to_hex(str: string): string {
+    return utils.buf_to_hex(utils.bech32_decodeAddress(str))
+}
+
+export function describeRejects(name: string, testList: any) {
+    describe(name + "_JS", async () => {
+        let ada: Ada = {} as Ada
+    
+        beforeEach(async () => {
+            ada = await getAda()
+        })
+    
+        afterEach(async () => {
+            await (ada as any).t.close()
+        })
+    
+        for (const {testname, tx, additionalWitnessPaths, signingMode, rejectReason } of testList) {
+            it(testname, async() => {
+                const response = ada.signTransaction({
+                    tx,
+                    signingMode,
+                    additionalWitnessPaths: additionalWitnessPaths || [] ,
+                })
+                await expect(response).to.be.rejectedWith(rejectReason)
+            })
+        }
+    })
+    
+    describeWithoutValidation(name + "_Ledger", async () => {
+        let ada: Ada = {} as Ada
+    
+        beforeEach(async () => {
+            ada = await getAda()
+        })
+    
+        afterEach(async () => {
+            await (ada as any).t.close()
+        })
+    
+        for (const {testname, tx, additionalWitnessPaths, signingMode, errCls, errMsg } of testList) {
+            it(testname, async() => {
+                const response = ada.signTransaction({
+                    tx,
+                    signingMode,
+                    additionalWitnessPaths: additionalWitnessPaths || [],
+                })
+                await expect(response).to.be.rejectedWith(errCls, errMsg)
+            })
+        }
+    })
 }

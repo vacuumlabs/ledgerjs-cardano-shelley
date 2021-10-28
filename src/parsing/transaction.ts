@@ -1,3 +1,5 @@
+import { assert } from "console"
+
 import { InvalidData } from "../errors"
 import { InvalidDataReason } from "../errors/invalidDataReason"
 import type { OutputDestination, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedRequiredSigner, ParsedSigningRequest, ParsedToken, ParsedTransaction, ParsedWithdrawal} from "../types/internal"
@@ -18,6 +20,7 @@ import type {
     Withdrawal,
 } from "../types/public"
 import {
+    AddressType,
     PoolKeyType,
 } from "../types/public"
 import {
@@ -29,6 +32,7 @@ import {
 import { unreachable } from "../utils/assert"
 import { isArray, parseBIP32Path, parseStakeCredential,validate } from "../utils/parse"
 import { parseHexString, parseHexStringOfLength, parseInt64_str, parseUint32_t, parseUint64_str } from "../utils/parse"
+import { hex_to_buf } from "../utils/serialize"
 import { parseAddress } from "./address"
 import { parseCertificate } from "./certificate"
 import { ASSET_GROUPS_MAX, MAX_LOVELACE_SUPPLY_STR, TOKENS_IN_GROUP_MAX } from "./constants"
@@ -212,6 +216,38 @@ function parseTxDestination(
     }
 }
 
+function addressContainsScripthash(destination: OutputDestination): boolean {
+    let type: AddressType
+    switch (destination.type) {
+    case TxOutputDestinationType.THIRD_PARTY: {
+        const addressBytes: Buffer = hex_to_buf(destination.addressHex)
+        type = (addressBytes[0] & 0b11110000) >> 4
+        break
+    }
+    case TxOutputDestinationType.DEVICE_OWNED: {
+        type = destination.addressParams.type
+    }
+    }
+    switch (type) {
+    case AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY:
+    case AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT:
+    case AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT:
+    case AddressType.POINTER_SCRIPT:
+    case AddressType.ENTERPRISE_SCRIPT:
+    case AddressType.REWARD_SCRIPT:
+        return true
+    case AddressType.BASE_PAYMENT_KEY_STAKE_KEY:
+    case AddressType.POINTER_KEY:
+    case AddressType.ENTERPRISE_KEY:
+    case AddressType.BYRON:
+    case AddressType.REWARD_KEY:
+        return false
+    default:
+        assert(false)
+        return false
+    }
+}
+
 function parseTxOutput(
     output: TxOutput,
     network: Network,
@@ -225,6 +261,8 @@ function parseTxOutput(
     const datumHashHex = output.datumHashHex == null
         ? null
         : parseHexStringOfLength(output.datumHashHex, SCRIPT_DATA_HASH_LENGTH, InvalidDataReason.SCRIPT_DATA_HASH_WRONG_LENGTH)
+    validate(!datumHashHex || addressContainsScripthash(destination),
+        InvalidDataReason.OUTPUT_INVALID_DATUM_HASH_WITHOUT_SCRIPT_HASH)
 
     return {
         amount,
@@ -298,6 +336,16 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
             tx.withdrawals.every(withdrawal => withdrawal.stakeCredential.type === StakeCredentialType.KEY_PATH),
             InvalidDataReason.SIGN_MODE_ORDINARY__WITHDRAWAL_ONLY_AS_PATH,
         )
+        // cannot have collaterals in the tx
+        validate(
+            !tx.collaterals || tx.collaterals.length == 0,
+            InvalidDataReason.SIGN_MODE_ORDINARY__COLLATERALS_NOT_ALLOWED
+        )
+        // cannot have collaterals in the tx
+        validate(
+            !tx.requiredSigners || tx.requiredSigners.length == 0,
+            InvalidDataReason.SIGN_MODE_ORDINARY__REQUIRED_SIGNERS_NOT_ALLOWED
+        )
         break
     }
 
@@ -336,6 +384,16 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
             tx.outputs.every(output => output.destination.type === TxOutputDestinationType.THIRD_PARTY),
             InvalidDataReason.SIGN_MODE_MULTISIG__DEVICE_OWNED_ADDRESS_NOT_ALLOWED,
         )
+        // cannot have collaterals in the tx
+        validate(
+            !tx.collaterals || tx.collaterals.length == 0,
+            InvalidDataReason.SIGN_MODE_MULTISIG__COLLATERALS_NOT_ALLOWED
+        )
+        // cannot have collaterals in the tx
+        validate(
+            !tx.requiredSigners || tx.requiredSigners.length == 0,
+            InvalidDataReason.SIGN_MODE_MULTISIG__REQUIRED_SIGNERS_NOT_ALLOWED
+        )
         break
     }
     case TransactionSigningMode.POOL_REGISTRATION_AS_OWNER: {
@@ -364,6 +422,10 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
                 InvalidDataReason.SIGN_MODE_POOL_OWNER__SINGLE_POOL_REG_CERTIFICATE_REQUIRED
             )
             validate(
+                certificate.pool.poolKey.type === PoolKeyType.THIRD_PARTY,
+                InvalidDataReason.SIGN_MODE_POOL_OWNER__THIRD_PARTY_POOL_KEY_REQUIRED
+            )
+            validate(
                 certificate.pool.owners.filter(o => o.type === PoolOwnerType.DEVICE_OWNED).length === 1,
                 InvalidDataReason.SIGN_MODE_POOL_OWNER__SINGLE_DEVICE_OWNER_REQUIRED
             )
@@ -373,6 +435,24 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
         validate(
             tx.withdrawals.length === 0,
             InvalidDataReason.SIGN_MODE_POOL_OWNER__WITHDRAWALS_NOT_ALLOWED
+        )
+
+        // cannot have mint in the tx
+        validate(
+            !tx.mint || tx.mint.length == 0,
+            InvalidDataReason.SIGN_MODE_POOL_OWNER__MINT_NOT_ALLOWED
+        )
+
+        // cannot have collaterals in the tx
+        validate(
+            !tx.collaterals || tx.collaterals.length == 0,
+            InvalidDataReason.SIGN_MODE_POOL_OWNER__COLLATERALS_NOT_ALLOWED
+        )
+
+        // cannot have collaterals in the tx
+        validate(
+            !tx.requiredSigners || tx.requiredSigners.length == 0,
+            InvalidDataReason.SIGN_MODE_POOL_OWNER__REQUIRED_SIGNERS_NOT_ALLOWED
         )
         break
     }
@@ -406,6 +486,24 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
             tx.withdrawals.length === 0,
             InvalidDataReason.SIGN_MODE_POOL_OPERATOR__WITHDRAWALS_NOT_ALLOWED
         )
+            
+        // cannot have mint in the tx
+        validate(
+            !tx.mint || tx.mint?.length == 0,
+            InvalidDataReason.SIGN_MODE_POOL_OPERATOR__MINT_NOT_ALLOWED
+        )
+
+        // cannot have collaterals in the tx
+        validate(
+            !tx.collaterals || tx.collaterals.length == 0,
+            InvalidDataReason.SIGN_MODE_POOL_OPERATOR__COLLATERALS_NOT_ALLOWED
+        )
+
+        // cannot have collaterals in the tx
+        validate(
+            !tx.requiredSigners || tx.requiredSigners.length == 0,
+            InvalidDataReason.SIGN_MODE_POOL_OPERATOR__REQUIRED_SIGNERS_NOT_ALLOWED
+        )
         break
     }
     case TransactionSigningMode.PLUTUS_TRANSACTION: {
@@ -415,6 +513,20 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
         validate(
             tx.certificates.every(certificate => certificate.type !== CertificateType.STAKE_POOL_REGISTRATION),
             InvalidDataReason.SIGN_MODE_PLUTUS__POOL_REGISTRATION_NOT_ALLOWED,
+        )
+        // certificate stake credentials given by scripts
+        validate(
+            tx.certificates.every(certificate => {
+                switch (certificate.type) {
+                case CertificateType.STAKE_REGISTRATION:
+                case CertificateType.STAKE_DEREGISTRATION:
+                case CertificateType.STAKE_DELEGATION:
+                    return certificate.stakeCredential.type === StakeCredentialType.SCRIPT_HASH
+                default:
+                    return true
+                }
+            }),
+            InvalidDataReason.SIGN_MODE_PLUTUS__CERTIFICATE_STAKE_CREDENTIAL_ONLY_AS_SCRIPT,
         )
         break
     }
