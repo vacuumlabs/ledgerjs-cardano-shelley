@@ -137,7 +137,7 @@ export enum InvalidDataReason {
   COLLATERALS_NOT_ARRAY = "collaterals not an array",
   
   REQUIRED_SIGNERS_NOT_ARRAY = "required signers not an array",
-  VKEY_WRONG_LENGTH = "vkey not 32 long",
+  VKEY_WRONG_LENGTH = "vkey not 32 bytes long",
   UNKNOWN_REQUIRED_SIGNER_TYPE = "unknown required signer type",
   REQUIRED_SIGNER_INVALID_PATH = "invalid path for required signer",
 
@@ -180,8 +180,6 @@ export enum InvalidDataReason {
   "no device-owned pool owner is expected in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR",
   SIGN_MODE_POOL_OPERATOR__WITHDRAWALS_NOT_ALLOWED =
   "no withdrawals allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR",
-
-  ADDITIONAL_WITNESSES_NOT_ARRAY = "additional witnesses not an array",
 
   SIGN_MODE_PLUTUS__DEVICE_OWNED_ADDRESS_NOT_ALLOWED =
   "outputs given by path are not allowed in TransactionSigningMode.PLUTUS_TRANSACTION",

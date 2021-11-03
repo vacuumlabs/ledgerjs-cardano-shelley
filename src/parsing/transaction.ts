@@ -1,12 +1,14 @@
 import { InvalidData } from "../errors"
 import { InvalidDataReason } from "../errors/invalidDataReason"
-import { OutputDestination, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedSigningRequest, ParsedToken, ParsedTransaction, ParsedRequiredSigner, ParsedWithdrawal, RequiredSignerType, VKEY_LENGTH } from "../types/internal"
+import type { OutputDestination, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedRequiredSigner, ParsedSigningRequest, ParsedToken, ParsedTransaction, ParsedWithdrawal} from "../types/internal"
+import { RequiredSignerType, VKEY_LENGTH } from "../types/internal"
 import { StakeCredentialType } from "../types/internal"
 import { ASSET_NAME_LENGTH_MAX, CertificateType, SCRIPT_DATA_HASH_LENGTH,SpendingDataSourceType, TOKEN_POLICY_LENGTH, TX_HASH_LENGTH } from "../types/internal"
 import type {
     AssetGroup,
     Certificate,
     Network,
+    RequiredSigner,
     SignTransactionRequest,
     Token,
     Transaction,
@@ -14,7 +16,6 @@ import type {
     TxOutput,
     TxOutputDestination,
     Withdrawal,
-    RequiredSigner,
 } from "../types/public"
 import {
     PoolKeyType,
@@ -238,7 +239,7 @@ function parseRequiredSigner(requiredSigner: RequiredSigner): ParsedRequiredSign
     case TxRequiredSignerType.PATH:
         return {
             type: RequiredSignerType.PATH,
-            path: parseBIP32Path(requiredSigner.path, InvalidDataReason.REQUIRED_SIGNER_INVALID_PATH)
+            path: parseBIP32Path(requiredSigner.path, InvalidDataReason.REQUIRED_SIGNER_INVALID_PATH),
         }
     case TxRequiredSignerType.HASH:
         return {
@@ -409,7 +410,7 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
     }
     case TransactionSigningMode.PLUTUS_TRANSACTION: {
         validate(tx.outputs.every(o => o.destination.type != TxOutputDestinationType.DEVICE_OWNED),
-        InvalidDataReason.SIGN_MODE_PLUTUS__DEVICE_OWNED_ADDRESS_NOT_ALLOWED)
+            InvalidDataReason.SIGN_MODE_PLUTUS__DEVICE_OWNED_ADDRESS_NOT_ALLOWED)
 
         validate(
             tx.certificates.every(certificate => certificate.type !== CertificateType.STAKE_POOL_REGISTRATION),
