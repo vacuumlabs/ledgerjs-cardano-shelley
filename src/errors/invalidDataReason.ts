@@ -188,6 +188,8 @@ export enum InvalidDataReason {
   SIGN_MODE_PLUTUS__POOL_REGISTRATION_NOT_ALLOWED =
   "pool registration is not allowed in TransactionSigningMode.PLUTUS_TRANSACTION",
 
+  ADDITIONAL_WITNESSES_NOT_ARRAY = "additional witnesses not an array",
+
   OPERATIONAL_CERTIFICATE_INVALID_KES_KEY =
   "invalid operational certificate kes key",
   OPERATIONAL_CERTIFICATE_INVALID_KES_PERIOD =
