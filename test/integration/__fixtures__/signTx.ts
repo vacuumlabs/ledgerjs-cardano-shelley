@@ -1,6 +1,6 @@
 import type { AssetGroup, DeviceOwnedAddress, ErrorBase, Transaction, TxInput, TxOutput, TxOutputDestination } from "../../../src/Ada"
 import {DeviceStatusError, InvalidDataReason, TxAuxiliaryDataSupplementType} from "../../../src/Ada"
-import { AddressType, CertificateType, Networks, TxAuxiliaryDataType, TxOutputDestinationType, utils, TxRequiredSignerType } from "../../../src/Ada"
+import { AddressType, CertificateType, Networks, TxAuxiliaryDataType, TxOutputDestinationType, TxRequiredSignerType,utils } from "../../../src/Ada"
 import type { BIP32Path} from '../../../src/types/public'
 import { StakeCredentialParamsType, TransactionSigningMode } from '../../../src/types/public'
 import { str_to_path } from "../../../src/utils/address"
@@ -1107,10 +1107,10 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
                 {
                     type: TxRequiredSignerType.PATH,
                     path: str_to_path("1852'/1815'/0'/0/1"),
-                }
+                },
             ],
         },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+        signingMode: TransactionSigningMode.PLUTUS_TRANSACTION,
         additionalWitnessPaths: [],
         txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a0e825820fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53305820eea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53300f01",
         result: {
@@ -1139,10 +1139,10 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
                 {
                     type: TxRequiredSignerType.PATH,
                     path: str_to_path("1852'/1815'/0'/0/0"),
-                }
+                },
             ],
         },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+        signingMode: TransactionSigningMode.PLUTUS_TRANSACTION,
         additionalWitnessPaths: [],
         txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a0e825820fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53305820eea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53300f01",
         result: {
@@ -1171,10 +1171,10 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
                 {
                     type: TxRequiredSignerType.HASH,
                     hash: "eea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca5330",
-                }
+                },
             ],
         },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+        signingMode: TransactionSigningMode.PLUTUS_TRANSACTION,
         additionalWitnessPaths: [],
         txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a0e825820fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53305820eea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53300f01",
         result: {
@@ -1581,15 +1581,15 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
         additionalWitnessPaths: [str_to_path("1854'/1815'/0'/0/0"), str_to_path("1854'/1815'/0'/2/0")],
         txBody: "ab00818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018282583901eb0baa5e570cffbe2934db29df0b6a3d7c0430ee65d4c3a7ab2fefb91bc428e4720702ebd5dab4fb175324c192dc9bb76cc5da956e3c8dff821a001e8480a1581c0d63e8d2c5a00cbcffbdf9112487c443466e1ea7d8c834df5ac5c425a14874657374436f696e1a0078386283581d71477e52b3116b62fe8cd34a312615f5fcd678c94e1d6cdb86c1a3964c0158203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b702182a030a048382008201581c29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd82018201581c29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd83028201581c29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd581cf61c42cbf7c8c53af3f520508212ad3e72f674f957fe23ff0acb497305a1581df129fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd1903e807582058ec01578fcdfdc376f09631a7b2adc608eaf57e3720484c7ff37c13cff90fdf08182f09a1581c0d63e8d2c5a00cbcffbdf9112487c443466e1ea7d8c834df5ac5c425a24874657374436f696e1a007838624875657374436f696e3a007838610b58203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b70f01",
         result: {
-            txHashHex: "1ad44235e0a25c13002ddff58dbf3f926745ccd24401f2d9fc93b1879e2afb89",
+            txHashHex: "c3637e34529fae17dbbb90c58307df0cf3b818f4c034860fff362d1ea864cca4",
             witnesses: [
                 {
                     path: str_to_path("1854'/1815'/0'/0/0"),
-                    witnessSignatureHex: "d2ecb1673516cdb15355f64b67bb9674e5dba0c589269411ec4934e44e6ec48035819a73b32b988bcbf959b7d14a2f0e59bbaf0d923c385efe6df96be5670602",
+                    witnessSignatureHex: "0d35e3f273db757d6137ff897dcfe5abf44054185a428197933a61bb0c7ad960c2090ba808ab86404fe2b407abba12041f5e9306a6f1ae0ad5b6cd4fc7b36904",
                 },
                 {
                     path: str_to_path("1854'/1815'/0'/2/0"),
-                    witnessSignatureHex: "17f87aefb1c19283cefca9406d19c4e08cb0eb9376819772955f2955f94448c8230475638a5091c5d01d429e8f705f01e3c25d4a1aa7882d1828ee4380cdd107",
+                    witnessSignatureHex: "a164b873fa4678dc7a986ad9e4db62b638faff7f45c81af835155bc74dd3ad4b2f696734bf1e536de2baa237f92e158624920eb10269f9ee1d9910993b194a0b",
                 },
             ],
             auxiliaryDataSupplement: null,
