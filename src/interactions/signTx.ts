@@ -29,9 +29,9 @@ const enum P1 {
   STAGE_CERTIFICATES = 0x06,
   STAGE_WITHDRAWALS = 0x07,
   STAGE_VALIDITY_INTERVAL_START = 0x09,
-  STAGE_CONFIRM = 0x0a,
   STAGE_MINT = 0x0b,
   STAGE_SCRIPT_DATA_HASH = 0x0c,
+  STAGE_CONFIRM = 0x0a,
   STAGE_WITNESSES = 0x0f,
 }
 
@@ -81,7 +81,7 @@ function* signTx_addOutput(
 ): Interaction<void> {
   const enum P2 {
     BASIC_DATA = 0x30,
-    SCRIPT_DATA_HASH = 0x34,
+    DATUM_HASH = 0x34,
     CONFIRM = 0x33,
   }
 
@@ -95,10 +95,10 @@ function* signTx_addOutput(
 
   yield* signTx_addTokenBundle(output.tokenBundle, P1.STAGE_OUTPUTS, uint64_to_buf)
 
-  if (output.datumHashHex) {
+  if (output.datumHashHex != null) {
       yield send({
           p1: P1.STAGE_OUTPUTS,
-          p2: P2.SCRIPT_DATA_HASH,
+          p2: P2.DATUM_HASH,
           data: hex_to_buf(output.datumHashHex),
           expectedResponseLength: 0,
       })

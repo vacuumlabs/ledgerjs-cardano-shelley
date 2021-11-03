@@ -542,7 +542,6 @@ export const outputs: Record<
         datumHashHex: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
     },
     datumHashExternal: {
-        // destination: destinations.multiassetThirdParty,
         destination: destinations.externalShelleyScripthash,
         amount: 7120787,
         datumHashHex: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",

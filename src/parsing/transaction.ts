@@ -211,15 +211,15 @@ function parseTxOutput(
 
     const destination = parseTxDestination(network, output.destination)
 
-    const datumHash = output.datumHashHex
-        ? parseHexStringOfLength(output.datumHashHex, SCRIPT_DATA_HASH_LENGTH, InvalidDataReason.SCRIPT_DATA_HASH_WRONG_LENGTH)
-        : null
+    const datumHashHex = output.datumHashHex == null
+        ? null
+        : parseHexStringOfLength(output.datumHashHex, SCRIPT_DATA_HASH_LENGTH, InvalidDataReason.SCRIPT_DATA_HASH_WRONG_LENGTH)
 
     return {
         amount,
         tokenBundle,
         destination,
-        datumHashHex: datumHash,
+        datumHashHex,
     }
 }
 
