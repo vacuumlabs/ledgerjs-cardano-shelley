@@ -82,12 +82,18 @@ export function path_to_buf(path: Array<number>): Buffer {
 }
 
 export function stake_credential_to_buf(stakeCredential: ParsedStakeCredential): Buffer {
-    if (stakeCredential.type === StakeCredentialType.KEY_PATH) {
+    switch (stakeCredential.type) {
+    case StakeCredentialType.KEY_PATH:
         return Buffer.concat([
             uint8_to_buf(stakeCredential.type as Uint8_t),
             path_to_buf(stakeCredential.path),
         ])
-    } else {
+    case StakeCredentialType.KEY_HASH:
+        return Buffer.concat([
+            uint8_to_buf(stakeCredential.type as Uint8_t),
+            hex_to_buf(stakeCredential.keyHash),
+        ])
+    case StakeCredentialType.SCRIPT_HASH:
         return Buffer.concat([
             uint8_to_buf(stakeCredential.type as Uint8_t),
             hex_to_buf(stakeCredential.scriptHash),

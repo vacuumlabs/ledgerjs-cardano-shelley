@@ -657,12 +657,18 @@ export type PoolRetirementParams = {
 
 export enum StakeCredentialParamsType {
     KEY_PATH,
+    KEY_HASH,
     SCRIPT_HASH,
 }
 
-type KeyStakeCredentialParams = {
+type KeyPathStakeCredentialParams = {
     type: StakeCredentialParamsType.KEY_PATH,
     keyPath: BIP32Path,
+}
+
+type KeyHashStakeCredentialParams = {
+    type: StakeCredentialParamsType.KEY_HASH,
+    keyHash: string,
 }
 
 type ScriptStakeCredentialParams = {
@@ -670,7 +676,7 @@ type ScriptStakeCredentialParams = {
     scriptHash: string,
 }
 
-export type StakeCredentialParams = KeyStakeCredentialParams | ScriptStakeCredentialParams
+export type StakeCredentialParams = KeyPathStakeCredentialParams | KeyHashStakeCredentialParams | ScriptStakeCredentialParams
 
 /**
  * Stake key registration certificate parameters

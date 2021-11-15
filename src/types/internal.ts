@@ -35,13 +35,17 @@ export const VKEY_LENGTH = 32
 
 export const enum StakeCredentialType {
     KEY_PATH = 0,
-    SCRIPT_HASH = 1,
+    KEY_HASH = 1,
+    SCRIPT_HASH = 2,
 }
 
 export type ParsedStakeCredential = 
     {
         type: StakeCredentialType.KEY_PATH,
         path: ValidBIP32Path,
+    } | {
+        type: StakeCredentialType.KEY_HASH,
+        keyHash: FixlenHexString<typeof KEY_HASH_LENGTH>,
     } | {
         type: StakeCredentialType.SCRIPT_HASH,
         scriptHash: FixlenHexString<typeof SCRIPT_HASH_LENGTH>,
