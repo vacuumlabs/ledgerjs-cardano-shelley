@@ -1595,6 +1595,49 @@ export const testsShelleyWithCertificates: TestcaseShelley[] = [
             auxiliaryDataSupplement: null,
         },
     },
+    {
+        testname: "Sign tx with key hash in stake credentialhash",
+        tx: {
+            ...shelleyBase,
+            outputs: [],
+            certificates: [
+                {
+                    type: CertificateType.STAKE_DELEGATION,
+                    params: {
+                        stakeCredential: {
+                            type: StakeCredentialParamsType.KEY_HASH,
+                            keyHash: "29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd",
+                        },
+                        poolKeyHashHex: "f61c42cbf7c8c53af3f520508212ad3e72f674f957fe23ff0acb4973",
+                    },
+                },
+            ],
+            withdrawals: [
+                {
+                    stakeCredential: {
+                        type: StakeCredentialParamsType.KEY_HASH,
+                        keyHash: "29fb5fd4aa8cadd6705acc8263cee0fc62edca5ac38db593fec2f9fd",
+                    },
+                    amount: 1000,
+                },
+            ],
+        },
+        signingMode: TransactionSigningMode.PLUTUS_TRANSACTION,
+        additionalWitnessPaths: [],
+        txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a0e825820fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53305820eea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53300f01",
+        result: {
+            txHashHex:
+        "39d1a6a943c48f84227df0e3c9508aaffb717b6e354c68e6b196ae8372aa7c4c",
+            witnesses: [
+                {
+                    path: str_to_path("1852'/1815'/0'/0/0"),
+                    witnessSignatureHex:
+            "e32987f5f3a9367544b1ed84d8ecb41308da402650ebcb5e1bb3e0c48d52a03d5dd52ccf86ef9b159518e197fd6d3ffe9e8f22ddcc40884c6440409df41dd205",
+                },
+            ],
+            auxiliaryDataSupplement: null,
+        },
+    },
 ]
 
 export type TestcaseRejectShelley = {
