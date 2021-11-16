@@ -1035,7 +1035,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         additionalWitnessPaths: [],
-        txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b70001818358390114c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f11241d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c1a006ca7935820ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce18802182a030a0f01",
+        txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018183583d105e2f080eb93bad86d401545e0ce5f2221096d6477e11e6643922fa8d2ed495234dc0d667c1316ff84e572310e265edb31330448b36b7179e28dd419e1a006ca7935820ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce18802182a030a0f00",
         result: {
             txHashHex:
         "b3a20534d53101c40d2011811e6dbf7644aa3d9baebba1e72161bf94b4a2db2b",
@@ -1112,15 +1112,15 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
         },
         signingMode: TransactionSigningMode.PLUTUS_TRANSACTION,
         additionalWitnessPaths: [],
-        txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a0e825820fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53305820eea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53300f01",
+        txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a0e82581c14c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f1124581c5a53103829a7382c2ab76111fb69f13e69d616824c62058e44f1a8b30f01",
         result: {
             txHashHex:
-        "e9aeb91ca8ad9f6cf4c8691562ac70f302f8f4cd49fb6ac63f83741b08904a5c",
+        "8fa4962e71a46b322be966d790b77dbdedd0046630811ccfdb3a31db95be45ef",
             witnesses: [
                 {
                     path: str_to_path("1852'/1815'/0'/0/0"),
                     witnessSignatureHex:
-            "524454194c6e2cd33494ee1f7144a24b5567ccd200139fbd800a13c95137fa151d1f63ca05c44bd6c45a931daed6818e2f17e67a72ec8afe1ca3819fb41d7d03",
+            "0520e0a2b184511a271700ed86cd16e3d6482a2b36da8f5901b166d6327224919baae26497cd55fdc61cb1c2d018c3b4d9f97d5702625525676a98f14e63be0a",
                 },
             ],
             auxiliaryDataSupplement: null,
@@ -1134,7 +1134,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             requiredSigners: [
                 {
                     type: TxRequiredSignerType.HASH,
-                    hash: "fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca5330",
+                    hash: "fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a",
                 },
                 {
                     type: TxRequiredSignerType.PATH,
@@ -1144,15 +1144,15 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
         },
         signingMode: TransactionSigningMode.PLUTUS_TRANSACTION,
         additionalWitnessPaths: [],
-        txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a0e825820fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53305820eea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53300f01",
+        txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a0e82581cfea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a581c14c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f11240f01",
         result: {
             txHashHex:
-        "488b0eb90d6752879b08dfc1b4db27b25c62a498758fefae672e1e1e3b6defc2",
+        "9e41ce0d7bcc1bbef0d96fd025054a54d1435e7a1e1e66595f2ed594dabb5faf",
             witnesses: [
                 {
                     path: str_to_path("1852'/1815'/0'/0/0"),
                     witnessSignatureHex:
-            "41e65f78149c6e31eb237dac2127fc78fcb86e40510934693d49cada2b28cb6e8ea616b74f2e7dc161f3184743800d4000bc7c125b166ce4725568ca00e07c05",
+            "f5b2eb79b74678d3237b757dfcb8a623a8f7f5a10c5925b256da7723935bc98bbfc91ebc001d0e18c2929c611c99d43352ab33ee2dda45b6c115689ddaeeb502",
                 },
             ],
             auxiliaryDataSupplement: null,
@@ -1166,25 +1166,25 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
             requiredSigners: [
                 {
                     type: TxRequiredSignerType.HASH,
-                    hash: "fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca5330",
+                    hash: "fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a",
                 },
                 {
                     type: TxRequiredSignerType.HASH,
-                    hash: "eea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca5330",
+                    hash: "eea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a",
                 },
             ],
         },
         signingMode: TransactionSigningMode.PLUTUS_TRANSACTION,
         additionalWitnessPaths: [],
-        txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a0e825820fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53305820eea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a54ca53300f01",
+        txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a0e82581cfea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a581ceea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a0f01",
         result: {
             txHashHex:
-        "c80e96df14dabe295b9a089aa5e25bfb09daf7a9a0ffa8b2b90f83e92e5cc3d7",
+        "4b4f95e418c5be9ffa0c1e819b8edc0a05396a8d77f75554c82727d423a49daa",
             witnesses: [
                 {
                     path: str_to_path("1852'/1815'/0'/0/0"),
                     witnessSignatureHex:
-            "8c3f85a2b7e9d462970c7817b33850d817fff5969852616396a561ee9ceaa5c626340852fbadb6dce2df373ecb6d2dc2a884f90c08c0162cbad106a057bc4909",
+            "d1f0aad96945c18f2620accc95b8f86831fb85ccc59f9f80478931435fbacae9d8c016879ed5d9274847dc882ee1b4da8abba0575b7ce613c4f2c3b59ab17808",
                 },
             ],
             auxiliaryDataSupplement: null,

@@ -154,7 +154,7 @@ export const enum RequiredSignerType {
 
 export type ParsedRequiredSigner = {
     type: RequiredSignerType.HASH
-    hash: FixlenHexString<typeof VKEY_LENGTH>
+    hash: FixlenHexString<typeof KEY_HASH_LENGTH>
 } | {
     type: RequiredSignerType.PATH
     path: ValidBIP32Path

@@ -137,7 +137,7 @@ export enum InvalidDataReason {
   COLLATERALS_NOT_ARRAY = "collaterals not an array",
   
   REQUIRED_SIGNERS_NOT_ARRAY = "required signers not an array",
-  VKEY_WRONG_LENGTH = "vkey not 32 bytes long",
+  VKEY_WRONG_LENGTH = "vkey not 28 bytes long",
   UNKNOWN_REQUIRED_SIGNER_TYPE = "unknown required signer type",
   REQUIRED_SIGNER_INVALID_PATH = "invalid path for required signer",
 
