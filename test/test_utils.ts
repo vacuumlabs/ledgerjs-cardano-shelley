@@ -115,6 +115,9 @@ export function describeRejects(name: string, testList: any) {
     
         for (const {testname, tx, additionalWitnessPaths, signingMode, rejectReason } of testList) {
             it(testname, async() => {
+                if (rejectReason === InvalidDataReason.LEDGER_POLICY) {
+                    return
+                }
                 const response = ada.signTransaction({
                     tx,
                     signingMode,
