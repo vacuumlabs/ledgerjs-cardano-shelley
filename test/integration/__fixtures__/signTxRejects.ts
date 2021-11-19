@@ -866,22 +866,6 @@ export const certificateStakingRejectTestcases: TestcaseRejectShelley[] = [
         errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_REJECTED_BY_POLICY],
         rejectReason: InvalidDataReason.SIGN_MODE_MULTISIG__CERTIFICATE_STAKE_CREDENTIAL_ONLY_AS_SCRIPT,
     },
-    {
-        testname: "Path in Plutus Tx",
-        tx: {
-            ...shelleyBase,
-            certificates: [
-                {
-                    type: CertificateType.STAKE_REGISTRATION,
-                    params: stakeRegistrationPathParam,
-                },
-            ],
-        },
-        signingMode: TransactionSigningMode.PLUTUS_TRANSACTION,
-        errCls: DeviceStatusError,
-        errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_REJECTED_BY_POLICY],
-        rejectReason: InvalidDataReason.SIGN_MODE_PLUTUS__CERTIFICATE_STAKE_CREDENTIAL_ONLY_AS_SCRIPT,
-    },
 ]
 
 export const certificateStakePoolRetirementRejectTestcases: TestcaseRejectShelley[] = [

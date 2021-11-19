@@ -219,14 +219,13 @@ function parseTxDestination(
 function addressContainsScripthash(destination: OutputDestination): boolean {
     let type: AddressType
     switch (destination.type) {
-    case TxOutputDestinationType.THIRD_PARTY: {
+    case TxOutputDestinationType.THIRD_PARTY:
         const addressBytes: Buffer = hex_to_buf(destination.addressHex)
         type = (addressBytes[0] & 0b11110000) >> 4
         break
-    }
-    case TxOutputDestinationType.DEVICE_OWNED: {
+    case TxOutputDestinationType.DEVICE_OWNED:
         type = destination.addressParams.type
-    }
+        break
     }
     switch (type) {
     case AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY:
@@ -302,6 +301,14 @@ export function parseSigningMode(mode: TransactionSigningMode): TransactionSigni
     }
 }
 
+function validateNoCollaterals(collaterals: ParsedInput[], errMsg: InvalidDataReason) {
+    validate(collaterals.length === 0, errMsg)
+}
+
+function validateNoRequiredSigners(requiredSigners: ParsedRequiredSigner[], errMsg: InvalidDataReason) {
+    validate(requiredSigners.length === 0, errMsg)
+}
+
 export function parseSignTransactionRequest(request: SignTransactionRequest): ParsedSigningRequest {
     const tx = parseTransaction(request.tx)
     const signingMode = parseSigningMode(request.signingMode)
@@ -337,13 +344,13 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
             InvalidDataReason.SIGN_MODE_ORDINARY__WITHDRAWAL_ONLY_AS_PATH,
         )
         // cannot have collaterals in the tx
-        validate(
-            !tx.collaterals || tx.collaterals.length == 0,
+        validateNoCollaterals(
+            tx.collaterals,
             InvalidDataReason.SIGN_MODE_ORDINARY__COLLATERALS_NOT_ALLOWED
         )
-        // cannot have collaterals in the tx
-        validate(
-            !tx.requiredSigners || tx.requiredSigners.length == 0,
+        // cannot have required signers in the tx
+        validateNoRequiredSigners(
+            tx.requiredSigners,
             InvalidDataReason.SIGN_MODE_ORDINARY__REQUIRED_SIGNERS_NOT_ALLOWED
         )
         break
@@ -385,13 +392,13 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
             InvalidDataReason.SIGN_MODE_MULTISIG__DEVICE_OWNED_ADDRESS_NOT_ALLOWED,
         )
         // cannot have collaterals in the tx
-        validate(
-            !tx.collaterals || tx.collaterals.length == 0,
+        validateNoCollaterals(
+            tx.collaterals,
             InvalidDataReason.SIGN_MODE_MULTISIG__COLLATERALS_NOT_ALLOWED
         )
-        // cannot have collaterals in the tx
-        validate(
-            !tx.requiredSigners || tx.requiredSigners.length == 0,
+        // cannot have required signers in the tx
+        validateNoRequiredSigners(
+            tx.requiredSigners,
             InvalidDataReason.SIGN_MODE_MULTISIG__REQUIRED_SIGNERS_NOT_ALLOWED
         )
         break
@@ -439,19 +446,19 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
 
         // cannot have mint in the tx
         validate(
-            !tx.mint || tx.mint.length == 0,
+            !tx.mint || tx.mint.length === 0,
             InvalidDataReason.SIGN_MODE_POOL_OWNER__MINT_NOT_ALLOWED
         )
 
         // cannot have collaterals in the tx
-        validate(
-            !tx.collaterals || tx.collaterals.length == 0,
+        validateNoCollaterals(
+            tx.collaterals,
             InvalidDataReason.SIGN_MODE_POOL_OWNER__COLLATERALS_NOT_ALLOWED
         )
 
-        // cannot have collaterals in the tx
-        validate(
-            !tx.requiredSigners || tx.requiredSigners.length == 0,
+        // cannot have required signers in the tx
+        validateNoRequiredSigners(
+            tx.requiredSigners,
             InvalidDataReason.SIGN_MODE_POOL_OWNER__REQUIRED_SIGNERS_NOT_ALLOWED
         )
         break
@@ -489,19 +496,19 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
             
         // cannot have mint in the tx
         validate(
-            !tx.mint || tx.mint?.length == 0,
+            !tx.mint || tx.mint?.length === 0,
             InvalidDataReason.SIGN_MODE_POOL_OPERATOR__MINT_NOT_ALLOWED
         )
 
         // cannot have collaterals in the tx
-        validate(
-            !tx.collaterals || tx.collaterals.length == 0,
+        validateNoCollaterals(
+            tx.collaterals,
             InvalidDataReason.SIGN_MODE_POOL_OPERATOR__COLLATERALS_NOT_ALLOWED
         )
 
-        // cannot have collaterals in the tx
-        validate(
-            !tx.requiredSigners || tx.requiredSigners.length == 0,
+        // cannot have required signers in the tx
+        validateNoRequiredSigners(
+            tx.requiredSigners,
             InvalidDataReason.SIGN_MODE_POOL_OPERATOR__REQUIRED_SIGNERS_NOT_ALLOWED
         )
         break
@@ -513,20 +520,6 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
         validate(
             tx.certificates.every(certificate => certificate.type !== CertificateType.STAKE_POOL_REGISTRATION),
             InvalidDataReason.SIGN_MODE_PLUTUS__POOL_REGISTRATION_NOT_ALLOWED,
-        )
-        // certificate stake credentials given by scripts
-        validate(
-            tx.certificates.every(certificate => {
-                switch (certificate.type) {
-                case CertificateType.STAKE_REGISTRATION:
-                case CertificateType.STAKE_DEREGISTRATION:
-                case CertificateType.STAKE_DELEGATION:
-                    return certificate.stakeCredential.type === StakeCredentialType.SCRIPT_HASH
-                default:
-                    return true
-                }
-            }),
-            InvalidDataReason.SIGN_MODE_PLUTUS__CERTIFICATE_STAKE_CREDENTIAL_ONLY_AS_SCRIPT,
         )
         break
     }
