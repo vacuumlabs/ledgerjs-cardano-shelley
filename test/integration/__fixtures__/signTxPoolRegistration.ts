@@ -1,9 +1,10 @@
-import type { Certificate, ErrorBase,MultiHostRelayParams, PoolKey, PoolMetadataParams, PoolOwner, PoolRegistrationParams, PoolRewardAccount, Relay, SignedTransactionData, SingleHostHostnameRelayParams, Transaction, TxInput, TxOutput, Withdrawal} from "../../../src/Ada"
+import type { Certificate, ErrorBase,MultiHostRelayParams, PoolKey, PoolMetadataParams, PoolOwner, PoolRegistrationParams, PoolRewardAccount, Relay, SingleHostHostnameRelayParams, Transaction, TxInput, TxOutput, Withdrawal} from "../../../src/Ada"
 import { DeviceStatusError,StakeCredentialParamsType } from "../../../src/Ada"
 import { PoolKeyType, PoolRewardAccountType } from "../../../src/Ada"
 import { CertificateType, InvalidDataReason, Networks, PoolOwnerType, RelayType, TxOutputDestinationType, utils } from "../../../src/Ada"
 import type { BIP32Path} from '../../../src/types/public'
 import { str_to_path } from "../../../src/utils/address"
+import type { NetworkIdlessTestResult } from "../../test_utils"
 
 export const inputs: Record<
   | 'utxoNoPath'
@@ -523,7 +524,7 @@ export type Testcase = {
   testname: string
   tx: Transaction
   txBody?: string,
-  result: SignedTransactionData
+  result: NetworkIdlessTestResult
 }
 
 export const poolRegistrationOwnerTestcases: Testcase[] = [

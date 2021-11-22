@@ -8,6 +8,7 @@ import type { FixlenHexString} from "types/internal"
 import Ada from "../src/Ada"
 import { InvalidDataReason } from "../src/errors/index"
 import * as parseModule from "../src/utils/parse"
+import type { Witness, TxAuxiliaryDataSupplement } from "../src/types/public"
 
 export function shouldUseSpeculos(): boolean {
     return process.env.LEDGER_TRANSPORT === 'speculos'
@@ -87,4 +88,10 @@ export function hashTxBody(txBodyHex: string): TxHash {
     let b2 = blake2.createHash("blake2b", { digestLength: 32 })
     b2.update(Buffer.from(txBodyHex, 'hex'))
     return parseModule.parseHexStringOfLength(b2.digest('hex'), 32, InvalidDataReason.INVALID_B2_HASH)
+}
+
+export type NetworkIdlessTestResult = {
+    txHashHex: string,
+    witnesses: Array<Witness>,
+    auxiliaryDataSupplement: TxAuxiliaryDataSupplement | null,
 }

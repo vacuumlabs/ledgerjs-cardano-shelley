@@ -741,9 +741,12 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
         witnesses.push(witness)
     }
 
+    const isNetworkIdIncludedInTxBody = getCompatibility(version).supportsAlonzo
+
     return {
         txHashHex,
         witnesses,
         auxiliaryDataSupplement,
+        isNetworkIdIncludedInTxBody,
     }
 }

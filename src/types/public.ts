@@ -934,6 +934,11 @@ export type SignedTransactionData = {
      * the caller with information needed to assemble the transation containing these auxiliary data.
      */
     auxiliaryDataSupplement: TxAuxiliaryDataSupplement | null,
+    /**
+     * A flag indicating whether network id is part of the serialized tx body.
+     * This depends on Ledger app version, not on the transaction itself (or other parameters of the signTransaction() call).
+     */
+    isNetworkIdIncludedInTxBody: boolean,
 };
 
 /**
