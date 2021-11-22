@@ -2,6 +2,7 @@ import { expect } from "chai"
 
 import type Ada from "../../src/Ada"
 import { describeWithoutValidation, getAda, hashTxBody } from "../test_utils"
+import type { NetworkIdlessTestResult } from "../test_utils"
 import {
     testsAllegra,
     testsByron,
@@ -39,7 +40,12 @@ function describePositiveTest(name: string, tests: any[]) {
                     signingMode,
                     additionalWitnessPaths: additionalWitnessPathsIfPresent,
                 })
-                expect(response).to.deep.equal(expected)
+                const networklessResponse: NetworkIdlessTestResult = {
+                    txHashHex: response.txHashHex,
+                    witnesses: response.witnesses,
+                    auxiliaryDataSupplement: response.auxiliaryDataSupplement,
+                }
+                expect(networklessResponse).to.deep.equal(expected)
             })
         }
     })

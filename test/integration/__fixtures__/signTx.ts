@@ -1,9 +1,10 @@
-import type { AssetGroup, DeviceOwnedAddress, ErrorBase, SignedTransactionData, Transaction, TxInput, TxOutput, TxOutputDestination } from "../../../src/Ada"
+import type { AssetGroup, DeviceOwnedAddress, ErrorBase, Transaction, TxInput, TxOutput, TxOutputDestination } from "../../../src/Ada"
 import {DeviceStatusError, InvalidDataReason, TxAuxiliaryDataSupplementType} from "../../../src/Ada"
 import { AddressType, CertificateType, Networks, TxAuxiliaryDataType, TxOutputDestinationType, utils } from "../../../src/Ada"
 import type { BIP32Path} from '../../../src/types/public'
 import { StakeCredentialParamsType, TransactionSigningMode } from '../../../src/types/public'
 import { str_to_path } from "../../../src/utils/address"
+import type { NetworkIdlessTestResult } from "../../test_utils"
 
 export const inputs: Record<
   | 'utxoByron'
@@ -589,7 +590,7 @@ export type TestcaseByron = {
   tx: Transaction
   signingMode: TransactionSigningMode
   txBody?: string
-  result: SignedTransactionData
+  result: NetworkIdlessTestResult
 }
 
 export const testsByron: TestcaseByron[] = [
@@ -677,7 +678,7 @@ export type TestcaseShelley = {
   additionalWitnessPaths: BIP32Path[]
   txBody?: string
   txAuxiliaryData?: string,
-  result: SignedTransactionData
+  result: NetworkIdlessTestResult
 }
 
 export const testsShelleyNoCertificates: TestcaseShelley[] = [
@@ -1918,7 +1919,7 @@ export type TestcaseAllegra = {
   tx: Transaction
   signingMode: TransactionSigningMode
   txBody: string
-  result: SignedTransactionData
+  result: NetworkIdlessTestResult
 }
 export const testsAllegra: TestcaseAllegra[] = [
     {
@@ -1982,7 +1983,7 @@ export type TestcaseMary = {
   signingMode: TransactionSigningMode
   txBody: string,
   txAuxiliaryData?: string,
-  result: SignedTransactionData
+  result: NetworkIdlessTestResult
 }
 
 export const testsMary: TestcaseMary[] = [

@@ -934,6 +934,11 @@ export type SignedTransactionData = {
      * the caller with information needed to assemble the transation containing these auxiliary data.
      */
     auxiliaryDataSupplement: TxAuxiliaryDataSupplement | null,
+    /**
+     * A flag to note if network id is part of the tx body, since that cannot be detected any other way,
+     * and the exact same transaction creating different tx bodies and hashes might cause problems
+     */
+    isNetworkIdIncludedInTxBody: boolean,
 };
 
 /**
