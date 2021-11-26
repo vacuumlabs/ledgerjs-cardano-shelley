@@ -118,7 +118,7 @@ export const transactionInitRejectTestcases: TestcaseRejectShelley[] = [
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         errCls: DeviceStatusError,
-        errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_REJECTED_BY_POLICY],//DeviceStatusMessages[DeviceStatusCodes.ERR_REJECTED_BY_POLICY],
+        errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_REJECTED_BY_POLICY],
         rejectReason: InvalidDataReason.LEDGER_POLICY,
     },
     {
@@ -889,88 +889,6 @@ export const certificateStakePoolRetirementRejectTestcases: TestcaseRejectShelle
         rejectReason: InvalidDataReason.LEDGER_POLICY,
     },
     // can't test the rest of the signing modes, because a previous checks catches them
-]
-
-export const stakePoolRegistrationPoolIdRejectTestcases: TestcaseRejectShelley[] = [
-    {
-        testname: "Path sent in for Pool Registration Owner Tx",
-        tx: {
-            ...shelleyBase,
-            inputs: [inputs.utxoMultisig],
-            certificates: [
-                {
-                    type: CertificateType.STAKE_POOL_REGISTRATION,
-                    params: {
-                        ...poolRegParamOwner,
-                        poolKey: {
-                            type: PoolKeyType.DEVICE_OWNED,
-                            params: {
-                                path: str_to_path("1852'/1815'/0'/0/0"),
-                            },
-                        },
-                    },
-                },
-            ],
-        },
-        signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
-        errCls: DeviceStatusError,
-        errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_REJECTED_BY_POLICY],
-        rejectReason: InvalidDataReason.SIGN_MODE_POOL_OWNER__THIRD_PARTY_POOL_KEY_REQUIRED,
-    },
-    {
-        testname: "Hash sent in for Pool Registration Operator Tx",
-        tx: {
-            ...shelleyBase,
-            certificates: [
-                {
-                    type: CertificateType.STAKE_POOL_REGISTRATION,
-                    params: {
-                        ...poolRegParamOperator,
-                        poolKey: {
-                            type: PoolKeyType.THIRD_PARTY,
-                            params: {
-                                keyHashHex: "01234567890123456789012345678901234567890123456789012345",
-                            },
-                        },
-                    },
-                },
-            ],
-        },
-        signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR,
-        errCls: DeviceStatusError,
-        errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_REJECTED_BY_POLICY],
-        rejectReason: InvalidDataReason.SIGN_MODE_POOL_OPERATOR__DEVICE_OWNED_POOL_KEY_REQUIRED,
-    },
-]
-
-export const stakePoolRegistrationOwnerRejectTestcases: TestcaseRejectShelley[] = [
-    {
-        testname: "Non-staking path for Pool Registration Owner Tx",
-        tx: {
-            ...shelleyBase,
-            inputs: [inputs.utxoMultisig],
-            certificates: [
-                {
-                    type: CertificateType.STAKE_POOL_REGISTRATION,
-                    params: {
-                        ...poolRegParamOwner,
-                        poolOwners: [
-                            {
-                                type: PoolOwnerType.DEVICE_OWNED,
-                                params: {
-                                    stakingPath: str_to_path("1852'/1815'/0'/0/0"),
-                                },
-                            },
-                        ],
-                    },
-                },
-            ],
-        },
-        signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
-        errCls: DeviceStatusError,
-        errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_REJECTED_BY_POLICY],
-        rejectReason: InvalidDataReason.LEDGER_POLICY,
-    },
 ]
 
 export const withdrawalRejectTestcases: TestcaseRejectShelley[] = [

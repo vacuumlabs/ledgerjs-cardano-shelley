@@ -1,11 +1,10 @@
-import type { Certificate, ErrorBase,MultiHostRelayParams, PoolKey, PoolMetadataParams, PoolOwner, PoolRegistrationParams, PoolRewardAccount, Relay, SingleHostHostnameRelayParams, Transaction, TxInput, TxOutput, Withdrawal} from "../../../src/Ada"
-import { DeviceStatusError,StakeCredentialParamsType } from "../../../src/Ada"
+import type { Certificate, PoolKey, PoolOwner, PoolRegistrationParams, PoolRewardAccount, Relay, Transaction, TxInput, TxOutput } from "../../../src/Ada"
+import { StakeCredentialParamsType } from "../../../src/Ada"
 import { PoolKeyType, PoolRewardAccountType } from "../../../src/Ada"
-import { CertificateType, InvalidDataReason, Networks, PoolOwnerType, RelayType, TxOutputDestinationType, utils } from "../../../src/Ada"
-import type { BIP32Path } from '../../../src/types/public'
+import { CertificateType, Networks, PoolOwnerType, RelayType, TxOutputDestinationType, utils } from "../../../src/Ada"
 import { TransactionSigningMode } from '../../../src/types/public'
 import { str_to_path } from "../../../src/utils/address"
-import type { NetworkIdlessTestResult } from "../../test_utils"
+import type { TestcaseShelley } from "./signTx"
 
 export const inputs: Record<
   | 'utxoNoPath'
@@ -55,54 +54,6 @@ const txBase: Transaction = {
     fee: 42,
     ttl: 10,
 }
-
-export const invalidPoolMetadataTestcases: Array<{ testName: string, metadata: PoolMetadataParams, rejectReason: string }> = [
-    // Invalid url
-    {
-        testName: "pool metadata url too long",
-        metadata: {
-            metadataUrl:
-        "https://www.vacuumlabs.com/aaaaaaaaaaaaaaaaaaaaaaaasampleUrl.json",
-            metadataHashHex:
-        "cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb",
-        },
-        rejectReason: InvalidDataReason.POOL_REGISTRATION_METADATA_INVALID_URL,
-    },
-    {
-        testName: "pool metadata invalid url",
-        metadata: {
-            metadataUrl: "\n",
-            metadataHashHex:
-        "6bf124f217d0e5a0a8adb1dbd8540e1334280d49ab861127868339f43b3948",
-        },
-        rejectReason: InvalidDataReason.POOL_REGISTRATION_METADATA_INVALID_URL,
-    },
-    {
-        testName: "pool metadata missing url",
-        metadata: {
-            metadataHashHex:
-        "cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb",
-        } as PoolMetadataParams,
-        rejectReason: InvalidDataReason.POOL_REGISTRATION_METADATA_INVALID_URL,
-    },
-    // Invalid hash
-    {
-        testName: "pool metadata invalid hash length",
-        metadata: {
-            metadataUrl: "https://www.vacuumlabs.com/sampleUrl.json",
-            metadataHashHex:
-        "6bf124f217d0e5a0a8adb1dbd8540e1334280d49ab861127868339f43b3948",
-        },
-        rejectReason: InvalidDataReason.POOL_REGISTRATION_METADATA_INVALID_HASH,
-    },
-    {
-        testName: "pool metadata missing hash",
-        metadata: {
-            metadataUrl: "https://www.vacuumlabs.com/sampleUrl.json",
-        } as PoolMetadataParams,
-        rejectReason: InvalidDataReason.POOL_REGISTRATION_METADATA_INVALID_HASH,
-    },
-]
 
 const poolKeys: Record<
   | 'poolKeyPath'
@@ -164,7 +115,7 @@ const stakingPathOwners: Record<
 }
 
 // No need for explicit type
-const poolOwnerVariationSet = {
+export const poolOwnerVariationSet = {
     noOwners: [] as PoolOwner[],
     singleHashOwner: [stakingHashOwners.owner0],
     singlePathOwner: [stakingPathOwners.owner0],
@@ -239,72 +190,8 @@ const relays: Record<
     },
 }
 
-
-type InvalidRelayTestcase = {
-  testname: string,
-  relay: Relay,
-  rejectReason: InvalidDataReason
-}
-export const invalidRelayTestcases: InvalidRelayTestcase[] = [
-    /*
-  {
-    testname: "SingleHostIpAddr missing port",
-    relay: {
-      type: RelayType.SINGLE_HOST_IP_ADDR,
-      params: {
-        portNumber: null,
-        ipv4: "54.228.75.154", // "36e44b9a"
-        ipv6: null,
-      },
-    },
-  },
-  {
-    testname: "SingleHostIpAddr missing both ipv4 & ipv6",
-    relay: {
-      type: RelayType.SINGLE_HOST_IP_ADDR,
-      params: {
-        portNumber: 3000,
-        ipv4: null,
-        ipv6: null,
-      },
-    },
-  },
-  {
-    testname: "SingleHostHostname missing port",
-    relay: {
-      type: RelayType.SINGLE_HOST_HOSTNAME,
-      params: {
-        portNumber: null,
-        dnsName: "aaaa.bbbb.com",
-      },
-    },
-  },
-  */
-    {
-        testname: "SingleHostHostname missing dns",
-        relay: {
-            type: RelayType.SINGLE_HOST_HOSTNAME,
-            params: {
-                portNumber: 3000,
-                dnsName: null,
-            } as any as SingleHostHostnameRelayParams,
-        },
-        rejectReason: InvalidDataReason.RELAY_INVALID_DNS,
-    },
-    {
-        testname: "MultiHost missing dns",
-        relay: {
-            type: RelayType.MULTI_HOST,
-            params: {
-                dnsName: null,
-            } as any as MultiHostRelayParams,
-        },
-        rejectReason: InvalidDataReason.RELAY_INVALID_DNS,
-    },
-]
-
 // No need for explicit type
-const relayVariationSet = {
+export const relayVariationSet = {
     noRelays: [] as Relay[],
     singleHostIPV4Relay: [relays.singleHostIPV4Relay0],
     singleHostIPV6Relay: [relays.singleHostIPV6Relay],
@@ -472,69 +359,35 @@ export const certificates: Record<
     },
 }
 
-export const invalidCertificates: Array<{ testName: string, poolRegistrationCertificate: Certificate, expectedReject: string }> = [
-    {
-        testName: "pool registration with multiple path owners",
-        poolRegistrationCertificate: {
-            type: CertificateType.STAKE_POOL_REGISTRATION,
-            params: {
-                ...defaultPoolRegistration,
-                poolOwners: poolOwnerVariationSet.twoPathOwners,
-            },
-        },
-        expectedReject: InvalidDataReason.SIGN_MODE_POOL_OWNER__SINGLE_DEVICE_OWNER_REQUIRED,
-    },
-    {
-        testName: "pool registration with only hash owners",
-        poolRegistrationCertificate: {
-            type: CertificateType.STAKE_POOL_REGISTRATION,
-            params: {
-                ...defaultPoolRegistration,
-                poolOwners: poolOwnerVariationSet.twoHashOwners,
-            },
-        },
-        expectedReject: InvalidDataReason.SIGN_MODE_POOL_OWNER__SINGLE_DEVICE_OWNER_REQUIRED,
-    },
-    {
-        testName: "pool registration with no owners",
-        poolRegistrationCertificate: {
-            type: CertificateType.STAKE_POOL_REGISTRATION,
-            params: {
-                ...defaultPoolRegistration,
-                poolOwners: poolOwnerVariationSet.noOwners,
-            },
-        },
-        expectedReject: InvalidDataReason.SIGN_MODE_POOL_OWNER__SINGLE_DEVICE_OWNER_REQUIRED,
-    },
-]
+// export const withdrawals: Record<
+//   | 'withdrawal0'
+//   , Withdrawal
+// > = {
+//     withdrawal0: {
+//         stakeCredential: {
+//             type: StakeCredentialParamsType.KEY_PATH,
+//             keyPath: str_to_path("1852'/1815'/0'/2/0"),
+//         },
+//         amount: "111",
+//     },
+// }
 
-export const withdrawals: Record<
-  | 'withdrawal0'
-  , Withdrawal
-> = {
-    withdrawal0: {
-        stakeCredential: {
-            type: StakeCredentialParamsType.KEY_PATH,
-            keyPath: str_to_path("1852'/1815'/0'/2/0"),
-        },
-        amount: "111",
-    },
-}
+// export type Testcase = {
+//   testname: string
+//   tx: Transaction
+//   txBody?: string,
+//   result: NetworkIdlessTestResult
+// }
 
-export type Testcase = {
-  testname: string
-  tx: Transaction
-  txBody?: string,
-  result: NetworkIdlessTestResult
-}
-
-export const poolRegistrationOwnerTestcases: Testcase[] = [
+export const poolRegistrationOwnerTestcases: TestcaseShelley[] = [
     {
         testname: "Witness valid multiple mixed owners all relays pool registration",
         tx: {
             ...txBase,
             certificates: [certificates.poolRegistrationMixedOwnersAllRelays],
         },
+        signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
+        additionalWitnessPaths: [],
         txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825839017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b090102182a030a04818a03581c13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad582007821cd344d7fd7e3ae5f2ed863218cb979ff1d59e50c4276bdc479b0d0844501b0000000ba43b74001a1443fd00d81e82031864581de1794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad82581c1d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c581c794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad848400190bb84436e44b9af68400190bb84436e44b9b500178ff2483e3a2330a34c4a5e576c2078301190bb86d616161612e626262622e636f6d82026d616161612e626262632e636f6d82782968747470733a2f2f7777772e76616375756d6c6162732e636f6d2f73616d706c6555726c2e6a736f6e5820cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb0f01",
         result: {
             txHashHex:
@@ -555,6 +408,8 @@ export const poolRegistrationOwnerTestcases: Testcase[] = [
             ...txBase,
             certificates: [certificates.poolRegistrationDefault],
         },
+        signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
+        additionalWitnessPaths: [],
         txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825839017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b090102182a030a04818a03581c13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad582007821cd344d7fd7e3ae5f2ed863218cb979ff1d59e50c4276bdc479b0d0844501b0000000ba43b74001a1443fd00d81e82031864581de1794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad81581c1d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c818400190bb84436e44b9af682782968747470733a2f2f7777772e76616375756d6c6162732e636f6d2f73616d706c6555726c2e6a736f6e5820cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb0f01",
         result: {
             txHashHex:
@@ -575,6 +430,8 @@ export const poolRegistrationOwnerTestcases: Testcase[] = [
             ...txBase,
             certificates: [certificates.poolRegistrationMixedOwners],
         },
+        signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
+        additionalWitnessPaths: [],
         txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825839017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b090102182a0304818a03581c13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad582007821cd344d7fd7e3ae5f2ed863218cb979ff1d59e50c4276bdc479b0d0844501b0000000ba43b74001a1443fd00d81e82031864581de1794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad82581c1d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c581c794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad818400190bb84436e44b9af682782968747470733a2f2f7777772e76616375756d6c6162732e636f6d2f73616d706c6555726c2e6a736f6e5820cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb0f01",
         result: {
             txHashHex:
@@ -595,6 +452,8 @@ export const poolRegistrationOwnerTestcases: Testcase[] = [
             ...txBase,
             certificates: [certificates.poolRegistrationMixedOwnersIpv4SingleHostRelays],
         },
+        signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
+        additionalWitnessPaths: [],
         txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825839017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b090102182a030a04818a03581c13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad582007821cd344d7fd7e3ae5f2ed863218cb979ff1d59e50c4276bdc479b0d0844501b0000000ba43b74001a1443fd00d81e82031864581de1794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad82581c1d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c581c794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad828400190bb84436e44b9af68301190bb86d616161612e626262622e636f6d82782968747470733a2f2f7777772e76616375756d6c6162732e636f6d2f73616d706c6555726c2e6a736f6e5820cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb0f01",
         result: {
             txHashHex:
@@ -615,6 +474,8 @@ export const poolRegistrationOwnerTestcases: Testcase[] = [
             ...txBase,
             certificates: [certificates.poolRegistrationMixedOwnersIpv4Ipv6Relays],
         },
+        signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
+        additionalWitnessPaths: [],
         txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825839017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b090102182a030a04818a03581c13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad582007821cd344d7fd7e3ae5f2ed863218cb979ff1d59e50c4276bdc479b0d0844501b0000000ba43b74001a1443fd00d81e82031864581de1794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad82581c1d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c581c794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad828400190fa04436e44b9af68400190bb84436e44b9b500178ff2483e3a2330a34c4a5e576c20782782968747470733a2f2f7777772e76616375756d6c6162732e636f6d2f73616d706c6555726c2e6a736f6e5820cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb0f01",
         result: {
             txHashHex:
@@ -635,6 +496,8 @@ export const poolRegistrationOwnerTestcases: Testcase[] = [
             ...txBase,
             certificates: [certificates.poolRegistrationNoRelays],
         },
+        signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
+        additionalWitnessPaths: [],
         txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825839017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b090102182a030a04818a03581c13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad582007821cd344d7fd7e3ae5f2ed863218cb979ff1d59e50c4276bdc479b0d0844501b0000000ba43b74001a1443fd00d81e82031864581de1794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad81581c1d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c8082782968747470733a2f2f7777772e76616375756d6c6162732e636f6d2f73616d706c6555726c2e6a736f6e5820cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb0f01",
         result: {
             txHashHex:
@@ -656,6 +519,8 @@ export const poolRegistrationOwnerTestcases: Testcase[] = [
             ...txBase,
             certificates: [certificates.poolRegistrationNoMetadata],
         },
+        signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
+        additionalWitnessPaths: [],
         txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825839017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b090102182a030a04818a03581c13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad582007821cd344d7fd7e3ae5f2ed863218cb979ff1d59e50c4276bdc479b0d0844501b0000000ba43b74001a1443fd00d81e82031864581de1794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad81581c1d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c818400190bb84436e44b9af6f60f01",
         result: {
             txHashHex:
@@ -677,6 +542,8 @@ export const poolRegistrationOwnerTestcases: Testcase[] = [
             outputs: [],
             certificates: [certificates.poolRegistrationMixedOwnersAllRelays],
         },
+        signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
+        additionalWitnessPaths: [],
         txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a04818a03581c13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad582007821cd344d7fd7e3ae5f2ed863218cb979ff1d59e50c4276bdc479b0d0844501b0000000ba43b74001a1443fd00d81e82031864581de1794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad82581c1d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c581c794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad848400190bb84436e44b9af68400190bb84436e44b9b500178ff2483e3a2330a34c4a5e576c2078301190bb86d616161612e626262622e636f6d82026d616161612e626262632e636f6d82782968747470733a2f2f7777772e76616375756d6c6162732e636f6d2f73616d706c6555726c2e6a736f6e5820cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb0f01",
         result: {
             txHashHex:
@@ -693,65 +560,7 @@ export const poolRegistrationOwnerTestcases: Testcase[] = [
     },
 ]
 
-export type RejectTestcase = {
-    testname: string,
-    tx: Transaction,
-    signingMode: TransactionSigningMode,
-    additionalWitnessPaths: BIP32Path[],
-    errCls: new (...args: any[]) => ErrorBase,
-    errMsg: string,
-    rejectReason: InvalidDataReason,
-}
-
-export const poolRegistrationOwnerRejectTestcases: RejectTestcase[] = [
-    {
-        testname: "Different index",
-        tx: {
-            ...txBase,
-            certificates: [certificates.poolRegistrationMixedOwnersAllRelays],
-        },
-        signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
-        additionalWitnessPaths: [str_to_path("1852'/1815'/0'/2/0"), str_to_path("1852'/1815'/0'/2/1")],
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.LEDGER_POLICY,
-    },
-    {
-        testname: "Different prefix",
-        tx: {
-            ...txBase,
-            certificates: [certificates.poolRegistrationMixedOwnersAllRelays],
-        },
-        signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
-        additionalWitnessPaths: [str_to_path("1852'/1815'/0'/2/0"), str_to_path("1854'/1815'/0'/2/0")],
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.LEDGER_POLICY,
-    },
-    {
-        testname: "No path given",
-        tx: {
-            ...txBase,
-            certificates: [
-                {
-                    type: CertificateType.STAKE_POOL_REGISTRATION,
-                    params: {
-                        ...defaultPoolRegistration,
-                        poolOwners: poolOwnerVariationSet.singleHashOwner,
-                        relays: relayVariationSet.allRelays,
-                    },
-                },
-            ],
-        },
-        signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
-        additionalWitnessPaths: [str_to_path("1852'/1815'/0'/2/0"), str_to_path("1854'/1815'/0'/2/0")],
-        errCls: DeviceStatusError,
-        errMsg: "Action rejected by Ledger's security policy",
-        rejectReason: InvalidDataReason.SIGN_MODE_POOL_OWNER__SINGLE_DEVICE_OWNER_REQUIRED,
-    },
-]
-
-export const poolRegistrationOperatorTestcases: Testcase[] = [
+export const poolRegistrationOperatorTestcases: TestcaseShelley[] = [
     {
         testname: "Witness pool registration as operator with no owners and no relays",
         tx: {
@@ -759,6 +568,8 @@ export const poolRegistrationOperatorTestcases: Testcase[] = [
             inputs: [inputs.utxoWithPath0],
             certificates: [certificates.poolRegistrationOperatorNoOwnersNoRelays],
         },
+        signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR,
+        additionalWitnessPaths: [],
         txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825839017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b090102182a030a04818a03581cdbfee4665e58c8f8e9b9ff02b17f32e08a42c855476a5d867c2737b7582007821cd344d7fd7e3ae5f2ed863218cb979ff1d59e50c4276bdc479b0d0844501b0000000ba43b74001a1443fd00d81e82031864581de1794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad808082782968747470733a2f2f7777772e76616375756d6c6162732e636f6d2f73616d706c6555726c2e6a736f6e5820cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb0f01",
         result: {
             txHashHex:
@@ -785,6 +596,8 @@ export const poolRegistrationOperatorTestcases: Testcase[] = [
             inputs: [inputs.utxoWithPath0],
             certificates: [certificates.poolRegistrationOperatorOneOwnerOperatorNoRelays],
         },
+        signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR,
+        additionalWitnessPaths: [],
         txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825839017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b090102182a030a04818a03581cdbfee4665e58c8f8e9b9ff02b17f32e08a42c855476a5d867c2737b7582007821cd344d7fd7e3ae5f2ed863218cb979ff1d59e50c4276bdc479b0d0844501b0000000ba43b74001a1443fd00d81e82031864581de1eef1689a3970b7880dcf3cb4ca9f22453b3833824fea34105117c84081581c794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad8082782968747470733a2f2f7777772e76616375756d6c6162732e636f6d2f73616d706c6555726c2e6a736f6e5820cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb0f01",
         result: {
             txHashHex:
@@ -811,6 +624,8 @@ export const poolRegistrationOperatorTestcases: Testcase[] = [
             inputs: [inputs.utxoWithPath0],
             certificates: [certificates.poolRegistrationOperatorMultipleOwnersAllRelays],
         },
+        signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR,
+        additionalWitnessPaths: [],
         txBody: "a600818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825839017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b090102182a030a04818a03581cdbfee4665e58c8f8e9b9ff02b17f32e08a42c855476a5d867c2737b7582007821cd344d7fd7e3ae5f2ed863218cb979ff1d59e50c4276bdc479b0d0844501b0000000ba43b74001a1443fd00d81e82031864581de1794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad82581c794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad581c0bd5d796f5e54866a14300ec2a18d706f7461b8f0502cc2a182bc88d848400190bb84436e44b9af68400190bb84436e44b9b500178ff2483e3a2330a34c4a5e576c2078301190bb86d616161612e626262622e636f6d82026d616161612e626262632e636f6d82782968747470733a2f2f7777772e76616375756d6c6162732e636f6d2f73616d706c6555726c2e6a736f6e5820cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb0f01",
         result: {
             txHashHex:
