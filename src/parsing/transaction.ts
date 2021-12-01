@@ -3,7 +3,7 @@ import { assert } from "console"
 import { InvalidData } from "../errors"
 import { InvalidDataReason } from "../errors/invalidDataReason"
 import type { OutputDestination, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedRequiredSigner, ParsedSigningRequest, ParsedToken, ParsedTransaction, ParsedWithdrawal} from "../types/internal"
-import { RequiredSignerType, KEY_HASH_LENGTH } from "../types/internal"
+import { KEY_HASH_LENGTH,RequiredSignerType } from "../types/internal"
 import { StakeCredentialType } from "../types/internal"
 import { ASSET_NAME_LENGTH_MAX, CertificateType, SCRIPT_DATA_HASH_LENGTH,SpendingDataSourceType, TOKEN_POLICY_LENGTH, TX_HASH_LENGTH } from "../types/internal"
 import type {
@@ -219,10 +219,11 @@ function parseTxDestination(
 function addressContainsScripthash(destination: OutputDestination): boolean {
     let type: AddressType
     switch (destination.type) {
-    case TxOutputDestinationType.THIRD_PARTY:
+    case TxOutputDestinationType.THIRD_PARTY: {
         const addressBytes: Buffer = hex_to_buf(destination.addressHex)
         type = (addressBytes[0] & 0b11110000) >> 4
         break
+    }
     case TxOutputDestinationType.DEVICE_OWNED:
         type = destination.addressParams.type
         break

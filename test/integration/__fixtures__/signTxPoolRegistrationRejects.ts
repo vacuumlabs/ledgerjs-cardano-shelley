@@ -1,10 +1,10 @@
 import type { MultiHostRelayParams, PoolMetadataParams, SingleHostHostnameRelayParams, Transaction } from "../../../src/Ada"
+import { CertificateType, DeviceStatusCodes, DeviceStatusError, DeviceStatusMessages, InvalidDataReason, Networks, RelayType } from "../../../src/Ada"
+import { PoolKeyType, PoolOwnerType,TransactionSigningMode } from '../../../src/types/public'
 import { str_to_path } from "../../../src/utils/address"
-import { DeviceStatusError, DeviceStatusCodes, DeviceStatusMessages, CertificateType, InvalidDataReason, Networks, RelayType } from "../../../src/Ada"
-import { TransactionSigningMode, PoolKeyType, PoolOwnerType } from '../../../src/types/public'
-import type { TestcaseRejectShelley } from "./signTxRejects"
-import { inputs, outputs, certificates, defaultPoolRegistration, poolOwnerVariationSet, relayVariationSet } from './signTxPoolRegistration'
 import { DontRunOnLedger } from '../../test_utils'
+import { certificates, defaultPoolRegistration, inputs, outputs, poolOwnerVariationSet, relayVariationSet } from './signTxPoolRegistration'
+import type { TestcaseRejectShelley } from "./signTxRejects"
 
 const txBase: Transaction = {
     network: Networks.Mainnet,
@@ -155,7 +155,7 @@ export const invalidPoolMetadataTestcases: TestcaseRejectShelley[] = [
                             metadataHashHex: "6bf124f217d0e5a0a8adb1dbd8540e1334280d49ab861127868339f43b3948",
                         },
                     },
-                }
+                },
             ],
         },
         signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
@@ -176,7 +176,7 @@ export const invalidPoolMetadataTestcases: TestcaseRejectShelley[] = [
                             metadataHashHex: "cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb",
                         } as PoolMetadataParams,
                     },
-                }
+                },
             ],
         },
         signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
@@ -199,7 +199,7 @@ export const invalidPoolMetadataTestcases: TestcaseRejectShelley[] = [
                             metadataHashHex: "6bf124f217d0e5a0a8adb1dbd8540e1334280d49ab861127868339f43b3948",
                         },
                     },
-                }
+                },
             ],
         },
         signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
@@ -220,7 +220,7 @@ export const invalidPoolMetadataTestcases: TestcaseRejectShelley[] = [
                             metadataUrl: "https://www.vacuumlabs.com/sampleUrl.json",
                         } as PoolMetadataParams,
                     },
-                }
+                },
             ],
         },
         signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
@@ -250,7 +250,7 @@ export const invalidRelayTestcases: TestcaseRejectShelley[] = [
                             },
                         ],
                     },
-                }
+                },
             ],
         },
         signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
@@ -276,7 +276,7 @@ export const invalidRelayTestcases: TestcaseRejectShelley[] = [
                             },
                         ],
                     },
-                }
+                },
             ],
         },
         signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,

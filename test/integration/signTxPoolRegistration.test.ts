@@ -1,18 +1,18 @@
 import chai from "chai"
 import chaiAsPromised from "chai-as-promised"
 
-import { describeRejects, describePositiveTest } from "../test_utils"
+import { describePositiveTest,describeRejects } from "../test_utils"
 import {
     poolRegistrationOperatorTestcases,
     poolRegistrationOwnerTestcases,
 } from "./__fixtures__/signTxPoolRegistration"
 import {
-    poolRegistrationOwnerRejectTestcases,
     invalidCertificates,
     invalidPoolMetadataTestcases,
     invalidRelayTestcases,
-    stakePoolRegistrationPoolIdRejectTestcases,
+    poolRegistrationOwnerRejectTestcases,
     stakePoolRegistrationOwnerRejectTestcases,
+    stakePoolRegistrationPoolIdRejectTestcases,
 } from "./__fixtures__/signTxPoolRegistrationRejects"
 chai.use(chaiAsPromised)
 
