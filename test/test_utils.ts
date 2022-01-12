@@ -6,8 +6,8 @@ import type { FixlenHexString} from "types/internal"
 
 import Ada from "../src/Ada"
 import { InvalidDataReason } from "../src/errors/index"
+import type { TxAuxiliaryDataSupplement,Witness } from "../src/types/public"
 import * as parseModule from "../src/utils/parse"
-import type { Witness, TxAuxiliaryDataSupplement } from "../src/types/public"
 
 export async function getTransport() {
     return await TransportNodeHid.create(1000)

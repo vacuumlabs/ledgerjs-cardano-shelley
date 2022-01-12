@@ -1,8 +1,8 @@
 import { expect } from "chai"
 
 import type Ada from "../../src/Ada"
-import { describeWithoutValidation, getAda, hashTxBody } from "../test_utils"
 import type { NetworkIdlessTestResult } from "../test_utils"
+import { describeWithoutValidation, getAda, hashTxBody } from "../test_utils"
 import {
     testsAllegra,
     testsByron,

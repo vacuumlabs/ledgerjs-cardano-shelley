@@ -1,7 +1,7 @@
 import { InvalidData } from "../errors"
 import { InvalidDataReason } from "../errors/invalidDataReason"
 import type { OutputDestination, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedRequiredSigner, ParsedSigningRequest, ParsedToken, ParsedTransaction, ParsedWithdrawal} from "../types/internal"
-import { RequiredSignerType, KEY_HASH_LENGTH } from "../types/internal"
+import { KEY_HASH_LENGTH,RequiredSignerType } from "../types/internal"
 import { StakeCredentialType } from "../types/internal"
 import { ASSET_NAME_LENGTH_MAX, CertificateType, SCRIPT_DATA_HASH_LENGTH,SpendingDataSourceType, TOKEN_POLICY_LENGTH, TX_HASH_LENGTH } from "../types/internal"
 import type {
