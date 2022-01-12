@@ -140,7 +140,7 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
         ? null
         : parseTokenBundle(tx.mint, false, parseInt64_str)
 
-    const scriptDataHash = tx.scriptDataHashHex == null
+    const scriptDataHashHex = tx.scriptDataHashHex == null
         ? null
         : parseHexStringOfLength(tx.scriptDataHashHex, SCRIPT_DATA_HASH_LENGTH, InvalidDataReason.SCRIPT_DATA_HASH_WRONG_LENGTH)
 
@@ -161,7 +161,7 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
         certificates,
         fee,
         mint,
-        scriptDataHashHex: scriptDataHash,
+        scriptDataHashHex,
         collaterals,
         requiredSigners,
     }
