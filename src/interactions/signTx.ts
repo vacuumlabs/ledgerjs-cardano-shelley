@@ -19,6 +19,7 @@ import { serializeTxInit } from "./serialization/txInit"
 import { serializeAssetGroup, serializeMintBasicParams, serializeRequiredSigner,serializeToken, serializeTxFee, serializeTxInput, serializeTxTtl, serializeTxValidityStart, serializeTxWithdrawal, serializeTxWitnessRequest } from "./serialization/txOther"
 import { serializeTxOutputBasicParams } from "./serialization/txOutput"
 
+// the numerical values are meaningless, we try to keep them backwards-compatible
 const enum P1 {
   STAGE_INIT = 0x01,
   STAGE_AUX_DATA = 0x08,
