@@ -9,6 +9,7 @@ export enum InvalidDataReason {
 
   NETWORK_INVALID_PROTOCOL_MAGIC = "invalid protocol magic",
   NETWORK_INVALID_NETWORK_ID = "invalid network id",
+  NETWORK_ID_INCLUDE_INVALID = "invalid value for includeNetworkId",
 
   INPUTS_NOT_ARRAY = "inputs not an array",
   INPUT_INVALID_TX_HASH = "invalid tx hash in an input",

@@ -102,6 +102,11 @@ function parseTokenBundle<T>(tokenBundle: AssetGroup[], emptyTokenBundleAllowed:
     return parsedTokenBundle
 }
 
+function parseBoolean(value: unknown, errorMsg: InvalidDataReason): boolean {
+    validate(typeof value === 'boolean', errorMsg)
+    return value
+}
+
 export function parseTransaction(tx: Transaction): ParsedTransaction {
     const network = parseNetwork(tx.network)
     // inputs
@@ -154,6 +159,10 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
     validate(isArray(tx.requiredSigners ?? []), InvalidDataReason.REQUIRED_SIGNERS_NOT_ARRAY)
     const requiredSigners = (tx.requiredSigners ?? []).map(vkey => parseRequiredSigner(vkey))
 
+    const includeNetworkId = tx.includeNetworkId == null
+        ? false
+        : parseBoolean(tx.includeNetworkId, InvalidDataReason.NETWORK_ID_INCLUDE_INVALID)
+
     return {
         network,
         inputs,
@@ -168,6 +177,7 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
         scriptDataHashHex,
         collaterals,
         requiredSigners,
+        includeNetworkId,
     }
 }
 

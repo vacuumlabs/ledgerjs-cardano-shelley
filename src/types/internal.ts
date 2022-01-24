@@ -124,6 +124,7 @@ export type ParsedTransaction = {
     scriptDataHashHex: ScriptDataHash | null
     collaterals: ParsedInput[]
     requiredSigners: ParsedRequiredSigner[]
+    includeNetworkId: boolean
 }
 
 export type ParsedSigningRequest = {

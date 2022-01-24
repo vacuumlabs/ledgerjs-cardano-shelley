@@ -1098,6 +1098,10 @@ export type Transaction = {
      * Required Signers by key (if any)
      */
     requiredSigners?: Array<RequiredSigner> | null,
+    /**
+     * True if network id should be included in the transaction body; false or not given otherwise
+     */
+    includeNetworkId?: boolean,
 }
 
 /**
