@@ -166,9 +166,9 @@ export function describePositiveTest(name: string, tests: any[]) {
             const additionalWitnessPathsIfPresent = additionalWitnessPaths || []
             it(testname, async () => {
                 if (!txBody) {
-                    console.log("No tx body given!")
+                    console.log("WARNING --- No tx body given: " + testname)
                 } else if (hashTxBody(txBody) !== expected.txHashHex) {
-                    console.log("Tx body hash mismatch")
+                    console.log("WARNING --- Tx body hash mismatch: " + testname)
                 }
                 const response = await ada.signTransaction({
                     tx,
