@@ -8,7 +8,6 @@ import type { FixlenHexString} from "types/internal"
 
 import { Ada, utils } from "../src/Ada"
 import { InvalidDataReason } from "../src/errors/index"
-import type { TxAuxiliaryDataSupplement,Witness } from "../src/types/public"
 import * as parseModule from "../src/utils/parse"
 
 export function shouldUseSpeculos(): boolean {
@@ -91,12 +90,6 @@ function hashTxBody(txBodyHex: string): TxHash {
     return parseModule.parseHexStringOfLength(b2.digest('hex'), 32, InvalidDataReason.INVALID_B2_HASH)
 }
 
-export type NetworkIdlessTestResult = {
-    txHashHex: string,
-    witnesses: Array<Witness>,
-    auxiliaryDataSupplement: TxAuxiliaryDataSupplement | null,
-}
-
 export function bech32_to_hex(str: string): string {
     return utils.buf_to_hex(utils.bech32_decodeAddress(str))
 }
@@ -164,11 +157,11 @@ export function describePositiveTest(name: string, tests: any[]) {
         beforeEach(async () => {
             ada = await getAda()
         })
-    
+
         afterEach(async () => {
             await (ada as any).t.close()
         })
-    
+
         for (const { testname, tx, signingMode, additionalWitnessPaths, txBody, result: expected } of tests) {
             const additionalWitnessPathsIfPresent = additionalWitnessPaths || []
             it(testname, async () => {
@@ -182,12 +175,7 @@ export function describePositiveTest(name: string, tests: any[]) {
                     signingMode,
                     additionalWitnessPaths: additionalWitnessPathsIfPresent,
                 })
-                const networklessResponse: NetworkIdlessTestResult = {
-                    txHashHex: response.txHashHex,
-                    witnesses: response.witnesses,
-                    auxiliaryDataSupplement: response.auxiliaryDataSupplement,
-                }
-                expect(networklessResponse).to.deep.equal(expected)
+                expect(response).to.deep.equal(expected)
             })
         }
     })

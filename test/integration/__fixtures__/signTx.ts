@@ -1,10 +1,9 @@
 import type { DeviceOwnedAddress, Transaction } from "../../../src/Ada"
 import { TxAuxiliaryDataSupplementType } from "../../../src/Ada"
 import { CertificateType, Networks, TxAuxiliaryDataType, TxRequiredSignerType } from "../../../src/Ada"
-import type { BIP32Path} from '../../../src/types/public'
+import type { BIP32Path, SignedTransactionData} from '../../../src/types/public'
 import { StakeCredentialParamsType, TransactionSigningMode } from '../../../src/types/public'
 import { str_to_path } from "../../../src/utils/address"
-import type { NetworkIdlessTestResult } from "../../test_utils"
 import { allegraBase, alonzoBase, byronBase, destinations, inputs, maryBase, mints, outputs, shelleyBase } from "./txElements"
 
 export type TestcaseByron = {
@@ -12,7 +11,7 @@ export type TestcaseByron = {
   tx: Transaction
   signingMode: TransactionSigningMode
   txBody?: string
-  result: NetworkIdlessTestResult
+  result: SignedTransactionData
 }
 
 export const testsByron: TestcaseByron[] = [
@@ -91,7 +90,7 @@ export type TestcaseShelley = {
   additionalWitnessPaths: BIP32Path[]
   txBody?: string
   txAuxiliaryData?: string,
-  result: NetworkIdlessTestResult
+  result: SignedTransactionData
 }
 
 export const testsShelleyNoCertificates: TestcaseShelley[] = [
@@ -705,7 +704,7 @@ export type TestcaseAllegra = {
   tx: Transaction
   signingMode: TransactionSigningMode
   txBody: string
-  result: NetworkIdlessTestResult
+  result: SignedTransactionData
 }
 
 export const testsAllegra: TestcaseAllegra[] = [
@@ -761,7 +760,7 @@ export type TestcaseMary = {
   signingMode: TransactionSigningMode
   txBody: string,
   txAuxiliaryData?: string,
-  result: NetworkIdlessTestResult
+  result: SignedTransactionData
 }
 
 export const testsMary: TestcaseMary[] = [
@@ -1029,7 +1028,7 @@ export type TestcaseAlonzo = {
   additionalWitnessPaths: BIP32Path[]
   txBody?: string
   txAuxiliaryData?: string,
-  result: NetworkIdlessTestResult
+  result: SignedTransactionData
 }
 
 export const testsAlonzo: TestcaseShelley[] = [
@@ -1061,6 +1060,7 @@ export const testsAlonzo: TestcaseShelley[] = [
         tx: {
             ...alonzoBase,
             outputs: [outputs.datumHash],
+            includeNetworkId: true,
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         additionalWitnessPaths: [],
@@ -1129,6 +1129,7 @@ export const testsAlonzo: TestcaseShelley[] = [
             ...alonzoBase,
             outputs: [],
             collaterals: [inputs.utxoShelley],
+            includeNetworkId: true,
         },
         signingMode: TransactionSigningMode.PLUTUS_TRANSACTION,
         additionalWitnessPaths: [],
@@ -1161,6 +1162,7 @@ export const testsAlonzo: TestcaseShelley[] = [
                     path: str_to_path("1852'/1815'/0'/0/1"),
                 },
             ],
+            includeNetworkId: true,
         },
         signingMode: TransactionSigningMode.PLUTUS_TRANSACTION,
         additionalWitnessPaths: [],
@@ -1193,6 +1195,7 @@ export const testsAlonzo: TestcaseShelley[] = [
                     path: str_to_path("1852'/1815'/0'/0/0"),
                 },
             ],
+            includeNetworkId: true,
         },
         signingMode: TransactionSigningMode.PLUTUS_TRANSACTION,
         additionalWitnessPaths: [],
@@ -1225,6 +1228,7 @@ export const testsAlonzo: TestcaseShelley[] = [
                     hash: "eea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a",
                 },
             ],
+            includeNetworkId: true,
         },
         signingMode: TransactionSigningMode.PLUTUS_TRANSACTION,
         additionalWitnessPaths: [],
@@ -1268,6 +1272,7 @@ export const testsAlonzo: TestcaseShelley[] = [
                     amount: 1000,
                 },
             ],
+            includeNetworkId: true,
         },
         signingMode: TransactionSigningMode.PLUTUS_TRANSACTION,
         additionalWitnessPaths: [],

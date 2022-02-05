@@ -359,26 +359,6 @@ export const certificates: Record<
     },
 }
 
-// export const withdrawals: Record<
-//   | 'withdrawal0'
-//   , Withdrawal
-// > = {
-//     withdrawal0: {
-//         stakeCredential: {
-//             type: StakeCredentialParamsType.KEY_PATH,
-//             keyPath: str_to_path("1852'/1815'/0'/2/0"),
-//         },
-//         amount: "111",
-//     },
-// }
-
-// export type Testcase = {
-//   testname: string
-//   tx: Transaction
-//   txBody?: string,
-//   result: NetworkIdlessTestResult
-// }
-
 export const poolRegistrationOwnerTestcases: TestcaseShelley[] = [
     {
         testname: "Witness valid multiple mixed owners all relays pool registration",

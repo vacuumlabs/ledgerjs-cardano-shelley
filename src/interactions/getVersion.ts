@@ -41,7 +41,7 @@ export function getCompatibility(version: Version): DeviceCompatibility {
     const v2_3 = isLedgerAppVersionAtLeast(version, 2, 3) && isLedgerAppVersionAtMost(version, 3, Infinity)
     const v2_4 = isLedgerAppVersionAtLeast(version, 2, 4) && isLedgerAppVersionAtMost(version, 3, Infinity)
     const v3_0 = isLedgerAppVersionAtLeast(version, 3, 0) && isLedgerAppVersionAtMost(version, 3, Infinity)
-    // placeholder until the Alonso compatible version is decided
+    // placeholder until the Alonso compatible version is decided TODO
     const vAlonso = isLedgerAppVersionAtLeast(version, 3, 0) && isLedgerAppVersionAtMost(version, 3, Infinity)
 
     return {

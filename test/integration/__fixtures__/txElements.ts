@@ -1,7 +1,6 @@
 import type { AssetGroup, TxInput, TxOutput, TxOutputDestination} from "../../../src/types/public"
 import { AddressType, TxOutputDestinationType } from "../../../src/types/public"
 import utils, { str_to_path } from "../../../src/utils"
-
 import { bech32_to_hex, Networks } from "../../test_utils"
 
 export const inputs: Record<

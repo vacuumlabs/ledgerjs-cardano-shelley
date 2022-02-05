@@ -632,14 +632,14 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
             throw new DeviceVersionUnsupported(`Datum hash in output not supported by Ledger app version ${version}.`)
         }
     }
-            
+
     const certificates = request?.tx?.certificates
     const hasPoolRetirement = certificates && certificates.some(c => c.type === CertificateType.STAKE_POOL_RETIREMENT)
-            
+
     if (hasPoolRetirement && !getCompatibility(version).supportsPoolRetirement) {
         throw new DeviceVersionUnsupported(`Pool retirement certificate not supported by Ledger app version ${getVersionString(version)}.`)
     }
-    
+
     if (request?.tx?.mint && !getCompatibility(version).supportsMint) {
         throw new DeviceVersionUnsupported(`Mint not supported by Ledger app version ${getVersionString(version)}.`)
     }
@@ -690,6 +690,10 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
 
     if (request?.tx.requiredSigners.length != 0 && !getCompatibility(version).supportsAlonzo) {
         throw new DeviceVersionUnsupported(`Required signers not supported by Ledger app version ${version}.`)
+    }
+
+    if (request?.tx.includeNetworkId && !getCompatibility(version).supportsAlonzo) {
+        throw new DeviceVersionUnsupported(`Network id in tx body not supported by Ledger app version ${version}.`)
     }
 
     if (request?.signingMode === TransactionSigningMode.PLUTUS_TRANSACTION && !getCompatibility(version).supportsAlonzo) {
@@ -794,12 +798,9 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
         witnesses.push(witness)
     }
 
-    const isNetworkIdIncludedInTxBody = getCompatibility(version).supportsAlonzo
-
     return {
         txHashHex,
         witnesses,
         auxiliaryDataSupplement,
-        isNetworkIdIncludedInTxBody,
     }
 }
