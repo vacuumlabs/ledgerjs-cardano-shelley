@@ -50,6 +50,7 @@ export function serializeTxInit(
         serializeOptionFlag(tx.validityIntervalStart != null),
         mintBuffer,
         scriptDataHashBuffer,
+        includeNetworkIdBuffer,
         _serializeSigningMode(signingMode),
         uint32_to_buf(tx.inputs.length as Uint32_t),
         uint32_to_buf(tx.outputs.length as Uint32_t),
@@ -58,6 +59,5 @@ export function serializeTxInit(
         uint32_to_buf(numWitnesses as Uint32_t),
         collateralsBuffer,
         requiredSignersBuffer,
-        includeNetworkIdBuffer,
     ])
 }
