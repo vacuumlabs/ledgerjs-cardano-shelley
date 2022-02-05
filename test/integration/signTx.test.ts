@@ -1,9 +1,12 @@
 import { describePositiveTest,describeRejects  } from "../test_utils"
 import {
     testsAllegra,
+    testsAlonzo,
+    testsAlonzoTrezorComparison,
     testsByron,
     testsCatalystRegistration,
     testsMary,
+    testsMultisig,
     testsShelleyNoCertificates,
     testsShelleyWithCertificates,
 } from "./__fixtures__/signTx"
@@ -23,9 +26,12 @@ import {
 describePositiveTest("signTxOrdinaryByron", testsByron)
 describePositiveTest("signTxOrdinaryShelleyNoCertificates", testsShelleyNoCertificates)
 describePositiveTest("signTxOrdinaryShelleyWithCertificates", testsShelleyWithCertificates)
+describePositiveTest("signTxOrdinaryMultisig", testsMultisig)
 describePositiveTest("signTxOrdinaryAllegra", testsAllegra)
 describePositiveTest("signTxOrdinaryMary", testsMary)
 describePositiveTest("signTxOrdinaryMaryCatalyst", testsCatalystRegistration)
+describePositiveTest("signTxOrdinaryAlonzo", testsAlonzo)
+describePositiveTest("signTxOrdinaryTrezorComparison", testsAlonzoTrezorComparison)
 
 describeRejects("signTxInitPolicyRejects", transactionInitRejectTestcases)
 describeRejects("signTxAddressBytesPolicyRejects", addressBytesRejectTestcases)

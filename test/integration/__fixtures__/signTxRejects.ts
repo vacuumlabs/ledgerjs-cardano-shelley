@@ -5,7 +5,7 @@ import type { BIP32Path, Network, PoolRegistrationParams, PoolRetirementParams, 
 import { PoolKeyType, PoolOwnerType,PoolRewardAccountType, StakeCredentialParamsType, TransactionSigningMode  } from '../../../src/types/public'
 import { str_to_path } from "../../../src/utils/address"
 import { bech32_to_hex } from "../../test_utils"
-import { destinations, inputs, maryBase, mints,outputs, shelleyBase } from "./signTx"
+import { destinations, inputs, maryBase, mints, outputs, shelleyBase } from "./txElements"
 
 export type TestcaseRejectShelley = {
     testname: string
@@ -1433,7 +1433,7 @@ export const singleAccountRejectTestcases: TestcaseRejectShelley[] = [
                 },
             ],
             fee: 42,
-            ttl: 10,    
+            ttl: 10,
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         errCls: DeviceStatusError,
@@ -1468,7 +1468,7 @@ export const singleAccountRejectTestcases: TestcaseRejectShelley[] = [
                 },
             ],
             fee: 42,
-            ttl: 10,    
+            ttl: 10,
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         errCls: DeviceStatusError,
@@ -1501,7 +1501,7 @@ export const singleAccountRejectTestcases: TestcaseRejectShelley[] = [
                 },
             ],
             fee: 42,
-            ttl: 10,    
+            ttl: 10,
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         errCls: DeviceStatusError,
@@ -1537,7 +1537,7 @@ export const singleAccountRejectTestcases: TestcaseRejectShelley[] = [
                 },
             ],
             fee: 42,
-            ttl: 10,    
+            ttl: 10,
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         errCls: DeviceStatusError,
@@ -1571,7 +1571,7 @@ export const singleAccountRejectTestcases: TestcaseRejectShelley[] = [
                 },
             ],
             fee: 42,
-            ttl: 10,    
+            ttl: 10,
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         errCls: DeviceStatusError,
@@ -1615,7 +1615,7 @@ export const singleAccountRejectTestcases: TestcaseRejectShelley[] = [
                 },
             ],
             fee: 42,
-            ttl: 10,    
+            ttl: 10,
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         errCls: DeviceStatusError,
@@ -1649,7 +1649,7 @@ export const singleAccountRejectTestcases: TestcaseRejectShelley[] = [
                 },
             ],
             fee: 42,
-            ttl: 10,    
+            ttl: 10,
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         errCls: DeviceStatusError,
@@ -1683,7 +1683,7 @@ export const singleAccountRejectTestcases: TestcaseRejectShelley[] = [
                 },
             ],
             fee: 42,
-            ttl: 10,    
+            ttl: 10,
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         errCls: DeviceStatusError,
