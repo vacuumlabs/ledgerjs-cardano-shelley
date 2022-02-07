@@ -1,5 +1,3 @@
-import { assert } from "console"
-
 import { InvalidData } from "../errors"
 import { InvalidDataReason } from "../errors/invalidDataReason"
 import type { OutputDestination, ParsedAssetGroup, ParsedCertificate, ParsedInput, ParsedOutput, ParsedRequiredSigner, ParsedSigningRequest, ParsedToken, ParsedTransaction, ParsedWithdrawal} from "../types/internal"
@@ -29,7 +27,7 @@ import {
     TxOutputDestinationType,
     TxRequiredSignerType,
 } from "../types/public"
-import { unreachable } from "../utils/assert"
+import { assert, unreachable } from '../utils/assert'
 import { isArray, parseBIP32Path, parseStakeCredential,validate } from "../utils/parse"
 import { parseHexString, parseHexStringOfLength, parseInt64_str, parseUint32_t, parseUint64_str } from "../utils/parse"
 import { hex_to_buf } from "../utils/serialize"
@@ -226,6 +224,8 @@ function parseTxDestination(
     }
 }
 
+// TODO FIXME re-evaluate this, depending from where this is called,
+// we might only need to look at payment part of the address
 function addressContainsScripthash(destination: OutputDestination): boolean {
     let type: AddressType
     switch (destination.type) {
@@ -253,8 +253,7 @@ function addressContainsScripthash(destination: OutputDestination): boolean {
     case AddressType.REWARD_KEY:
         return false
     default:
-        assert(false)
-        return false
+        assert(false, "unsupported address type")
     }
 }
 
