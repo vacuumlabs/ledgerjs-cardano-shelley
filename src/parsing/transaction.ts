@@ -27,7 +27,7 @@ import {
     TxOutputDestinationType,
     TxRequiredSignerType,
 } from "../types/public"
-import { assert, unreachable } from '../utils/assert'
+import { unreachable } from '../utils/assert'
 import { isArray, parseBIP32Path, parseStakeCredential,validate } from "../utils/parse"
 import { parseHexString, parseHexStringOfLength, parseInt64_str, parseUint32_t, parseUint64_str } from "../utils/parse"
 import { hex_to_buf } from "../utils/serialize"
@@ -224,9 +224,9 @@ function parseTxDestination(
     }
 }
 
-// TODO FIXME re-evaluate this, depending from where this is called,
-// we might only need to look at payment part of the address
-function addressContainsScripthash(destination: OutputDestination): boolean {
+// a HW wallet cannot distinguish between native script hash and Plutus script hash
+// so allows datum hash whenever the payment part is script
+function addressAllowsDatum(destination: OutputDestination): boolean {
     let type: AddressType
     switch (destination.type) {
     case TxOutputDestinationType.THIRD_PARTY: {
@@ -241,19 +241,11 @@ function addressContainsScripthash(destination: OutputDestination): boolean {
     switch (type) {
     case AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY:
     case AddressType.BASE_PAYMENT_SCRIPT_STAKE_SCRIPT:
-    case AddressType.BASE_PAYMENT_KEY_STAKE_SCRIPT:
     case AddressType.POINTER_SCRIPT:
     case AddressType.ENTERPRISE_SCRIPT:
-    case AddressType.REWARD_SCRIPT:
         return true
-    case AddressType.BASE_PAYMENT_KEY_STAKE_KEY:
-    case AddressType.POINTER_KEY:
-    case AddressType.ENTERPRISE_KEY:
-    case AddressType.BYRON:
-    case AddressType.REWARD_KEY:
-        return false
     default:
-        assert(false, "unsupported address type")
+        return false
     }
 }
 
@@ -270,7 +262,7 @@ function parseTxOutput(
     const datumHashHex = output.datumHashHex == null
         ? null
         : parseHexStringOfLength(output.datumHashHex, SCRIPT_DATA_HASH_LENGTH, InvalidDataReason.SCRIPT_DATA_HASH_WRONG_LENGTH)
-    validate(!datumHashHex || addressContainsScripthash(destination),
+    validate(!datumHashHex || addressAllowsDatum(destination),
         InvalidDataReason.OUTPUT_INVALID_DATUM_HASH_WITHOUT_SCRIPT_HASH)
 
     return {
