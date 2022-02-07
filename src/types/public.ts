@@ -661,17 +661,17 @@ export enum StakeCredentialParamsType {
     SCRIPT_HASH,
 }
 
-type KeyPathStakeCredentialParams = {
+export type KeyPathStakeCredentialParams = {
     type: StakeCredentialParamsType.KEY_PATH,
     keyPath: BIP32Path,
 }
 
-type KeyHashStakeCredentialParams = {
+export type KeyHashStakeCredentialParams = {
     type: StakeCredentialParamsType.KEY_HASH,
     keyHash: string,
 }
 
-type ScriptStakeCredentialParams = {
+export type ScriptStakeCredentialParams = {
     type: StakeCredentialParamsType.SCRIPT_HASH,
     scriptHash: string,
 }
