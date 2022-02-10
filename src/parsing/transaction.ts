@@ -495,7 +495,7 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
             tx.withdrawals.length === 0,
             InvalidDataReason.SIGN_MODE_POOL_OPERATOR__WITHDRAWALS_NOT_ALLOWED
         )
-            
+
         // cannot have mint in the tx
         validate(
             !tx.mint || tx.mint?.length === 0,

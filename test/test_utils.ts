@@ -99,15 +99,15 @@ export const DontRunOnLedger: string = "DO NOT RUN ON LEDGER"
 export function describeRejects(name: string, testList: any) {
     describe(name + "_JS", async () => {
         let ada: Ada = {} as Ada
-    
+
         beforeEach(async () => {
             ada = await getAda()
         })
-    
+
         afterEach(async () => {
             await (ada as any).t.close()
         })
-    
+
         for (const {testname, tx, additionalWitnessPaths, signingMode, rejectReason } of testList) {
             it(testname, async() => {
                 if (rejectReason === InvalidDataReason.LEDGER_POLICY) {
@@ -122,18 +122,18 @@ export function describeRejects(name: string, testList: any) {
             })
         }
     })
-    
+
     describeWithoutValidation(name + "_Ledger", async () => {
         let ada: Ada = {} as Ada
-    
+
         beforeEach(async () => {
             ada = await getAda()
         })
-    
+
         afterEach(async () => {
             await (ada as any).t.close()
         })
-    
+
         for (const {testname, tx, additionalWitnessPaths, signingMode, errCls, errMsg } of testList) {
             it(testname, async() => {
                 if (errMsg === DontRunOnLedger) {

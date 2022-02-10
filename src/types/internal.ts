@@ -39,7 +39,7 @@ export const enum StakeCredentialType {
     SCRIPT_HASH = 2,
 }
 
-export type ParsedStakeCredential = 
+export type ParsedStakeCredential =
     {
         type: StakeCredentialType.KEY_PATH,
         path: ValidBIP32Path,

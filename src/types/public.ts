@@ -1,6 +1,6 @@
 /**
  * Type for 64-bit integers.
- * 
+ *
  * We accept either
  * - `Number` (if it is less than Number.MAX_SAFE_INTEGER)
  * - `String` (representing 64-bit number)
@@ -50,7 +50,7 @@ export enum AddressType {
     REWARD_SCRIPT                       = 0b1111,
 }
 
-/** 
+/**
  * Certificate type (as defined by the Cardano spec)
  * @category Shelley
  * @see [[Certificate]]
@@ -108,12 +108,12 @@ export const enum RelayType {
 
 /**
  * Hardened derivation
- * 
+ *
  * @example
  * ```
  * const accountId = 0 + HARDENED
  * ```
- * 
+ *
  * @see [[BIP32Path]]
  */
 export const HARDENED = 0x80000000
@@ -122,14 +122,14 @@ export const HARDENED = 0x80000000
 
 /**
  * Represents BIP 32 path.
- * 
+ *
  * @example
  * ```
  *  const HD = HARDENED
  *  const ByronAccount0 = [44 + HD, 1815 + HD, 0 + HD];
- *  const ShelleyChangeAddress0 = [1852 + HD, 1815 + HD, 0 + HD, 1, 0]; 
+ *  const ShelleyChangeAddress0 = [1852 + HD, 1815 + HD, 0 + HD, 1, 0];
  * ```
- * 
+ *
  * @see [[HARDENED]]
  * @category Basic types
  */
@@ -172,7 +172,7 @@ export type DeviceOwnedAddress = {
     params: AddressParamsReward
 }
 
-/** 
+/**
  * Byron address parameters
  * @category Addresses
  * @see [[DeviceOwnedAddress]]
@@ -218,7 +218,7 @@ export type AddressParamsPointer = SpendingParams & {
 }
 
 /** Shelley *reward* address parameters.
- * 
+ *
  * @category Addresses
  * @see [[DeviceOwnedAddress]]
  */
@@ -255,11 +255,11 @@ export type TxInput = {
     outputIndex: number,
     /**
      * Describes path used for witnessing this UTxO. The API will sign transaction with this path.
-     * 
+     *
      * Note: null indicates we don't want to sign this utxo. This is highly non-standard
      * and the only usecase so far is pool registration as owner.
      * We therefore don't mark it as optional so that people won't forget specifying it
-     * 
+     *
      * Note: Device has no ability to really check whether `path` is correct witnessing path for this UTxO.
      */
     path: BIP32Path | null,
@@ -591,7 +591,7 @@ export type Relay = {
 
 /**
  * Pool registration metadata
- * 
+ *
  * @category Pool registration certificate
  * @see [[PoolRegistrationParams]]
  */
@@ -602,7 +602,7 @@ export type PoolMetadataParams = {
 
 /**
  * Pool margin represented as fraction (numerator/denominator)
- * 
+ *
  * @category Pool registration certificate
  * @see [[PoolRegistrationParams]]
  */
@@ -621,7 +621,7 @@ export type Margin = {
 
 /**
  * Pool registration certificate
- * 
+ *
  * @category Pool registration certificate
  * @see [[Certificate]]
  */
@@ -767,7 +767,7 @@ export type Flags = {
     isDebug: boolean,
 };
 
-/** 
+/**
  * Device app version
  * @category Basic types
  * @see [[Ada.getVersion]]
@@ -887,7 +887,7 @@ export type Witness = {
      * Witnessed path
      */
     path: BIP32Path,
-    /** 
+    /**
      * Note: this is *only* a signature.
      * You need to add proper extended public key to form a full witness
      */
@@ -1110,13 +1110,13 @@ export type Transaction = {
 export enum TransactionSigningMode {
     /**
      * Represents an ordinary user transaction transferring funds.
-     * 
+     *
      * The transaction
      * - *should* have valid `path` property on all `inputs`
      * - *must not* contain a pool registration certificate
      * - *must* contain only 1852 and 1855 paths
      * - *must* contain 1855 witness requests only when transaction contains token minting/burning
-     * 
+     *
      * The API witnesses
      * - all non-null [[TxInput.path]] on `inputs`
      * - all [[Withdrawal.path]] on `withdrawals`
@@ -1126,7 +1126,7 @@ export enum TransactionSigningMode {
 
     /**
      * Represents pool registration from the perspective of pool owner.
-     * 
+     *
      * The transaction
      * - *must* have `path=null` on all `inputs` (i.e., we are not witnessing any UTxO)
      * - *must* have single Pool registration certificate
@@ -1134,10 +1134,10 @@ export enum TransactionSigningMode {
      * - *must not* contain withdrawals
      * - *must not* contain token minting
      * - *must* contain only staking witness requests
-     * 
+     *
      * These restrictions are in place due to a possibility of maliciously signing *another* part of
      * the transaction with the pool owner path as we are not displaying device-owned paths on the device screen.
-     * 
+     *
      * The API witnesses
      * - the single [[PoolOwnerDeviceOwnedParams.stakingPath]] found in pool registration
      */
@@ -1145,7 +1145,7 @@ export enum TransactionSigningMode {
 
     /**
      * Represents pool registration from the perspective of pool operator.
-     * 
+     *
      * The transaction
      * - *should* have valid `path` property on all `inputs`
      * - *must* have single Pool registration certificate
@@ -1153,10 +1153,10 @@ export enum TransactionSigningMode {
      * - *must* have all owners of type [[PoolOwnerType.THIRD_PARTY]] on that certificate
      * - *must not* have withdrawals
      * - *must not* contain token minting
-     * 
+     *
      * Most of these restrictions are in place since pool owners need to be able to sign
      * the same tx body.
-     * 
+     *
      * The API witnesses
      * - all non-null [[TxInput.path]] on `inputs`
      * - [[PoolKeyDeviceOwnedParams.path]] found in pool registration
@@ -1184,7 +1184,7 @@ export enum TransactionSigningMode {
 
     /**
      * Represents a transaction that is followed by a Plutus script running
-     * 
+     *
      * Allows transaction to have collaterals and required signers.
      * The transaction
      * - TODO
@@ -1203,7 +1203,7 @@ export type SignTransactionRequest = {
      * Mode in which we want to sign the transaction.
      * Ledger has certain limitations (see [[TransactionSigningMode]] in detail) due to which
      * it cannot sign arbitrary combination of all transaction features.
-     * The mode specifies which use-case the user want to use and triggers additional validation on `tx` field. 
+     * The mode specifies which use-case the user want to use and triggers additional validation on `tx` field.
      */
     signingMode: TransactionSigningMode
     /**

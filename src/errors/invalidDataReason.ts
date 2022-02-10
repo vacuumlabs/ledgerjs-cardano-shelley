@@ -52,7 +52,7 @@ export enum InvalidDataReason {
   TTL_INVALID = "invalid ttl",
 
   CERTIFICATES_NOT_ARRAY = "certificates not an array",
-  
+
   CERTIFICATE_INVALID_PATH = "one of the certificates contains an invalid path",
   CERTIFICATE_INVALID_SCRIPT_HASH = "one of the certificates contains an invalid script hash",
   CERTIFICATE_INVALID_STAKE_CREDENTIAL = "one of the certificates contains both a path and a scripthash or neither",
@@ -137,7 +137,7 @@ export enum InvalidDataReason {
   SCRIPT_DATA_HASH_WRONG_LENGTH = "script data hash not 32 bytes long",
 
   COLLATERALS_NOT_ARRAY = "collaterals not an array",
-  
+
   REQUIRED_SIGNERS_NOT_ARRAY = "required signers not an array",
   VKEY_WRONG_LENGTH = "vkey not 28 bytes long",
   UNKNOWN_REQUIRED_SIGNER_TYPE = "unknown required signer type",
@@ -198,7 +198,7 @@ export enum InvalidDataReason {
   "no device-owned pool owner is expected in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR",
   SIGN_MODE_POOL_OPERATOR__WITHDRAWALS_NOT_ALLOWED =
   "no withdrawals allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR",
-  SIGN_MODE_POOL_OPERATOR__MINT_NOT_ALLOWED = 
+  SIGN_MODE_POOL_OPERATOR__MINT_NOT_ALLOWED =
   "no mint allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR",
   SIGN_MODE_POOL_OPERATOR__COLLATERALS_NOT_ALLOWED =
   "no collaterals allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR",

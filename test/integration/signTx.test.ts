@@ -43,4 +43,3 @@ describeRejects("signTxWithdrawalRejects", withdrawalRejectTestcases)
 describeRejects("signTxWitnessRejects", witnessRejectTestcases)
 describeRejects("signTxInvalidMultiassetRejects", testsInvalidTokenBundleOrdering)
 describeRejects("signTxSingleAccountRejects", singleAccountRejectTestcases)
-

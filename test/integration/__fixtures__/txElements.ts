@@ -43,8 +43,9 @@ export const destinations: Record<
   | 'externalByronMainnet'
   | 'externalByronDaedalusMainnet'
   | 'externalByronTestnet'
-  | 'externalShelley'
-  | 'externalShelleyScripthash'
+  | 'externalShelleyBaseKeyhashKeyhash'
+  | 'externalShelleyBaseScripthashKeyhash'
+  | 'externalShelleyBaseKeyhashScripthash'
   | 'internalByronMainnet'
   | 'internalBaseWithStakingKeyHash'
   | 'internalBaseWithStakingPath'
@@ -53,8 +54,8 @@ export const destinations: Record<
   | 'internalEnterprise'
   | 'internalPointer'
   | 'multiassetThirdParty'
-  | 'rewardsInternal'
-  | 'rewardsExternal'
+  | 'rewardsKeyPath'
+  | 'rewardsScriptHash'
   , TxOutputDestination
 > = {
     externalByronMainnet: {
@@ -81,19 +82,29 @@ export const destinations: Record<
             ),
         },
     },
-    externalShelley: {
+    externalShelleyBaseKeyhashKeyhash: {
         type: TxOutputDestinationType.THIRD_PARTY,
         params: {
+            // 017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b09da61d425f3461114
             addressHex: bech32_to_hex(
                 "addr1q97tqh7wzy8mnx0sr2a57c4ug40zzl222877jz06nt49g4zr43fuq3k0dfpqjh3uvqcsl2qzwuwsvuhclck3scgn3vya5cw5yhe5vyg5x20akz"
             ),
         },
     },
-    externalShelleyScripthash: {
+    externalShelleyBaseScripthashKeyhash: {
+        type: TxOutputDestinationType.THIRD_PARTY,
+        params: {
+            // 105e2f080eb93bad86d401545e0ce5f2221096d6477e11e6643922fa8d2ed495234dc0d667c1316ff84e572310e265edb31330448b36b7179e28dd419e
+            addressHex: bech32_to_hex(
+                "addr_test1zp0z7zqwhya6mpk5q929ur897g3pp9kkgalpreny8y304rfw6j2jxnwq6enuzvt0lp89wgcsufj7mvcnxpzgkd4hz70z3h2pnc8lhq8r"
+            ),
+        },
+    },
+    externalShelleyBaseKeyhashScripthash: {
         type: TxOutputDestinationType.THIRD_PARTY,
         params: {
             addressHex: bech32_to_hex(
-                "addr_test1zp0z7zqwhya6mpk5q929ur897g3pp9kkgalpreny8y304rfw6j2jxnwq6enuzvt0lp89wgcsufj7mvcnxpzgkd4hz70z3h2pnc8lhq8r"
+                "addr1yyfatq352yhh7ctw7c3s33qpwrq3pvhcmqg0yvzq9308g9msqj6hs5cg8q8zmtpf2hfrfds25jmcvpta6k5nnpzrn5eqy6fknd"
             ),
         },
     },
@@ -178,7 +189,7 @@ export const destinations: Record<
             ),
         },
     },
-    rewardsInternal: {
+    rewardsKeyPath: {
         type: TxOutputDestinationType.DEVICE_OWNED,
         params: {
             type: AddressType.REWARD_KEY,
@@ -187,7 +198,7 @@ export const destinations: Record<
             },
         },
     },
-    rewardsExternal: {
+    rewardsScriptHash: {
         type: TxOutputDestinationType.DEVICE_OWNED,
         params: {
             type: AddressType.REWARD_SCRIPT,
@@ -285,8 +296,8 @@ export const outputs: Record<
   | 'externalByronMainnet'
   | 'externalByronDaedalusMainnet'
   | 'externalByronTestnet'
-  | 'externalShelley'
-  | 'externalShelleyScripthash'
+  | 'externalShelleyBaseKeyhashKeyhash'
+  | 'externalShelleyBaseScripthashKeyhash'
   | 'internalBaseWithStakingKeyHash'
   | 'internalBaseWithStakingPath'
   | 'internalBaseWithStakingPathNonReasonable'
@@ -322,13 +333,13 @@ export const outputs: Record<
         amount: 3003112,
         destination: destinations.externalByronTestnet,
     },
-    externalShelley: {
+    externalShelleyBaseKeyhashKeyhash: {
         amount: 1,
-        destination: destinations.externalShelley,
+        destination: destinations.externalShelleyBaseKeyhashKeyhash,
     },
-    externalShelleyScripthash: {
+    externalShelleyBaseScripthashKeyhash: {
         amount: 1,
-        destination: destinations.externalShelleyScripthash,
+        destination: destinations.externalShelleyBaseScripthashKeyhash,
     },
     internalBaseWithStakingKeyHash: {
         amount: 7120787,
@@ -573,12 +584,12 @@ export const outputs: Record<
         datumHashHex: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
     },
     datumHashExternal: {
-        destination: destinations.externalShelleyScripthash,
+        destination: destinations.externalShelleyBaseScripthashKeyhash,
         amount: 7120787,
         datumHashHex: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
     },
     datumHashWithTokens: {
-        destination: destinations.internalBaseWithStakingScript,
+        destination: destinations.externalShelleyBaseScripthashKeyhash,
         amount: 7120787,
         tokenBundle: [
             {
@@ -603,7 +614,7 @@ export const outputs: Record<
         datumHashHex: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
     },
     datumHashStakePathExternal: {
-        destination: destinations.externalShelley,
+        destination: destinations.externalShelleyBaseKeyhashKeyhash,
         amount: 7120787,
         datumHashHex: "ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce188",
     },
@@ -626,7 +637,7 @@ export const shelleyBase = {
 export const allegraBase = {
     network: Networks.Mainnet,
     inputs: [inputs.utxoShelley],
-    outputs: [outputs.externalShelley],
+    outputs: [outputs.externalShelleyBaseKeyhashKeyhash],
     fee: 42,
 }
 

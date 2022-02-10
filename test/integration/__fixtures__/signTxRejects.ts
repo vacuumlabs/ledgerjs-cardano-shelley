@@ -443,12 +443,26 @@ export const transactionInitRejectTestcases: TestcaseRejectShelley[] = [
 
 export const addressBytesRejectTestcases: TestcaseRejectShelley[] = [
     {
-        testname: "No script hash with datum hash",
+        testname: "Datum for address with payment key hash, staking key hash",
         tx: {
             ...shelleyBase,
             outputs: [{
                 ...outputs.datumHash,
-                destination: destinations.externalShelley,
+                destination: destinations.externalShelleyBaseKeyhashKeyhash,
+            }],
+        },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+        errCls: DeviceStatusError,
+        errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_REJECTED_BY_POLICY],
+        rejectReason: InvalidDataReason.OUTPUT_INVALID_DATUM_HASH_WITHOUT_SCRIPT_HASH,
+    },
+    {
+        testname: "Datum for address with payment key hash, staking script hash",
+        tx: {
+            ...shelleyBase,
+            outputs: [{
+                ...outputs.datumHash,
+                destination: destinations.externalShelleyBaseKeyhashScripthash,
             }],
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
@@ -460,7 +474,7 @@ export const addressBytesRejectTestcases: TestcaseRejectShelley[] = [
 
 export const addressParamsRejectTestcases: TestcaseRejectShelley[] = [
     {
-        testname: "No script hash with datum hash",
+        testname: "Datum for address with payment key path",
         tx: {
             ...shelleyBase,
             outputs: [{
@@ -479,7 +493,7 @@ export const addressParamsRejectTestcases: TestcaseRejectShelley[] = [
             ...shelleyBase,
             outputs: [{
                 amount: 10,
-                destination: destinations.rewardsInternal, 
+                destination: destinations.rewardsKeyPath,
             }],
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
@@ -493,7 +507,7 @@ export const addressParamsRejectTestcases: TestcaseRejectShelley[] = [
             ...shelleyBase,
             outputs: [{
                 amount: 10,
-                destination: destinations.rewardsExternal, 
+                destination: destinations.rewardsScriptHash,
             }],
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
@@ -564,10 +578,10 @@ export const addressParamsRejectTestcases: TestcaseRejectShelley[] = [
                         type: AddressType.BASE_PAYMENT_SCRIPT_STAKE_KEY,
                         params: {
                             spendingScriptHash: "122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277",
-                            stakingPath: str_to_path("1852'/1815'/456'/2/0"),            
+                            stakingPath: str_to_path("1852'/1815'/456'/2/0"),
                         },
                     },
-                }, 
+                },
             }],
         },
         signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR,

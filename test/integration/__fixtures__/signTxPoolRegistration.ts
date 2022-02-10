@@ -250,7 +250,7 @@ export const certificates: Record<
   | 'poolRegistrationOperatorOneOwnerOperatorNoRelays'
   , Certificate
 > = {
-    // for negative tests 
+    // for negative tests
     stakeDelegation: {
         type: CertificateType.STAKE_DELEGATION,
         params: {

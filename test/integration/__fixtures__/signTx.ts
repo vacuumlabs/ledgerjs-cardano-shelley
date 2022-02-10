@@ -116,7 +116,7 @@ export const testsShelleyNoCertificates: TestcaseShelley[] = [
         testname: "Sign tx without change address",
         tx: {
             ...shelleyBase,
-            outputs: [outputs.externalShelley],
+            outputs: [outputs.externalShelleyBaseKeyhashKeyhash],
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         additionalWitnessPaths: [],
@@ -532,7 +532,7 @@ export const testsMultisig: TestcaseShelley[] = [
         tx: {
             ...shelleyBase,
             network: Networks.Testnet,
-            outputs: [outputs.externalShelleyScripthash],
+            outputs: [outputs.externalShelleyBaseScripthashKeyhash],
         },
         signingMode: TransactionSigningMode.MULTISIG_TRANSACTION,
         additionalWitnessPaths: [str_to_path("1854'/1815'/0'/0/0")],
@@ -804,7 +804,7 @@ export const testsMary: TestcaseMary[] = [
         testname: "Sign tx with a multiasset change output",
         tx: {
             ...maryBase,
-            outputs: [outputs.externalShelley, outputs.multiassetChange],
+            outputs: [outputs.externalShelleyBaseKeyhashKeyhash, outputs.multiassetChange],
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000182825841017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b09da61d425f3461114018258390114c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f11241d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c821904d2a1581c95a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39a14874652474436f696e1a0078386202182a030a08182f",
@@ -954,7 +954,7 @@ export const testsCatalystRegistration: TestcaseMary[] = [
                     votingPublicKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     nonce: 1454448,
-                    rewardsDestination: destinations.rewardsInternal.params as DeviceOwnedAddress,
+                    rewardsDestination: destinations.rewardsKeyPath.params as DeviceOwnedAddress,
                 },
             },
         },
@@ -1022,29 +1022,7 @@ export const testsAlonzo: TestcaseAlonzo[] = [
         },
     },
     {
-        testname: "Sign tx with datum hash in output - internal address",
-        tx: {
-            ...alonzoBase,
-            outputs: [outputs.datumHash],
-            includeNetworkId: true,
-        },
-        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
-        additionalWitnessPaths: [],
-        txBody: "a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b70001818358392114c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f1124122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b42771a006ca7935820ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce18802182a030a0f01",
-        result: {
-            txHashHex: "135b8b94af310e3ea23988840f5f1124ec75f4f0ff2739e0211b360d3abfc9e1",
-            witnesses: [
-                {
-                    path: str_to_path("1852'/1815'/0'/0/0"),
-                    witnessSignatureHex:
-            "7718b4f9bb9ee6870dba480da3d5675ee5a3a88ad759d703c57446220bb181ede4f820afc93833113b2eef6095b153803407adcf06f7fc5787a98e96860b2209",
-                },
-            ],
-            auxiliaryDataSupplement: null,
-        },
-    },
-    {
-        testname: "Sign tx with datum hash in output - external address",
+        testname: "Sign tx with datum hash in output",
         tx: {
             ...alonzoBase,
             network: Networks.Testnet,
@@ -1069,18 +1047,19 @@ export const testsAlonzo: TestcaseAlonzo[] = [
         testname: "Sign tx with datum hash in output with tokens",
         tx: {
             ...alonzoBase,
+            network: Networks.Testnet,
             outputs: [outputs.datumHashWithTokens],
         },
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         additionalWitnessPaths: [],
-        txBody: "a400818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b70001818358392114c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f1124122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b4277821a006ca793a1581c75a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39a2487564247542686911182f4875642475426869121a007838625820ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce18802182a030a",
+        txBody: "a400818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018183583d105e2f080eb93bad86d401545e0ce5f2221096d6477e11e6643922fa8d2ed495234dc0d667c1316ff84e572310e265edb31330448b36b7179e28dd419e821a006ca793a1581c75a292ffee938be03e9bae5657982a74e9014eb4960108c9e23a5b39a2487564247542686911182f4875642475426869121a007838625820ffd4d009f554ba4fd8ed1f1d703244819861a9d34fd4753bcf3ff32f043ce18802182a030a",
         result: {
-            txHashHex: "98364b93374d1d95c8a8f95ef7452aff0759a2998a9be36e5df70a35136314cb",
+            txHashHex: "baa2a49cb3a39a186823174d83816395f5ff47d9d86251b5274bd902cd209a8f",
             witnesses: [
                 {
                     path: str_to_path("1852'/1815'/0'/0/0"),
                     witnessSignatureHex:
-            "4d4c88a9caa269fcac2c00a3ed4285dd4c8522ef096f8043772bde2397973c9d9b752e2b12895a1d9e387c3427722f1e26683c090a281dbe3ed149da028d600b",
+            "f0bfc7765ef2556c4efe8b7dc7851703ff5b985bb2e6389f0a344afedcdbec869d6139e8ee566c3ffd8ccfbe2b7a7158f305ac9944384096c2d64c19d0099d02",
                 },
             ],
             auxiliaryDataSupplement: null,

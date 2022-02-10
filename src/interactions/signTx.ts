@@ -572,7 +572,7 @@ function* signTx_getWitness(
 
 function generateWitnessPaths(request: ParsedSigningRequest): ValidBIP32Path[] {
     const { tx } = request
-  
+
     const witnessPaths: ValidBIP32Path[] = []
     for (const input of tx.inputs) {
         if (input.path != null) {
@@ -599,7 +599,7 @@ function generateWitnessPaths(request: ParsedSigningRequest): ValidBIP32Path[] {
             }
         }
     }
-  
+
     for (const withdrawal of tx.withdrawals) {
         if (withdrawal.stakeCredential.type === StakeCredentialType.KEY_PATH) {
             witnessPaths.push(withdrawal.stakeCredential.path)
