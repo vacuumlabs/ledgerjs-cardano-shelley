@@ -123,8 +123,7 @@ const signTransaction = async (appAda: Ada) => {
   const inputs: TxInput[] = [
     {
 
-      txHashHex:
-        "1af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163f63dcfc",
+      txHashHex: "1af8fa0b754ff99253d983894e63a2b09cbb56c833ba18c3384210163f63dcfc",
       outputIndex: 0,
       path: [(44 + HARDENED), (1815 + HARDENED), (0 + HARDENED), 0, 1],
     },
