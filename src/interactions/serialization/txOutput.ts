@@ -2,7 +2,7 @@ import type { OutputDestination, ParsedOutput, Uint8_t,Uint32_t } from "../../ty
 import { TxOutputDestinationType } from "../../types/internal"
 import type { Version } from "../../types/public"
 import { unreachable } from "../../utils/assert"
-import { hex_to_buf, serializeOptionFlag,uint8_to_buf, uint32_to_buf, uint64_to_buf } from "../../utils/serialize"
+import { hex_to_buf, serializeOptionFlag, uint8_to_buf, uint32_to_buf, uint64_to_buf } from "../../utils/serialize"
 import { getCompatibility } from "../getVersion"
 import { serializeAddressParams } from "./addressParams"
 
