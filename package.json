@@ -30,8 +30,8 @@
   },
   "devDependencies": {
     "@ledgerhq/hw-transport-node-hid": "^5.12.0",
-    "@types/blake2": "^4.0.1",
     "@ledgerhq/hw-transport-node-speculos": "^6.11.2",
+    "@types/blake2": "^4.0.1",
     "@types/chai": "^4.2.15",
     "@types/chai-as-promised": "^7.1.3",
     "@types/ledgerhq__hw-transport-node-hid": "^4.22.2",
