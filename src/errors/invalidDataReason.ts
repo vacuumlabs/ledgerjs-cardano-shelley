@@ -183,6 +183,8 @@ export enum InvalidDataReason {
   "no withdrawals allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OWNER",
   SIGN_MODE_POOL_OWNER__MINT_NOT_ALLOWED =
   "no mint allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OWNER",
+  SIGN_MODE_POOL_OWNER__SCRIPT_DATA_HASH_NOT_ALLOWED =
+  "no script data hash allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OWNER",
   SIGN_MODE_POOL_OWNER__COLLATERALS_NOT_ALLOWED =
   "no collaterals allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OWNER",
   SIGN_MODE_POOL_OWNER__REQUIRED_SIGNERS_NOT_ALLOWED =
@@ -200,6 +202,8 @@ export enum InvalidDataReason {
   "no withdrawals allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR",
   SIGN_MODE_POOL_OPERATOR__MINT_NOT_ALLOWED =
   "no mint allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR",
+  SIGN_MODE_POOL_OPERATOR__SCRIPT_DATA_HASH_NOT_ALLOWED =
+  "no script data hash allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR",
   SIGN_MODE_POOL_OPERATOR__COLLATERALS_NOT_ALLOWED =
   "no collaterals allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR",
   SIGN_MODE_POOL_OPERATOR__REQUIRED_SIGNERS_NOT_ALLOWED =

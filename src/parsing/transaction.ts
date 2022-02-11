@@ -359,6 +359,11 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
     }
 
     case TransactionSigningMode.MULTISIG_TRANSACTION: {
+        // only third-party outputs
+        validate(
+            tx.outputs.every(output => output.destination.type === TxOutputDestinationType.THIRD_PARTY),
+            InvalidDataReason.SIGN_MODE_MULTISIG__DEVICE_OWNED_ADDRESS_NOT_ALLOWED,
+        )
         // pool registrations have separate signing modes
         validate(
             tx.certificates.every(certificate => certificate.type !== CertificateType.STAKE_POOL_REGISTRATION),
@@ -388,11 +393,6 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
             tx.withdrawals.every(withdrawal => withdrawal.stakeCredential.type === StakeCredentialType.SCRIPT_HASH),
             InvalidDataReason.SIGN_MODE_MULTISIG__WITHDRAWAL_ONLY_AS_SCRIPT,
         )
-        // only third-party outputs
-        validate(
-            tx.outputs.every(output => output.destination.type === TxOutputDestinationType.THIRD_PARTY),
-            InvalidDataReason.SIGN_MODE_MULTISIG__DEVICE_OWNED_ADDRESS_NOT_ALLOWED,
-        )
         // cannot have collaterals in the tx
         validateNoCollaterals(
             tx.collaterals,
@@ -405,6 +405,7 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
         )
         break
     }
+
     case TransactionSigningMode.POOL_REGISTRATION_AS_OWNER: {
         // all these restictions are due to fact that pool owner signature *might* accidentally/maliciously sign another part of tx
         // but we are not showing these parts to the user
@@ -421,6 +422,7 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
             InvalidDataReason.SIGN_MODE_POOL_OWNER__DEVICE_OWNED_ADDRESS_NOT_ALLOWED
         )
 
+        // only a single certificate that is pool registration
         validate(
             tx.certificates.length === 1,
             InvalidDataReason.SIGN_MODE_POOL_OWNER__SINGLE_POOL_REG_CERTIFICATE_REQUIRED
@@ -452,6 +454,12 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
             InvalidDataReason.SIGN_MODE_POOL_OWNER__MINT_NOT_ALLOWED
         )
 
+        // cannot have script data hash in the tx
+        validate(
+            tx.scriptDataHashHex == null,
+            InvalidDataReason.SIGN_MODE_POOL_OWNER__SCRIPT_DATA_HASH_NOT_ALLOWED
+        )
+
         // cannot have collaterals in the tx
         validateNoCollaterals(
             tx.collaterals,
@@ -465,6 +473,7 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
         )
         break
     }
+
     case TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR: {
         // Most of these restrictions are necessary in TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
         // and since pool owner signatures will be added to the same tx body, we need the restrictions here, too
@@ -502,6 +511,12 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
             InvalidDataReason.SIGN_MODE_POOL_OPERATOR__MINT_NOT_ALLOWED
         )
 
+        // cannot have script data hash in the tx
+        validate(
+            tx.scriptDataHashHex == null,
+            InvalidDataReason.SIGN_MODE_POOL_OPERATOR__SCRIPT_DATA_HASH_NOT_ALLOWED
+        )
+
         // cannot have collaterals in the tx
         validateNoCollaterals(
             tx.collaterals,
@@ -515,6 +530,7 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
         )
         break
     }
+
     case TransactionSigningMode.PLUTUS_TRANSACTION: {
         validate(tx.outputs.every(o => o.destination.type != TxOutputDestinationType.DEVICE_OWNED),
             InvalidDataReason.SIGN_MODE_PLUTUS__DEVICE_OWNED_ADDRESS_NOT_ALLOWED)
@@ -525,6 +541,7 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
         )
         break
     }
+
     default:
         unreachable(signingMode)
     }

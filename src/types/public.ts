@@ -1114,6 +1114,10 @@ export enum TransactionSigningMode {
      * The transaction
      * - *should* have valid `path` property on all `inputs`
      * - *must not* contain a pool registration certificate
+     * - *must* contain key path stake credentials in certificates and withdrawals (no key or script hash)
+     * - *must not* contain collateral inputs
+     * - *must not* contain required signers
+     *
      * - *must* contain only 1852 and 1855 paths
      * - *must* contain 1855 witness requests only when transaction contains token minting/burning
      *
@@ -1125,14 +1129,40 @@ export enum TransactionSigningMode {
     ORDINARY_TRANSACTION = 'ordinary_transaction',
 
     /**
-     * Represents pool registration from the perspective of pool owner.
+     * Represents a transaction controlled by native scripts.
+     *
+     * Like an ordinary transaction, but stake credentials and all similar elements are given as script hashes
+     * and witnesses are decoupled from transaction elements.
+     *
+     * The transaction
+     * - *must* have `path` undefined on all `inputs`
+     * - *must* only contain output addresses given as [[TxOutputDestinationType.THIRD_PARTY]]
+     * - *must not* contain a pool registration or retirement certificate
+     * - *must* contain script hash stake credentials in certificates and withdrawals
+     * - *must not* contain collateral inputs
+     * - *must not* contain required signers
+     *
+     * - *must* contain only 1854 and 1855 witness requests
+     * - *must* contain 1855 witness requests only when transaction contains token minting/burning
+     *
+     * The API witnesses
+     * - all given in [[SignTransactionRequest.additionalWitnessPaths]]
+     */
+    MULTISIG_TRANSACTION = 'multisig_transaction',
+
+    /**
+     * Represents pool registration from the perspective of a pool owner.
      *
      * The transaction
      * - *must* have `path=null` on all `inputs` (i.e., we are not witnessing any UTxO)
-     * - *must* have single Pool registration certificate
-     * - *must* have single owner of type [[PoolOwnerType.DEVICE_OWNED]] on that certificate
+     * - *must not* have device-owned outputs
+     * - *must* have a single certificate, and it must be pool registration
+     * - *must* have a single owner of type [[PoolOwnerType.DEVICE_OWNED]] on that certificate
      * - *must not* contain withdrawals
      * - *must not* contain token minting
+     * - *must not* contain script data hash
+     * - *must not* contain collateral inputs
+     * - *must not* contain required signers
      * - *must* contain only staking witness requests
      *
      * These restrictions are in place due to a possibility of maliciously signing *another* part of
@@ -1144,15 +1174,18 @@ export enum TransactionSigningMode {
     POOL_REGISTRATION_AS_OWNER = 'pool_registration_as_owner',
 
     /**
-     * Represents pool registration from the perspective of pool operator.
+     * Represents pool registration from the perspective of a pool operator.
      *
      * The transaction
      * - *should* have valid `path` property on all `inputs`
-     * - *must* have single Pool registration certificate
+     * - *must* have a single certificate, and it must be pool registration
      * - *must* have a pool key of [[PoolKeyType.DEVICE_OWNED]] on that certificate
      * - *must* have all owners of type [[PoolOwnerType.THIRD_PARTY]] on that certificate
      * - *must not* have withdrawals
      * - *must not* contain token minting
+     * - *must not* contain script data hash
+     * - *must not* contain collateral inputs
+     * - *must not* contain required signers
      *
      * Most of these restrictions are in place since pool owners need to be able to sign
      * the same tx body.
@@ -1164,30 +1197,11 @@ export enum TransactionSigningMode {
     POOL_REGISTRATION_AS_OPERATOR = 'pool_registration_as_operator',
 
     /**
-     * Represents a transaction controlled by scripts.
-     *
-     * Like an ordinary transaction, but stake credentials and all similar elements are given as script hashes
-     * and witnesses are decoupled from transaction elements.
-     *
-     * The transaction
-     * - *must* have `path` undefined on all `inputs`
-     * - *must not* contain output addresses given by parameters
-     * - *must not* contain a pool registration certificate
-     * - *must* contain script hash stake credentials in certificates and withdrawals (no paths)
-     * - *must* contain only 1854 and 1855 witness requests
-     * - *must* contain 1855 witness requests only when transaction contains token minting/burning
-     *
-     * The API witnesses
-     * - all given in [[SignTransactionRequest.additionalWitnessPaths]]
-     */
-    MULTISIG_TRANSACTION = 'multisig_transaction',
-
-    /**
      * Represents a transaction that is followed by a Plutus script running
      *
-     * Allows transaction to have collaterals and required signers.
      * The transaction
-     * - TODO
+     * - *must* only contain output addresses given as [[TxOutputDestinationType.THIRD_PARTY]]
+     * - *must not* contain a pool registration certificate
      */
     PLUTUS_TRANSACTION = 'plutus_transaction',
 }
