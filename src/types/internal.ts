@@ -155,7 +155,7 @@ export const enum RequiredSignerType {
 
 export type ParsedRequiredSigner = {
     type: RequiredSignerType.HASH;
-    hash: FixlenHexString<typeof KEY_HASH_LENGTH>;
+    hashHex: FixlenHexString<typeof KEY_HASH_LENGTH>;
 } | {
     type: RequiredSignerType.PATH;
     path: ValidBIP32Path;
@@ -267,7 +267,7 @@ type StakingDataSourcePath = {
 }
 type StakingDataSourceKeyHash = {
     type: StakingDataSourceType.KEY_HASH;
-    keyHash: FixlenHexString<typeof KEY_HASH_LENGTH>;
+    keyHashHex: FixlenHexString<typeof KEY_HASH_LENGTH>;
 }
 type StakingDataSourcePointer = {
     type: StakingDataSourceType.BLOCKCHAIN_POINTER;
@@ -275,7 +275,7 @@ type StakingDataSourcePointer = {
 }
 type StakingDataSourceScriptHash = {
     type: StakingDataSourceType.SCRIPT_HASH;
-    scriptHash: FixlenHexString<typeof SCRIPT_HASH_LENGTH>;
+    scriptHashHex: FixlenHexString<typeof SCRIPT_HASH_LENGTH>;
 }
 
 export type SpendingDataSource = SpendingDataSourcePath | SpendingDataSourceScriptHash | SpendingDataSourceNone
