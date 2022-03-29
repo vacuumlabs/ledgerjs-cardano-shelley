@@ -29,8 +29,8 @@
     "int64-buffer": "^1.0.1"
   },
   "devDependencies": {
-    "@ledgerhq/hw-transport-node-hid": "^5.12.0",
-    "@ledgerhq/hw-transport-node-speculos": "^6.11.2",
+    "@ledgerhq/hw-transport-node-hid": "^6.24.1",
+    "@ledgerhq/hw-transport-node-speculos": "^6.24.1",
     "@types/blake2": "^4.0.1",
     "@types/chai": "^4.2.15",
     "@types/chai-as-promised": "^7.1.3",
