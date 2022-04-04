@@ -1,0 +1,109 @@
+<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>TransactionSigningMode | @cardano-foundation/ledgerjs-hw-app-cardano - v5.0.0</title><meta name="description" content="Documentation for @cardano-foundation/ledgerjs-hw-app-cardano - v5.0.0"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script async src="../assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base=".."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">@cardano-foundation/ledgerjs-hw-app-cardano - v5.0.0</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><ul class="tsd-breadcrumb"><li><a href="../index.html">@cardano-foundation/ledgerjs-hw-app-cardano - v5.0.0</a></li><li><a href="TransactionSigningMode.html">TransactionSigningMode</a></li></ul><h1>Enumeration TransactionSigningMode</h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><section class="tsd-panel tsd-comment"><div class="tsd-comment tsd-typography"><div class="lead">
+<p>Mode in which we want to sign the transaction.
+Ledger hardware app has certain limitations and it cannot sign arbitrary combination of all transaction features.
+The mode specifies which use-case the user wants to use and triggers additional validation on <code>tx</code> field.</p>
+</div><dl class="tsd-comment-tags"><dt>see</dt><dd><p><a href="../index.html#Transaction">Transaction</a></p>
+</dd><dt>see</dt><dd><p>[[SigningRequest]]</p>
+</dd></dl></div></section><section class="tsd-panel-group tsd-index-group"><h2>Index</h2><section class="tsd-panel tsd-index-panel"><div class="tsd-index-content"><section class="tsd-index-section "><h3>Enumeration members</h3><ul class="tsd-index-list"><li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="TransactionSigningMode.html#ORDINARY_TRANSACTION" class="tsd-kind-icon">ORDINARY_<wbr/>TRANSACTION</a></li><li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="TransactionSigningMode.html#MULTISIG_TRANSACTION" class="tsd-kind-icon">MULTISIG_<wbr/>TRANSACTION</a></li><li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="TransactionSigningMode.html#POOL_REGISTRATION_AS_OWNER" class="tsd-kind-icon">POOL_<wbr/>REGISTRATION_<wbr/>AS_<wbr/>OWNER</a></li><li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="TransactionSigningMode.html#POOL_REGISTRATION_AS_OPERATOR" class="tsd-kind-icon">POOL_<wbr/>REGISTRATION_<wbr/>AS_<wbr/>OPERATOR</a></li><li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="TransactionSigningMode.html#PLUTUS_TRANSACTION" class="tsd-kind-icon">PLUTUS_<wbr/>TRANSACTION</a></li></ul></section></div></section></section><section class="tsd-panel-group tsd-member-group "><h2>Enumeration members</h2><section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum"><a id="ORDINARY_TRANSACTION" class="tsd-anchor"></a><h3 class="tsd-anchor-link">ORDINARY_<wbr/>TRANSACTION<a href="#ORDINARY_TRANSACTION" aria-label="Permalink" class="tsd-anchor-icon"><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"></path></svg></a></h3><div class="tsd-signature tsd-kind-icon">ORDINARY_<wbr/>TRANSACTION<span class="tsd-signature-symbol"> = &quot;ordinary_transaction&quot;</span></div><aside class="tsd-sources"><ul><li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/e24dc37/src/types/public.ts#L1129">src/types/public.ts:1129</a></li></ul></aside><div class="tsd-comment tsd-typography"><div class="lead">
+<p>Represents an ordinary user transaction transferring funds.</p>
+</div><div><p>The transaction</p>
+<ul>
+<li><p><em>should</em> have valid <code>path</code> property on all <code>inputs</code></p>
+</li>
+<li><p><em>must not</em> contain a pool registration certificate</p>
+</li>
+<li><p><em>must</em> contain key path stake credentials in certificates and withdrawals (no key or script hash)</p>
+</li>
+<li><p><em>must not</em> contain collateral inputs</p>
+</li>
+<li><p><em>must not</em> contain required signers</p>
+</li>
+<li><p><em>must</em> contain only 1852 and 1855 paths</p>
+</li>
+<li><p><em>must</em> contain 1855 witness requests only when transaction contains token minting/burning</p>
+</li>
+</ul>
+<p>The API witnesses</p>
+<ul>
+<li>all non-null [[TxInput.path]] on <code>inputs</code></li>
+<li>all [[Withdrawal.path]] on <code>withdrawals</code></li>
+<li>all [[StakeCredentialParams.path]] properties on <code>certificates</code> for Stake registering/deregistering/delegating certificate.</li>
+</ul>
+</div></div></section><section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum"><a id="MULTISIG_TRANSACTION" class="tsd-anchor"></a><h3 class="tsd-anchor-link">MULTISIG_<wbr/>TRANSACTION<a href="#MULTISIG_TRANSACTION" aria-label="Permalink" class="tsd-anchor-icon"><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"></path></svg></a></h3><div class="tsd-signature tsd-kind-icon">MULTISIG_<wbr/>TRANSACTION<span class="tsd-signature-symbol"> = &quot;multisig_transaction&quot;</span></div><aside class="tsd-sources"><ul><li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/e24dc37/src/types/public.ts#L1151">src/types/public.ts:1151</a></li></ul></aside><div class="tsd-comment tsd-typography"><div class="lead">
+<p>Represents a transaction controlled by native scripts.</p>
+</div><div><p>Like an ordinary transaction, but stake credentials and all similar elements are given as script hashes
+and witnesses are decoupled from transaction elements.</p>
+<p>The transaction</p>
+<ul>
+<li><p><em>must</em> have <code>path</code> undefined on all <code>inputs</code></p>
+</li>
+<li><p><em>must</em> only contain output addresses given as <a href="TxOutputDestinationType.html#THIRD_PARTY">TxOutputDestinationType.THIRD_PARTY</a></p>
+</li>
+<li><p><em>must not</em> contain a pool registration or retirement certificate</p>
+</li>
+<li><p><em>must</em> contain script hash stake credentials in certificates and withdrawals</p>
+</li>
+<li><p><em>must not</em> contain collateral inputs</p>
+</li>
+<li><p><em>must not</em> contain required signers</p>
+</li>
+<li><p><em>must</em> contain only 1854 and 1855 witness requests</p>
+</li>
+<li><p><em>must</em> contain 1855 witness requests only when transaction contains token minting/burning</p>
+</li>
+</ul>
+<p>The API witnesses</p>
+<ul>
+<li>all given in [[SignTransactionRequest.additionalWitnessPaths]]</li>
+</ul>
+</div></div></section><section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum"><a id="POOL_REGISTRATION_AS_OWNER" class="tsd-anchor"></a><h3 class="tsd-anchor-link">POOL_<wbr/>REGISTRATION_<wbr/>AS_<wbr/>OWNER<a href="#POOL_REGISTRATION_AS_OWNER" aria-label="Permalink" class="tsd-anchor-icon"><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"></path></svg></a></h3><div class="tsd-signature tsd-kind-icon">POOL_<wbr/>REGISTRATION_<wbr/>AS_<wbr/>OWNER<span class="tsd-signature-symbol"> = &quot;pool_registration_as_owner&quot;</span></div><aside class="tsd-sources"><ul><li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/e24dc37/src/types/public.ts#L1175">src/types/public.ts:1175</a></li></ul></aside><div class="tsd-comment tsd-typography"><div class="lead">
+<p>Represents pool registration from the perspective of a pool owner.</p>
+</div><div><p>The transaction</p>
+<ul>
+<li><em>must</em> have <code>path=null</code> on all <code>inputs</code> (i.e., we are not witnessing any UTxO)</li>
+<li><em>must not</em> have device-owned outputs</li>
+<li><em>must not</em> have outputs with datum</li>
+<li><em>must</em> have a single certificate, and it must be pool registration</li>
+<li><em>must</em> have a single owner of type <a href="PoolOwnerType.html#DEVICE_OWNED">PoolOwnerType.DEVICE_OWNED</a> on that certificate</li>
+<li><em>must not</em> contain withdrawals</li>
+<li><em>must not</em> contain token minting</li>
+<li><em>must not</em> contain script data hash</li>
+<li><em>must not</em> contain collateral inputs</li>
+<li><em>must not</em> contain required signers</li>
+<li><em>must</em> contain only staking witness requests</li>
+</ul>
+<p>These restrictions are in place due to a possibility of maliciously signing <em>another</em> part of
+the transaction with the pool owner path as we are not displaying device-owned paths on the device screen.</p>
+<p>The API witnesses</p>
+<ul>
+<li>the single [[PoolOwnerDeviceOwnedParams.stakingPath]] found in pool registration</li>
+</ul>
+</div></div></section><section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum"><a id="POOL_REGISTRATION_AS_OPERATOR" class="tsd-anchor"></a><h3 class="tsd-anchor-link">POOL_<wbr/>REGISTRATION_<wbr/>AS_<wbr/>OPERATOR<a href="#POOL_REGISTRATION_AS_OPERATOR" aria-label="Permalink" class="tsd-anchor-icon"><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"></path></svg></a></h3><div class="tsd-signature tsd-kind-icon">POOL_<wbr/>REGISTRATION_<wbr/>AS_<wbr/>OPERATOR<span class="tsd-signature-symbol"> = &quot;pool_registration_as_operator&quot;</span></div><aside class="tsd-sources"><ul><li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/e24dc37/src/types/public.ts#L1199">src/types/public.ts:1199</a></li></ul></aside><div class="tsd-comment tsd-typography"><div class="lead">
+<p>Represents pool registration from the perspective of a pool operator.</p>
+</div><div><p>The transaction</p>
+<ul>
+<li><em>should</em> have valid <code>path</code> property on all <code>inputs</code></li>
+<li><em>must not</em> have outputs with datum</li>
+<li><em>must</em> have a single certificate, and it must be pool registration</li>
+<li><em>must</em> have a pool key of <a href="PoolKeyType.html#DEVICE_OWNED">PoolKeyType.DEVICE_OWNED</a> on that certificate</li>
+<li><em>must</em> have all owners of type <a href="PoolOwnerType.html#THIRD_PARTY">PoolOwnerType.THIRD_PARTY</a> on that certificate</li>
+<li><em>must not</em> have withdrawals</li>
+<li><em>must not</em> contain token minting</li>
+<li><em>must not</em> contain script data hash</li>
+<li><em>must not</em> contain collateral inputs</li>
+<li><em>must not</em> contain required signers</li>
+</ul>
+<p>Most of these restrictions are in place since pool owners need to be able to sign
+the same tx body.</p>
+<p>The API witnesses</p>
+<ul>
+<li>all non-null [[TxInput.path]] on <code>inputs</code></li>
+<li>[[PoolKeyDeviceOwnedParams.path]] found in pool registration</li>
+</ul>
+</div></div></section><section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum"><a id="PLUTUS_TRANSACTION" class="tsd-anchor"></a><h3 class="tsd-anchor-link">PLUTUS_<wbr/>TRANSACTION<a href="#PLUTUS_TRANSACTION" aria-label="Permalink" class="tsd-anchor-icon"><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"></path></svg></a></h3><div class="tsd-signature tsd-kind-icon">PLUTUS_<wbr/>TRANSACTION<span class="tsd-signature-symbol"> = &quot;plutus_transaction&quot;</span></div><aside class="tsd-sources"><ul><li>Defined in <a href="https://github.com/vacuumlabs/ledgerjs-cardano-shelley/blob/e24dc37/src/types/public.ts#L1207">src/types/public.ts:1207</a></li></ul></aside><div class="tsd-comment tsd-typography"><div class="lead">
+<p>Represents a transaction that includes Plutus script evaluation (e.g. spending from a script address).</p>
+</div><div><p>The transaction</p>
+<ul>
+<li><em>must not</em> contain a pool registration certificate</li>
+</ul>
+</div></div></section></section></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class=""><a href="../index.html">Exports</a></li></ul></nav><nav class="tsd-navigation secondary menu-sticky"><ul><li class="current tsd-kind-enum"><a href="TransactionSigningMode.html" class="tsd-kind-icon">Transaction<wbr/>Signing<wbr/>Mode</a><ul><li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="TransactionSigningMode.html#ORDINARY_TRANSACTION" class="tsd-kind-icon">ORDINARY_<wbr/>TRANSACTION</a></li><li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="TransactionSigningMode.html#MULTISIG_TRANSACTION" class="tsd-kind-icon">MULTISIG_<wbr/>TRANSACTION</a></li><li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="TransactionSigningMode.html#POOL_REGISTRATION_AS_OWNER" class="tsd-kind-icon">POOL_<wbr/>REGISTRATION_<wbr/>AS_<wbr/>OWNER</a></li><li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="TransactionSigningMode.html#POOL_REGISTRATION_AS_OPERATOR" class="tsd-kind-icon">POOL_<wbr/>REGISTRATION_<wbr/>AS_<wbr/>OPERATOR</a></li><li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="TransactionSigningMode.html#PLUTUS_TRANSACTION" class="tsd-kind-icon">PLUTUS_<wbr/>TRANSACTION</a></li></ul></li></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Legend</h2><div class="tsd-legend-group"><ul class="tsd-legend"><li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li><li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li><li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li></ul></div><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="../assets/main.js"></script></body></html>
