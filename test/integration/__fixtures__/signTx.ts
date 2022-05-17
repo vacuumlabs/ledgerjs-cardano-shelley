@@ -881,6 +881,35 @@ export const testsMary: TestcaseMary[] = [
         },
     },
     {
+        // TODO not enough, should have a test for outputs too, and use a network that does not give a warning
+        testname: "Sign tx with mint with decimal places",
+        tx: {
+            ...maryBase,
+            outputs: [],
+            ttl: undefined,
+            validityIntervalStart: undefined,
+            mint: mints.mintWithDecimalPlaces,
+        },
+        signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+        txBody: "a400818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a09a2581c6954264b15bc92d6d592febeac84f14645e1ed46ca5ebb9acdb5c15fa14553545249503a0034bf14581caf2e27f580f7f08e93190a81f72462f153026d06450924726645891ba244445249501904d24cffffffffffffffffffffffff1904d2",
+        result: {
+            txHashHex: "94748b2eb870881e38fd6ecea5142f52d6ebc4d51314b6fc012de31c4462a523",
+            "witnesses": [
+                {
+                    "path": [
+                        2147485500,
+                        2147485463,
+                        2147483648,
+                        0,
+                        0,
+                    ],
+                    "witnessSignatureHex": "399008a7679a144a2a9827d6b671377a7e965c6dec0073fa92aa3f0313e24d0f9fb3555bded5f7bcd11356180ae99b58cb083ba848e41d3b3761fd3e2efedd0b",
+                },
+            ],
+            auxiliaryDataSupplement: null,
+        },
+    },
+    {
         testname: "Sign tx with mint fields among other fields",
         tx: {
             ...maryBase,
