@@ -355,7 +355,7 @@ export const testsAlonzo: SignTxTestcase[] = [
 
 export const testsBabbage: SignTxTestcase[] = [
     {
-        testname: "Sign tx with script data hash ",
+        testname: "Sign tx with script data hash",
         tx: {
             ...mainnetFeeTtl,
             inputs: [inputs.utxoShelley],
@@ -379,7 +379,7 @@ export const testsBabbage: SignTxTestcase[] = [
     },
     {
         // tx does not contain any Plutus elements, but should be accepted (differs only in UI)
-        testname: "Sign tx with change output (Plutus) MAP",
+        testname: "Sign tx with change output (Plutus) Babbage format",
         tx: {
             ...mainnetFeeTtl,
             inputs: [inputs.utxoShelley],
@@ -422,7 +422,7 @@ export const testsBabbage: SignTxTestcase[] = [
         },
     },
     {
-        testname: "Sign tx with datum hash in output with tokens Babbage format",
+        testname: "Sign tx with datum hash in output with tokens in Babbage format",
         tx: {
             ...mainnetFeeTtl,
             network: Networks.Testnet,
@@ -445,7 +445,7 @@ export const testsBabbage: SignTxTestcase[] = [
     },
     {
         // tx does not contain any Plutus elements, but should be accepted (differs only in UI)
-        testname: "Sign tx with change output (Plutus) and Total collateral MAP",
+        testname: "Sign tx with change output (Plutus) in Babbage format and Total Collateral",
         tx: {
             ...mainnetFeeTtl,
             inputs: [inputs.utxoShelley],
@@ -468,7 +468,7 @@ export const testsBabbage: SignTxTestcase[] = [
     },
     {
         // tx does not contain any Plutus elements, but should be accepted (differs only in UI)
-        testname: "Sign tx with change output (Plutus) and Reference Input MAP",
+        testname: "Sign tx with change output (Plutus) in Babbage format and Reference Input",
         tx: {
             ...mainnetFeeTtl,
             inputs: [inputs.utxoShelley],
@@ -492,7 +492,7 @@ export const testsBabbage: SignTxTestcase[] = [
     },
     {
         // tx does not contain any Plutus elements, but should be accepted (differs only in UI)
-        testname: "Sign tx with change output (Plutus) and multiple reference inputs MAP",
+        testname: "Sign tx with change output (Plutus) in Babbage format and multiple Reference Inputs",
         tx: {
             ...mainnetFeeTtl,
             inputs: [inputs.utxoShelley],

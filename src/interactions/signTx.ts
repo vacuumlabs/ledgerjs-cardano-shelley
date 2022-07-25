@@ -625,7 +625,7 @@ function* signTx_addTotalCollateral(
 }
 
 function* signTx_addReferenceInput(
-    referenceInputs: ParsedInput
+    referenceInput: ParsedInput
 ): Interaction<void> {
     const enum P2 {
         UNUSED = 0x00,
@@ -633,7 +633,7 @@ function* signTx_addReferenceInput(
     yield send({
         p1: P1.STAGE_REFERENCE_INPUTS,
         p2: P2.UNUSED,
-        data: serializeTxInput(referenceInputs),
+        data: serializeTxInput(referenceInput),
         expectedResponseLength: 0,
     })
 }
@@ -981,12 +981,12 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
         yield* signTx_addRequiredSigner(input)
     }
 
-    // totalCollateral
+    // total collateral
     if (tx.totalCollateral != null) {
         yield* signTx_addTotalCollateral(tx.totalCollateral)
     }
 
-    // totalCollateral
+    // reference input
     if (tx.referenceInputs != null) {
         for (const referenceInput of tx.referenceInputs) {
             yield* signTx_addReferenceInput(referenceInput)
