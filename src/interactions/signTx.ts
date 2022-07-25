@@ -92,6 +92,7 @@ const enum P1 {
   STAGE_COLLATERALS = 0x0d,
   STAGE_REQUIRED_SIGNERS = 0x0e,
   STAGE_TOTAL_COLLATERAL = 0x10,
+  STAGE_REFERENCE_INPUTS = 0x11,
   STAGE_CONFIRM = 0x0a,
   STAGE_WITNESSES = 0x0f,
 }
@@ -623,6 +624,20 @@ function* signTx_addTotalCollateral(
     })
 }
 
+function* signTx_addReferenceInput(
+    referenceInputs: ParsedInput
+): Interaction<void> {
+    const enum P2 {
+        UNUSED = 0x00,
+    }
+    yield send({
+        p1: P1.STAGE_REFERENCE_INPUTS,
+        p2: P2.UNUSED,
+        data: serializeTxInput(referenceInputs),
+        expectedResponseLength: 0,
+    })
+}
+
 function* signTx_awaitConfirm(
 ): Interaction<{ txHashHex: string }> {
   const enum P2 {
@@ -969,6 +984,13 @@ export function* signTransaction(version: Version, request: ParsedSigningRequest
     // totalCollateral
     if (tx.totalCollateral != null) {
         yield* signTx_addTotalCollateral(tx.totalCollateral)
+    }
+
+    // totalCollateral
+    if (tx.referenceInputs != null) {
+        for (const referenceInput of tx.referenceInputs) {
+            yield* signTx_addReferenceInput(referenceInput)
+        }
     }
 
     // confirm

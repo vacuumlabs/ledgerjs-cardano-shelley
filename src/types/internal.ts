@@ -140,6 +140,7 @@ export type ParsedTransaction = {
     requiredSigners: ParsedRequiredSigner[];
     includeNetworkId: boolean;
     totalCollateral: Uint64_str | null;
+    referenceInputs: ParsedInput[];
 }
 
 export type ParsedSigningRequest = {

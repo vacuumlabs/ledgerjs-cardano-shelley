@@ -466,4 +466,28 @@ export const testsBabbage: SignTxTestcase[] = [
             auxiliaryDataSupplement: null,
         },
     },
+    {
+        // tx does not contain any Plutus elements, but should be accepted (differs only in UI)
+        testname: "Sign tx with change output (Plutus) and Reference Input MAP",
+        tx: {
+            ...mainnetFeeTtl,
+            inputs: [inputs.utxoShelley],
+            outputs: [outputs.internalBaseWithStakingPathMap],
+            collaterals: [inputs.utxoShelley],
+            referenceInputs: [inputs.utxoShelley],
+        },
+        signingMode: TransactionSigningMode.PLUTUS_TRANSACTION,
+        additionalWitnessPaths: [],
+        txBody: "A600818258203B40265111D8BB3C3C608D95B3A0BF83461ACE32D79336579A1939B3AAD1C0B7000181A20058390114C16D7F43243BD81478E68B9DB53A8528FD4FB1078D58D54A7F11241D227AEFA4B773149170885AADBA30AAB3127CC611DDBC4999DEF61C011A006CA79302182A030A0D818258203B40265111D8BB3C3C608D95B3A0BF83461ACE32D79336579A1939B3AAD1C0B70012818258203B40265111D8BB3C3C608D95B3A0BF83461ACE32D79336579A1939B3AAD1C0B700",
+        expectedResult: {
+            txHashHex: "fb7091c4663cb54099a292945a4259680bca9beed060568dd93a6d0d5d37a7c1",
+            witnesses: [
+                {
+                    path: str_to_path("1852'/1815'/0'/0/0"),
+                    witnessSignatureHex: "5a0960fc89422aa07bd2c25742cf35894b2047d42d542db0f29d5f22489cd137b5dce422ae4fcfbbbd915bc58b82f55441e04db6ee818fe9415028234893c001",
+                },
+            ],
+            auxiliaryDataSupplement: null,
+        },
+    },
 ]

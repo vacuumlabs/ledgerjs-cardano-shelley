@@ -193,6 +193,11 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
         ? null
         : parseUint64_str(tx.totalCollateral, {max: MAX_LOVELACE_SUPPLY_STR}, InvalidDataReason.TOTAL_COLLATERAL_NOT_VALID)
 
+    //reference Inputs
+    const referenceInputs = tx.referenceInputs == undefined
+        ? []
+        : tx.referenceInputs.map(inp => parseTxInput(inp))
+
     return {
         network,
         inputs,
@@ -209,6 +214,7 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
         requiredSigners,
         includeNetworkId,
         totalCollateral,
+        referenceInputs,
     }
 }
 
@@ -232,7 +238,6 @@ function parseWithdrawal(params: Withdrawal): ParsedWithdrawal {
 function parseTxDestination(
     network: Network,
     destination: TxOutputDestination,
-    txtype?: TxOutputType
 ): OutputDestination {
     switch (destination.type) {
     case TxOutputDestinationType.THIRD_PARTY:{
@@ -293,7 +298,7 @@ function parseTxOutput(
 
     const tokenBundle = parseTokenBundle(output.tokenBundle ?? [], true, parseUint64_str)
 
-    const destination = parseTxDestination(network, output.destination, output.type)
+    const destination = parseTxDestination(network, output.destination)
 
     if (output.type !== TxOutputType.MAP_BABBAGE) {
         const datumHashHex = output.datumHashHex == null ? null
