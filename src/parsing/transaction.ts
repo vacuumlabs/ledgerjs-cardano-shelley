@@ -292,7 +292,9 @@ function parseTxOutput(
     output: TxOutput,
     network: Network,
 ): ParsedOutput {
-    const type = output.type
+    const type = output.type === TxOutputType.MAP_BABBAGE 
+        ? TxOutputType.MAP_BABBAGE
+        : TxOutputType.ARRAY_LEGACY
 
     const amount = parseUint64_str(output.amount, {max: MAX_LOVELACE_SUPPLY_STR}, InvalidDataReason.OUTPUT_INVALID_AMOUNT)
 
