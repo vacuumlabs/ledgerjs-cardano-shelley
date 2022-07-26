@@ -397,6 +397,12 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
             InvalidDataReason.SIGN_MODE_ORDINARY__COLLATERALS_NOT_ALLOWED
         )
 
+        // cannot have reference input in the tx
+        validate(
+            tx.referenceInputs.length === 0,
+            InvalidDataReason.SIGN_MODE_ORDINARY__REFERENCE_INPUTS_NOT_ALLOWED
+        )
+
         break
     }
 
@@ -439,6 +445,12 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
         validate(
             tx.collaterals.length === 0,
             InvalidDataReason.SIGN_MODE_MULTISIG__COLLATERALS_NOT_ALLOWED
+        )
+
+        // cannot have reference input in the tx
+        validate(
+            tx.referenceInputs.length === 0,
+            InvalidDataReason.SIGN_MODE_MULTISIG__REFERENCE_INPUTS_NOT_ALLOWED
         )
 
         break
@@ -516,6 +528,13 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
             InvalidDataReason.SIGN_MODE_POOL_OWNER__REQUIRED_SIGNERS_NOT_ALLOWED
         )
 
+        // cannot have reference input in the tx
+        validate(
+            tx.referenceInputs.length === 0,
+            InvalidDataReason.SIGN_MODE_POOL_OWNER__REFERENCE_INPUTS_NOT_ALLOWED
+        )
+
+
         break
     }
 
@@ -580,6 +599,11 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
             InvalidDataReason.SIGN_MODE_POOL_OPERATOR__REQUIRED_SIGNERS_NOT_ALLOWED
         )
 
+        // cannot have reference input in the tx
+        validate(
+            tx.referenceInputs.length === 0,
+            InvalidDataReason.SIGN_MODE_POOL_OPERATOR__REFERENCE_INPUTS_NOT_ALLOWED
+        )
         break
     }
 
