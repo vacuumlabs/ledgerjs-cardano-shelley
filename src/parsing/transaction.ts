@@ -1,12 +1,12 @@
 import {InvalidData} from "../errors"
 import {InvalidDataReason} from "../errors/invalidDataReason"
 import type {
-    OutputDestination,
     ParsedAssetGroup,
     ParsedCertificate,
     ParsedDatum,
     ParsedInput,
     ParsedOutput,
+    ParsedOutputDestination,
     ParsedRequiredSigner,
     ParsedSigningRequest,
     ParsedToken,
@@ -281,10 +281,11 @@ function parseWithdrawal(params: Withdrawal): ParsedWithdrawal {
     }
 }
 
-function parseTxDestination(
+export function parseTxDestination(
     network: Network,
     destination: TxOutputDestination,
-): OutputDestination {
+    validateAsTxOutput: boolean = false,
+): ParsedOutputDestination {
     switch (destination.type) {
     case TxOutputDestinationType.THIRD_PARTY: {
         const params = destination.params
@@ -298,7 +299,13 @@ function parseTxDestination(
     case TxOutputDestinationType.DEVICE_OWNED: {
         const params = destination.params
         const addressParams = parseAddress(network, params)
-        validate(addressParams.spendingDataSource.type === SpendingDataSourceType.PATH, InvalidDataReason.OUTPUT_INVALID_ADDRESS_PARAMS)
+        if (validateAsTxOutput) {
+            validate(
+                // a reward adress cannot be used in tx output
+                addressParams.spendingDataSource.type === SpendingDataSourceType.PATH,
+                InvalidDataReason.OUTPUT_INVALID_ADDRESS_PARAMS
+            )
+        }
         return {
             type: TxOutputDestinationType.DEVICE_OWNED,
             addressParams: addressParams,
@@ -321,7 +328,7 @@ function parseTxOutput(
 
     const tokenBundle = parseTokenBundle(output.tokenBundle ?? [], true, parseUint64_str)
 
-    const destination = parseTxDestination(network, output.destination)
+    const destination = parseTxDestination(network, output.destination, true)
 
     const datum = parseDatum(output)
     if (datum?.type === DatumType.INLINE) {

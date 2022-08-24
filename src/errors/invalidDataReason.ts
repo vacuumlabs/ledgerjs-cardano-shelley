@@ -132,10 +132,19 @@ export enum InvalidDataReason {
 
   METADATA_UNKNOWN_TYPE = "unknown metadata type",
 
-  CATALYST_REGISTRATION_INVALID_VOTING_KEY = "invalid Catalyst registration voting key",
-  CATALYST_REGISTRATION_INVALID_STAKING_KEY_PATH = "invalid Catalyst registration staking key path",
-  CATALYST_REGISTRATION_INVALID_REWARDS_DESTINATION_BYRON = "Catalyst registration rewards destination cannot be a Byron-era address",
-  CATALYST_REGISTRATION_INVALID_NONCE = "invalid Catalyst registration nonce",
+  GOVERNANCE_VOTING_REGISTRATION_INCONSISTENT_WITH_CIP15 = "governance voting registration params incosistent with CIP-15",
+  GOVERNANCE_VOTING_REGISTRATION_INCONSISTENT_WITH_CIP36 = "governance voting registration params incosistent with CIP-36",
+  GOVERNANCE_VOTING_REGISTRATION_BOTH_KEY_AND_PATH = "governance voting key given both as a key and as a derivation path",
+  GOVERNANCE_VOTING_REGISTRATION_INVALID_VOTING_KEY = "invalid goverance voting registration voting key",
+  GOVERNANCE_VOTING_REGISTRATION_INVALID_VOTING_KEY_PATH = "invalid goverance voting registration voting key path",
+  GOVERNANCE_VOTING_REGISTRATION_INVALID_STAKING_KEY_PATH = "invalid governance voting registration staking key path",
+  GOVERNANCE_VOTING_REGISTRATION_INVALID_NONCE = "invalid governance voting registration nonce",
+  GOVERNANCE_VOTING_REGISTRATION_INVALID_VOTING_PURPOSE = "invalid governance voting registration voting purpose",
+  GOVERNANCE_VOTING_REGISTRATION_DELEGATIONS_NOT_ARRAY = "governance voting registration delegations not an array",
+  GOVERNANCE_VOTING_DELEGATION_INVALID_WEIGHT = "invalid governance voting delegation weight",
+  GOVERNANCE_VOTING_DELEGATION_INVALID_PATH = "invalid governance voting delegation path",
+  GOVERNANCE_VOTING_DELEGATION_INVALID_KEY = "invalid governance voting delegation key",
+  GOVERNANCE_VOTING_DELEGATION_UNKNOWN_TYPE = "invalid governance voting delegation type",
 
   VALIDITY_INTERVAL_START_INVALID = "invalid validity interval start",
 

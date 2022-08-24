@@ -1,7 +1,8 @@
-import type { DeviceOwnedAddress, Transaction } from "../../../src/Ada"
+import type { Transaction } from "../../../src/Ada"
 import { TxAuxiliaryDataSupplementType } from "../../../src/Ada"
 import { CertificateType, Networks, TxAuxiliaryDataType } from "../../../src/Ada"
 import type { BIP32Path, SignedTransactionData} from '../../../src/types/public'
+import { GovernanceVotingRegistrationFormat} from '../../../src/types/public'
 import { StakeCredentialParamsType, TransactionSigningMode } from '../../../src/types/public'
 import { str_to_path } from "../../../src/utils/address"
 import { destinations, inputs, mainnetFeeTtl, mints, outputs, shelleyBase, testnetFeeTtl } from "./txElements"
@@ -985,12 +986,13 @@ export const testsCatalystRegistration: SignTxTestcase[] = [
             outputs: [outputs.internalBaseWithStakingPath],
             validityIntervalStart: 7,
             auxiliaryData: {
-                type: TxAuxiliaryDataType.CATALYST_REGISTRATION,
+                type: TxAuxiliaryDataType.GOVERNANCE_VOTING_REGISTRATION,
                 params: {
+                    format: GovernanceVotingRegistrationFormat.CIP_15,
                     votingPublicKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     nonce: 1454448,
-                    rewardsDestination: destinations.internalBaseWithStakingPath.params as DeviceOwnedAddress,
+                    rewardsDestination: destinations.internalBaseWithStakingPath,
                 },
             },
         },
@@ -1006,9 +1008,9 @@ export const testsCatalystRegistration: SignTxTestcase[] = [
                 },
             ],
             auxiliaryDataSupplement: {
-                type: TxAuxiliaryDataSupplementType.CATALYST_REGISTRATION,
+                type: TxAuxiliaryDataSupplementType.GOVERNANCE_VOTING_REGISTRATION,
                 auxiliaryDataHashHex: "e9141b460aea0abb69ce113c7302c7c03690267736d6a382ee62d2a53c2ec926",
-                catalystRegistrationSignatureHex: "0ca3bb69cad5f471ddd32097a8501e3956e4ae0c2bf523625d1686b123dcc04af240630eb93bf1069c607b59bbe7d521fb8dd14a4312788bc0b72b7473ee160e",
+                governanceVotingRegistrationSignatureHex: "0ca3bb69cad5f471ddd32097a8501e3956e4ae0c2bf523625d1686b123dcc04af240630eb93bf1069c607b59bbe7d521fb8dd14a4312788bc0b72b7473ee160e",
             },
         },
     },
@@ -1019,12 +1021,13 @@ export const testsCatalystRegistration: SignTxTestcase[] = [
             inputs: [inputs.utxoShelley],
             outputs: [outputs.internalBaseWithStakingPath],
             auxiliaryData: {
-                type: TxAuxiliaryDataType.CATALYST_REGISTRATION,
+                type: TxAuxiliaryDataType.GOVERNANCE_VOTING_REGISTRATION,
                 params: {
+                    format: GovernanceVotingRegistrationFormat.CIP_15,
                     votingPublicKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     nonce: 1454448,
-                    rewardsDestination: destinations.rewardsKeyPath.params as DeviceOwnedAddress,
+                    rewardsDestination: destinations.rewardsKeyPath,
                 },
             },
         },
@@ -1040,9 +1043,9 @@ export const testsCatalystRegistration: SignTxTestcase[] = [
                 },
             ],
             auxiliaryDataSupplement: {
-                type: TxAuxiliaryDataSupplementType.CATALYST_REGISTRATION,
+                type: TxAuxiliaryDataSupplementType.GOVERNANCE_VOTING_REGISTRATION,
                 auxiliaryDataHashHex: "d19f7cb4d48a6ae8d370c64d2a42fca1f61d6b2cf3d0c0c02801541811338deb",
-                catalystRegistrationSignatureHex: "1514b6bbc582b33edcf5fa30ec04dcaa62128de8755c786768ae5922132c2aa50b9ba17be28072de979f45b0f429c7f5d489c549a1e22bc8e7d0b2445c103609",
+                governanceVotingRegistrationSignatureHex: "1514b6bbc582b33edcf5fa30ec04dcaa62128de8755c786768ae5922132c2aa50b9ba17be28072de979f45b0f429c7f5d489c549a1e22bc8e7d0b2445c103609",
             },
         },
     },
