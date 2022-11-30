@@ -6,7 +6,6 @@ import { AUXILIARY_DATA_HASH_LENGTH } from "../types/internal"
 import type { GovernanceVotingDelegation, GovernanceVotingRegistrationParams, Network,TxAuxiliaryData } from "../types/public"
 import { GovernanceVotingDelegationType, GovernanceVotingRegistrationFormat } from "../types/public"
 import { TxAuxiliaryDataType } from "../types/public"
-import { unreachable } from "../utils/assert"
 import { isArray, parseBIP32Path, parseHexStringOfLength, parseUint32_t, parseUint64_str } from "../utils/parse"
 import { validate } from "../utils/parse"
 import { parseTxDestination } from "./transaction"
@@ -49,7 +48,7 @@ function parseGovernanceVotingDelegation(delegation: GovernanceVotingDelegation)
             weight,
         }
     default:
-        throw new InvalidData(InvalidDataReason.GOVERNANCE_VOTING_DELEGATION_UNKNOWN_TYPE)
+        throw new InvalidData(InvalidDataReason.GOVERNANCE_VOTING_DELEGATION_UNKNOWN_DELEGATION_TYPE)
     }
 }
 
@@ -73,11 +72,12 @@ function parseGovernanceVotingRegistrationParams(network: Network, params: Gover
         } else {
             validate(params.delegations == null, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INCONSISTENT_WITH_CIP36)
             validate(params.votingPublicKeyHex == null || params.votingPublicKeyPath == null, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_BOTH_KEY_AND_PATH)
+            validate(params.votingPublicKeyHex != null || params.votingPublicKeyPath != null, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_MISSING_VOTING_KEY)
         }
         break
 
     default:
-        unreachable(params.format)
+        throw new InvalidData(InvalidDataReason.GOVERNANCE_VOTING_DELEGATION_UNKNOWN_FORMAT)
     }
 
     const votingPublicKey = params.votingPublicKeyHex == null
@@ -102,7 +102,7 @@ function parseGovernanceVotingRegistrationParams(network: Network, params: Gover
         votingPublicKeyPath,
         delegations,
         stakingPath: parseBIP32Path(params.stakingPath, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INVALID_STAKING_KEY_PATH),
-        rewardsDestination: parseTxDestination(network, params.rewardsDestination),
+        rewardsDestination: parseTxDestination(network, params.rewardsDestination, false),
         nonce: parseUint64_str(params.nonce, {}, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INVALID_NONCE),
         votingPurpose,
     }

@@ -29,7 +29,6 @@ import {
 import type {
     SignedTransactionData,
     TxAuxiliaryDataSupplement} from "../types/public"
-import {} from "../types/public"
 import {
     AddressType,
     DatumType,
@@ -505,7 +504,7 @@ function* signTx_setAuxiliaryData(
     const enum P2 {
       INIT = 0x36,
       VOTING_KEY = 0x30,
-      DELEGATION = 0x37, // TODO
+      DELEGATION = 0x37,
       STAKING_KEY = 0x31,
       VOTING_REWARDS_ADDRESS = 0x32,
       NONCE = 0x33,

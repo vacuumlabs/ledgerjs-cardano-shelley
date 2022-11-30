@@ -281,10 +281,15 @@ function parseWithdrawal(params: Withdrawal): ParsedWithdrawal {
     }
 }
 
+/*
+ * Typically, destination is used in output, where we forbid reward addresses.
+ * In some other places, we allow them. The parameter 'validateAsTxOutput'
+ * is used to control this validation.
+ */
 export function parseTxDestination(
     network: Network,
     destination: TxOutputDestination,
-    validateAsTxOutput: boolean = false,
+    validateAsTxOutput: boolean,
 ): ParsedOutputDestination {
     switch (destination.type) {
     case TxOutputDestinationType.THIRD_PARTY: {
@@ -301,7 +306,7 @@ export function parseTxDestination(
         const addressParams = parseAddress(network, params)
         if (validateAsTxOutput) {
             validate(
-                // a reward adress cannot be used in tx output
+                // a reward address cannot be used in tx output
                 addressParams.spendingDataSource.type === SpendingDataSourceType.PATH,
                 InvalidDataReason.OUTPUT_INVALID_ADDRESS_PARAMS
             )
@@ -509,7 +514,7 @@ export function parseSignTransactionRequest(request: SignTransactionRequest): Pa
     }
 
     case TransactionSigningMode.POOL_REGISTRATION_AS_OWNER: {
-        // all these restictions are due to fact that pool owner signature *might* accidentally/maliciously sign another part of tx
+        // all these restrictions are due to fact that pool owner signature *might* accidentally/maliciously sign another part of tx
         // but we are not showing these parts to the user
 
         // input should not be given with a path

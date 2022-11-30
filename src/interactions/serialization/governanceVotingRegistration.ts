@@ -24,7 +24,7 @@ export function serializeGovernanceVotingRegistrationInit(params: ParsedGovernan
     ])
 }
 
-function delegationTypeBuffer(type: GovernanceVotingDelegationType): Buffer {
+function serializeDelegationType(type: GovernanceVotingDelegationType): Buffer {
     const delegationTypeEncoding = {
         [GovernanceVotingDelegationType.KEY]: 0x01,
         [GovernanceVotingDelegationType.PATH]: 0x02,
@@ -39,20 +39,20 @@ export function serializeGovernanceVotingRegistrationVotingKey(
     if (votingPublicKey != null) {
         assert(votingPublicKeyPath == null, "redundant governance registration voting key path")
         return Buffer.concat([
-            delegationTypeBuffer(GovernanceVotingDelegationType.KEY),
+            serializeDelegationType(GovernanceVotingDelegationType.KEY),
             hex_to_buf(votingPublicKey),
         ])
     } else {
         assert(votingPublicKeyPath != null, "missing governance registration voting key")
         return Buffer.concat([
-            delegationTypeBuffer(GovernanceVotingDelegationType.PATH),
-            path_to_buf(votingPublicKeyPath!),
+            serializeDelegationType(GovernanceVotingDelegationType.PATH),
+            path_to_buf(votingPublicKeyPath),
         ])
     }
 }
 
 export function serializeGovernanceVotingRegistrationDelegation(delegation: ParsedGovernanceVotingDelegation): Buffer {
-    const typeBuffer = delegationTypeBuffer(delegation.type)
+    const typeBuffer = serializeDelegationType(delegation.type)
 
     const weightBuffer = uint32_to_buf(delegation.weight)
 
