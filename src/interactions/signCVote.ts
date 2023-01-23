@@ -13,14 +13,14 @@ const send = (params: {
   p2: number;
   data: Buffer;
   expectedResponseLength?: number;
-}): SendParams => ({ ins: INS.SIGN_GOVERNANCE_VOTE, ...params })
+}): SendParams => ({ ins: INS.SIGN_CIP36_VOTE, ...params })
 
-export function* signGovernanceVote(
+export function* signCVote(
     version: Version,
-    governanceVote: ParsedCVote,
+    cVote: ParsedCVote,
 ): Interaction<SignedCIP36VoteData> {
     if (!getCompatibility(version).supportsCIP36Vote) {
-        throw new DeviceVersionUnsupported(`Governance voting not supported by Ledger app version ${getVersionString(version)}.`)
+        throw new DeviceVersionUnsupported(`CIP36 voting not supported by Ledger app version ${getVersionString(version)}.`)
     }
 
     const enum P1 {
@@ -34,7 +34,7 @@ export function* signGovernanceVote(
     }
     const MAX_VOTECAST_CHUNK_SIZE = 240
 
-    let votecastBytes = hex_to_buf(governanceVote.voteCastDataHex)
+    let votecastBytes = hex_to_buf(cVote.voteCastDataHex)
     let start = 0
     let end = Math.min(votecastBytes.length, start + MAX_VOTECAST_CHUNK_SIZE)
 
@@ -77,13 +77,13 @@ export function* signGovernanceVote(
     const witnessResponse = yield send({
         p1: P1.STAGE_WITNESS,
         p2: P2.UNUSED,
-        data: path_to_buf(governanceVote.witnessPath),
+        data: path_to_buf(cVote.witnessPath),
         expectedResponseLength: ED25519_SIGNATURE_LENGTH,
     })
 
     return {
         dataHashHex: confirmResponse.toString("hex"),
-        witnessPath: governanceVote.witnessPath,
+        witnessPath: cVote.witnessPath,
         witnessSignatureHex: witnessResponse.toString("hex"),
     }
 }

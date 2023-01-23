@@ -10,7 +10,7 @@ import { isArray, parseBIP32Path, parseHexStringOfLength, parseUint32_t, parseUi
 import { validate } from "../utils/parse"
 import { parseTxDestination } from "./transaction"
 
-export const GOVERNANCE_VOTING_REGISTRATION_VOTING_VKEY_LENGTH = 32
+export const CVOTE_VKEY_LENGTH = 32
 
 export function parseTxAuxiliaryData(network: Network, auxiliaryData: TxAuxiliaryData): ParsedTxAuxiliaryData {
     switch (auxiliaryData.type) {
@@ -82,7 +82,7 @@ function parseGovernanceVotingRegistrationParams(network: Network, params: CIP36
 
     const votingPublicKey = params.votingPublicKeyHex == null
         ? null
-        : parseHexStringOfLength(params.votingPublicKeyHex, GOVERNANCE_VOTING_REGISTRATION_VOTING_VKEY_LENGTH, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INVALID_VOTING_KEY)
+        : parseHexStringOfLength(params.votingPublicKeyHex, CVOTE_VKEY_LENGTH, InvalidDataReason.CVOTE_REGISTRATION_INVALID_VOTING_KEY)
 
     const votingPublicKeyPath = params.votingPublicKeyPath == null
         ? null

@@ -10,11 +10,11 @@ import { serializeAddressParams } from "./addressParams"
 import { serializeTxOutputDestination } from "./txOutput"
 
 export function serializeCVoteRegistrationInit(params: ParsedCVoteRegistrationParams): Buffer {
-    const governanceRegistrationFormatEncoding = {
+    const registrationFormatEncoding = {
         [CIP36VoteRegistrationFormat.CIP_15]: 0x01,
         [CIP36VoteRegistrationFormat.CIP_36]: 0x02,
     } as const
-    const formatBuffer = uint8_to_buf(governanceRegistrationFormatEncoding[params.format] as Uint8_t)
+    const formatBuffer = uint8_to_buf(registrationFormatEncoding[params.format] as Uint8_t)
 
     const numDelegations = params.delegations != null
         ? params.delegations.length
@@ -41,7 +41,7 @@ export function serializeCVoteRegistrationVotingKey(
     version: Version
 ): Buffer {
     if (votingPublicKey != null) {
-        assert(votingPublicKeyPath == null, "redundant governance registration voting key path")
+        assert(votingPublicKeyPath == null, "redundant vote key path")
 
         const delegationTypeBuffer = (getCompatibility(version).supportsCIP36)
             ? serializeDelegationType(CIP36VoteDelegationType.KEY)
@@ -52,8 +52,8 @@ export function serializeCVoteRegistrationVotingKey(
             hex_to_buf(votingPublicKey),
         ])
     } else {
-        assert(votingPublicKeyPath != null, "missing governance registration voting key")
-        assert(getCompatibility(version).supportsCIP36Vote, "key derivation path for governance voting keys not supported by the device")
+        assert(votingPublicKeyPath != null, "missing vote key")
+        assert(getCompatibility(version).supportsCIP36Vote, "key derivation path for vote keys not supported by the device")
 
         return Buffer.concat([
             serializeDelegationType(CIP36VoteDelegationType.PATH),

@@ -54,7 +54,7 @@ import {
     serializeCVoteRegistrationStakingPath,
     serializeCVoteRegistrationVotingKey,
     serializeCVoteRegistrationVotingPurpose,
-} from "./serialization/governanceVotingRegistration"
+} from "./serialization/cVoteRegistration"
 import {
     serializeFinancials,
     serializePoolInitialParams,
@@ -540,7 +540,7 @@ function* signTx_setAuxiliaryData(
         }
     } else {
         // should have been caught by previous validation
-        throw Error('wrong governance registration params')
+        throw Error('wrong CIP36 registration params')
     }
 
     yield send({
@@ -1026,7 +1026,7 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
         throw new DeviceVersionUnsupported(`Reference inputs not supported by Ledger app version ${getVersionString(version)}.`)
     }
 
-    // catalyst/governance voting registration is a specific type of auxiliary data that requires a HW wallet signature
+    // catalyst/CIP36 voting registration is a specific type of auxiliary data that requires a HW wallet signature
     const auxiliaryData = request.tx?.auxiliaryData
     const hasCIP15Registration = auxiliaryData?.type === TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION
         && auxiliaryData.params.format === CIP36VoteRegistrationFormat.CIP_15
@@ -1036,12 +1036,12 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
     const hasCIP36Registration = auxiliaryData?.type === TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION
         && auxiliaryData.params.format === CIP36VoteRegistrationFormat.CIP_36
     if (hasCIP36Registration && !getCompatibility(version).supportsCIP36) {
-        throw new DeviceVersionUnsupported(`Governance voting registration not supported by Ledger app version ${getVersionString(version)}.`)
+        throw new DeviceVersionUnsupported(`CIP36 voting registration not supported by Ledger app version ${getVersionString(version)}.`)
     }
     const hasKeyPath = auxiliaryData?.type === TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION
         && auxiliaryData.params.votingPublicKeyPath != null
     if (hasKeyPath && !getCompatibility(version).supportsCIP36Vote) {
-        throw new DeviceVersionUnsupported(`Voting key derivation path in governance voting registration not supported by Ledger app version ${getVersionString(version)}.`)
+        throw new DeviceVersionUnsupported(`Vote key derivation path in voting registration not supported by Ledger app version ${getVersionString(version)}.`)
     }
     const thirdPartyRewards = auxiliaryData?.type === TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION
         && auxiliaryData.params.rewardsDestination.type != TxOutputDestinationType.DEVICE_OWNED
