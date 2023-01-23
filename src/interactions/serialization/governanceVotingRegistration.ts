@@ -1,5 +1,5 @@
 import { getCompatibility } from "../../interactions/getVersion"
-import type { GovernanceVotingPublicKey, ParsedGovernanceVotingDelegation, ParsedGovernanceVotingRegistrationParams, ParsedOutputDestination,Uint8_t,Uint32_t, Uint64_str,ValidBIP32Path } from "../../types/internal"
+import type { CVotePublicKey, ParsedCVoteDelegation, ParsedCVoteRegistrationParams, ParsedOutputDestination,Uint8_t,Uint32_t, Uint64_str,ValidBIP32Path } from "../../types/internal"
 import type { Version } from "../../types/public"
 import { TxOutputDestinationType } from "../../types/public"
 import { CIP36VoteDelegationType } from "../../types/public"
@@ -9,7 +9,7 @@ import { hex_to_buf, path_to_buf, serializeOptionFlag,uint8_to_buf,uint32_to_buf
 import { serializeAddressParams } from "./addressParams"
 import { serializeTxOutputDestination } from "./txOutput"
 
-export function serializeCVoteRegistrationInit(params: ParsedGovernanceVotingRegistrationParams): Buffer {
+export function serializeCVoteRegistrationInit(params: ParsedCVoteRegistrationParams): Buffer {
     const governanceRegistrationFormatEncoding = {
         [CIP36VoteRegistrationFormat.CIP_15]: 0x01,
         [CIP36VoteRegistrationFormat.CIP_36]: 0x02,
@@ -36,7 +36,7 @@ function serializeDelegationType(type: CIP36VoteDelegationType): Buffer {
 }
 
 export function serializeCVoteRegistrationVotingKey(
-    votingPublicKey: GovernanceVotingPublicKey | null,
+    votingPublicKey: CVotePublicKey | null,
     votingPublicKeyPath: ValidBIP32Path | null,
     version: Version
 ): Buffer {
@@ -62,7 +62,7 @@ export function serializeCVoteRegistrationVotingKey(
     }
 }
 
-export function serializeCVoteRegistrationDelegation(delegation: ParsedGovernanceVotingDelegation): Buffer {
+export function serializeCVoteRegistrationDelegation(delegation: ParsedCVoteDelegation): Buffer {
     const typeBuffer = serializeDelegationType(delegation.type)
 
     const weightBuffer = uint32_to_buf(delegation.weight)

@@ -36,7 +36,7 @@ import { parseOperationalCertificate } from "./parsing/operationalCertificate"
 import { parseSignTransactionRequest } from "./parsing/transaction"
 import type {
     ParsedAddressParams,
-    ParsedGovernanceVote,
+    ParsedCVote,
     ParsedNativeScript,
     ParsedOperationalCertificate,
     ParsedSigningRequest,
@@ -339,7 +339,7 @@ export class Ada {
   }
 
   /** @ignore */
-  * _signGovernanceVote(request: ParsedGovernanceVote): Interaction<SignedCIP36VoteData> {
+  * _signGovernanceVote(request: ParsedCVote): Interaction<SignedCIP36VoteData> {
       const version = yield* getVersion()
       return yield* signGovernanceVote(version, request)
   }

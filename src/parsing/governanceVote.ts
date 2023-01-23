@@ -1,11 +1,11 @@
 import { InvalidDataReason } from "../errors/invalidDataReason"
-import type { ParsedGovernanceVote } from "../types/internal"
+import type { ParsedCVote } from "../types/internal"
 import type { CIP36Vote } from "../types/public"
 import { parseBIP32Path, parseHexString, validate } from "../utils/parse"
 
 export function parseGovernanceVote(
     governanceVote: CIP36Vote
-): ParsedGovernanceVote {
+): ParsedCVote {
     const voteCastDataHex = parseHexString(governanceVote.voteCastDataHex, InvalidDataReason.GOVERNANCE_VOTE_INVALID_VOTECAST_DATA)
 
     // we don't know what is the true minimal length

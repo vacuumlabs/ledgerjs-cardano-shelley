@@ -106,36 +106,36 @@ export type ParsedNetwork = {
     networkId: Uint8_t;
 }
 
-export const GOVERNANCE_VOTING_PUBLIC_KEY_LENGTH = 32
+export const CVOTE_PUBLIC_KEY_LENGTH = 32
 
-export type GovernanceVotingPublicKey = FixlenHexString<typeof GOVERNANCE_VOTING_PUBLIC_KEY_LENGTH>
+export type CVotePublicKey = FixlenHexString<typeof CVOTE_PUBLIC_KEY_LENGTH>
 
 export type ParsedTxAuxiliaryData = {
     type: TxAuxiliaryDataType.ARBITRARY_HASH;
     hashHex: FixlenHexString<typeof AUXILIARY_DATA_HASH_LENGTH>;
 } | {
     type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION;
-    params: ParsedGovernanceVotingRegistrationParams;
+    params: ParsedCVoteRegistrationParams;
 }
 
-export type ParsedGovernanceVotingRegistrationParams = {
+export type ParsedCVoteRegistrationParams = {
     format: CIP36VoteRegistrationFormat;
-    votingPublicKey: GovernanceVotingPublicKey | null;
+    votingPublicKey: CVotePublicKey | null;
     votingPublicKeyPath: ValidBIP32Path | null;
-    delegations: Array<ParsedGovernanceVotingDelegation> | null;
+    delegations: Array<ParsedCVoteDelegation> | null;
     stakingPath: ValidBIP32Path;
     rewardsDestination: ParsedOutputDestination;
     nonce: Uint64_str;
     votingPurpose: Uint64_str | null;
 }
 
-export type ParsedGovernanceVotingDelegation = {
+export type ParsedCVoteDelegation = {
     type: CIP36VoteDelegationType.PATH;
     votingKeyPath: ValidBIP32Path;
     weight: Uint32_t;
 } | {
     type: CIP36VoteDelegationType.KEY;
-    votingPublicKey: GovernanceVotingPublicKey;
+    votingPublicKey: CVotePublicKey;
     weight: Uint32_t;
 }
 
@@ -407,7 +407,7 @@ export type ParsedOperationalCertificate = {
     coldKeyPath: ValidBIP32Path;
 }
 
-export type ParsedGovernanceVote = {
+export type ParsedCVote = {
     voteCastDataHex: HexString;
     witnessPath: ValidBIP32Path;
 }
