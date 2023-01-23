@@ -1,7 +1,7 @@
 import { DeviceVersionUnsupported } from "../errors"
 import type { ParsedGovernanceVote, Uint32_t, Version } from "../types/internal"
 import { ED25519_SIGNATURE_LENGTH } from "../types/internal"
-import type { SignedGovernanceVoteData } from "../types/public"
+import type { SignedCIP36VoteData } from "../types/public"
 import { getVersionString } from "../utils"
 import { hex_to_buf, path_to_buf, uint32_to_buf } from "../utils/serialize"
 import { INS } from "./common/ins"
@@ -18,8 +18,8 @@ const send = (params: {
 export function* signGovernanceVote(
     version: Version,
     governanceVote: ParsedGovernanceVote,
-): Interaction<SignedGovernanceVoteData> {
-    if (!getCompatibility(version).supportsGovernanceVoting) {
+): Interaction<SignedCIP36VoteData> {
+    if (!getCompatibility(version).supportsCIP36Vote) {
         throw new DeviceVersionUnsupported(`Governance voting not supported by Ledger app version ${getVersionString(version)}.`)
     }
 

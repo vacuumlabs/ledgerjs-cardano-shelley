@@ -1,10 +1,10 @@
 import { InvalidDataReason } from "../errors/invalidDataReason"
 import type { ParsedGovernanceVote } from "../types/internal"
-import type { GovernanceVote } from "../types/public"
+import type { CIP36Vote } from "../types/public"
 import { parseBIP32Path, parseHexString, validate } from "../utils/parse"
 
 export function parseGovernanceVote(
-    governanceVote: GovernanceVote
+    governanceVote: CIP36Vote
 ): ParsedGovernanceVote {
     const voteCastDataHex = parseHexString(governanceVote.voteCastDataHex, InvalidDataReason.GOVERNANCE_VOTE_INVALID_VOTECAST_DATA)
 

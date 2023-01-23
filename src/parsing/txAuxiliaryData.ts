@@ -3,8 +3,8 @@ import { InvalidDataReason } from "../errors/invalidDataReason"
 import type { ParsedGovernanceVotingDelegation, ParsedGovernanceVotingRegistrationParams, ParsedTxAuxiliaryData } from "../types/internal"
 import { GOVERNANCE_VOTING_PUBLIC_KEY_LENGTH } from "../types/internal"
 import { AUXILIARY_DATA_HASH_LENGTH } from "../types/internal"
-import type { GovernanceVotingDelegation, GovernanceVotingRegistrationParams, Network,TxAuxiliaryData } from "../types/public"
-import { GovernanceVotingDelegationType, GovernanceVotingRegistrationFormat } from "../types/public"
+import type { CIP36VoteDelegation, CIP36VoteRegistrationParams, Network,TxAuxiliaryData } from "../types/public"
+import { CIP36VoteDelegationType, CIP36VoteRegistrationFormat } from "../types/public"
 import { TxAuxiliaryDataType } from "../types/public"
 import { isArray, parseBIP32Path, parseHexStringOfLength, parseUint32_t, parseUint64_str } from "../utils/parse"
 import { validate } from "../utils/parse"
@@ -20,9 +20,9 @@ export function parseTxAuxiliaryData(network: Network, auxiliaryData: TxAuxiliar
             hashHex: parseHexStringOfLength(auxiliaryData.params.hashHex, AUXILIARY_DATA_HASH_LENGTH, InvalidDataReason.AUXILIARY_DATA_INVALID_HASH),
         }
     }
-    case TxAuxiliaryDataType.GOVERNANCE_VOTING_REGISTRATION: {
+    case TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION: {
         return {
-            type: TxAuxiliaryDataType.GOVERNANCE_VOTING_REGISTRATION,
+            type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
             params: parseGovernanceVotingRegistrationParams(network, auxiliaryData.params),
         }
     }
@@ -31,17 +31,17 @@ export function parseTxAuxiliaryData(network: Network, auxiliaryData: TxAuxiliar
     }
 }
 
-function parseGovernanceVotingDelegation(delegation: GovernanceVotingDelegation): ParsedGovernanceVotingDelegation {
+function parseGovernanceVotingDelegation(delegation: CIP36VoteDelegation): ParsedGovernanceVotingDelegation {
     const weight = parseUint32_t(delegation.weight, InvalidDataReason.GOVERNANCE_VOTING_DELEGATION_INVALID_WEIGHT)
 
     switch(delegation.type) {
-    case GovernanceVotingDelegationType.KEY:
+    case CIP36VoteDelegationType.KEY:
         return {
             type: delegation.type,
             votingPublicKey: parseHexStringOfLength(delegation.votingPublicKeyHex, GOVERNANCE_VOTING_PUBLIC_KEY_LENGTH, InvalidDataReason.GOVERNANCE_VOTING_DELEGATION_INVALID_KEY),
             weight,
         }
-    case GovernanceVotingDelegationType.PATH:
+    case CIP36VoteDelegationType.PATH:
         return {
             type: delegation.type,
             votingKeyPath: parseBIP32Path(delegation.votingKeyPath, InvalidDataReason.GOVERNANCE_VOTING_DELEGATION_INVALID_PATH),
@@ -52,20 +52,20 @@ function parseGovernanceVotingDelegation(delegation: GovernanceVotingDelegation)
     }
 }
 
-function parseGovernanceVotingDelegations(delegations: Array<GovernanceVotingDelegation>): Array<ParsedGovernanceVotingDelegation> {
+function parseGovernanceVotingDelegations(delegations: Array<CIP36VoteDelegation>): Array<ParsedGovernanceVotingDelegation> {
     validate(isArray(delegations), InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_DELEGATIONS_NOT_ARRAY)
     return delegations.map(d => parseGovernanceVotingDelegation(d))
 }
 
-function parseGovernanceVotingRegistrationParams(network: Network, params: GovernanceVotingRegistrationParams): ParsedGovernanceVotingRegistrationParams {
+function parseGovernanceVotingRegistrationParams(network: Network, params: CIP36VoteRegistrationParams): ParsedGovernanceVotingRegistrationParams {
     switch (params.format) {
-    case GovernanceVotingRegistrationFormat.CIP_15:
+    case CIP36VoteRegistrationFormat.CIP_15:
         validate(params.delegations == null, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INCONSISTENT_WITH_CIP15)
         validate(params.votingPublicKeyHex != null, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INCONSISTENT_WITH_CIP15)
         validate(params.votingPurpose == null, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INCONSISTENT_WITH_CIP15)
         break
 
-    case GovernanceVotingRegistrationFormat.CIP_36:
+    case CIP36VoteRegistrationFormat.CIP_36:
         // exactly one of delegations, votingPublicKeyHex, votingPublicKeyPath must be given
         if (params.delegations != null) {
             validate(params.votingPublicKeyHex == null && params.votingPublicKeyPath == null, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INCONSISTENT_WITH_CIP36)

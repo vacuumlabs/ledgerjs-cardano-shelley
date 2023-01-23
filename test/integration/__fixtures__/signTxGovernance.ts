@@ -1,8 +1,8 @@
 import { DeviceStatusCodes, DeviceStatusError, DeviceStatusMessages, InvalidDataReason } from "../../../src/Ada"
 import { TxAuxiliaryDataSupplementType } from "../../../src/Ada"
 import { TxAuxiliaryDataType } from "../../../src/Ada"
-import { GovernanceVotingDelegationType } from '../../../src/types/public'
-import { GovernanceVotingRegistrationFormat} from '../../../src/types/public'
+import { CIP36VoteDelegationType } from '../../../src/types/public'
+import { CIP36VoteRegistrationFormat} from '../../../src/types/public'
 import { TransactionSigningMode } from '../../../src/types/public'
 import { str_to_path } from "../../../src/utils/address"
 import type { SignTxTestcase } from "./signTx"
@@ -18,9 +18,9 @@ export const testsCatalystRegistration: SignTxTestcase[] = [
             outputs: [outputs.internalBaseWithStakingPath],
             validityIntervalStart: 7,
             auxiliaryData: {
-                type: TxAuxiliaryDataType.GOVERNANCE_VOTING_REGISTRATION,
+                type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
                 params: {
-                    format: GovernanceVotingRegistrationFormat.CIP_15,
+                    format: CIP36VoteRegistrationFormat.CIP_15,
                     votingPublicKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     rewardsDestination: destinations.internalBaseWithStakingPath,
@@ -40,9 +40,9 @@ export const testsCatalystRegistration: SignTxTestcase[] = [
                 },
             ],
             auxiliaryDataSupplement: {
-                type: TxAuxiliaryDataSupplementType.GOVERNANCE_VOTING_REGISTRATION,
+                type: TxAuxiliaryDataSupplementType.CIP36_VOTING_REGISTRATION,
                 auxiliaryDataHashHex: "e9141b460aea0abb69ce113c7302c7c03690267736d6a382ee62d2a53c2ec926",
-                governanceVotingRegistrationSignatureHex: "0ca3bb69cad5f471ddd32097a8501e3956e4ae0c2bf523625d1686b123dcc04af240630eb93bf1069c607b59bbe7d521fb8dd14a4312788bc0b72b7473ee160e",
+                cip36VoteRegistrationSignatureHex: "0ca3bb69cad5f471ddd32097a8501e3956e4ae0c2bf523625d1686b123dcc04af240630eb93bf1069c607b59bbe7d521fb8dd14a4312788bc0b72b7473ee160e",
             },
         },
     },
@@ -53,9 +53,9 @@ export const testsCatalystRegistration: SignTxTestcase[] = [
             inputs: [inputs.utxoShelley],
             outputs: [outputs.internalBaseWithStakingPath],
             auxiliaryData: {
-                type: TxAuxiliaryDataType.GOVERNANCE_VOTING_REGISTRATION,
+                type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
                 params: {
-                    format: GovernanceVotingRegistrationFormat.CIP_15,
+                    format: CIP36VoteRegistrationFormat.CIP_15,
                     votingPublicKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     rewardsDestination: destinations.rewardsKeyPath,
@@ -75,9 +75,9 @@ export const testsCatalystRegistration: SignTxTestcase[] = [
                 },
             ],
             auxiliaryDataSupplement: {
-                type: TxAuxiliaryDataSupplementType.GOVERNANCE_VOTING_REGISTRATION,
+                type: TxAuxiliaryDataSupplementType.CIP36_VOTING_REGISTRATION,
                 auxiliaryDataHashHex: "d19f7cb4d48a6ae8d370c64d2a42fca1f61d6b2cf3d0c0c02801541811338deb",
-                governanceVotingRegistrationSignatureHex: "1514b6bbc582b33edcf5fa30ec04dcaa62128de8755c786768ae5922132c2aa50b9ba17be28072de979f45b0f429c7f5d489c549a1e22bc8e7d0b2445c103609",
+                cip36VoteRegistrationSignatureHex: "1514b6bbc582b33edcf5fa30ec04dcaa62128de8755c786768ae5922132c2aa50b9ba17be28072de979f45b0f429c7f5d489c549a1e22bc8e7d0b2445c103609",
             },
         },
     },
@@ -91,9 +91,9 @@ export const testsGovernanceVotingRegistrationCIP36: SignTxTestcase[] = [
             inputs: [inputs.utxoShelley],
             outputs: [outputs.internalBaseWithStakingPath],
             auxiliaryData: {
-                type: TxAuxiliaryDataType.GOVERNANCE_VOTING_REGISTRATION,
+                type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
                 params: {
-                    format: GovernanceVotingRegistrationFormat.CIP_36,
+                    format: CIP36VoteRegistrationFormat.CIP_36,
                     votingPublicKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     rewardsDestination: destinations.rewardsKeyPath,
@@ -113,9 +113,9 @@ export const testsGovernanceVotingRegistrationCIP36: SignTxTestcase[] = [
                 },
             ],
             auxiliaryDataSupplement: {
-                type: TxAuxiliaryDataSupplementType.GOVERNANCE_VOTING_REGISTRATION,
+                type: TxAuxiliaryDataSupplementType.CIP36_VOTING_REGISTRATION,
                 auxiliaryDataHashHex: "1999b3bb9102b585c42616e40cf1290518d788f967ab4b3329dcb712ac933da0",
-                governanceVotingRegistrationSignatureHex: "d07070f841e17f50139bfd6cadeaa89ce87474200db051f48d585cba52360f52444db9b4529e1721348763374f35fa8a054d5a3931fb3524484aa910cf465505",
+                cip36VoteRegistrationSignatureHex: "d07070f841e17f50139bfd6cadeaa89ce87474200db051f48d585cba52360f52444db9b4529e1721348763374f35fa8a054d5a3931fb3524484aa910cf465505",
             },
         },
     },
@@ -127,9 +127,9 @@ export const testsGovernanceVotingRegistrationCIP36: SignTxTestcase[] = [
             outputs: [outputs.internalBaseWithStakingPath],
             validityIntervalStart: 7,
             auxiliaryData: {
-                type: TxAuxiliaryDataType.GOVERNANCE_VOTING_REGISTRATION,
+                type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
                 params: {
-                    format: GovernanceVotingRegistrationFormat.CIP_36,
+                    format: CIP36VoteRegistrationFormat.CIP_36,
                     votingPublicKeyPath: str_to_path("1694'/1815'/0'/0/1"),
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     rewardsDestination: destinations.internalBaseWithStakingPath,
@@ -149,9 +149,9 @@ export const testsGovernanceVotingRegistrationCIP36: SignTxTestcase[] = [
                 },
             ],
             auxiliaryDataSupplement: {
-                type: TxAuxiliaryDataSupplementType.GOVERNANCE_VOTING_REGISTRATION,
+                type: TxAuxiliaryDataSupplementType.CIP36_VOTING_REGISTRATION,
                 auxiliaryDataHashHex: "d05698c555a117014a3b360a66931ec43bf18e2aa16560fc99dbd92dd7f6f654",
-                governanceVotingRegistrationSignatureHex: "0e42a6796426b14876d522a08ffff450971f15a61ee81ba7f34d55a51a43e3928b965fd12e3c0b6e35a8d887e3e9acce466e4069ee44ab250d9976c491978301",
+                cip36VoteRegistrationSignatureHex: "0e42a6796426b14876d522a08ffff450971f15a61ee81ba7f34d55a51a43e3928b965fd12e3c0b6e35a8d887e3e9acce466e4069ee44ab250d9976c491978301",
             },
         },
     },
@@ -163,9 +163,9 @@ export const testsGovernanceVotingRegistrationCIP36: SignTxTestcase[] = [
             outputs: [outputs.internalBaseWithStakingPath],
             validityIntervalStart: 7,
             auxiliaryData: {
-                type: TxAuxiliaryDataType.GOVERNANCE_VOTING_REGISTRATION,
+                type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
                 params: {
-                    format: GovernanceVotingRegistrationFormat.CIP_36,
+                    format: CIP36VoteRegistrationFormat.CIP_36,
                     votingPublicKeyPath: str_to_path("1694'/1815'/101'/0/1"),
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     rewardsDestination: destinations.internalBaseWithStakingPath,
@@ -185,9 +185,9 @@ export const testsGovernanceVotingRegistrationCIP36: SignTxTestcase[] = [
                 },
             ],
             auxiliaryDataSupplement: {
-                type: TxAuxiliaryDataSupplementType.GOVERNANCE_VOTING_REGISTRATION,
+                type: TxAuxiliaryDataSupplementType.CIP36_VOTING_REGISTRATION,
                 auxiliaryDataHashHex: "77be323b8df4c6aa1bf2f180112f85ffe8d7f658bc8febdf7dbd5a07453a31cb",
-                governanceVotingRegistrationSignatureHex: "b72e5aa4c6932a967afbe4d08b12b4da05cac538f5d3e89deb2ae1cba6db59d5f3f2026b11e381e0737ac9e74c26db4973205960f47c4d73bf3aebfdb2142206",
+                cip36VoteRegistrationSignatureHex: "b72e5aa4c6932a967afbe4d08b12b4da05cac538f5d3e89deb2ae1cba6db59d5f3f2026b11e381e0737ac9e74c26db4973205960f47c4d73bf3aebfdb2142206",
             },
         },
     },
@@ -199,9 +199,9 @@ export const testsGovernanceVotingRegistrationCIP36: SignTxTestcase[] = [
             outputs: [outputs.internalBaseWithStakingPath],
             validityIntervalStart: 7,
             auxiliaryData: {
-                type: TxAuxiliaryDataType.GOVERNANCE_VOTING_REGISTRATION,
+                type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
                 params: {
-                    format: GovernanceVotingRegistrationFormat.CIP_36,
+                    format: CIP36VoteRegistrationFormat.CIP_36,
                     votingPublicKeyPath: str_to_path("1694'/1815'/0'/0/1"),
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     rewardsDestination: destinations.externalShelleyBaseKeyhashScripthash,
@@ -221,9 +221,9 @@ export const testsGovernanceVotingRegistrationCIP36: SignTxTestcase[] = [
                 },
             ],
             auxiliaryDataSupplement: {
-                type: TxAuxiliaryDataSupplementType.GOVERNANCE_VOTING_REGISTRATION,
+                type: TxAuxiliaryDataSupplementType.CIP36_VOTING_REGISTRATION,
                 auxiliaryDataHashHex: "42e408fb03986a958be9e2cca01623a31e23f86f31172a5a9b84acdfce6f0e75",
-                governanceVotingRegistrationSignatureHex: "a7f8da0b4e114aff812aa9d5ce502f34a0de177000894d7a9798d3bb0ac64a0c1856501e50ab91b581fb786d32236d242b76ef2ef4d28a3a96f47a268972760f",
+                cip36VoteRegistrationSignatureHex: "a7f8da0b4e114aff812aa9d5ce502f34a0de177000894d7a9798d3bb0ac64a0c1856501e50ab91b581fb786d32236d242b76ef2ef4d28a3a96f47a268972760f",
             },
         },
     },
@@ -235,9 +235,9 @@ export const testsGovernanceVotingRegistrationCIP36: SignTxTestcase[] = [
             outputs: [outputs.internalBaseWithStakingPath],
             validityIntervalStart: 7,
             auxiliaryData: {
-                type: TxAuxiliaryDataType.GOVERNANCE_VOTING_REGISTRATION,
+                type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
                 params: {
-                    format: GovernanceVotingRegistrationFormat.CIP_36,
+                    format: CIP36VoteRegistrationFormat.CIP_36,
                     votingPublicKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     rewardsDestination: destinations.internalBaseWithStakingPath,
@@ -258,9 +258,9 @@ export const testsGovernanceVotingRegistrationCIP36: SignTxTestcase[] = [
                 },
             ],
             auxiliaryDataSupplement: {
-                type: TxAuxiliaryDataSupplementType.GOVERNANCE_VOTING_REGISTRATION,
+                type: TxAuxiliaryDataSupplementType.CIP36_VOTING_REGISTRATION,
                 auxiliaryDataHashHex: "d706aed1ebc1e8af188aae6d37ffdf4e259a0f04635bef5edce7f43ff632c445",
-                governanceVotingRegistrationSignatureHex: "5af32c1a5eb3f1e7f449504be7e292b07773ef318d545a98e248e375ded56868454e8aafb77942def5ca758da0f2d7d2e4b4d16198cf82073767372731e24a06",
+                cip36VoteRegistrationSignatureHex: "5af32c1a5eb3f1e7f449504be7e292b07773ef318d545a98e248e375ded56868454e8aafb77942def5ca758da0f2d7d2e4b4d16198cf82073767372731e24a06",
             },
         },
     },
@@ -272,17 +272,17 @@ export const testsGovernanceVotingRegistrationCIP36: SignTxTestcase[] = [
             outputs: [outputs.internalBaseWithStakingPath],
             validityIntervalStart: 7,
             auxiliaryData: {
-                type: TxAuxiliaryDataType.GOVERNANCE_VOTING_REGISTRATION,
+                type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
                 params: {
-                    format: GovernanceVotingRegistrationFormat.CIP_36,
+                    format: CIP36VoteRegistrationFormat.CIP_36,
                     delegations: [
                         {
-                            type: GovernanceVotingDelegationType.KEY,
+                            type: CIP36VoteDelegationType.KEY,
                             votingPublicKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
                             weight: 9,
                         },
                         {
-                            type: GovernanceVotingDelegationType.PATH,
+                            type: CIP36VoteDelegationType.PATH,
                             votingKeyPath: str_to_path("1694'/1815'/0'/0/1"),
                             weight: 0,
                         },
@@ -306,9 +306,9 @@ export const testsGovernanceVotingRegistrationCIP36: SignTxTestcase[] = [
                 },
             ],
             auxiliaryDataSupplement: {
-                type: TxAuxiliaryDataSupplementType.GOVERNANCE_VOTING_REGISTRATION,
+                type: TxAuxiliaryDataSupplementType.CIP36_VOTING_REGISTRATION,
                 auxiliaryDataHashHex: "f0e62a047ef597d9fb1bfefb9cd3f4e77558c33510ca552484ee8b5c77bbdf65",
-                governanceVotingRegistrationSignatureHex: "6bfb7d485c2c4cc470863ab2555746b7822e35c0d299854ed56a631257bf06003db642fe5a527f7af340edfbfc4874fbcf3e59937cb998b54de71fbb9b1f1208",
+                cip36VoteRegistrationSignatureHex: "6bfb7d485c2c4cc470863ab2555746b7822e35c0d299854ed56a631257bf06003db642fe5a527f7af340edfbfc4874fbcf3e59937cb998b54de71fbb9b1f1208",
             },
         },
     },
@@ -320,12 +320,12 @@ export const testsGovernanceVotingRegistrationRejects: TestcaseRejectShelley[] =
         tx: {
             ...shelleyBase,
             auxiliaryData: {
-                type: TxAuxiliaryDataType.GOVERNANCE_VOTING_REGISTRATION,
+                type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
                 params: {
-                    format: GovernanceVotingRegistrationFormat.CIP_15,
+                    format: CIP36VoteRegistrationFormat.CIP_15,
                     delegations: [
                         {
-                            type: GovernanceVotingDelegationType.KEY,
+                            type: CIP36VoteDelegationType.KEY,
                             votingPublicKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
                             weight: 0,
                         },
@@ -346,9 +346,9 @@ export const testsGovernanceVotingRegistrationRejects: TestcaseRejectShelley[] =
         tx: {
             ...shelleyBase,
             auxiliaryData: {
-                type: TxAuxiliaryDataType.GOVERNANCE_VOTING_REGISTRATION,
+                type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
                 params: {
-                    format: GovernanceVotingRegistrationFormat.CIP_15,
+                    format: CIP36VoteRegistrationFormat.CIP_15,
                     votingPublicKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     rewardsDestination: destinations.internalBaseWithStakingPath,

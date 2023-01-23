@@ -42,7 +42,7 @@ import type {
     ParsedSigningRequest,
     ValidBIP32Path,
 } from './types/internal'
-import type { BIP32Path, DerivedAddress, DeviceCompatibility, DeviceOwnedAddress, ExtendedPublicKey, GovernanceVote, NativeScript, NativeScriptHash, NativeScriptHashDisplayFormat, Network, OperationalCertificate, OperationalCertificateSignature, Serial, SignedGovernanceVoteData, SignedTransactionData, SignTransactionRequest, Transaction, Version } from './types/public'
+import type { BIP32Path, CIP36Vote, DerivedAddress, DeviceCompatibility, DeviceOwnedAddress, ExtendedPublicKey, NativeScript, NativeScriptHash, NativeScriptHashDisplayFormat, Network, OperationalCertificate, OperationalCertificateSignature, Serial, SignedCIP36VoteData, SignedTransactionData, SignTransactionRequest, Transaction, Version } from './types/public'
 import { AddressType, CertificateType, NativeScriptType, RelayType, TransactionSigningMode } from "./types/public"
 import utils from "./utils"
 import { assert } from './utils/assert'
@@ -339,7 +339,7 @@ export class Ada {
   }
 
   /** @ignore */
-  * _signGovernanceVote(request: ParsedGovernanceVote): Interaction<SignedGovernanceVoteData> {
+  * _signGovernanceVote(request: ParsedGovernanceVote): Interaction<SignedCIP36VoteData> {
       const version = yield* getVersion()
       return yield* signGovernanceVote(version, request)
   }
@@ -463,13 +463,13 @@ export type SignOperationalCertificateResponse = OperationalCertificateSignature
  * @category Main
  * @see [[SignGovernanceVoteResponse]]
  */
-export type SignGovernanceVoteRequest = GovernanceVote
+export type SignGovernanceVoteRequest = CIP36Vote
 /**
   * Sign governance vote ([[Ada.signGovernanceVote]]) response data
   * @category Main
   * @see [[SignGovernanceVoteRequest]]
   */
-export type SignGovernanceVoteResponse = SignedGovernanceVoteData
+export type SignGovernanceVoteResponse = SignedCIP36VoteData
 
 /**
  * Derive native script hash ([[Ada.deriveNativeScriptHash]]) request data

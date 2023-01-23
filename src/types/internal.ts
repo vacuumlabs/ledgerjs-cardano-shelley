@@ -2,9 +2,9 @@
 import {
     AddressType,
     CertificateType,
+    CIP36VoteDelegationType,
+    CIP36VoteRegistrationFormat,
     DatumType,
-    GovernanceVotingDelegationType,
-    GovernanceVotingRegistrationFormat,
     NativeScriptType,
     PoolKeyType,
     PoolOwnerType,
@@ -33,7 +33,7 @@ export type Int64_str = string & { __type: 'int64_t' }
 export type ValidBIP32Path = Array<Uint32_t> & { __type: 'bip32_path' }
 
 // Reexport blockchain spec
-export { AddressType, CertificateType, DatumType, NativeScriptType, RelayType, PoolKeyType, PoolOwnerType, PoolRewardAccountType, TransactionSigningMode, TxAuxiliaryDataType, GovernanceVotingDelegationType, TxOutputDestinationType, TxOutputFormat }
+export { AddressType, CertificateType, DatumType, NativeScriptType, RelayType, PoolKeyType, PoolOwnerType, PoolRewardAccountType, TransactionSigningMode, TxAuxiliaryDataType, CIP36VoteDelegationType, TxOutputDestinationType, TxOutputFormat }
 export { Version, DeviceCompatibility, NativeScriptHashDisplayFormat } from './public'
 // Our types
 export const EXTENDED_PUBLIC_KEY_LENGTH = 64
@@ -114,12 +114,12 @@ export type ParsedTxAuxiliaryData = {
     type: TxAuxiliaryDataType.ARBITRARY_HASH;
     hashHex: FixlenHexString<typeof AUXILIARY_DATA_HASH_LENGTH>;
 } | {
-    type: TxAuxiliaryDataType.GOVERNANCE_VOTING_REGISTRATION;
+    type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION;
     params: ParsedGovernanceVotingRegistrationParams;
 }
 
 export type ParsedGovernanceVotingRegistrationParams = {
-    format: GovernanceVotingRegistrationFormat;
+    format: CIP36VoteRegistrationFormat;
     votingPublicKey: GovernanceVotingPublicKey | null;
     votingPublicKeyPath: ValidBIP32Path | null;
     delegations: Array<ParsedGovernanceVotingDelegation> | null;
@@ -130,11 +130,11 @@ export type ParsedGovernanceVotingRegistrationParams = {
 }
 
 export type ParsedGovernanceVotingDelegation = {
-    type: GovernanceVotingDelegationType.PATH;
+    type: CIP36VoteDelegationType.PATH;
     votingKeyPath: ValidBIP32Path;
     weight: Uint32_t;
 } | {
-    type: GovernanceVotingDelegationType.KEY;
+    type: CIP36VoteDelegationType.KEY;
     votingPublicKey: GovernanceVotingPublicKey;
     weight: Uint32_t;
 }

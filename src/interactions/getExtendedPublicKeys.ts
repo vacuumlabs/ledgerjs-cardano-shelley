@@ -17,7 +17,7 @@ function ensureLedgerAppVersionCompatibleForPaths(
     paths: Array<ValidBIP32Path>
 ): void {
     const governanceVotingKeysPresent = paths.some((path) => path[0] === 1694 + HARDENED)
-    if (governanceVotingKeysPresent && !getCompatibility(version).supportsGovernanceVoting) {
+    if (governanceVotingKeysPresent && !getCompatibility(version).supportsCIP36Vote) {
         throw new DeviceVersionUnsupported(`Governance voting keys not supported by Ledger app version ${getVersionString(version)}.`)
     }
 }

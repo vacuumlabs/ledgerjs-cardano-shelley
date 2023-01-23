@@ -1,10 +1,10 @@
-import type { GovernanceVote, SignedGovernanceVoteData } from "../../../src/Ada"
+import type { CIP36Vote, SignedCIP36VoteData } from "../../../src/Ada"
 import { str_to_path } from "../../../src/utils"
 
 export type TestCase = {
   testName: string;
-  governanceVote: GovernanceVote;
-  expected: SignedGovernanceVoteData;
+  governanceVote: CIP36Vote;
+  expected: SignedCIP36VoteData;
 }
 
 export const tests: TestCase[] = [
