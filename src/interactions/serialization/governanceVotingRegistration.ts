@@ -9,7 +9,7 @@ import { hex_to_buf, path_to_buf, serializeOptionFlag,uint8_to_buf,uint32_to_buf
 import { serializeAddressParams } from "./addressParams"
 import { serializeTxOutputDestination } from "./txOutput"
 
-export function serializeGovernanceVotingRegistrationInit(params: ParsedGovernanceVotingRegistrationParams): Buffer {
+export function serializeCVoteRegistrationInit(params: ParsedGovernanceVotingRegistrationParams): Buffer {
     const governanceRegistrationFormatEncoding = {
         [CIP36VoteRegistrationFormat.CIP_15]: 0x01,
         [CIP36VoteRegistrationFormat.CIP_36]: 0x02,
@@ -35,7 +35,7 @@ function serializeDelegationType(type: CIP36VoteDelegationType): Buffer {
     return uint8_to_buf(delegationTypeEncoding[type] as Uint8_t)
 }
 
-export function serializeGovernanceVotingRegistrationVotingKey(
+export function serializeCVoteRegistrationVotingKey(
     votingPublicKey: GovernanceVotingPublicKey | null,
     votingPublicKeyPath: ValidBIP32Path | null,
     version: Version
@@ -62,7 +62,7 @@ export function serializeGovernanceVotingRegistrationVotingKey(
     }
 }
 
-export function serializeGovernanceVotingRegistrationDelegation(delegation: ParsedGovernanceVotingDelegation): Buffer {
+export function serializeCVoteRegistrationDelegation(delegation: ParsedGovernanceVotingDelegation): Buffer {
     const typeBuffer = serializeDelegationType(delegation.type)
 
     const weightBuffer = uint32_to_buf(delegation.weight)
@@ -87,13 +87,13 @@ export function serializeGovernanceVotingRegistrationDelegation(delegation: Pars
     }
 }
 
-export function serializeGovernanceVotingRegistrationStakingPath(stakingPath: ValidBIP32Path): Buffer {
+export function serializeCVoteRegistrationStakingPath(stakingPath: ValidBIP32Path): Buffer {
     return Buffer.concat([
         path_to_buf(stakingPath),
     ])
 }
 
-export function serializeGovernanceVotingRegistrationRewardsDestination(
+export function serializeCVoteRegistrationRewardsDestination(
     rewardsDestination: ParsedOutputDestination,
     version: Version,
 ): Buffer {
@@ -106,13 +106,13 @@ export function serializeGovernanceVotingRegistrationRewardsDestination(
     }
 }
 
-export function serializeGovernanceVotingRegistrationNonce(nonce: Uint64_str): Buffer {
+export function serializeCVoteRegistrationNonce(nonce: Uint64_str): Buffer {
     return Buffer.concat([
         uint64_to_buf(nonce),
     ])
 }
 
-export function serializeGovernanceVotingRegistrationVotingPurpose(votingPurpose: Uint64_str | null): Buffer {
+export function serializeCVoteRegistrationVotingPurpose(votingPurpose: Uint64_str | null): Buffer {
     const includeVotingPurposeBuffer = serializeOptionFlag(votingPurpose != null)
 
     const votingPurposeBuffer = votingPurpose != null

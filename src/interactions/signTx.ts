@@ -47,13 +47,13 @@ import {INS} from "./common/ins"
 import type {Interaction, SendParams} from "./common/types"
 import {ensureLedgerAppVersionCompatible, getCompatibility} from "./getVersion"
 import {
-    serializeGovernanceVotingRegistrationDelegation,
-    serializeGovernanceVotingRegistrationInit,
-    serializeGovernanceVotingRegistrationNonce,
-    serializeGovernanceVotingRegistrationRewardsDestination,
-    serializeGovernanceVotingRegistrationStakingPath,
-    serializeGovernanceVotingRegistrationVotingKey,
-    serializeGovernanceVotingRegistrationVotingPurpose,
+    serializeCVoteRegistrationDelegation,
+    serializeCVoteRegistrationInit,
+    serializeCVoteRegistrationNonce,
+    serializeCVoteRegistrationRewardsDestination,
+    serializeCVoteRegistrationStakingPath,
+    serializeCVoteRegistrationVotingKey,
+    serializeCVoteRegistrationVotingPurpose,
 } from "./serialization/governanceVotingRegistration"
 import {
     serializeFinancials,
@@ -517,7 +517,7 @@ function* signTx_setAuxiliaryData(
         yield send({
             p1: P1.STAGE_AUX_DATA,
             p2: P2.INIT,
-            data: serializeGovernanceVotingRegistrationInit(auxiliaryData.params),
+            data: serializeCVoteRegistrationInit(auxiliaryData.params),
             expectedResponseLength: 0,
         })
     }
@@ -526,7 +526,7 @@ function* signTx_setAuxiliaryData(
         yield send({
             p1: P1.STAGE_AUX_DATA,
             p2: P2.VOTING_KEY,
-            data: serializeGovernanceVotingRegistrationVotingKey(params.votingPublicKey, params.votingPublicKeyPath, version),
+            data: serializeCVoteRegistrationVotingKey(params.votingPublicKey, params.votingPublicKeyPath, version),
             expectedResponseLength: 0,
         })
     } else if (params.delegations) {
@@ -534,7 +534,7 @@ function* signTx_setAuxiliaryData(
             yield send({
                 p1: P1.STAGE_AUX_DATA,
                 p2: P2.DELEGATION,
-                data: serializeGovernanceVotingRegistrationDelegation(delegation),
+                data: serializeCVoteRegistrationDelegation(delegation),
                 expectedResponseLength: 0,
             })
         }
@@ -546,21 +546,21 @@ function* signTx_setAuxiliaryData(
     yield send({
         p1: P1.STAGE_AUX_DATA,
         p2: P2.STAKING_KEY,
-        data: serializeGovernanceVotingRegistrationStakingPath(params.stakingPath),
+        data: serializeCVoteRegistrationStakingPath(params.stakingPath),
         expectedResponseLength: 0,
     })
 
     yield send({
         p1: P1.STAGE_AUX_DATA,
         p2: P2.VOTING_REWARDS_ADDRESS,
-        data: serializeGovernanceVotingRegistrationRewardsDestination(params.rewardsDestination, version),
+        data: serializeCVoteRegistrationRewardsDestination(params.rewardsDestination, version),
         expectedResponseLength: 0,
     })
 
     yield send({
         p1: P1.STAGE_AUX_DATA,
         p2: P2.NONCE,
-        data: serializeGovernanceVotingRegistrationNonce(params.nonce),
+        data: serializeCVoteRegistrationNonce(params.nonce),
         expectedResponseLength: 0,
     })
 
@@ -569,7 +569,7 @@ function* signTx_setAuxiliaryData(
         yield send({
             p1: P1.STAGE_AUX_DATA,
             p2: P2.VOTING_PURPOSE,
-            data: serializeGovernanceVotingRegistrationVotingPurpose(params.votingPurpose),
+            data: serializeCVoteRegistrationVotingPurpose(params.votingPurpose),
             expectedResponseLength: 0,
         })
     }
