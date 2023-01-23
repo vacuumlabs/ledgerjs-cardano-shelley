@@ -120,8 +120,8 @@ export type ParsedTxAuxiliaryData = {
 
 export type ParsedCVoteRegistrationParams = {
     format: CIP36VoteRegistrationFormat;
-    votingPublicKey: CVotePublicKey | null;
-    votingPublicKeyPath: ValidBIP32Path | null;
+    votePublicKey: CVotePublicKey | null;
+    votePublicKeyPath: ValidBIP32Path | null;
     delegations: Array<ParsedCVoteDelegation> | null;
     stakingPath: ValidBIP32Path;
     paymentDestination: ParsedOutputDestination;
@@ -131,11 +131,11 @@ export type ParsedCVoteRegistrationParams = {
 
 export type ParsedCVoteDelegation = {
     type: CIP36VoteDelegationType.PATH;
-    votingKeyPath: ValidBIP32Path;
+    voteKeyPath: ValidBIP32Path;
     weight: Uint32_t;
 } | {
     type: CIP36VoteDelegationType.KEY;
-    votingPublicKey: CVotePublicKey;
+    voteKey: CVotePublicKey;
     weight: Uint32_t;
 }
 

@@ -11,7 +11,7 @@ import { destinations, inputs, mainnetFeeTtl, outputs, shelleyBase } from "./txE
 
 export const testsCatalystRegistration: SignTxTestcase[] = [
     {
-        testName: "Sign tx with Catalyst voting key registration metadata with base address",
+        testName: "Sign tx with Catalyst registration metadata with base address",
         tx: {
             ...mainnetFeeTtl,
             inputs: [inputs.utxoShelley],
@@ -21,7 +21,7 @@ export const testsCatalystRegistration: SignTxTestcase[] = [
                 type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
                 params: {
                     format: CIP36VoteRegistrationFormat.CIP_15,
-                    votingPublicKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
+                    voteKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     paymentDestination: destinations.internalBaseWithStakingPath,
                     nonce: 1454448,
@@ -47,7 +47,7 @@ export const testsCatalystRegistration: SignTxTestcase[] = [
         },
     },
     {
-        testName: "Sign tx with Catalyst voting key registration metadata with stake address",
+        testName: "Sign tx with Catalyst registration metadata with stake address",
         tx: {
             ...mainnetFeeTtl,
             inputs: [inputs.utxoShelley],
@@ -56,7 +56,7 @@ export const testsCatalystRegistration: SignTxTestcase[] = [
                 type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
                 params: {
                     format: CIP36VoteRegistrationFormat.CIP_15,
-                    votingPublicKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
+                    voteKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     paymentDestination: destinations.paymentKeyPath,
                     nonce: 1454448,
@@ -85,7 +85,7 @@ export const testsCatalystRegistration: SignTxTestcase[] = [
 
 export const testsCVoteRegistrationCIP36: SignTxTestcase[] = [
     {
-        testName: "Sign tx with voting registration CIP36 with voting key hex",
+        testName: "Sign tx with voting registration CIP36 with vote key hex",
         tx: {
             ...mainnetFeeTtl,
             inputs: [inputs.utxoShelley],
@@ -94,7 +94,7 @@ export const testsCVoteRegistrationCIP36: SignTxTestcase[] = [
                 type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
                 params: {
                     format: CIP36VoteRegistrationFormat.CIP_36,
-                    votingPublicKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
+                    voteKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     paymentDestination: destinations.paymentKeyPath,
                     nonce: 1454448,
@@ -120,7 +120,7 @@ export const testsCVoteRegistrationCIP36: SignTxTestcase[] = [
         },
     },
     {
-        testName: "Sign tx with voting registration CIP36 with voting key path",
+        testName: "Sign tx with voting registration CIP36 with vote key path",
         tx: {
             ...mainnetFeeTtl,
             inputs: [inputs.utxoShelley],
@@ -130,7 +130,7 @@ export const testsCVoteRegistrationCIP36: SignTxTestcase[] = [
                 type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
                 params: {
                     format: CIP36VoteRegistrationFormat.CIP_36,
-                    votingPublicKeyPath: str_to_path("1694'/1815'/0'/0/1"),
+                    voteKeyPath: str_to_path("1694'/1815'/0'/0/1"),
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     paymentDestination: destinations.internalBaseWithStakingPath,
                     nonce: 1454448,
@@ -156,7 +156,7 @@ export const testsCVoteRegistrationCIP36: SignTxTestcase[] = [
         },
     },
     {
-        testName: "Sign tx with voting registration CIP36 with unusual voting key path",
+        testName: "Sign tx with voting registration CIP36 with unusual vote key path",
         tx: {
             ...mainnetFeeTtl,
             inputs: [inputs.utxoShelley],
@@ -166,7 +166,7 @@ export const testsCVoteRegistrationCIP36: SignTxTestcase[] = [
                 type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
                 params: {
                     format: CIP36VoteRegistrationFormat.CIP_36,
-                    votingPublicKeyPath: str_to_path("1694'/1815'/101'/0/1"),
+                    voteKeyPath: str_to_path("1694'/1815'/101'/0/1"),
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     paymentDestination: destinations.internalBaseWithStakingPath,
                     nonce: 1454448,
@@ -202,7 +202,7 @@ export const testsCVoteRegistrationCIP36: SignTxTestcase[] = [
                 type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
                 params: {
                     format: CIP36VoteRegistrationFormat.CIP_36,
-                    votingPublicKeyPath: str_to_path("1694'/1815'/0'/0/1"),
+                    voteKeyPath: str_to_path("1694'/1815'/0'/0/1"),
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     paymentDestination: destinations.externalShelleyBaseKeyhashScripthash,
                     nonce: 1454448,
@@ -238,7 +238,7 @@ export const testsCVoteRegistrationCIP36: SignTxTestcase[] = [
                 type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
                 params: {
                     format: CIP36VoteRegistrationFormat.CIP_36,
-                    votingPublicKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
+                    voteKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     paymentDestination: destinations.internalBaseWithStakingPath,
                     nonce: 1454448,
@@ -278,12 +278,12 @@ export const testsCVoteRegistrationCIP36: SignTxTestcase[] = [
                     delegations: [
                         {
                             type: CIP36VoteDelegationType.KEY,
-                            votingPublicKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
+                            voteKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
                             weight: 9,
                         },
                         {
                             type: CIP36VoteDelegationType.PATH,
-                            votingKeyPath: str_to_path("1694'/1815'/0'/0/1"),
+                            voteKeyPath: str_to_path("1694'/1815'/0'/0/1"),
                             weight: 0,
                         },
                     ],
@@ -326,7 +326,7 @@ export const testsCVoteRegistrationRejects: TestcaseRejectShelley[] = [
                     delegations: [
                         {
                             type: CIP36VoteDelegationType.KEY,
-                            votingPublicKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
+                            voteKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
                             weight: 0,
                         },
                     ],
@@ -349,7 +349,7 @@ export const testsCVoteRegistrationRejects: TestcaseRejectShelley[] = [
                 type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
                 params: {
                     format: CIP36VoteRegistrationFormat.CIP_15,
-                    votingPublicKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
+                    voteKeyHex: "4b19e27ffc006ace16592311c4d2f0cafc255eaa47a6178ff540c0a46d07027c",
                     stakingPath: str_to_path("1852'/1815'/0'/2/0"),
                     paymentDestination: destinations.internalBaseWithStakingPath,
                     nonce: 1454448,

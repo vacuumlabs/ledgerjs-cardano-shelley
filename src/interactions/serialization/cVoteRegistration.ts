@@ -35,13 +35,13 @@ function serializeDelegationType(type: CIP36VoteDelegationType): Buffer {
     return uint8_to_buf(delegationTypeEncoding[type] as Uint8_t)
 }
 
-export function serializeCVoteRegistrationVotingKey(
-    votingPublicKey: CVotePublicKey | null,
-    votingPublicKeyPath: ValidBIP32Path | null,
+export function serializeCVoteRegistrationVoteKey(
+    votePublicKey: CVotePublicKey | null,
+    votePublicKeyPath: ValidBIP32Path | null,
     version: Version
 ): Buffer {
-    if (votingPublicKey != null) {
-        assert(votingPublicKeyPath == null, "redundant vote key path")
+    if (votePublicKey != null) {
+        assert(votePublicKeyPath == null, "redundant vote key path")
 
         const delegationTypeBuffer = (getCompatibility(version).supportsCIP36)
             ? serializeDelegationType(CIP36VoteDelegationType.KEY)
@@ -49,15 +49,15 @@ export function serializeCVoteRegistrationVotingKey(
 
         return Buffer.concat([
             delegationTypeBuffer,
-            hex_to_buf(votingPublicKey),
+            hex_to_buf(votePublicKey),
         ])
     } else {
-        assert(votingPublicKeyPath != null, "missing vote key")
+        assert(votePublicKeyPath != null, "missing vote key")
         assert(getCompatibility(version).supportsCIP36Vote, "key derivation path for vote keys not supported by the device")
 
         return Buffer.concat([
             serializeDelegationType(CIP36VoteDelegationType.PATH),
-            path_to_buf(votingPublicKeyPath),
+            path_to_buf(votePublicKeyPath),
         ])
     }
 }
@@ -71,14 +71,14 @@ export function serializeCVoteRegistrationDelegation(delegation: ParsedCVoteDele
     case CIP36VoteDelegationType.KEY:
         return Buffer.concat([
             typeBuffer,
-            hex_to_buf(delegation.votingPublicKey),
+            hex_to_buf(delegation.voteKey),
             weightBuffer,
         ])
 
     case CIP36VoteDelegationType.PATH:
         return Buffer.concat([
             typeBuffer,
-            path_to_buf(delegation.votingKeyPath),
+            path_to_buf(delegation.voteKeyPath),
             weightBuffer,
         ])
 

@@ -52,7 +52,7 @@ import {
     serializeCVoteRegistrationNonce,
     serializeCVoteRegistrationPaymentDestination,
     serializeCVoteRegistrationStakingPath,
-    serializeCVoteRegistrationVotingKey,
+    serializeCVoteRegistrationVoteKey,
     serializeCVoteRegistrationVotingPurpose,
 } from "./serialization/cVoteRegistration"
 import {
@@ -503,7 +503,7 @@ function* signTx_setAuxiliaryData(
 
     const enum P2 {
       INIT = 0x36,
-      VOTING_KEY = 0x30,
+      VOTE_KEY = 0x30,
       DELEGATION = 0x37,
       STAKING_KEY = 0x31,
       PAYMENT_ADDRESS = 0x32,
@@ -522,11 +522,11 @@ function* signTx_setAuxiliaryData(
         })
     }
 
-    if (params.votingPublicKey || params.votingPublicKeyPath) {
+    if (params.votePublicKey || params.votePublicKeyPath) {
         yield send({
             p1: P1.STAGE_AUX_DATA,
-            p2: P2.VOTING_KEY,
-            data: serializeCVoteRegistrationVotingKey(params.votingPublicKey, params.votingPublicKeyPath, version),
+            p2: P2.VOTE_KEY,
+            data: serializeCVoteRegistrationVoteKey(params.votePublicKey, params.votePublicKeyPath, version),
             expectedResponseLength: 0,
         })
     } else if (params.delegations) {
@@ -1039,7 +1039,7 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
         throw new DeviceVersionUnsupported(`CIP36 voting registration not supported by Ledger app version ${getVersionString(version)}.`)
     }
     const hasKeyPath = auxiliaryData?.type === TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION
-        && auxiliaryData.params.votingPublicKeyPath != null
+        && auxiliaryData.params.votePublicKeyPath != null
     if (hasKeyPath && !getCompatibility(version).supportsCIP36Vote) {
         throw new DeviceVersionUnsupported(`Vote key derivation path in voting registration not supported by Ledger app version ${getVersionString(version)}.`)
     }

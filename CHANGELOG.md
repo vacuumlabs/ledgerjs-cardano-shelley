@@ -12,8 +12,8 @@ Support for CIP0036 voting
 
 ### Added
 
-- export of CIP36 voting keys (1694'/1815'/...)
-- support for CIP36 voting (signing of vote-cast fragments with 1694 keys)
+- export of CIP36 vote keys (1694'/1815'/...)
+- support for CIP36 voting (signing of vote-cast fragments with 1694 vote keys)
 - support for CIP36 features (vote key registration in transaction auxiliary data)
 
 ### Changed

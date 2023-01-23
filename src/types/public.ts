@@ -1115,20 +1115,20 @@ export type CIP36VoteRegistrationParams = {
     format: CIP36VoteRegistrationFormat;
 
     /**
-     * Voting key to be registered given in hex,
-     * for voting_pub_key in CIP-15 and legacy_key_registration in CIP-36.
-     * Mutually exclusive with delegations and votingPublicKeyPath.
+     * Vote key to be registered given in hex,
+     * for vote_pub_key in CIP-15 and legacy_key_registration in CIP-36.
+     * Mutually exclusive with delegations and voteKeyPath.
      */
-    votingPublicKeyHex?: string;
+    voteKeyHex?: string;
     /**
-     * Derivation path describing the voting key to be registered,
+     * Derivation path describing the vote key to be registered,
      * for legacy_key_registration in CIP-36.
-     * Mutually exclusive with delegations and votingPublicKeyHex.
+     * Mutually exclusive with delegations and voteKeyHex.
      */
-     votingPublicKeyPath?: BIP32Path;
+     voteKeyPath?: BIP32Path;
      /**
      * Delegations be registered, see CIP-36.
-     * Mutually exclusive with votingPublicKeyHex and votingPublicKeyPath.
+     * Mutually exclusive with voteKeyHex and voteKeyPath.
      */
     delegations?: Array<CIP36VoteDelegation>;
 
@@ -1160,11 +1160,11 @@ export enum CIP36VoteDelegationType {
 
 export type CIP36VoteDelegation = {
     type: CIP36VoteDelegationType.PATH;
-    votingKeyPath: BIP32Path;
+    voteKeyPath: BIP32Path;
     weight: bigint_like;
 } | {
     type: CIP36VoteDelegationType.KEY;
-    votingPublicKeyHex: string;
+    voteKeyHex: string;
     weight: bigint_like;
 }
 

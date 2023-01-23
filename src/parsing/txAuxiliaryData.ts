@@ -38,13 +38,13 @@ function parseCVoteDelegation(delegation: CIP36VoteDelegation): ParsedCVoteDeleg
     case CIP36VoteDelegationType.KEY:
         return {
             type: delegation.type,
-            votingPublicKey: parseHexStringOfLength(delegation.votingPublicKeyHex, CVOTE_PUBLIC_KEY_LENGTH, InvalidDataReason.CVOTE_DELEGATION_INVALID_KEY),
+            voteKey: parseHexStringOfLength(delegation.voteKeyHex, CVOTE_PUBLIC_KEY_LENGTH, InvalidDataReason.CVOTE_DELEGATION_INVALID_KEY),
             weight,
         }
     case CIP36VoteDelegationType.PATH:
         return {
             type: delegation.type,
-            votingKeyPath: parseBIP32Path(delegation.votingKeyPath, InvalidDataReason.CVOTE_DELEGATION_INVALID_PATH),
+            voteKeyPath: parseBIP32Path(delegation.voteKeyPath, InvalidDataReason.CVOTE_DELEGATION_INVALID_PATH),
             weight,
         }
     default:
@@ -61,18 +61,18 @@ function parseCVoteRegistrationParams(network: Network, params: CIP36VoteRegistr
     switch (params.format) {
     case CIP36VoteRegistrationFormat.CIP_15:
         validate(params.delegations == null, InvalidDataReason.CVOTE_REGISTRATION_INCONSISTENT_WITH_CIP15)
-        validate(params.votingPublicKeyHex != null, InvalidDataReason.CVOTE_REGISTRATION_INCONSISTENT_WITH_CIP15)
+        validate(params.voteKeyHex != null, InvalidDataReason.CVOTE_REGISTRATION_INCONSISTENT_WITH_CIP15)
         validate(params.votingPurpose == null, InvalidDataReason.CVOTE_REGISTRATION_INCONSISTENT_WITH_CIP15)
         break
 
     case CIP36VoteRegistrationFormat.CIP_36:
-        // exactly one of delegations, votingPublicKeyHex, votingPublicKeyPath must be given
+        // exactly one of delegations, voteKeyHex, voteKeyPath must be given
         if (params.delegations != null) {
-            validate(params.votingPublicKeyHex == null && params.votingPublicKeyPath == null, InvalidDataReason.CVOTE_REGISTRATION_INCONSISTENT_WITH_CIP36)
+            validate(params.voteKeyHex == null && params.voteKeyPath == null, InvalidDataReason.CVOTE_REGISTRATION_INCONSISTENT_WITH_CIP36)
         } else {
             validate(params.delegations == null, InvalidDataReason.CVOTE_REGISTRATION_INCONSISTENT_WITH_CIP36)
-            validate(params.votingPublicKeyHex == null || params.votingPublicKeyPath == null, InvalidDataReason.CVOTE_REGISTRATION_BOTH_KEY_AND_PATH)
-            validate(params.votingPublicKeyHex != null || params.votingPublicKeyPath != null, InvalidDataReason.CVOTE_REGISTRATION_MISSING_VOTING_KEY)
+            validate(params.voteKeyHex == null || params.voteKeyPath == null, InvalidDataReason.CVOTE_REGISTRATION_BOTH_KEY_AND_PATH)
+            validate(params.voteKeyHex != null || params.voteKeyPath != null, InvalidDataReason.CVOTE_REGISTRATION_MISSING_VOTE_KEY)
         }
         break
 
@@ -80,13 +80,13 @@ function parseCVoteRegistrationParams(network: Network, params: CIP36VoteRegistr
         throw new InvalidData(InvalidDataReason.CVOTE_DELEGATION_UNKNOWN_FORMAT)
     }
 
-    const votingPublicKey = params.votingPublicKeyHex == null
+    const voteKey = params.voteKeyHex == null
         ? null
-        : parseHexStringOfLength(params.votingPublicKeyHex, CVOTE_VKEY_LENGTH, InvalidDataReason.CVOTE_REGISTRATION_INVALID_VOTING_KEY)
+        : parseHexStringOfLength(params.voteKeyHex, CVOTE_VKEY_LENGTH, InvalidDataReason.CVOTE_REGISTRATION_INVALID_VOTE_KEY)
 
-    const votingPublicKeyPath = params.votingPublicKeyPath == null
+    const voteKeyPath = params.voteKeyPath == null
         ? null
-        : parseBIP32Path(params.votingPublicKeyPath, InvalidDataReason.CVOTE_REGISTRATION_INVALID_VOTING_KEY_PATH)
+        : parseBIP32Path(params.voteKeyPath, InvalidDataReason.CVOTE_REGISTRATION_INVALID_VOTE_KEY_PATH)
 
     const delegations = params.delegations == null
         ? null
@@ -98,8 +98,8 @@ function parseCVoteRegistrationParams(network: Network, params: CIP36VoteRegistr
 
     return {
         format: params.format,
-        votingPublicKey,
-        votingPublicKeyPath,
+        votePublicKey: voteKey,
+        votePublicKeyPath: voteKeyPath,
         delegations,
         stakingPath: parseBIP32Path(params.stakingPath, InvalidDataReason.CVOTE_REGISTRATION_INVALID_STAKING_KEY_PATH),
         paymentDestination: parseTxDestination(network, params.paymentDestination, false),
