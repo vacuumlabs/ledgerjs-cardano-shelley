@@ -124,7 +124,7 @@ export type ParsedCVoteRegistrationParams = {
     votingPublicKeyPath: ValidBIP32Path | null;
     delegations: Array<ParsedCVoteDelegation> | null;
     stakingPath: ValidBIP32Path;
-    rewardsDestination: ParsedOutputDestination;
+    paymentDestination: ParsedOutputDestination;
     nonce: Uint64_str;
     votingPurpose: Uint64_str | null;
 }

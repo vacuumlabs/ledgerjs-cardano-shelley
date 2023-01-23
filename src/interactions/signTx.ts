@@ -50,7 +50,7 @@ import {
     serializeCVoteRegistrationDelegation,
     serializeCVoteRegistrationInit,
     serializeCVoteRegistrationNonce,
-    serializeCVoteRegistrationRewardsDestination,
+    serializeCVoteRegistrationPaymentDestination,
     serializeCVoteRegistrationStakingPath,
     serializeCVoteRegistrationVotingKey,
     serializeCVoteRegistrationVotingPurpose,
@@ -506,7 +506,7 @@ function* signTx_setAuxiliaryData(
       VOTING_KEY = 0x30,
       DELEGATION = 0x37,
       STAKING_KEY = 0x31,
-      VOTING_REWARDS_ADDRESS = 0x32,
+      PAYMENT_ADDRESS = 0x32,
       NONCE = 0x33,
       VOTING_PURPOSE = 0x35,
       CONFIRM = 0x34,
@@ -552,8 +552,8 @@ function* signTx_setAuxiliaryData(
 
     yield send({
         p1: P1.STAGE_AUX_DATA,
-        p2: P2.VOTING_REWARDS_ADDRESS,
-        data: serializeCVoteRegistrationRewardsDestination(params.rewardsDestination, version),
+        p2: P2.PAYMENT_ADDRESS,
+        data: serializeCVoteRegistrationPaymentDestination(params.paymentDestination, version),
         expectedResponseLength: 0,
     })
 
@@ -1043,10 +1043,10 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
     if (hasKeyPath && !getCompatibility(version).supportsCIP36Vote) {
         throw new DeviceVersionUnsupported(`Vote key derivation path in voting registration not supported by Ledger app version ${getVersionString(version)}.`)
     }
-    const thirdPartyRewards = auxiliaryData?.type === TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION
-        && auxiliaryData.params.rewardsDestination.type != TxOutputDestinationType.DEVICE_OWNED
-    if (thirdPartyRewards && !getCompatibility(version).supportsCIP36) {
-        throw new DeviceVersionUnsupported(`Catalyst reward addresses not owned by the device not supported by Ledger app version ${getVersionString(version)}.`)
+    const thirdPartyPayment = auxiliaryData?.type === TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION
+        && auxiliaryData.params.paymentDestination.type != TxOutputDestinationType.DEVICE_OWNED
+    if (thirdPartyPayment && !getCompatibility(version).supportsCIP36) {
+        throw new DeviceVersionUnsupported(`CIP36 payment addresses not owned by the device not supported by Ledger app version ${getVersionString(version)}.`)
     }
 }
 

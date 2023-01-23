@@ -819,7 +819,7 @@ export type Certificate = {
 }
 
 /**
- * Rewards account withdwaral operation
+ * Rewards account withdrawal operation
  * @category Shelley
  * @see [[Transaction]]
  */
@@ -1140,7 +1140,7 @@ export type CIP36VoteRegistrationParams = {
     /**
      * Address for receiving voting rewards, Byron-era addresses not supported
      */
-    rewardsDestination: TxOutputDestination;
+    paymentDestination: TxOutputDestination;
 
     /**
      * Nonce value

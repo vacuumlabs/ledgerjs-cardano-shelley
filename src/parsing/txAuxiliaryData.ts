@@ -102,7 +102,7 @@ function parseCVoteRegistrationParams(network: Network, params: CIP36VoteRegistr
         votingPublicKeyPath,
         delegations,
         stakingPath: parseBIP32Path(params.stakingPath, InvalidDataReason.CVOTE_REGISTRATION_INVALID_STAKING_KEY_PATH),
-        rewardsDestination: parseTxDestination(network, params.rewardsDestination, false),
+        paymentDestination: parseTxDestination(network, params.paymentDestination, false),
         nonce: parseUint64_str(params.nonce, {}, InvalidDataReason.CVOTE_REGISTRATION_INVALID_NONCE),
         votingPurpose,
     }

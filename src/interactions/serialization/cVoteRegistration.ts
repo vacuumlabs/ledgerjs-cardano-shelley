@@ -93,16 +93,16 @@ export function serializeCVoteRegistrationStakingPath(stakingPath: ValidBIP32Pat
     ])
 }
 
-export function serializeCVoteRegistrationRewardsDestination(
-    rewardsDestination: ParsedOutputDestination,
+export function serializeCVoteRegistrationPaymentDestination(
+    paymentDestination: ParsedOutputDestination,
     version: Version,
 ): Buffer {
     if (getCompatibility(version).supportsCIP36) {
-        return serializeTxOutputDestination(rewardsDestination, version)
+        return serializeTxOutputDestination(paymentDestination, version)
     } else {
         // older ledger versions with only Catalyst as in CIP-15
-        assert(rewardsDestination.type === TxOutputDestinationType.DEVICE_OWNED, "wrong destination for reward address in Catalyst")
-        return serializeAddressParams(rewardsDestination.addressParams, version)
+        assert(paymentDestination.type === TxOutputDestinationType.DEVICE_OWNED, "wrong destination for payment address in Catalyst")
+        return serializeAddressParams(paymentDestination.addressParams, version)
     }
 }
 
