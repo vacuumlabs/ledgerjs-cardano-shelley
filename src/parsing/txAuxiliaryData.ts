@@ -32,52 +32,52 @@ export function parseTxAuxiliaryData(network: Network, auxiliaryData: TxAuxiliar
 }
 
 function parseGovernanceVotingDelegation(delegation: CIP36VoteDelegation): ParsedCVoteDelegation {
-    const weight = parseUint32_t(delegation.weight, InvalidDataReason.GOVERNANCE_VOTING_DELEGATION_INVALID_WEIGHT)
+    const weight = parseUint32_t(delegation.weight, InvalidDataReason.CVOTE_DELEGATION_INVALID_WEIGHT)
 
     switch(delegation.type) {
     case CIP36VoteDelegationType.KEY:
         return {
             type: delegation.type,
-            votingPublicKey: parseHexStringOfLength(delegation.votingPublicKeyHex, CVOTE_PUBLIC_KEY_LENGTH, InvalidDataReason.GOVERNANCE_VOTING_DELEGATION_INVALID_KEY),
+            votingPublicKey: parseHexStringOfLength(delegation.votingPublicKeyHex, CVOTE_PUBLIC_KEY_LENGTH, InvalidDataReason.CVOTE_DELEGATION_INVALID_KEY),
             weight,
         }
     case CIP36VoteDelegationType.PATH:
         return {
             type: delegation.type,
-            votingKeyPath: parseBIP32Path(delegation.votingKeyPath, InvalidDataReason.GOVERNANCE_VOTING_DELEGATION_INVALID_PATH),
+            votingKeyPath: parseBIP32Path(delegation.votingKeyPath, InvalidDataReason.CVOTE_DELEGATION_INVALID_PATH),
             weight,
         }
     default:
-        throw new InvalidData(InvalidDataReason.GOVERNANCE_VOTING_DELEGATION_UNKNOWN_DELEGATION_TYPE)
+        throw new InvalidData(InvalidDataReason.CVOTE_DELEGATION_UNKNOWN_DELEGATION_TYPE)
     }
 }
 
 function parseGovernanceVotingDelegations(delegations: Array<CIP36VoteDelegation>): Array<ParsedCVoteDelegation> {
-    validate(isArray(delegations), InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_DELEGATIONS_NOT_ARRAY)
+    validate(isArray(delegations), InvalidDataReason.CVOTE_REGISTRATION_DELEGATIONS_NOT_ARRAY)
     return delegations.map(d => parseGovernanceVotingDelegation(d))
 }
 
 function parseGovernanceVotingRegistrationParams(network: Network, params: CIP36VoteRegistrationParams): ParsedCVoteRegistrationParams {
     switch (params.format) {
     case CIP36VoteRegistrationFormat.CIP_15:
-        validate(params.delegations == null, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INCONSISTENT_WITH_CIP15)
-        validate(params.votingPublicKeyHex != null, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INCONSISTENT_WITH_CIP15)
-        validate(params.votingPurpose == null, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INCONSISTENT_WITH_CIP15)
+        validate(params.delegations == null, InvalidDataReason.CVOTE_REGISTRATION_INCONSISTENT_WITH_CIP15)
+        validate(params.votingPublicKeyHex != null, InvalidDataReason.CVOTE_REGISTRATION_INCONSISTENT_WITH_CIP15)
+        validate(params.votingPurpose == null, InvalidDataReason.CVOTE_REGISTRATION_INCONSISTENT_WITH_CIP15)
         break
 
     case CIP36VoteRegistrationFormat.CIP_36:
         // exactly one of delegations, votingPublicKeyHex, votingPublicKeyPath must be given
         if (params.delegations != null) {
-            validate(params.votingPublicKeyHex == null && params.votingPublicKeyPath == null, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INCONSISTENT_WITH_CIP36)
+            validate(params.votingPublicKeyHex == null && params.votingPublicKeyPath == null, InvalidDataReason.CVOTE_REGISTRATION_INCONSISTENT_WITH_CIP36)
         } else {
-            validate(params.delegations == null, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INCONSISTENT_WITH_CIP36)
-            validate(params.votingPublicKeyHex == null || params.votingPublicKeyPath == null, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_BOTH_KEY_AND_PATH)
-            validate(params.votingPublicKeyHex != null || params.votingPublicKeyPath != null, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_MISSING_VOTING_KEY)
+            validate(params.delegations == null, InvalidDataReason.CVOTE_REGISTRATION_INCONSISTENT_WITH_CIP36)
+            validate(params.votingPublicKeyHex == null || params.votingPublicKeyPath == null, InvalidDataReason.CVOTE_REGISTRATION_BOTH_KEY_AND_PATH)
+            validate(params.votingPublicKeyHex != null || params.votingPublicKeyPath != null, InvalidDataReason.CVOTE_REGISTRATION_MISSING_VOTING_KEY)
         }
         break
 
     default:
-        throw new InvalidData(InvalidDataReason.GOVERNANCE_VOTING_DELEGATION_UNKNOWN_FORMAT)
+        throw new InvalidData(InvalidDataReason.CVOTE_DELEGATION_UNKNOWN_FORMAT)
     }
 
     const votingPublicKey = params.votingPublicKeyHex == null
@@ -86,7 +86,7 @@ function parseGovernanceVotingRegistrationParams(network: Network, params: CIP36
 
     const votingPublicKeyPath = params.votingPublicKeyPath == null
         ? null
-        : parseBIP32Path(params.votingPublicKeyPath, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INVALID_VOTING_KEY_PATH)
+        : parseBIP32Path(params.votingPublicKeyPath, InvalidDataReason.CVOTE_REGISTRATION_INVALID_VOTING_KEY_PATH)
 
     const delegations = params.delegations == null
         ? null
@@ -94,16 +94,16 @@ function parseGovernanceVotingRegistrationParams(network: Network, params: CIP36
 
     const votingPurpose = params.votingPurpose == null
         ? null
-        : parseUint64_str(params.votingPurpose, {}, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INVALID_VOTING_PURPOSE)
+        : parseUint64_str(params.votingPurpose, {}, InvalidDataReason.CVOTE_REGISTRATION_INVALID_VOTING_PURPOSE)
 
     return {
         format: params.format,
         votingPublicKey,
         votingPublicKeyPath,
         delegations,
-        stakingPath: parseBIP32Path(params.stakingPath, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INVALID_STAKING_KEY_PATH),
+        stakingPath: parseBIP32Path(params.stakingPath, InvalidDataReason.CVOTE_REGISTRATION_INVALID_STAKING_KEY_PATH),
         rewardsDestination: parseTxDestination(network, params.rewardsDestination, false),
-        nonce: parseUint64_str(params.nonce, {}, InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INVALID_NONCE),
+        nonce: parseUint64_str(params.nonce, {}, InvalidDataReason.CVOTE_REGISTRATION_INVALID_NONCE),
         votingPurpose,
     }
 }

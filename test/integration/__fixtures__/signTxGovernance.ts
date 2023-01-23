@@ -339,7 +339,7 @@ export const testsGovernanceVotingRegistrationRejects: TestcaseRejectShelley[] =
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         errCls: DeviceStatusError,
         errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_INVALID_DATA],
-        rejectReason: InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INCONSISTENT_WITH_CIP15,
+        rejectReason: InvalidDataReason.CVOTE_REGISTRATION_INCONSISTENT_WITH_CIP15,
     },
     {
         testName: "Governance voting CIP-15 with voting purpose",
@@ -360,6 +360,6 @@ export const testsGovernanceVotingRegistrationRejects: TestcaseRejectShelley[] =
         signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
         errCls: DeviceStatusError,
         errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_INVALID_DATA],
-        rejectReason: InvalidDataReason.GOVERNANCE_VOTING_REGISTRATION_INCONSISTENT_WITH_CIP15,
+        rejectReason: InvalidDataReason.CVOTE_REGISTRATION_INCONSISTENT_WITH_CIP15,
     },
 ]
