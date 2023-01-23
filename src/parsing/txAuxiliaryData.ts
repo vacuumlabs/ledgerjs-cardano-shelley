@@ -23,7 +23,7 @@ export function parseTxAuxiliaryData(network: Network, auxiliaryData: TxAuxiliar
     case TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION: {
         return {
             type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
-            params: parseGovernanceVotingRegistrationParams(network, auxiliaryData.params),
+            params: parseCVoteRegistrationParams(network, auxiliaryData.params),
         }
     }
     default:
@@ -31,7 +31,7 @@ export function parseTxAuxiliaryData(network: Network, auxiliaryData: TxAuxiliar
     }
 }
 
-function parseGovernanceVotingDelegation(delegation: CIP36VoteDelegation): ParsedCVoteDelegation {
+function parseCVoteDelegation(delegation: CIP36VoteDelegation): ParsedCVoteDelegation {
     const weight = parseUint32_t(delegation.weight, InvalidDataReason.CVOTE_DELEGATION_INVALID_WEIGHT)
 
     switch(delegation.type) {
@@ -52,12 +52,12 @@ function parseGovernanceVotingDelegation(delegation: CIP36VoteDelegation): Parse
     }
 }
 
-function parseGovernanceVotingDelegations(delegations: Array<CIP36VoteDelegation>): Array<ParsedCVoteDelegation> {
+function parseCVoteDelegations(delegations: Array<CIP36VoteDelegation>): Array<ParsedCVoteDelegation> {
     validate(isArray(delegations), InvalidDataReason.CVOTE_REGISTRATION_DELEGATIONS_NOT_ARRAY)
-    return delegations.map(d => parseGovernanceVotingDelegation(d))
+    return delegations.map(d => parseCVoteDelegation(d))
 }
 
-function parseGovernanceVotingRegistrationParams(network: Network, params: CIP36VoteRegistrationParams): ParsedCVoteRegistrationParams {
+function parseCVoteRegistrationParams(network: Network, params: CIP36VoteRegistrationParams): ParsedCVoteRegistrationParams {
     switch (params.format) {
     case CIP36VoteRegistrationFormat.CIP_15:
         validate(params.delegations == null, InvalidDataReason.CVOTE_REGISTRATION_INCONSISTENT_WITH_CIP15)
@@ -90,7 +90,7 @@ function parseGovernanceVotingRegistrationParams(network: Network, params: CIP36
 
     const delegations = params.delegations == null
         ? null
-        : parseGovernanceVotingDelegations(params.delegations)
+        : parseCVoteDelegations(params.delegations)
 
     const votingPurpose = params.votingPurpose == null
         ? null
