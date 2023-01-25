@@ -8,7 +8,7 @@ export function serializeTxAuxiliaryData(
 ): Buffer {
     const auxiliaryDataTypesEncoding = {
         [TxAuxiliaryDataType.ARBITRARY_HASH]: 0x00,
-        [TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION]: 0x01,
+        [TxAuxiliaryDataType.CIP36_REGISTRATION]: 0x01,
     } as const
 
     switch (auxiliaryData.type) {
@@ -18,7 +18,7 @@ export function serializeTxAuxiliaryData(
             hex_to_buf(auxiliaryData.hashHex),
         ])
     }
-    case TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION: {
+    case TxAuxiliaryDataType.CIP36_REGISTRATION: {
         return Buffer.concat([
             uint8_to_buf(auxiliaryDataTypesEncoding[auxiliaryData.type] as Uint8_t),
         ])

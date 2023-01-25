@@ -239,7 +239,7 @@ export type OperationalCertificate = {
     coldKeyPath: BIP32Path;
 }
 
-/** CIP36 vote
+/** CIP-36 vote
  *
  * @category Basic types
  */
@@ -879,11 +879,11 @@ export type DeviceCompatibility = {
      */
     supportsMary: boolean;
     /**
-     * Whether we support Catalyst voting registration according to CIP-15
+     * Whether we support CIP-15 (Catalyst) registration
      */
     supportsCatalystRegistration: boolean;
     /**
-     * Whether we support voting registration according to CIP-36
+     * Whether we support CIP-36 registration
      */
     supportsCIP36: boolean;
     /**
@@ -924,7 +924,7 @@ export type DeviceCompatibility = {
      */
     supportsBabbage: boolean;
     /**
-     * Whether we support CIP36 voting (signing vote-casts by HW devices)
+     * Whether we support CIP-36 voting (signing vote-casts by HW devices)
      */
     supportsCIP36Vote: boolean;
 }
@@ -971,7 +971,7 @@ export type OperationalCertificateSignature = {
 }
 
 /**
- * Result of signing a CIP36 vote.
+ * Result of signing a CIP-36 vote.
  * @category Basic types
  * @see [[Ada.signCIP36Vote]]
  */
@@ -1011,10 +1011,10 @@ export type Witness = {
  * @see [[TxAuxiliaryDataType]]
  */
 export enum TxAuxiliaryDataSupplementType {
-    /** Supplementary information for the caller to assemble the CIP36 voting registration
+    /** Supplementary information for the caller to assemble the CIP-36 registration
      * they sent to be signed.
      */
-    CIP36_VOTING_REGISTRATION = 'cip36_voting_registration',
+    CIP36_REGISTRATION = 'cip36_voting_registration',
 }
 
 /**
@@ -1024,10 +1024,10 @@ export enum TxAuxiliaryDataSupplementType {
  * @see [[SignedTransactionData]]
  */
 export type TxAuxiliaryDataSupplement = {
-    type: TxAuxiliaryDataSupplementType.CIP36_VOTING_REGISTRATION;
-    /** Hash of the auxiliary data containing the CIP36 voting registration */
+    type: TxAuxiliaryDataSupplementType.CIP36_REGISTRATION;
+    /** Hash of the auxiliary data containing the CIP-36 registration */
     auxiliaryDataHashHex: string;
-    /** Signature of the CIP36 voting registration payload by the staking key that was supplied */
+    /** Signature of the CIP-36 registration payload by the staking key that was supplied */
     cip36VoteRegistrationSignatureHex: string;
 };
 
@@ -1061,11 +1061,11 @@ export enum TxAuxiliaryDataType {
     /** Auxiliary data is supplied as raw hash value */
     ARBITRARY_HASH = 'arbitrary_hash',
     /**
-     * Auxiliary data representing a Catalyst (CIP-15) or CIP36 voting registration (CIP-36).
+     * Auxiliary data representing a CIP-15 (Catalyst) or CIP-36 registration.
      * Ledger serializes the auxiliary data as
      * `[<registration metadata>, []]` (a.k.a. Mary-era format)
      */
-    CIP36_VOTE_REGISTRATION = 'cip36_vote_registration',
+    CIP36_REGISTRATION = 'cip36_registration',
 }
 
 /**
@@ -1079,7 +1079,7 @@ export type TxAuxiliaryData =
         type: TxAuxiliaryDataType.ARBITRARY_HASH;
         params: TxAuxiliaryDataArbitraryHashParams;
     } | {
-        type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION;
+        type: TxAuxiliaryDataType.CIP36_REGISTRATION;
         params: CIP36VoteRegistrationParams;
     }
 
@@ -1093,7 +1093,7 @@ export type TxAuxiliaryDataArbitraryHashParams = {
 }
 
 /**
- * Serialization format for transaction metadata for Catalyst / CIP36 voting registration.
+ * Serialization format for transaction metadata for Catalyst / CIP-36 registration.
  * @category Basic types
  * @see [[CIP36VoteRegistrationParams]]
  */
@@ -1103,9 +1103,9 @@ export enum CIP36VoteRegistrationFormat {
 }
 
 /**
- * Parameters needed for Ledger to assemble and sign the voting registration metadata
+ * Parameters needed for Ledger to assemble and sign the registration metadata
  * (according to CIP-15 or CIP-36).
- * Ledger will display the voting registration parameters and overall metadata hash.
+ * Ledger will display the registration parameters and overall metadata hash.
  * @see [[TxAuxiliaryData]]
  */
 export type CIP36VoteRegistrationParams = {

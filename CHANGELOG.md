@@ -18,7 +18,7 @@ Support for CIP0036 voting
 
 ### Changed
 
-- API for Catalyst voting registration (it is still possible to use CIP-0015 in auxiliary data)
+- API for Catalyst registration (it is still possible to use CIP-0015 in auxiliary data)
 
 
 ## [5.1.0](https://github.com/cardano-foundation/ledgerjs-hw-app-cardano/compare/v5.0.0...v5.1.0) - [September 9th 2022]

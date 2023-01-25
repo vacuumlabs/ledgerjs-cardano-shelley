@@ -114,7 +114,7 @@ export type ParsedTxAuxiliaryData = {
     type: TxAuxiliaryDataType.ARBITRARY_HASH;
     hashHex: FixlenHexString<typeof AUXILIARY_DATA_HASH_LENGTH>;
 } | {
-    type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION;
+    type: TxAuxiliaryDataType.CIP36_REGISTRATION;
     params: ParsedCVoteRegistrationParams;
 }
 

@@ -20,9 +20,9 @@ export function parseTxAuxiliaryData(network: Network, auxiliaryData: TxAuxiliar
             hashHex: parseHexStringOfLength(auxiliaryData.params.hashHex, AUXILIARY_DATA_HASH_LENGTH, InvalidDataReason.AUXILIARY_DATA_INVALID_HASH),
         }
     }
-    case TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION: {
+    case TxAuxiliaryDataType.CIP36_REGISTRATION: {
         return {
-            type: TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
+            type: TxAuxiliaryDataType.CIP36_REGISTRATION,
             params: parseCVoteRegistrationParams(network, auxiliaryData.params),
         }
     }

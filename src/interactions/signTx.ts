@@ -486,7 +486,7 @@ function* signTx_setAuxiliaryData(
 
   const supportedAuxiliaryDataTypes = [
       TxAuxiliaryDataType.ARBITRARY_HASH,
-      TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION,
+      TxAuxiliaryDataType.CIP36_REGISTRATION,
   ]
 
   assert(supportedAuxiliaryDataTypes.includes(auxiliaryData.type), 'Auxiliary data type not implemented')
@@ -498,7 +498,7 @@ function* signTx_setAuxiliaryData(
       expectedResponseLength: 0,
   })
 
-  if (auxiliaryData.type === TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION) {
+  if (auxiliaryData.type === TxAuxiliaryDataType.CIP36_REGISTRATION) {
       const params = auxiliaryData.params
 
     const enum P2 {
@@ -587,7 +587,7 @@ function* signTx_setAuxiliaryData(
     const signature = response.slice(AUXILIARY_DATA_HASH_LENGTH, AUXILIARY_DATA_HASH_LENGTH + ED25519_SIGNATURE_LENGTH)
 
     return {
-        type: TxAuxiliaryDataSupplementType.CIP36_VOTING_REGISTRATION,
+        type: TxAuxiliaryDataSupplementType.CIP36_REGISTRATION,
         auxiliaryDataHashHex: auxDataHash.toString('hex'),
         cip36VoteRegistrationSignatureHex: signature.toString('hex'),
     }
@@ -1026,24 +1026,24 @@ function ensureRequestSupportedByAppVersion(version: Version, request: ParsedSig
         throw new DeviceVersionUnsupported(`Reference inputs not supported by Ledger app version ${getVersionString(version)}.`)
     }
 
-    // catalyst/CIP36 voting registration is a specific type of auxiliary data that requires a HW wallet signature
+    // catalyst/CIP36 registration is a specific type of auxiliary data that requires a HW wallet signature
     const auxiliaryData = request.tx?.auxiliaryData
-    const hasCIP15Registration = auxiliaryData?.type === TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION
+    const hasCIP15Registration = auxiliaryData?.type === TxAuxiliaryDataType.CIP36_REGISTRATION
         && auxiliaryData.params.format === CIP36VoteRegistrationFormat.CIP_15
     if (hasCIP15Registration && !getCompatibility(version).supportsCatalystRegistration) {
         throw new DeviceVersionUnsupported(`Catalyst registration not supported by Ledger app version ${getVersionString(version)}.`)
     }
-    const hasCIP36Registration = auxiliaryData?.type === TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION
+    const hasCIP36Registration = auxiliaryData?.type === TxAuxiliaryDataType.CIP36_REGISTRATION
         && auxiliaryData.params.format === CIP36VoteRegistrationFormat.CIP_36
     if (hasCIP36Registration && !getCompatibility(version).supportsCIP36) {
-        throw new DeviceVersionUnsupported(`CIP36 voting registration not supported by Ledger app version ${getVersionString(version)}.`)
+        throw new DeviceVersionUnsupported(`CIP36 registration not supported by Ledger app version ${getVersionString(version)}.`)
     }
-    const hasKeyPath = auxiliaryData?.type === TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION
+    const hasKeyPath = auxiliaryData?.type === TxAuxiliaryDataType.CIP36_REGISTRATION
         && auxiliaryData.params.votePublicKeyPath != null
     if (hasKeyPath && !getCompatibility(version).supportsCIP36Vote) {
-        throw new DeviceVersionUnsupported(`Vote key derivation path in voting registration not supported by Ledger app version ${getVersionString(version)}.`)
+        throw new DeviceVersionUnsupported(`Vote key derivation path in CIP15/CIP36 registration not supported by Ledger app version ${getVersionString(version)}.`)
     }
-    const thirdPartyPayment = auxiliaryData?.type === TxAuxiliaryDataType.CIP36_VOTE_REGISTRATION
+    const thirdPartyPayment = auxiliaryData?.type === TxAuxiliaryDataType.CIP36_REGISTRATION
         && auxiliaryData.params.paymentDestination.type != TxOutputDestinationType.DEVICE_OWNED
     if (thirdPartyPayment && !getCompatibility(version).supportsCIP36) {
         throw new DeviceVersionUnsupported(`CIP36 payment addresses not owned by the device not supported by Ledger app version ${getVersionString(version)}.`)
