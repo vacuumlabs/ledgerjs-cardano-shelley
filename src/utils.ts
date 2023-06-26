@@ -60,5 +60,6 @@ export default {
 }
 
 export function getVersionString(version: Version): string {
-  return `${version.major}.${version.minor}.${version.patch}`
+  const xs = version.flags.isAppXS ? ' XS' : ''
+  return `${version.major}.${version.minor}.${version.patch}${xs}`
 }
