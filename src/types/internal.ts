@@ -65,41 +65,116 @@ export const REWARD_ACCOUNT_HEX_LENGTH = 29
 export const ED25519_SIGNATURE_LENGTH = 64
 export const SCRIPT_DATA_HASH_LENGTH = 32
 export const DATUM_HASH_LENGTH = 32
+export const ANCHOR_HASH_LENGTH = 32
 
-export const enum StakeCredentialType {
+export const enum CredentialType {
   // enum values are affected by backwards-compatibility
   KEY_PATH = 0,
   KEY_HASH = 2,
   SCRIPT_HASH = 1,
 }
 
-export type ParsedStakeCredential =
+export type ParsedCredential =
   | {
-      type: StakeCredentialType.KEY_PATH
+      type: CredentialType.KEY_PATH
       path: ValidBIP32Path
     }
   | {
-      type: StakeCredentialType.KEY_HASH
+      type: CredentialType.KEY_HASH
       keyHashHex: FixLenHexString<typeof KEY_HASH_LENGTH>
     }
   | {
-      type: StakeCredentialType.SCRIPT_HASH
+      type: CredentialType.SCRIPT_HASH
       scriptHashHex: FixLenHexString<typeof SCRIPT_HASH_LENGTH>
     }
+
+export const enum DRepType {
+  KEY_HASH = 0,
+  SCRIPT_HASH = 1,
+  ALWAYS_ABSTAIN = 2,
+  ALWAYS_NO_CONFIDENCE = 3,
+  KEY_PATH = 4,
+}
+
+export type ParsedDRep =
+  | {
+      type: DRepType.KEY_PATH
+      path: ValidBIP32Path
+    }
+  | {
+      type: DRepType.KEY_HASH
+      keyHashHex: FixLenHexString<typeof KEY_HASH_LENGTH>
+    }
+  | {
+      type: DRepType.SCRIPT_HASH
+      scriptHashHex: FixLenHexString<typeof SCRIPT_HASH_LENGTH>
+    }
+  | {
+      type: DRepType.ALWAYS_ABSTAIN
+    }
+  | {
+      type: DRepType.ALWAYS_NO_CONFIDENCE
+    }
+
+export type ParsedAnchor = {
+  url: VarLenAsciiString
+  hashHex: FixLenHexString<typeof ANCHOR_HASH_LENGTH>
+} & {__brand: 'anchor'}
 
 export type ParsedCertificate =
   | {
       type: CertificateType.STAKE_REGISTRATION
-      stakeCredential: ParsedStakeCredential
+      stakeCredential: ParsedCredential
+    }
+  | {
+      type: CertificateType.STAKE_REGISTRATION_CONWAY
+      stakeCredential: ParsedCredential
+      deposit: Uint64_str
     }
   | {
       type: CertificateType.STAKE_DEREGISTRATION
-      stakeCredential: ParsedStakeCredential
+      stakeCredential: ParsedCredential
+    }
+  | {
+      type: CertificateType.STAKE_DEREGISTRATION_CONWAY
+      stakeCredential: ParsedCredential
+      deposit: Uint64_str
     }
   | {
       type: CertificateType.STAKE_DELEGATION
-      stakeCredential: ParsedStakeCredential
+      stakeCredential: ParsedCredential
       poolKeyHashHex: FixLenHexString<typeof KEY_HASH_LENGTH>
+    }
+  | {
+      type: CertificateType.VOTE_DELEGATION
+      stakeCredential: ParsedCredential
+      dRep: ParsedDRep
+    }
+  | {
+      type: CertificateType.AUTHORIZE_COMMITTEE_HOT
+      coldCredential: ParsedCredential
+      hotCredential: ParsedCredential
+    }
+  | {
+      type: CertificateType.RESIGN_COMMITTEE_COLD
+      coldCredential: ParsedCredential
+      anchor: ParsedAnchor | null
+    }
+  | {
+      type: CertificateType.DREP_REGISTRATION
+      dRepCredential: ParsedCredential
+      deposit: Uint64_str
+      anchor: ParsedAnchor | null
+    }
+  | {
+      type: CertificateType.DREP_DEREGISTRATION
+      dRepCredential: ParsedCredential
+      deposit: Uint64_str
+    }
+  | {
+      type: CertificateType.DREP_UPDATE
+      dRepCredential: ParsedCredential
+      anchor: ParsedAnchor | null
     }
   | {
       type: CertificateType.STAKE_POOL_REGISTRATION
@@ -200,7 +275,7 @@ export type ParsedInput = {
 
 export type ParsedWithdrawal = {
   amount: Uint64_str
-  stakeCredential: ParsedStakeCredential
+  stakeCredential: ParsedCredential
 }
 
 export type ScriptDataHash = FixLenHexString<typeof SCRIPT_DATA_HASH_LENGTH>

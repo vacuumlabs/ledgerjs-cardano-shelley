@@ -12,12 +12,12 @@ import type {
   ValidBIP32Path,
   Version,
 } from '../../types/internal'
-import {RequiredSignerType, StakeCredentialType} from '../../types/internal'
+import {RequiredSignerType, CredentialType} from '../../types/internal'
 import {assert, unreachable} from '../../utils/assert'
 import {
   hex_to_buf,
   path_to_buf,
-  stake_credential_to_buf,
+  serializeCredential,
   uint8_to_buf,
   uint32_to_buf,
   uint64_to_buf,
@@ -39,12 +39,12 @@ export function serializeTxWithdrawal(
   if (getCompatibility(version).supportsMultisigTransaction) {
     return Buffer.concat([
       uint64_to_buf(withdrawal.amount),
-      stake_credential_to_buf(withdrawal.stakeCredential),
+      serializeCredential(withdrawal.stakeCredential),
     ])
   } else {
     // pre-multisig
     assert(
-      withdrawal.stakeCredential.type === StakeCredentialType.KEY_PATH,
+      withdrawal.stakeCredential.type === CredentialType.KEY_PATH,
       InvalidDataReason.WITHDRAWAL_INVALID_STAKE_CREDENTIAL,
     )
     return Buffer.concat([

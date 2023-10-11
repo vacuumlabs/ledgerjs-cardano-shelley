@@ -55,7 +55,7 @@ Support for Alonzo era (Plutus scripts)
 
 ### Changed
 
-- KeyStakeCredentialParams type replaced by KeyPathStakeCredentialParams, KeyHashStakeCredentialParams added
+- KeyCredentialParams type replaced by KeyPathCredentialParams, KeyHashCredentialParams added
 - several items related to hex strings in exported types have been renamed
 
 

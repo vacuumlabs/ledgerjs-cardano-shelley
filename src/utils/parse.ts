@@ -8,7 +8,7 @@ import type {
   FixLenHexString,
   HexString,
   Int64_str,
-  ParsedStakeCredential,
+  ParsedCredential,
   Uint8_t,
   Uint16_t,
   Uint32_t,
@@ -19,10 +19,10 @@ import type {
 import {
   KEY_HASH_LENGTH,
   SCRIPT_HASH_LENGTH,
-  StakeCredentialType,
+  CredentialType,
 } from '../types/internal'
-import type {StakeCredentialParams} from '../types/public'
-import {StakeCredentialParamsType} from '../types/public'
+import type {CredentialParams} from '../types/public'
+import {CredentialParamsType} from '../types/public'
 import {unreachable} from './assert'
 
 export const MAX_UINT_64_STR = '18446744073709551615'
@@ -258,36 +258,36 @@ export function parseBIP32Path(
   return value
 }
 
-export function parseStakeCredential(
-  stakeCredential: StakeCredentialParams,
+export function parseCredential(
+  credential: CredentialParams,
   errMsg: InvalidDataReason,
-): ParsedStakeCredential {
-  switch (stakeCredential.type) {
-    case StakeCredentialParamsType.KEY_PATH:
+): ParsedCredential {
+  switch (credential.type) {
+    case CredentialParamsType.KEY_PATH:
       return {
-        type: StakeCredentialType.KEY_PATH,
-        path: parseBIP32Path(stakeCredential.keyPath, errMsg),
+        type: CredentialType.KEY_PATH,
+        path: parseBIP32Path(credential.keyPath, errMsg),
       }
-    case StakeCredentialParamsType.KEY_HASH:
+    case CredentialParamsType.KEY_HASH:
       return {
-        type: StakeCredentialType.KEY_HASH,
+        type: CredentialType.KEY_HASH,
         keyHashHex: parseHexStringOfLength(
-          stakeCredential.keyHashHex,
+          credential.keyHashHex,
           KEY_HASH_LENGTH,
           errMsg,
         ),
       }
-    case StakeCredentialParamsType.SCRIPT_HASH:
+    case CredentialParamsType.SCRIPT_HASH:
       return {
-        type: StakeCredentialType.SCRIPT_HASH,
+        type: CredentialType.SCRIPT_HASH,
         scriptHashHex: parseHexStringOfLength(
-          stakeCredential.scriptHashHex,
+          credential.scriptHashHex,
           SCRIPT_HASH_LENGTH,
           errMsg,
         ),
       }
     default:
-      unreachable(stakeCredential)
+      unreachable(credential)
   }
 }
 

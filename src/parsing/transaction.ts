@@ -13,7 +13,7 @@ import {
   KEY_HASH_LENGTH,
   RequiredSignerType,
   SCRIPT_DATA_HASH_LENGTH,
-  StakeCredentialType,
+  CredentialType,
   TX_HASH_LENGTH,
 } from '../types/internal'
 import type {
@@ -37,7 +37,7 @@ import {
   parseBIP32Path,
   parseHexStringOfLength,
   parseInt64_str,
-  parseStakeCredential,
+  parseCredential,
   parseUint32_t,
   parseUint64_str,
   validate,
@@ -90,7 +90,7 @@ function parseWithdrawal(params: Withdrawal): ParsedWithdrawal {
       {max: MAX_LOVELACE_SUPPLY_STR},
       InvalidDataReason.WITHDRAWAL_INVALID_AMOUNT,
     ),
-    stakeCredential: parseStakeCredential(
+    stakeCredential: parseCredential(
       params.stakeCredential,
       InvalidDataReason.WITHDRAWAL_INVALID_STAKE_CREDENTIAL,
     ),
@@ -312,16 +312,18 @@ export function parseSignTransactionRequest(
         ),
         InvalidDataReason.SIGN_MODE_ORDINARY__POOL_REGISTRATION_NOT_ALLOWED,
       )
-      // certificate stake credentials given by paths
+      // certificate credentials given by paths
       validate(
         tx.certificates.every((certificate) => {
           switch (certificate.type) {
             case CertificateType.STAKE_REGISTRATION:
+            case CertificateType.STAKE_REGISTRATION_CONWAY:
             case CertificateType.STAKE_DEREGISTRATION:
+            case CertificateType.STAKE_DEREGISTRATION_CONWAY:
             case CertificateType.STAKE_DELEGATION:
+            case CertificateType.VOTE_DELEGATION:
               return (
-                certificate.stakeCredential.type ===
-                StakeCredentialType.KEY_PATH
+                certificate.stakeCredential.type === CredentialType.KEY_PATH
               )
             default:
               return true
@@ -329,11 +331,37 @@ export function parseSignTransactionRequest(
         }),
         InvalidDataReason.SIGN_MODE_ORDINARY__CERTIFICATE_STAKE_CREDENTIAL_ONLY_AS_PATH,
       )
+      validate(
+        tx.certificates.every((certificate) => {
+          switch (certificate.type) {
+            case CertificateType.AUTHORIZE_COMMITTEE_HOT:
+            case CertificateType.RESIGN_COMMITTEE_COLD:
+              return certificate.coldCredential.type === CredentialType.KEY_PATH
+            default:
+              return true
+          }
+        }),
+        InvalidDataReason.SIGN_MODE_ORDINARY__CERTIFICATE_COMMITTEE_COLD_CREDENTIAL_ONLY_AS_PATH,
+      )
+      validate(
+        tx.certificates.every((certificate) => {
+          switch (certificate.type) {
+            case CertificateType.DREP_REGISTRATION:
+            case CertificateType.DREP_DEREGISTRATION:
+            case CertificateType.DREP_UPDATE:
+              return certificate.dRepCredential.type === CredentialType.KEY_PATH
+            default:
+              return true
+          }
+        }),
+        InvalidDataReason.SIGN_MODE_ORDINARY__CERTIFICATE_DREP_CREDENTIAL_ONLY_AS_PATH,
+      )
+
       // withdrawals as paths
       validate(
         tx.withdrawals.every(
           (withdrawal) =>
-            withdrawal.stakeCredential.type === StakeCredentialType.KEY_PATH,
+            withdrawal.stakeCredential.type === CredentialType.KEY_PATH,
         ),
         InvalidDataReason.SIGN_MODE_ORDINARY__WITHDRAWAL_ONLY_AS_PATH,
       )
@@ -389,28 +417,41 @@ export function parseSignTransactionRequest(
         ),
         InvalidDataReason.SIGN_MODE_MULTISIG__POOL_RETIREMENT_NOT_ALLOWED,
       )
-      // certificate stake credentials given by scripts
+      // certificate credentials given by scripts
       validate(
         tx.certificates.every((certificate) => {
           switch (certificate.type) {
             case CertificateType.STAKE_REGISTRATION:
+            case CertificateType.STAKE_REGISTRATION_CONWAY:
             case CertificateType.STAKE_DEREGISTRATION:
+            case CertificateType.STAKE_DEREGISTRATION_CONWAY:
             case CertificateType.STAKE_DELEGATION:
+            case CertificateType.VOTE_DELEGATION:
               return (
-                certificate.stakeCredential.type ===
-                StakeCredentialType.SCRIPT_HASH
+                certificate.stakeCredential.type === CredentialType.SCRIPT_HASH
+              )
+            case CertificateType.AUTHORIZE_COMMITTEE_HOT:
+            case CertificateType.RESIGN_COMMITTEE_COLD:
+              return (
+                certificate.coldCredential.type === CredentialType.SCRIPT_HASH
+              )
+            case CertificateType.DREP_REGISTRATION:
+            case CertificateType.DREP_DEREGISTRATION:
+            case CertificateType.DREP_UPDATE:
+              return (
+                certificate.dRepCredential.type === CredentialType.SCRIPT_HASH
               )
             default:
               return true
           }
         }),
-        InvalidDataReason.SIGN_MODE_MULTISIG__CERTIFICATE_STAKE_CREDENTIAL_ONLY_AS_SCRIPT,
+        InvalidDataReason.SIGN_MODE_MULTISIG__CERTIFICATE_CREDENTIAL_ONLY_AS_SCRIPT,
       )
       // withdrawals as scripts
       validate(
         tx.withdrawals.every(
           (withdrawal) =>
-            withdrawal.stakeCredential.type === StakeCredentialType.SCRIPT_HASH,
+            withdrawal.stakeCredential.type === CredentialType.SCRIPT_HASH,
         ),
         InvalidDataReason.SIGN_MODE_MULTISIG__WITHDRAWAL_ONLY_AS_SCRIPT,
       )

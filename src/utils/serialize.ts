@@ -4,13 +4,13 @@ import type {
   FixLenHexString,
   HexString,
   Int64_str,
-  ParsedStakeCredential,
+  ParsedCredential,
   Uint8_t,
   Uint16_t,
   Uint32_t,
   Uint64_str,
 } from '../types/internal'
-import {StakeCredentialType} from '../types/internal'
+import {CredentialType} from '../types/internal'
 import {assert, unreachable} from './assert'
 import {
   isHexString,
@@ -98,31 +98,29 @@ export function path_to_buf(path: Array<number>): Buffer {
   return data
 }
 
-export function stake_credential_to_buf(
-  stakeCredential: ParsedStakeCredential,
-): Buffer {
-  switch (stakeCredential.type) {
-    case StakeCredentialType.KEY_PATH:
+export function serializeCredential(credential: ParsedCredential): Buffer {
+  switch (credential.type) {
+    case CredentialType.KEY_PATH:
       return Buffer.concat([
-        uint8_to_buf(stakeCredential.type as Uint8_t),
-        path_to_buf(stakeCredential.path),
+        uint8_to_buf(credential.type as Uint8_t),
+        path_to_buf(credential.path),
       ])
-    case StakeCredentialType.KEY_HASH:
+    case CredentialType.KEY_HASH:
       return Buffer.concat([
-        uint8_to_buf(stakeCredential.type as Uint8_t),
-        hex_to_buf(stakeCredential.keyHashHex),
+        uint8_to_buf(credential.type as Uint8_t),
+        hex_to_buf(credential.keyHashHex),
       ])
-    case StakeCredentialType.SCRIPT_HASH:
+    case CredentialType.SCRIPT_HASH:
       return Buffer.concat([
-        uint8_to_buf(stakeCredential.type as Uint8_t),
-        hex_to_buf(stakeCredential.scriptHashHex),
+        uint8_to_buf(credential.type as Uint8_t),
+        hex_to_buf(credential.scriptHashHex),
       ])
     default:
-      unreachable(stakeCredential)
+      unreachable(credential)
   }
 }
 
-export function serializeOptionFlag(included: boolean) {
+export function serializeOptionFlag(included: boolean): Buffer {
   const SignTxIncluded = {
     NO: 1 as Uint8_t,
     YES: 2 as Uint8_t,

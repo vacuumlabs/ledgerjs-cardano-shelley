@@ -57,12 +57,17 @@ export enum InvalidDataReason {
 
   CERTIFICATES_NOT_ARRAY = 'certificates not an array',
 
+  CERTIFICATE_INVALID_TYPE = 'invalid certificate type',
   CERTIFICATE_INVALID_PATH = 'one of the certificates contains an invalid path',
-  CERTIFICATE_INVALID_SCRIPT_HASH = 'one of the certificates contains an invalid script hash',
-  CERTIFICATE_INVALID_STAKE_CREDENTIAL = 'one of the certificates contains both a path and a scripthash or neither',
+  CERTIFICATE_INVALID_STAKE_CREDENTIAL = 'one of the certificates contains an invalid stake credential',
+  CERTIFICATE_INVALID_COMMITTEE_CREDENTIAL = 'one of the certificates contains invalid constitutional committee credential',
+  CERTIFICATE_INVALID_DREP_CREDENTIAL = 'one of the certificates contains an invalid DRep credential',
   CERTIFICATE_INVALID_POOL_KEY_HASH = 'one of the certificates contains an invalid pool key hash',
   CERTIFICATE_SUPERFLUOUS_POOL_KEY_HASH = 'superfluous pool key hash in a certificate',
-  CERTIFICATE_INVALID_TYPE = 'invalid certificate type',
+  CERTIFICATE_INVALID_DEPOSIT = 'one of the certificates contains an invalid deposit',
+  CERTIFICATE_INVALID_DREP = 'one of the certificates contains an invalid DRep',
+  CERTIFICATE_ANCHOR_INVALID_URL = 'one of the certificates contains an anchor with an invalid URL',
+  CERTIFICATE_ANCHOR_INVALID_HASH = 'one of the certificates contains an anchor with an invalid data hash',
 
   POOL_REGISTRATION_INVALID_VRF_KEY_HASH = 'invalid vrf key hash in a pool registration certificate',
   POOL_REGISTRATION_INVALID_PLEDGE = 'invalid pledge in a pool registration certificate',
@@ -144,6 +149,8 @@ export enum InvalidDataReason {
 
   SIGN_MODE_ORDINARY__POOL_REGISTRATION_NOT_ALLOWED = 'pool registration not allowed in TransactionSigningMode.ORDINARY_TRANSACTION',
   SIGN_MODE_ORDINARY__CERTIFICATE_STAKE_CREDENTIAL_ONLY_AS_PATH = 'certificate stake credential must be given as a staking path in TransactionSigningMode.ORDINARY_TRANSACTION',
+  SIGN_MODE_ORDINARY__CERTIFICATE_COMMITTEE_COLD_CREDENTIAL_ONLY_AS_PATH = 'certificate constitutional committee cold credential must be given as a path in TransactionSigningMode.ORDINARY_TRANSACTION',
+  SIGN_MODE_ORDINARY__CERTIFICATE_DREP_CREDENTIAL_ONLY_AS_PATH = 'certificate DRep credential must be given as a path in TransactionSigningMode.ORDINARY_TRANSACTION',
   SIGN_MODE_ORDINARY__WITHDRAWAL_ONLY_AS_PATH = 'withdrawal must be given as a path in TransactionSigningMode.ORDINARY_TRANSACTION',
   SIGN_MODE_ORDINARY__COLLATERAL_INPUTS_NOT_ALLOWED = 'collateral inputs not allowed in TransactionSigningMode.ORDINARY_TRANSACTION',
   SIGN_MODE_ORDINARY__COLLATERAL_OUTPUT_NOT_ALLOWED = 'collateral output not allowed in TransactionSigningMode.ORDINARY_TRANSACTION',
@@ -153,7 +160,7 @@ export enum InvalidDataReason {
   SIGN_MODE_MULTISIG__POOL_REGISTRATION_NOT_ALLOWED = 'pool registration not allowed in TransactionSigningMode.MULTISIG_TRANSACTION',
   SIGN_MODE_MULTISIG__POOL_RETIREMENT_NOT_ALLOWED = 'pool retirement not allowed in TransactionSigningMode.MULTISIG_TRANSACTION',
   SIGN_MODE_MULTISIG__DEVICE_OWNED_ADDRESS_NOT_ALLOWED = 'outputs given by path not allowed in TransactionSigningMode.MULTISIG_TRANSACTION',
-  SIGN_MODE_MULTISIG__CERTIFICATE_STAKE_CREDENTIAL_ONLY_AS_SCRIPT = 'certificate stake credential must be given as a script hash in TransactionSigningMode.MULTISIG_TRANSACTION',
+  SIGN_MODE_MULTISIG__CERTIFICATE_CREDENTIAL_ONLY_AS_SCRIPT = 'certificate credential must be given as a script hash in TransactionSigningMode.MULTISIG_TRANSACTION',
   SIGN_MODE_MULTISIG__WITHDRAWAL_ONLY_AS_SCRIPT = 'withdrawal must be given as a script hash in TransactionSigningMode.MULTISIG_TRANSACTION',
   SIGN_MODE_MULTISIG__COLLATERAL_INPUTS_NOT_ALLOWED = 'collateral inputs not allowed in TransactionSigningMode.MULTISIG_TRANSACTION',
   SIGN_MODE_MULTISIG__COLLATERAL_OUTPUT_NOT_ALLOWED = 'collateral output not allowed in TransactionSigningMode.MULTISIG_TRANSACTION',

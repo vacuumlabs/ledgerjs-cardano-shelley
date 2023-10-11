@@ -23,7 +23,7 @@ import {
   ED25519_SIGNATURE_LENGTH,
   PoolOwnerType,
   RequiredSignerType,
-  StakeCredentialType,
+  CredentialType,
   TX_HASH_LENGTH,
 } from '../types/internal'
 import type {
@@ -856,10 +856,29 @@ function gatherWitnessPaths(request: ParsedSigningRequest): ValidBIP32Path[] {
     // certificate witnesses
     for (const cert of tx.certificates) {
       switch (cert.type) {
-        case CertificateType.STAKE_DELEGATION:
+        case CertificateType.STAKE_REGISTRATION:
+        case CertificateType.STAKE_REGISTRATION_CONWAY:
         case CertificateType.STAKE_DEREGISTRATION:
-          if (cert.stakeCredential.type === StakeCredentialType.KEY_PATH) {
+        case CertificateType.STAKE_DEREGISTRATION_CONWAY:
+        case CertificateType.STAKE_DELEGATION:
+        case CertificateType.VOTE_DELEGATION:
+          if (cert.stakeCredential.type === CredentialType.KEY_PATH) {
             witnessPaths.push(cert.stakeCredential.path)
+          }
+          break
+
+        case CertificateType.AUTHORIZE_COMMITTEE_HOT:
+        case CertificateType.RESIGN_COMMITTEE_COLD:
+          if (cert.coldCredential.type === CredentialType.KEY_PATH) {
+            witnessPaths.push(cert.coldCredential.path)
+          }
+          break
+
+        case CertificateType.DREP_REGISTRATION:
+        case CertificateType.DREP_DEREGISTRATION:
+        case CertificateType.DREP_UPDATE:
+          if (cert.dRepCredential.type === CredentialType.KEY_PATH) {
+            witnessPaths.push(cert.dRepCredential.path)
           }
           break
 
@@ -887,7 +906,7 @@ function gatherWitnessPaths(request: ParsedSigningRequest): ValidBIP32Path[] {
 
     // withdrawal witnesses
     for (const withdrawal of tx.withdrawals) {
-      if (withdrawal.stakeCredential.type === StakeCredentialType.KEY_PATH) {
+      if (withdrawal.stakeCredential.type === CredentialType.KEY_PATH) {
         witnessPaths.push(withdrawal.stakeCredential.path)
       }
     }
@@ -920,22 +939,22 @@ function gatherWitnessPaths(request: ParsedSigningRequest): ValidBIP32Path[] {
   return uniquify(witnessPaths)
 }
 
-function hasStakeCredentialInCertificates(
+function hasCredentialInCertificatesPreConway(
   tx: ParsedTransaction,
-  stakeCredentialType: StakeCredentialType,
+  credentialType: CredentialType,
 ) {
   return tx.certificates.some(
     (c) =>
       (c.type === CertificateType.STAKE_DELEGATION ||
-        c.type === CertificateType.STAKE_DEREGISTRATION ||
-        c.type === CertificateType.STAKE_REGISTRATION) &&
-      c.stakeCredential.type === stakeCredentialType,
+        c.type === CertificateType.STAKE_REGISTRATION ||
+        c.type === CertificateType.STAKE_DEREGISTRATION) &&
+      c.stakeCredential.type === credentialType,
   )
 }
 
-function hasStakeCredentialInWithdrawals(
+function hasCredentialInWithdrawals(
   tx: ParsedTransaction,
-  stakeCredentialType: StakeCredentialType,
+  stakeCredentialType: CredentialType,
 ) {
   return tx.withdrawals.some(
     (w) => w.stakeCredential.type === stakeCredentialType,
@@ -1019,7 +1038,7 @@ function ensureRequestSupportedByAppVersion(
   const hasByronAddressParam =
     request.tx.outputs.some(isOutputByron) ||
     isOutputByron(request.tx.collateralOutput)
-    // Byron collateral outputs forbidden by the security policy
+  // Byron collateral outputs forbidden by the security policy
   if (
     hasByronAddressParam &&
     !getCompatibility(version).supportsByronAddressDerivation
@@ -1071,30 +1090,6 @@ function ensureRequestSupportedByAppVersion(
     )
   }
 
-  if (
-    hasStakeCredentialInWithdrawals(
-      request.tx,
-      StakeCredentialType.SCRIPT_HASH,
-    ) &&
-    !getCompatibility(version).supportsMultisigTransaction
-  ) {
-    throw new DeviceVersionUnsupported(
-      `Script hash in withdrawal not supported by Ledger app version ${getVersionString(
-        version,
-      )}.`,
-    )
-  }
-  if (
-    hasStakeCredentialInWithdrawals(request.tx, StakeCredentialType.KEY_HASH) &&
-    !getCompatibility(version).supportsAlonzo
-  ) {
-    throw new DeviceVersionUnsupported(
-      `Key hash in withdrawal not supported by Ledger app version ${getVersionString(
-        version,
-      )}.`,
-    )
-  }
-
   const hasPoolRegistration = request.tx.certificates.some(
     (c) => c.type === CertificateType.STAKE_POOL_REGISTRATION,
   )
@@ -1119,10 +1114,32 @@ function ensureRequestSupportedByAppVersion(
       )}.`,
     )
   }
+
+  const conwayCertificateTypes = [
+    CertificateType.STAKE_REGISTRATION_CONWAY,
+    CertificateType.STAKE_DEREGISTRATION_CONWAY,
+    CertificateType.VOTE_DELEGATION,
+    CertificateType.AUTHORIZE_COMMITTEE_HOT,
+    CertificateType.RESIGN_COMMITTEE_COLD,
+    CertificateType.DREP_REGISTRATION,
+    CertificateType.DREP_DEREGISTRATION,
+    CertificateType.DREP_UPDATE,
+  ]
+  const hasConwayCertificates = request.tx.certificates.some((c) =>
+    conwayCertificateTypes.includes(c.type),
+  )
+  if (hasConwayCertificates && !getCompatibility(version).supportsConway) {
+    throw new DeviceVersionUnsupported(
+      `Conway era certificates not supported by Ledger app version ${getVersionString(
+        version,
+      )}.`,
+    )
+  }
+
   if (
-    hasStakeCredentialInCertificates(
+    hasCredentialInCertificatesPreConway(
       request.tx,
-      StakeCredentialType.SCRIPT_HASH,
+      CredentialType.SCRIPT_HASH,
     ) &&
     !getCompatibility(version).supportsMultisigTransaction
   ) {
@@ -1133,14 +1150,32 @@ function ensureRequestSupportedByAppVersion(
     )
   }
   if (
-    hasStakeCredentialInCertificates(
-      request.tx,
-      StakeCredentialType.KEY_HASH,
-    ) &&
+    hasCredentialInCertificatesPreConway(request.tx, CredentialType.KEY_HASH) &&
     !getCompatibility(version).supportsAlonzo
   ) {
     throw new DeviceVersionUnsupported(
       `Key hash in certificate stake credential not supported by Ledger app version ${getVersionString(
+        version,
+      )}.`,
+    )
+  }
+
+  if (
+    hasCredentialInWithdrawals(request.tx, CredentialType.SCRIPT_HASH) &&
+    !getCompatibility(version).supportsMultisigTransaction
+  ) {
+    throw new DeviceVersionUnsupported(
+      `Script hash in withdrawal not supported by Ledger app version ${getVersionString(
+        version,
+      )}.`,
+    )
+  }
+  if (
+    hasCredentialInWithdrawals(request.tx, CredentialType.KEY_HASH) &&
+    !getCompatibility(version).supportsAlonzo
+  ) {
+    throw new DeviceVersionUnsupported(
+      `Key hash in withdrawal not supported by Ledger app version ${getVersionString(
         version,
       )}.`,
     )
