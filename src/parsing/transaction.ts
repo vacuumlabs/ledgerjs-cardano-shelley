@@ -1,30 +1,32 @@
 import {InvalidData} from '../errors'
 import {InvalidDataReason} from '../errors/invalidDataReason'
-import type {
+import type {ParsedSigningRequest, ParsedTransaction} from '../types/internal'
+import {
   ParsedCertificate,
   ParsedInput,
   ParsedRequiredSigner,
-  ParsedSigningRequest,
-  ParsedTransaction,
+  ParsedVote,
+  ParsedVoter,
+  ParsedVoterVotes,
   ParsedWithdrawal,
-} from '../types/internal'
-import {
+  SCRIPT_HASH_LENGTH,
   CertificateType,
   KEY_HASH_LENGTH,
   RequiredSignerType,
   SCRIPT_DATA_HASH_LENGTH,
-  StakeCredentialType,
+  CredentialType,
   TX_HASH_LENGTH,
 } from '../types/internal'
-import type {
+import type {SignTransactionRequest, Transaction} from '../types/public'
+import {
   Certificate,
   RequiredSigner,
-  SignTransactionRequest,
-  Transaction,
   TxInput,
+  Vote,
+  Voter,
+  VoterType,
+  VoterVotes,
   Withdrawal,
-} from '../types/public'
-import {
   PoolKeyType,
   PoolOwnerType,
   TransactionSigningMode,
@@ -37,10 +39,11 @@ import {
   parseBIP32Path,
   parseHexStringOfLength,
   parseInt64_str,
-  parseStakeCredential,
+  parseCredential,
   parseUint32_t,
   parseUint64_str,
   validate,
+  parseAnchor,
 } from '../utils/parse'
 import {parseCertificate} from './certificate'
 import {MAX_LOVELACE_SUPPLY_STR} from './constants'
@@ -90,7 +93,7 @@ function parseWithdrawal(params: Withdrawal): ParsedWithdrawal {
       {max: MAX_LOVELACE_SUPPLY_STR},
       InvalidDataReason.WITHDRAWAL_INVALID_AMOUNT,
     ),
-    stakeCredential: parseStakeCredential(
+    stakeCredential: parseCredential(
       params.stakeCredential,
       InvalidDataReason.WITHDRAWAL_INVALID_STAKE_CREDENTIAL,
     ),
@@ -120,6 +123,75 @@ function parseRequiredSigner(
       }
     default:
       throw new InvalidData(InvalidDataReason.UNKNOWN_REQUIRED_SIGNER_TYPE)
+  }
+}
+
+function parseVoter(voter: Voter): ParsedVoter {
+  const errMsg = InvalidDataReason.VOTER_INVALID
+  switch (voter.type) {
+    case VoterType.COMMITTEE_KEY_HASH:
+    case VoterType.DREP_KEY_HASH:
+    case VoterType.STAKE_POOL_KEY_HASH:
+      return {
+        type: voter.type,
+        keyHashHex: parseHexStringOfLength(
+          voter.keyHashHex,
+          KEY_HASH_LENGTH,
+          errMsg,
+        ),
+      }
+    case VoterType.COMMITTEE_KEY_PATH:
+    case VoterType.DREP_KEY_PATH:
+    case VoterType.STAKE_POOL_KEY_PATH:
+      return {
+        type: voter.type,
+        keyPath: parseBIP32Path(voter.keyPath, errMsg),
+      }
+
+    case VoterType.DREP_SCRIPT_HASH:
+    case VoterType.COMMITTEE_SCRIPT_HASH:
+      return {
+        type: voter.type,
+        scriptHashHex: parseHexStringOfLength(
+          voter.scriptHashHex,
+          SCRIPT_HASH_LENGTH,
+          errMsg,
+        ),
+      }
+
+    default:
+      unreachable(voter)
+  }
+}
+
+function parseVote(vote: Vote): ParsedVote {
+  return {
+    govActionId: {
+      txHashHex: parseHexStringOfLength(
+        vote.govActionId.txHashHex,
+        TX_HASH_LENGTH,
+        InvalidDataReason.GOV_ACTION_ID_INVALID_TX_HASH,
+      ),
+      govActionIndex: parseUint32_t(
+        vote.govActionId.govActionIndex,
+        InvalidDataReason.GOV_ACTION_ID_INVALID_INDEX,
+      ),
+    },
+    votingProcedure: {
+      vote: vote.votingProcedure.vote,
+      anchor:
+        vote.votingProcedure.anchor == null
+          ? null
+          : parseAnchor(vote.votingProcedure.anchor),
+    },
+  }
+}
+
+function parseVoterVotes(voterVotes: VoterVotes): ParsedVoterVotes {
+  validate(isArray(voterVotes.votes), InvalidDataReason.VOTER_VOTES_NOT_ARRAY)
+  return {
+    voter: parseVoter(voterVotes.voter),
+    votes: voterVotes.votes.map((v) => parseVote(v)),
   }
 }
 
@@ -266,6 +338,45 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
     parseTxInput(ri),
   )
 
+  // voting procedures
+  validate(
+    isArray(tx.votingProcedures ?? []),
+    InvalidDataReason.VOTING_PROCEDURES_NOT_ARRAY,
+  )
+  const votingProcedures = (tx.votingProcedures ?? []).map((x) =>
+    parseVoterVotes(x),
+  )
+  validate(
+    votingProcedures.length <= 1,
+    InvalidDataReason.VOTING_PROCEDURES_INVALID_NUMBER_OF_VOTERS,
+  )
+  for (const voterVotes of votingProcedures) {
+    validate(
+      voterVotes.votes.length === 1,
+      InvalidDataReason.VOTING_PROCEDURES_INVALID_NUMBER_OF_VOTES,
+    )
+  }
+
+  // treasury
+  const treasury =
+    tx.treasury == null
+      ? null
+      : parseUint64_str(
+          tx.treasury,
+          {max: MAX_LOVELACE_SUPPLY_STR},
+          InvalidDataReason.TREASURY_NOT_VALID,
+        )
+
+  // donation
+  const donation =
+    tx.donation == null
+      ? null
+      : parseUint64_str(
+          tx.donation,
+          {min: '1', max: MAX_LOVELACE_SUPPLY_STR},
+          InvalidDataReason.DONATION_NOT_VALID,
+        )
+
   return {
     network,
     inputs,
@@ -284,6 +395,9 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
     collateralOutput,
     totalCollateral,
     referenceInputs,
+    votingProcedures,
+    treasury,
+    donation,
   }
 }
 
@@ -312,16 +426,18 @@ export function parseSignTransactionRequest(
         ),
         InvalidDataReason.SIGN_MODE_ORDINARY__POOL_REGISTRATION_NOT_ALLOWED,
       )
-      // certificate stake credentials given by paths
+      // certificate credentials given by paths
       validate(
         tx.certificates.every((certificate) => {
           switch (certificate.type) {
             case CertificateType.STAKE_REGISTRATION:
+            case CertificateType.STAKE_REGISTRATION_CONWAY:
             case CertificateType.STAKE_DEREGISTRATION:
+            case CertificateType.STAKE_DEREGISTRATION_CONWAY:
             case CertificateType.STAKE_DELEGATION:
+            case CertificateType.VOTE_DELEGATION:
               return (
-                certificate.stakeCredential.type ===
-                StakeCredentialType.KEY_PATH
+                certificate.stakeCredential.type === CredentialType.KEY_PATH
               )
             default:
               return true
@@ -329,11 +445,37 @@ export function parseSignTransactionRequest(
         }),
         InvalidDataReason.SIGN_MODE_ORDINARY__CERTIFICATE_STAKE_CREDENTIAL_ONLY_AS_PATH,
       )
+      validate(
+        tx.certificates.every((certificate) => {
+          switch (certificate.type) {
+            case CertificateType.AUTHORIZE_COMMITTEE_HOT:
+            case CertificateType.RESIGN_COMMITTEE_COLD:
+              return certificate.coldCredential.type === CredentialType.KEY_PATH
+            default:
+              return true
+          }
+        }),
+        InvalidDataReason.SIGN_MODE_ORDINARY__CERTIFICATE_COMMITTEE_COLD_CREDENTIAL_ONLY_AS_PATH,
+      )
+      validate(
+        tx.certificates.every((certificate) => {
+          switch (certificate.type) {
+            case CertificateType.DREP_REGISTRATION:
+            case CertificateType.DREP_DEREGISTRATION:
+            case CertificateType.DREP_UPDATE:
+              return certificate.dRepCredential.type === CredentialType.KEY_PATH
+            default:
+              return true
+          }
+        }),
+        InvalidDataReason.SIGN_MODE_ORDINARY__CERTIFICATE_DREP_CREDENTIAL_ONLY_AS_PATH,
+      )
+
       // withdrawals as paths
       validate(
         tx.withdrawals.every(
           (withdrawal) =>
-            withdrawal.stakeCredential.type === StakeCredentialType.KEY_PATH,
+            withdrawal.stakeCredential.type === CredentialType.KEY_PATH,
         ),
         InvalidDataReason.SIGN_MODE_ORDINARY__WITHDRAWAL_ONLY_AS_PATH,
       )
@@ -359,6 +501,21 @@ export function parseSignTransactionRequest(
       validate(
         tx.referenceInputs.length === 0,
         InvalidDataReason.SIGN_MODE_ORDINARY__REFERENCE_INPUTS_NOT_ALLOWED,
+      )
+
+      // voting procedure voter must be given by path
+      validate(
+        tx.votingProcedures.every((voterVotes) => {
+          switch (voterVotes.voter.type) {
+            case VoterType.COMMITTEE_KEY_PATH:
+            case VoterType.DREP_KEY_PATH:
+            case VoterType.STAKE_POOL_KEY_PATH:
+              return true
+            default:
+              return false
+          }
+        }),
+        InvalidDataReason.SIGN_MODE_ORDINARY__VOTER_ONLY_AS_PATH,
       )
 
       break
@@ -389,28 +546,41 @@ export function parseSignTransactionRequest(
         ),
         InvalidDataReason.SIGN_MODE_MULTISIG__POOL_RETIREMENT_NOT_ALLOWED,
       )
-      // certificate stake credentials given by scripts
+      // certificate credentials given by scripts
       validate(
         tx.certificates.every((certificate) => {
           switch (certificate.type) {
             case CertificateType.STAKE_REGISTRATION:
+            case CertificateType.STAKE_REGISTRATION_CONWAY:
             case CertificateType.STAKE_DEREGISTRATION:
+            case CertificateType.STAKE_DEREGISTRATION_CONWAY:
             case CertificateType.STAKE_DELEGATION:
+            case CertificateType.VOTE_DELEGATION:
               return (
-                certificate.stakeCredential.type ===
-                StakeCredentialType.SCRIPT_HASH
+                certificate.stakeCredential.type === CredentialType.SCRIPT_HASH
+              )
+            case CertificateType.AUTHORIZE_COMMITTEE_HOT:
+            case CertificateType.RESIGN_COMMITTEE_COLD:
+              return (
+                certificate.coldCredential.type === CredentialType.SCRIPT_HASH
+              )
+            case CertificateType.DREP_REGISTRATION:
+            case CertificateType.DREP_DEREGISTRATION:
+            case CertificateType.DREP_UPDATE:
+              return (
+                certificate.dRepCredential.type === CredentialType.SCRIPT_HASH
               )
             default:
               return true
           }
         }),
-        InvalidDataReason.SIGN_MODE_MULTISIG__CERTIFICATE_STAKE_CREDENTIAL_ONLY_AS_SCRIPT,
+        InvalidDataReason.SIGN_MODE_MULTISIG__CERTIFICATE_CREDENTIAL_ONLY_AS_SCRIPT,
       )
       // withdrawals as scripts
       validate(
         tx.withdrawals.every(
           (withdrawal) =>
-            withdrawal.stakeCredential.type === StakeCredentialType.SCRIPT_HASH,
+            withdrawal.stakeCredential.type === CredentialType.SCRIPT_HASH,
         ),
         InvalidDataReason.SIGN_MODE_MULTISIG__WITHDRAWAL_ONLY_AS_SCRIPT,
       )
@@ -432,10 +602,24 @@ export function parseSignTransactionRequest(
         InvalidDataReason.SIGN_MODE_MULTISIG__TOTAL_COLLATERAL_NOT_ALLOWED,
       )
 
-      // cannot have reference input in the tx
+      // cannot have reference inputs in the tx
       validate(
         tx.referenceInputs.length === 0,
         InvalidDataReason.SIGN_MODE_MULTISIG__REFERENCE_INPUTS_NOT_ALLOWED,
+      )
+
+      // voting procedure voter must be given by script hash
+      validate(
+        tx.votingProcedures.every((voterVotes) => {
+          switch (voterVotes.voter.type) {
+            case VoterType.COMMITTEE_SCRIPT_HASH:
+            case VoterType.DREP_SCRIPT_HASH:
+              return true
+            default:
+              return false
+          }
+        }),
+        InvalidDataReason.SIGN_MODE_ORDINARY__VOTER_ONLY_AS_PATH,
       )
 
       break
@@ -535,10 +719,28 @@ export function parseSignTransactionRequest(
         InvalidDataReason.SIGN_MODE_POOL_OWNER__TOTAL_COLLATERAL_NOT_ALLOWED,
       )
 
-      // cannot have reference input in the tx
+      // cannot have reference inputs in the tx
       validate(
         tx.referenceInputs.length === 0,
         InvalidDataReason.SIGN_MODE_POOL_OWNER__REFERENCE_INPUTS_NOT_ALLOWED,
+      )
+
+      // cannot have voting procedures in the tx
+      validate(
+        tx.votingProcedures.length === 0,
+        InvalidDataReason.SIGN_MODE_POOL_OWNER__VOTING_PROCEDURES_NOT_ALLOWED,
+      )
+
+      // cannot have treasury in the tx
+      validate(
+        tx.treasury == null,
+        InvalidDataReason.SIGN_MODE_POOL_OWNER__TREASURY_NOT_ALLOWED,
+      )
+
+      // cannot have donation in the tx
+      validate(
+        tx.donation == null,
+        InvalidDataReason.SIGN_MODE_POOL_OWNER__DONATION_NOT_ALLOWED,
       )
 
       break
@@ -624,10 +826,28 @@ export function parseSignTransactionRequest(
         InvalidDataReason.SIGN_MODE_POOL_OPERATOR__TOTAL_COLLATERAL_NOT_ALLOWED,
       )
 
-      // cannot have reference input in the tx
+      // cannot have reference inputs in the tx
       validate(
         tx.referenceInputs.length === 0,
         InvalidDataReason.SIGN_MODE_POOL_OPERATOR__REFERENCE_INPUTS_NOT_ALLOWED,
+      )
+
+      // cannot have voting procedures in the tx
+      validate(
+        tx.votingProcedures.length === 0,
+        InvalidDataReason.SIGN_MODE_POOL_OPERATOR__VOTING_PROCEDURES_NOT_ALLOWED,
+      )
+
+      // cannot have treasury in the tx
+      validate(
+        tx.treasury == null,
+        InvalidDataReason.SIGN_MODE_POOL_OPERATOR__TREASURY_NOT_ALLOWED,
+      )
+
+      // cannot have donation in the tx
+      validate(
+        tx.donation == null,
+        InvalidDataReason.SIGN_MODE_POOL_OPERATOR__DONATION_NOT_ALLOWED,
       )
 
       break

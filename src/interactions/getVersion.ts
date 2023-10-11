@@ -106,6 +106,7 @@ export function getCompatibility(version: Version): DeviceCompatibility {
     supportsReqSignersInOrdinaryTx: v4_1,
     supportsBabbage: v5_0,
     supportsCIP36Vote: v6_0,
+    supportsConway: v6_0, // TODO update to v7
   }
 }
 
