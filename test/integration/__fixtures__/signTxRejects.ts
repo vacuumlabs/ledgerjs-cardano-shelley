@@ -1611,7 +1611,6 @@ export const testsInvalidTokenBundleOrdering: TestCaseRejectShelley[] = [
   {
     testName:
       'Reject tx with mint fields with invalid canonical ordering of policies',
-    unsupportedInAppXS: true,
     tx: {
       ...mainnetFeeTtl,
       inputs: [inputs.utxoShelley],
@@ -1626,7 +1625,6 @@ export const testsInvalidTokenBundleOrdering: TestCaseRejectShelley[] = [
   {
     testName:
       'Reject tx with mint fields with invalid canonical ordering of asset names',
-    unsupportedInAppXS: true,
     tx: {
       ...mainnetFeeTtl,
       inputs: [inputs.utxoShelley],

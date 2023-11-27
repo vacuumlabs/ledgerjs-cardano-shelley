@@ -101,7 +101,7 @@ export function getCompatibility(version: Version): DeviceCompatibility {
     supportsPoolRetirement: v2_4 && !isAppXS,
     supportsNativeScriptHashDerivation: v3_0 && !isAppXS,
     supportsMultisigTransaction: v3_0,
-    supportsMint: v3_0 && !isAppXS,
+    supportsMint: v3_0,
     supportsAlonzo: v4_0,
     supportsReqSignersInOrdinaryTx: v4_1,
     supportsBabbage: v5_0,

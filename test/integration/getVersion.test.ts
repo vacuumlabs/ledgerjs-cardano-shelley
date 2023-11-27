@@ -38,7 +38,7 @@ describe('getVersion', () => {
       supportsPoolRetirement: !isAppXS,
       supportsNativeScriptHashDerivation: !isAppXS,
       supportsMultisigTransaction: true,
-      supportsMint: !isAppXS,
+      supportsMint: true,
       supportsAlonzo: true,
       supportsReqSignersInOrdinaryTx: true,
       supportsBabbage: true,

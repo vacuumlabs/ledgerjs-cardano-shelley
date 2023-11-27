@@ -1015,7 +1015,6 @@ export const testsMary: SignTxTestCase[] = [
   },
   {
     testName: 'Sign tx with mint fields with various amounts',
-    unsupportedInAppXS: true,
     tx: {
       ...mainnetFeeTtl,
       inputs: [inputs.utxoShelley],
@@ -1040,7 +1039,6 @@ export const testsMary: SignTxTestCase[] = [
   },
   {
     testName: 'Sign tx with mint with decimal places',
-    unsupportedInAppXS: true,
     tx: {
       network: Networks.Mainnet,
       inputs: [inputs.utxoShelley],
@@ -1066,7 +1064,6 @@ export const testsMary: SignTxTestCase[] = [
   },
   {
     testName: 'Sign tx with mint fields among other fields',
-    unsupportedInAppXS: true,
     tx: {
       network: Networks.Mainnet,
       inputs: [inputs.utxoShelley],
@@ -1100,7 +1097,6 @@ export const testsMary: SignTxTestCase[] = [
 export const testsAlonzoTrezorComparison: SignTxTestCase[] = [
   {
     testName: 'Full test for trezor feature parity',
-    unsupportedInAppXS: true,
     tx: {
       // "protocol_magic": 764824073,
       // "network_id": 1,
