@@ -13,7 +13,7 @@ Support for Conway era
 ### Added
 
 - export of Conway-era keys (DReps, Constitutional Committee Hot and Cold keys)
-- Conway era transaction body items (new certificates, voting procesures, treasury, donation)
+- Conway era transaction body items (new certificates, voting procedures, treasury, donation)
 - support for reduced features on Nano S (since Ledger app v7, due to memory limits)
 
 ### Changed
