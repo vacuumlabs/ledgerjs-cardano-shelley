@@ -9,6 +9,7 @@ import type {
   Uint16_t,
   Uint32_t,
   Uint64_str,
+  ParsedAnchor,
 } from '../types/internal'
 import {CredentialType} from '../types/internal'
 import {assert, unreachable} from './assert'
@@ -98,6 +99,21 @@ export function path_to_buf(path: Array<number>): Buffer {
   return data
 }
 
+export function serializeOptionFlag(included: boolean): Buffer {
+  const SignTxIncluded = {
+    NO: 1 as Uint8_t,
+    YES: 2 as Uint8_t,
+  }
+
+  const value = included ? SignTxIncluded.YES : SignTxIncluded.NO
+
+  return uint8_to_buf(value)
+}
+
+export function serializeCoin(coin: Uint64_str): Buffer {
+  return Buffer.concat([uint64_to_buf(coin)])
+}
+
 export function serializeCredential(credential: ParsedCredential): Buffer {
   switch (credential.type) {
     case CredentialType.KEY_PATH:
@@ -120,13 +136,14 @@ export function serializeCredential(credential: ParsedCredential): Buffer {
   }
 }
 
-export function serializeOptionFlag(included: boolean): Buffer {
-  const SignTxIncluded = {
-    NO: 1 as Uint8_t,
-    YES: 2 as Uint8_t,
+export function serializeAnchor(anchor: ParsedAnchor | null): Buffer {
+  if (anchor == null) {
+    return Buffer.concat([serializeOptionFlag(false)])
+  } else {
+    return Buffer.concat([
+      serializeOptionFlag(true),
+      hex_to_buf(anchor.hashHex),
+      Buffer.from(anchor.url, 'ascii'),
+    ])
   }
-
-  const value = included ? SignTxIncluded.YES : SignTxIncluded.NO
-
-  return uint8_to_buf(value)
 }

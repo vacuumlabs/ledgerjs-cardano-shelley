@@ -69,6 +69,9 @@ export const SCRIPT_DATA_HASH_LENGTH = 32
 export const DATUM_HASH_LENGTH = 32
 export const ANCHOR_HASH_LENGTH = 32
 
+export const MAX_URL_LENGTH = 64
+export const MAX_DNS_NAME_LENGTH = 64
+
 export type ParsedInput = {
   txHashHex: FixLenHexString<typeof TX_HASH_LENGTH>
   outputIndex: Uint32_t

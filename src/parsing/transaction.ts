@@ -44,6 +44,7 @@ import {
   parseUint64_str,
   validate,
   parseAnchor,
+  parseCoin,
 } from '../utils/parse'
 import {parseCertificate} from './certificate'
 import {MAX_LOVELACE_SUPPLY_STR} from './constants'
@@ -88,9 +89,8 @@ function parseTxInput(input: TxInput): ParsedInput {
 
 function parseWithdrawal(params: Withdrawal): ParsedWithdrawal {
   return {
-    amount: parseUint64_str(
+    amount: parseCoin(
       params.amount,
-      {max: MAX_LOVELACE_SUPPLY_STR},
       InvalidDataReason.WITHDRAWAL_INVALID_AMOUNT,
     ),
     stakeCredential: parseCredential(
@@ -221,9 +221,8 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
   const outputs = tx.outputs.map((o) => parseTxOutput(o, tx.network))
 
   // fee
-  const fee = parseUint64_str(
+  const fee = parseCoin(
     tx.fee,
-    {max: MAX_LOVELACE_SUPPLY_STR},
     InvalidDataReason.FEE_INVALID,
   )
 
@@ -323,9 +322,8 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
   const totalCollateral =
     tx.totalCollateral == null
       ? null
-      : parseUint64_str(
+      : parseCoin(
           tx.totalCollateral,
-          {max: MAX_LOVELACE_SUPPLY_STR},
           InvalidDataReason.TOTAL_COLLATERAL_NOT_VALID,
         )
 
@@ -361,9 +359,8 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
   const treasury =
     tx.treasury == null
       ? null
-      : parseUint64_str(
+      : parseCoin(
           tx.treasury,
-          {max: MAX_LOVELACE_SUPPLY_STR},
           InvalidDataReason.TREASURY_NOT_VALID,
         )
 
@@ -619,7 +616,7 @@ export function parseSignTransactionRequest(
               return false
           }
         }),
-        InvalidDataReason.SIGN_MODE_ORDINARY__VOTER_ONLY_AS_PATH,
+        InvalidDataReason.SIGN_MODE_MULTISIG__VOTER_ONLY_AS_SCRIPT,
       )
 
       break

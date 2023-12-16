@@ -18,8 +18,8 @@ import {
   parseCredential,
   parseUint64_str,
   parseAnchor,
+  parseCoin,
 } from '../utils/parse'
-import {MAX_LOVELACE_SUPPLY_STR} from './constants'
 import {parsePoolParams} from './poolRegistration'
 
 function parseDRep(dRep: DRepParams, errMsg: InvalidDataReason): ParsedDRep {
@@ -61,9 +61,8 @@ function parseDRep(dRep: DRepParams, errMsg: InvalidDataReason): ParsedDRep {
 }
 
 function parseDeposit(deposit: bigint_like): Uint64_str {
-  return parseUint64_str(
+  return parseCoin(
     deposit,
-    {max: MAX_LOVELACE_SUPPLY_STR},
     InvalidDataReason.CERTIFICATE_INVALID_DEPOSIT,
   )
 }

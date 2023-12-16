@@ -8,7 +8,6 @@ import type {
   ParsedCertificate,
   ParsedDRep,
   Version,
-  ParsedAnchor,
 } from '../../types/internal'
 import {assert, unreachable} from '../../utils/assert'
 import {
@@ -17,7 +16,8 @@ import {
   serializeCredential,
   uint8_to_buf,
   uint64_to_buf,
-  serializeOptionFlag,
+  serializeCoin,
+  serializeAnchor,
 } from '../../utils/serialize'
 import {getCompatibility} from '../getVersion'
 
@@ -43,18 +43,6 @@ export function serializeDRep(dRep: ParsedDRep): Buffer {
       return Buffer.concat([uint8_to_buf(dRep.type as Uint8_t)])
     default:
       unreachable(dRep)
-  }
-}
-
-export function serializeAnchor(anchor: ParsedAnchor | null): Buffer {
-  if (anchor == null) {
-    return Buffer.concat([serializeOptionFlag(false)])
-  } else {
-    return Buffer.concat([
-      serializeOptionFlag(true),
-      hex_to_buf(anchor.hashHex),
-      Buffer.from(anchor.url, 'ascii'),
-    ])
   }
 }
 
@@ -131,7 +119,7 @@ export function serializeTxCertificate(
       return Buffer.concat([
         uint8_to_buf(certificate.type as Uint8_t),
         serializeCredential(certificate.stakeCredential),
-        uint64_to_buf(certificate.deposit),
+        serializeCoin(certificate.deposit),
       ])
     }
     case CertificateType.STAKE_DELEGATION: {
@@ -166,7 +154,7 @@ export function serializeTxCertificate(
       return Buffer.concat([
         uint8_to_buf(certificate.type as Uint8_t),
         serializeCredential(certificate.dRepCredential),
-        uint64_to_buf(certificate.deposit),
+        serializeCoin(certificate.deposit),
         serializeAnchor(certificate.anchor),
       ])
     }
@@ -174,7 +162,7 @@ export function serializeTxCertificate(
       return Buffer.concat([
         uint8_to_buf(certificate.type as Uint8_t),
         serializeCredential(certificate.dRepCredential),
-        uint64_to_buf(certificate.deposit),
+        serializeCoin(certificate.deposit),
       ])
     }
     case CertificateType.DREP_UPDATE: {

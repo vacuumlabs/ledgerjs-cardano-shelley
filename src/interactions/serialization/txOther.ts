@@ -24,10 +24,11 @@ import {
   uint8_to_buf,
   uint32_to_buf,
   uint64_to_buf,
+  serializeCoin,
+  serializeAnchor,
 } from '../../utils/serialize'
 import {getCompatibility} from '../getVersion'
 import type {SerializeTokenAmountFn} from '../signTx'
-import {serializeAnchor} from './txCertificate'
 
 export function serializeTxInput(input: ParsedInput): Buffer {
   return Buffer.concat([
@@ -42,7 +43,7 @@ export function serializeTxWithdrawal(
 ): Buffer {
   if (getCompatibility(version).supportsMultisigTransaction) {
     return Buffer.concat([
-      uint64_to_buf(withdrawal.amount),
+      serializeCoin(withdrawal.amount),
       serializeCredential(withdrawal.stakeCredential),
     ])
   } else {
@@ -52,14 +53,10 @@ export function serializeTxWithdrawal(
       InvalidDataReason.WITHDRAWAL_INVALID_STAKE_CREDENTIAL,
     )
     return Buffer.concat([
-      uint64_to_buf(withdrawal.amount),
+      serializeCoin(withdrawal.amount),
       path_to_buf(withdrawal.stakeCredential.path),
     ])
   }
-}
-
-export function serializeTxFee(fee: Uint64_str): Buffer {
-  return Buffer.concat([uint64_to_buf(fee)])
 }
 
 export function serializeTxTtl(ttl: Uint64_str): Buffer {
@@ -119,10 +116,6 @@ export function serializeRequiredSigner(
     default:
       unreachable(requiredSigner)
   }
-}
-
-export function serializeCoin(coin: Uint64_str): Buffer {
-  return Buffer.concat([uint64_to_buf(coin)])
 }
 
 function serializeVoter(voter: ParsedVoter): Buffer {

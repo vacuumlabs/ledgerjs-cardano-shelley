@@ -49,6 +49,7 @@ import {
   buf_to_hex,
   hex_to_buf,
   int64_to_buf,
+  serializeCoin,
   uint32_to_buf,
   uint64_to_buf,
 } from '../utils/serialize'
@@ -82,8 +83,6 @@ import {
   serializeMintBasicParams,
   serializeRequiredSigner,
   serializeToken,
-  serializeCoin,
-  serializeTxFee,
   serializeTxInput,
   serializeTxTtl,
   serializeTxValidityStart,
@@ -485,7 +484,7 @@ function* signTx_setFee(fee: Uint64_str): Interaction<void> {
   yield send({
     p1: P1.STAGE_FEE,
     p2: P2.UNUSED,
-    data: serializeTxFee(fee),
+    data: serializeCoin(fee),
     expectedResponseLength: 0,
   })
 }
@@ -813,26 +812,26 @@ function* signTx_addVoterVotes(
   })
 }
 
-function* signTx_addTreasury(coin: Uint64_str): Interaction<void> {
+function* signTx_addTreasury(treasury: Uint64_str): Interaction<void> {
   const enum P2 {
     UNUSED = 0x00,
   }
   yield send({
     p1: P1.STAGE_TREASURY,
     p2: P2.UNUSED,
-    data: serializeCoin(coin),
+    data: serializeCoin(treasury),
     expectedResponseLength: 0,
   })
 }
 
-function* signTx_addDonation(coin: Uint64_str): Interaction<void> {
+function* signTx_addDonation(donation: Uint64_str): Interaction<void> {
   const enum P2 {
     UNUSED = 0x00,
   }
   yield send({
     p1: P1.STAGE_DONATION,
     p2: P2.UNUSED,
-    data: serializeCoin(coin),
+    data: serializeCoin(donation),
     expectedResponseLength: 0,
   })
 }
@@ -1238,14 +1237,14 @@ function ensureRequestSupportedByAppVersion(
     )
   }
 
-  if (request.tx?.mint && !getCompatibility(version).supportsMint) {
+  if (request.tx?.mint !== null && !getCompatibility(version).supportsMint) {
     throw new DeviceVersionUnsupported(
       `Mint not supported by Ledger app version ${getVersionString(version)}.`,
     )
   }
 
   if (
-    request.tx.validityIntervalStart &&
+    request.tx.validityIntervalStart !== null &&
     !getCompatibility(version).supportsMary
   ) {
     throw new DeviceVersionUnsupported(
@@ -1256,7 +1255,7 @@ function ensureRequestSupportedByAppVersion(
   }
 
   if (
-    request.tx.scriptDataHashHex &&
+    request.tx.scriptDataHashHex !== null &&
     !getCompatibility(version).supportsAlonzo
   ) {
     throw new DeviceVersionUnsupported(
@@ -1306,7 +1305,7 @@ function ensureRequestSupportedByAppVersion(
   }
 
   if (
-    request.tx.includeNetworkId &&
+    request.tx.includeNetworkId !== null &&
     !getCompatibility(version).supportsAlonzo
   ) {
     throw new DeviceVersionUnsupported(
@@ -1317,7 +1316,7 @@ function ensureRequestSupportedByAppVersion(
   }
 
   if (
-    request.tx.collateralOutput &&
+    request.tx.collateralOutput !== null &&
     !getCompatibility(version).supportsBabbage
   ) {
     throw new DeviceVersionUnsupported(
@@ -1328,7 +1327,7 @@ function ensureRequestSupportedByAppVersion(
   }
 
   if (
-    request.tx.totalCollateral &&
+    request.tx.totalCollateral !== null &&
     !getCompatibility(version).supportsBabbage
   ) {
     throw new DeviceVersionUnsupported(
@@ -1360,7 +1359,7 @@ function ensureRequestSupportedByAppVersion(
     )
   }
 
-  if (request.tx.treasury && !getCompatibility(version).supportsConway) {
+  if (request.tx.treasury !== null && !getCompatibility(version).supportsConway) {
     throw new DeviceVersionUnsupported(
       `Treasury amount not supported by Ledger app version ${getVersionString(
         version,
@@ -1368,7 +1367,7 @@ function ensureRequestSupportedByAppVersion(
     )
   }
 
-  if (request.tx.donation && !getCompatibility(version).supportsConway) {
+  if (request.tx.donation !== null && !getCompatibility(version).supportsConway) {
     throw new DeviceVersionUnsupported(
       `Treasury donation not supported by Ledger app version ${getVersionString(
         version,

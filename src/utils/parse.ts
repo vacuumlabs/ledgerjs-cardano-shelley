@@ -1,3 +1,4 @@
+import { MAX_LOVELACE_SUPPLY_STR } from '../parsing/constants'
 import {InvalidData, InvalidDataReason} from '../errors/index'
 import type {
   _Int64_bigint,
@@ -21,8 +22,9 @@ import {
   KEY_HASH_LENGTH,
   SCRIPT_HASH_LENGTH,
   CredentialType,
+  MAX_URL_LENGTH,
 } from '../types/internal'
-import type {AnchorParams, CredentialParams} from '../types/public'
+import type {AnchorParams, bigint_like, CredentialParams} from '../types/public'
 import {CredentialParamsType} from '../types/public'
 import {unreachable} from './assert'
 
@@ -259,6 +261,32 @@ export function parseBIP32Path(
   return value
 }
 
+export function parseIntFromStr(
+  str: string,
+  errMsg: InvalidDataReason,
+): number {
+  validate(isString(str), errMsg)
+  const i = parseInt(str, 10)
+  // Check that we parsed everything
+  validate(`${i}` === str, errMsg)
+  // Could be invalid
+  validate(!isNaN(i), errMsg)
+  // Could still be float
+  validate(isInteger(i), errMsg)
+  return i
+}
+
+export function parseCoin(
+  coin: bigint_like,
+  errMsg: InvalidDataReason,
+): Uint64_str {
+  return parseUint64_str(
+    coin,
+    {max: MAX_LOVELACE_SUPPLY_STR},
+    errMsg,
+  )
+}
+
 export function parseCredential(
   credential: CredentialParams,
   errMsg: InvalidDataReason,
@@ -295,7 +323,7 @@ export function parseCredential(
 export function parseAnchor(params: AnchorParams): ParsedAnchor | null {
   const url = parseAscii(params.url, InvalidDataReason.ANCHOR_INVALID_URL)
   // Additional length check
-  validate(url.length <= 64, InvalidDataReason.ANCHOR_INVALID_URL)
+  validate(url.length <= MAX_URL_LENGTH, InvalidDataReason.ANCHOR_INVALID_URL)
 
   const hashHex = parseHexStringOfLength(
     params.hashHex,
@@ -308,19 +336,4 @@ export function parseAnchor(params: AnchorParams): ParsedAnchor | null {
     hashHex,
     __brand: 'anchor' as const,
   }
-}
-
-export function parseIntFromStr(
-  str: string,
-  errMsg: InvalidDataReason,
-): number {
-  validate(isString(str), errMsg)
-  const i = parseInt(str, 10)
-  // Check that we parsed everything
-  validate(`${i}` === str, errMsg)
-  // Could be invalid
-  validate(!isNaN(i), errMsg)
-  // Could still be float
-  validate(isInteger(i), errMsg)
-  return i
 }
