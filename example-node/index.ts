@@ -4,7 +4,7 @@ import SpeculosTransport from '@ledgerhq/hw-transport-node-speculos'
 
 import {
   Certificate,
-  StakeCredentialParamsType,
+  CredentialParamsType,
   TxInput,
   TxOutput,
   Withdrawal,
@@ -216,7 +216,7 @@ const signTransaction = async (appAda: Ada) => {
       type: CertificateType.STAKE_REGISTRATION,
       params: {
         stakeCredential: {
-          type: StakeCredentialParamsType.KEY_PATH,
+          type: CredentialParamsType.KEY_PATH,
           keyPath: [1852 + HARDENED, 1815 + HARDENED, 0 + HARDENED, 2, 0],
         },
       },
@@ -225,7 +225,7 @@ const signTransaction = async (appAda: Ada) => {
       type: CertificateType.STAKE_DELEGATION,
       params: {
         stakeCredential: {
-          type: StakeCredentialParamsType.KEY_PATH,
+          type: CredentialParamsType.KEY_PATH,
           keyPath: [1852 + HARDENED, 1815 + HARDENED, 0 + HARDENED, 2, 0],
         },
         poolKeyHashHex:
@@ -237,7 +237,7 @@ const signTransaction = async (appAda: Ada) => {
   const withdrawals: Withdrawal[] = [
     {
       stakeCredential: {
-        type: StakeCredentialParamsType.KEY_PATH,
+        type: CredentialParamsType.KEY_PATH,
         keyPath: [1852 + HARDENED, 1815 + HARDENED, 0 + HARDENED, 2, 0],
       },
       amount: '1000',
