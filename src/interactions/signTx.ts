@@ -9,6 +9,7 @@ import type {
   ParsedRequiredSigner,
   ParsedSigningRequest,
   ParsedTransaction,
+  ParsedTransactionOptions,
   ParsedTxAuxiliaryData,
   ParsedVoterVotes,
   ParsedWithdrawal,
@@ -133,6 +134,7 @@ function* signTx_init(
   tx: ParsedTransaction,
   signingMode: TransactionSigningMode,
   witnessPaths: ValidBIP32Path[],
+  options: ParsedTransactionOptions,
   version: Version,
 ): Interaction<void> {
   const enum P2 {
@@ -141,7 +143,7 @@ function* signTx_init(
   yield send({
     p1: P1.STAGE_INIT,
     p2: P2.UNUSED,
-    data: serializeTxInit(tx, signingMode, witnessPaths.length, version),
+    data: serializeTxInit(tx, signingMode, witnessPaths.length, options, version),
     expectedResponseLength: 0,
   })
 }
@@ -1440,11 +1442,11 @@ export function* signTransaction(
     getCompatibility(version).supportsCatalystRegistration ||
     getCompatibility(version).supportsCIP36
 
-  const {tx, signingMode} = request
+  const {tx, signingMode } = request
   const witnessPaths = gatherWitnessPaths(request)
 
   // init
-  yield* signTx_init(tx, signingMode, witnessPaths, version)
+  yield* signTx_init(tx, signingMode, witnessPaths, request.options, version)
 
   // auxiliary data
   let auxiliaryDataSupplement = null

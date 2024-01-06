@@ -9,6 +9,7 @@ import {
   DRepParamsType,
   VoterType,
   VoteOption,
+  TransactionOptions,
 } from '../../../src/types/public'
 import {str_to_path} from '../../../src/utils/address'
 import {
@@ -25,6 +26,7 @@ export type SignTxTestCase = {
   tx: Transaction
   signingMode: TransactionSigningMode
   additionalWitnessPaths?: BIP32Path[]
+  options?: TransactionOptions
   txBody?: string
   txAuxiliaryData?: string
   expectedResult: SignedTransactionData
@@ -124,6 +126,9 @@ export const testsShelleyNoCertificates: SignTxTestCase[] = [
     },
     signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
     additionalWitnessPaths: undefined,
+    options: {
+      tagCborSets: false
+    },
     txBody:
       'a400818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a',
     expectedResult: {
@@ -134,6 +139,33 @@ export const testsShelleyNoCertificates: SignTxTestCase[] = [
           path: str_to_path("1852'/1815'/0'/0/0"),
           witnessSignatureHex:
             '190dcee0cc7125fd0ec104cf685674f1ad77f3e439a4a249e596a3306f9eb110ced8fb8ec59da15b721203c8973bd341d88e6a60b85c1e9f2623152fee8dc00a',
+        },
+      ],
+      auxiliaryDataSupplement: null,
+    },
+  },
+  {
+    testName: 'Sign tx without outputs with 258 tag on inputs',
+    tx: {
+      ...mainnetFeeTtl,
+      inputs: [inputs.utxoShelley],
+      outputs: [],
+    },
+    signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+    additionalWitnessPaths: undefined,
+    options: {
+      tagCborSets: true
+    },
+    txBody:
+      'a400d90102818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a',
+    expectedResult: {
+      txHashHex:
+        'd959debec759048f2ccb43859c4019bad1f52ad2561e32a8e2ef9787bb16e499',
+      witnesses: [
+        {
+          path: str_to_path("1852'/1815'/0'/0/0"),
+          witnessSignatureHex:
+            '2e3300084206cc61cd50451756fb2f68c9f259071839ea2253a0cb0e99d072a0c1ffa74706ae305a6e0ab6532cc15f08b2d7d6c36e6a017a8ba9c6c41e56e407',
         },
       ],
       auxiliaryDataSupplement: null,
