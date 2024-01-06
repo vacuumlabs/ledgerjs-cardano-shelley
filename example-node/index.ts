@@ -34,7 +34,7 @@ const getExtendedPublicKey = async (appAda: Ada) => {
   console.log('getExtendedPublicKey')
   console.log(
     await appAda.getExtendedPublicKey({
-      path: [HARDENED + 44, HARDENED + 1815, HARDENED + 0],
+      path: [HARDENED + 1852, HARDENED + 1815, HARDENED + 0, 3, 0],
     }),
   )
   /*
@@ -130,6 +130,7 @@ const showAddress = async (appAda: Ada) => {
   console.log('-'.repeat(40))
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const signTransaction = async (appAda: Ada) => {
   console.log('signTransaction')
 
