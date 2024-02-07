@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
-## [6.0.0](TBD) - [TBD]
+## [6.0.1](TBD) - [TBD]
 
 Support for CIP0036 voting
 
@@ -22,6 +22,7 @@ Support for CIP0036 voting
 ### Changed
 
 - API for Catalyst registration (it is still possible to use CIP-0015 in auxiliary data)
+- using `slice` instead of `Buffer.subarray` to avoid a bug (see https://github.com/cardano-foundation/ledgerjs-hw-app-cardano/issues/37)
 
 ### Fixed
 
