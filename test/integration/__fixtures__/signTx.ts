@@ -1518,6 +1518,30 @@ export const testsMary: SignTxTestCase[] = [
     },
   },
   {
+    testName: 'Sign tx with mint with duplicate policy entry',
+    tx: {
+      ...mainnetFeeTtl,
+      inputs: [inputs.utxoShelley],
+      outputs: [],
+      mint: mints.mintDuplicatePolicyEntry,
+    },
+    signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+    txBody:
+      'a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a09a1581c7eae28af2208be856f7a119668ae52a49b73725e326dc16579dcc373a44000581c1e349c9bdea19fd6c147626a5260bc44b71635f398b67c59881df20920581c1e349c9bdea19fd6c147626a5260bc44b71635f398b67c59881df20a1b7fffffffffffffff581c1e349c9bdea19fd6c147626a5260bc44b71635f398b67c59881df20b3b7fffffffffffffff',
+    expectedResult: {
+      txHashHex:
+        'd31008087e3a9a267661f802993f7604ac2dd53d4b458f27bfc3663bc7072de1',
+      witnesses: [
+        {
+          path: [2147485500, 2147485463, 2147483648, 0, 0],
+          witnessSignatureHex:
+            '18fa055fb6d74b12170cdc227aaf4922c78405d4caf7bdbe5f959df2c3a912e20c5a18c4412d504685fe1179d32b5b588efe4a8d59f0274492de77f30f315409',
+        },
+      ],
+      auxiliaryDataSupplement: null,
+    },
+  },
+  {
     testName: 'Sign tx with mint with decimal places',
     tx: {
       network: Networks.Mainnet,
