@@ -22,7 +22,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@ledgerhq/hw-transport": "^6.31.2",
-    "base-x": "^3.0.5",
+    "base-x": "^5.0.1",
     "bech32": "^1.1.4",
     "int64-buffer": "^1.0.1"
   },
