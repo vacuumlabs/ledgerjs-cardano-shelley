@@ -36,7 +36,7 @@
     "@types/node": "^25.5.0",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^5.42.1",
-    "blake2": "^4.0.2",
+    "blake2": "^5.0.1",
     "chai": "^6.2.2",
     "chai-as-promised": "^8.0.2",
     "chalk": "^5.6.2",

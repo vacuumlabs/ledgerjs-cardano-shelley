@@ -1078,12 +1078,12 @@ bl@^4.0.3:
     inherits "^2.0.4"
     readable-stream "^3.4.0"
 
-blake2@^4.0.2:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/blake2/-/blake2-4.0.2.tgz#f32204ff2cf7b8b90c6ec9f8f0d67ef46cb47779"
-  integrity sha512-Z7yip562cm1s1pXBYfn64ScLH9HVy6zarw5FCKEVqTBRxyXn736sPmM3nYSCWw1zWt+zEUSwrbEXbElgwDi9aw==
+blake2@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/blake2/-/blake2-5.0.1.tgz#c352c2e2d1e26feec0cb0747491dfb114eab95ec"
+  integrity sha512-dIg2CknHyB854mKclXtxOx4QSrDLk5+z8IgO9t0NfZcfrUR6d5mNrh89cxn3wTiM2sKm7YkxcWsS+r9zf9sqig==
   dependencies:
-    nan "^2.14.2"
+    nan "^2.24.0"
 
 brace-expansion@^1.1.12, brace-expansion@^1.1.7:
   version "1.1.12"
@@ -2771,10 +2771,10 @@ ms@^2.1.1, ms@^2.1.3:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
 
-nan@^2.14.2:
-  version "2.15.0"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.15.0.tgz#3f34a473ff18e15c1b5626b62903b5ad6e665fee"
-  integrity sha512-8ZtvEnA2c5aYCZYd1cvgdnU6cqwixRoYg70xPLWUws5ORTa/lnw+u4amixRS/Ac5U5mQVgp9pnlSUnbNWFaWZQ==
+nan@^2.24.0:
+  version "2.26.2"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.26.2.tgz#2e5e25764224c737b9897790b57c3294d4dcee9c"
+  integrity sha512-0tTvBTYkt3tdGw22nrAy50x7gpbGCCFH3AFcyS5WiUu7Eu4vWlri1woE6qHBSfy11vksDqkiwjOnlR7WV8G1Hw==
 
 napi-build-utils@^1.0.1:
   version "1.0.2"
