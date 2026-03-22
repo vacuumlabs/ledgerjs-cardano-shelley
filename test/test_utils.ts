@@ -1,6 +1,6 @@
 import TransportNodeHid from '@ledgerhq/hw-transport-node-hid'
 import SpeculosTransport from '@ledgerhq/hw-transport-node-speculos'
-import * as blake2 from 'blake2'
+import {createHash} from 'crypto'
 import {expect} from 'chai'
 import {ImportMock} from 'ts-mock-imports'
 import type {FixLenHexString} from 'types/internal'
@@ -97,10 +97,10 @@ export const Networks = {
 type TxHash = FixLenHexString<32>
 
 function hashTxBody(txBodyHex: string): TxHash {
-  const b2 = blake2.createHash('blake2b', {digestLength: 32})
-  b2.update(Buffer.from(txBodyHex, 'hex'))
+  const hash = createHash('blake2b256')
+  hash.update(Buffer.from(txBodyHex, 'hex'))
   return parseModule.parseHexStringOfLength(
-    b2.digest('hex'),
+    hash.digest('hex'),
     32,
     InvalidDataReason.INVALID_B2_HASH,
   )
