@@ -750,9 +750,9 @@
   integrity sha512-yOlFc+7UtL/89t2ZhjPvvB/DeAr3r+Dq58IgzsFkOAvVC6NMJXmCGjbptdXdR9qsX7pKcTL+s87FtYREi2dEEQ==
 
 "@types/blake2@^4.0.1":
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/@types/blake2/-/blake2-4.0.1.tgz#baecf440808cb82524190b38c56974115df20a51"
-  integrity sha512-zcBydVD4uEsGo5gFRfm2phVMLqgrGJqcTZaT6lkZMWJzYovUi6wwraUJKdY1eO92q0bhWWVSAH4OnSp2m7rCfQ==
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/@types/blake2/-/blake2-4.0.4.tgz#5f267c2a0b36116587cfc1172eda53a370512062"
+  integrity sha512-r84TojGHMbBoH91XQjqoc1N89xy/LmcGb15k9OSdB2APb+xQfNcfbcFGMa9RbMmFsnIKCRDMpuKHBM04AwdgxQ==
   dependencies:
     "@types/node" "*"
 
