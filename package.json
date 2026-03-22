@@ -46,7 +46,7 @@
     "eslint-config-vacuumlabs": "^8.0.2",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-mocha": "^11.0.0",
-    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
     "flow-bin": "^0.195.0",
     "flowgen": "^1.21.0",
     "gh-pages": "^6.3.0",
