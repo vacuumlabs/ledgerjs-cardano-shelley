@@ -456,16 +456,16 @@
     usb "2.9.0"
 
 "@ledgerhq/hw-transport-node-speculos@^6.29.2":
-  version "6.29.2"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport-node-speculos/-/hw-transport-node-speculos-6.29.2.tgz#1f0d8e78b14c791c5ebfbca57f219409a5585e3b"
-  integrity sha512-ko4EwkRyJRseoklpVTafHenmw6AO/jba8jvgRoquZCKVdY1sSv2vcb7OZo3wIXQGcEJjWeiKDe06N+oy3Am48Q==
+  version "6.33.0"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport-node-speculos/-/hw-transport-node-speculos-6.33.0.tgz#470ed8d4ae2c1cf81a65a289ba34b21c17f5e8f7"
+  integrity sha512-njdvc9r6kHh+LBAodFnaeWtp3LYP7raTg1Nw6/Y1tx5bZVVejZ/yBg9JRRrNkTFx02bTiVXhGM4K77GFAI3iYA==
   dependencies:
-    "@ledgerhq/errors" "^6.18.0"
-    "@ledgerhq/hw-transport" "^6.31.2"
-    "@ledgerhq/logs" "^6.12.0"
-    rxjs "^7.8.1"
+    "@ledgerhq/errors" "^6.31.0"
+    "@ledgerhq/hw-transport" "6.34.0"
+    "@ledgerhq/logs" "^6.16.0"
+    rxjs "7.8.2"
 
-"@ledgerhq/hw-transport@^6.31.2":
+"@ledgerhq/hw-transport@6.34.0", "@ledgerhq/hw-transport@^6.31.2":
   version "6.34.0"
   resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport/-/hw-transport-6.34.0.tgz#9624f2cfed058a4717fc773ded43d229fa273938"
   integrity sha512-BHpsf2n0/JnHsGSLGT3x3dEgOk7oLO3QYXYrzrn4RVDdiYAEyXbERYJeS1D4WbINN0/LBmTM0n4M8raRJBxxSg==
@@ -2934,13 +2934,6 @@ rxjs@7.8.2:
   version "7.8.2"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.8.2.tgz#955bc473ed8af11a002a2be52071bf475638607b"
   integrity sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA==
-  dependencies:
-    tslib "^2.1.0"
-
-rxjs@^7.8.1:
-  version "7.8.1"
-  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.8.1.tgz#6f6f3d99ea8044291efd92e7c7fcf562c4057543"
-  integrity sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==
   dependencies:
     tslib "^2.1.0"
 
