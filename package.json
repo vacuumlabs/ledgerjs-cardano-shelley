@@ -43,7 +43,7 @@
     "cspell": "^9.7.0",
     "eslint": "^8.27.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-config-vacuumlabs": "^8.0.2",
+    "eslint-config-vacuumlabs": "^10.2.0",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-mocha": "^11.0.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
