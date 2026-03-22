@@ -1669,10 +1669,10 @@ eslint-config-prettier@^10.1.8:
   resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-10.1.8.tgz#15734ce4af8c2778cc32f0b01b37b0b5cd1ecb97"
   integrity sha512-82GZUjRS0p/jganf6q1rEO25VSoHH0hKPCTrgillPjdI/3bgBhAE1QzHrHTizjpRvy6pGAvKjDJtk2pF9NDq8w==
 
-eslint-config-vacuumlabs@^8.0.2:
-  version "8.0.2"
-  resolved "https://registry.yarnpkg.com/eslint-config-vacuumlabs/-/eslint-config-vacuumlabs-8.0.2.tgz#27d70d9e39c2e7aeb64bfcff45b6fd708f1b5e10"
-  integrity sha512-3z+XEdtPw7f1oqBFOc0sVJvUoAC2OdHaEAlkaGDUax2EmSNlyp25aUP2aSZt5f3TW1QKHxKi02bZtFrk4MooEA==
+eslint-config-vacuumlabs@^10.2.0:
+  version "10.2.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-vacuumlabs/-/eslint-config-vacuumlabs-10.2.0.tgz#36a8d5c0e82f1ebf60fa4b26b652b289e1c5f403"
+  integrity sha512-MFBZWmAGWGzsukIetMJ8oeQ9FJN1r+mYVJAUQ5xifk7WALTzSfd6dLPiVqlS9Cl95qHC0owWWEZr977vzh50Qg==
 
 eslint-import-resolver-node@^0.3.7:
   version "0.3.7"
