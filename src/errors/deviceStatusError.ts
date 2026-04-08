@@ -9,7 +9,8 @@ export const DeviceStatusCodes = {
   ERR_INVALID_DATA: 0x6e07 as const,
   ERR_INVALID_BIP_PATH: 0x6e08 as const,
   ERR_REJECTED_BY_USER: 0x6e09 as const,
-  ERR_REJECTED_BY_POLICY: 0x6e10 as const,
+  //ERR_REJECTED_BY_POLICY: 0x6e10 as const,
+  ERR_REJECTED_BY_POLICY: 0x6982 as const,
   ERR_DEVICE_LOCKED: 0x6e11 as const,
   ERR_UNSUPPORTED_ADDRESS_TYPE: 0x6e12 as const,
 
