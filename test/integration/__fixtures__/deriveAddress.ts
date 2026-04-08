@@ -23,7 +23,7 @@ export const byronTestCases: ByronTestCase[] = [
     addressParams: {
       type: AddressType.BYRON,
       params: {
-        spendingPath: str_to_path("44'/1815'/1'/0/55'"),
+        spendingPath: str_to_path("44'/1815'/1'/0/55'"), // WARN
       },
     },
     result: 'Ae2tdPwUPEZELF6oijm8VFmhWpujnNzyG2zCf4RxfhmWqQKHo2drRD5Uhah',
@@ -34,7 +34,7 @@ export const byronTestCases: ByronTestCase[] = [
     addressParams: {
       type: AddressType.BYRON,
       params: {
-        spendingPath: str_to_path("44'/1815'/1'/0/12'"),
+        spendingPath: str_to_path("44'/1815'/1'/0/12'"), // WARN
       },
     },
     result: 'Ae2tdPwUPEYyiPZzoMSN9GJMNZnn3S6ZAErrezee9s1bH6tjaX6m9Cyf3Wy',
@@ -68,7 +68,7 @@ export const byronTestCases: ByronTestCase[] = [
     addressParams: {
       type: AddressType.BYRON,
       params: {
-        spendingPath: str_to_path("44'/1815'/1'/0/12'"),
+        spendingPath: str_to_path("44'/1815'/1'/0/12'"), // WARN
       },
     },
     result: '2657WMsDfac5GGdHMD6sR22tyhmFvuPrBZ79hvEvuisyUK9XCcB3nu8JecKuCXEkr',
@@ -376,7 +376,7 @@ export const shelleyTestCases: ShelleyTestCase[] = [
     addressParams: {
       type: AddressType.ENTERPRISE_KEY,
       params: {
-        spendingPath: str_to_path("1852'/1815'/101'/0/1"),
+        spendingPath: str_to_path("1852'/1815'/101'/0/1"), // WARN
       },
     },
     result: 'addr1vv6dcymepkghuyt0za9jxg5hn89art9y8yjcvhxclxdhnds25ctky',
@@ -549,7 +549,7 @@ export const shelleyTestCases: ShelleyTestCase[] = [
     addressParams: {
       type: AddressType.REWARD_KEY,
       params: {
-        stakingPath: str_to_path("1852'/1815'/101'/2/1"),
+        stakingPath: str_to_path("1852'/1815'/101'/2/1"), // WARN
       },
     },
     result: 'stake_test1up0umv478zejdvynrddaddjzcztnmm2phsqs77cghyuah6qnjw5hh',
@@ -560,7 +560,7 @@ export const shelleyTestCases: ShelleyTestCase[] = [
     addressParams: {
       type: AddressType.REWARD_KEY,
       params: {
-        stakingPath: str_to_path("1852'/1815'/0'/2/20000000"),
+        stakingPath: str_to_path("1852'/1815'/0'/2/20000000"), // WARN
       },
     },
     result: 'stake_test1urgn94qu0ewtt6f7l4sp6jm5vjv5u3gktevzy46s2qn92yshap4ze',
@@ -571,7 +571,7 @@ export const shelleyTestCases: ShelleyTestCase[] = [
     addressParams: {
       type: AddressType.REWARD_KEY,
       params: {
-        stakingPath: str_to_path("1852'/1815'/300'/2/0"),
+        stakingPath: str_to_path("1852'/1815'/300'/2/0"), // WARN
       },
     },
     result: 'stake1u08h6dxajsaatnakylrd4pdhfrv7z3lkzgsq60fhvejux0gpcrd2j',
