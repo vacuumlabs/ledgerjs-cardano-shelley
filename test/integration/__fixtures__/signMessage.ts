@@ -121,7 +121,7 @@ export const tests: TestCase[] = [
   },
   {
     testName:
-      'msg07: Should correctly sign a 198 bytes long non-hashed ascii message with keyhash as address field',
+      'msg07: Should correctly sign a 198 bytes long hashed ascii message with keyhash as address field',
     signMessageData: {
       messageHex: '6869'.repeat(99),
       signingPath: str_to_path("1852'/1815'/0'/3/0"),
@@ -139,7 +139,7 @@ export const tests: TestCase[] = [
   },
   {
     testName:
-      'msg08: Should correctly sign a 99 bytes long non-hashed hex message with keyhash as address field',
+      'msg08: Should correctly sign a 99 bytes long hashed hex message with keyhash as address field',
     signMessageData: {
       messageHex: 'de'.repeat(99),
       signingPath: str_to_path("1852'/1815'/0'/3/0"),
