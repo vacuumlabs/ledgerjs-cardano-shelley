@@ -20,10 +20,10 @@ describe('getVersion', () => {
 
     const {version, compatibility} = await ada.getVersion()
 
-    expect(version.major).to.equal(7)
-    expect(version.minor).to.equal(3)
+    expect(version.major).to.equal(8)
+    expect(version.minor).to.equal(0)
 
-    expect(version.flags.isDebug).to.equal(true)
+    expect(version.flags.isDebug).to.equal(false)
 
     expect(compatibility).to.deep.equal({
       isCompatible: true,
