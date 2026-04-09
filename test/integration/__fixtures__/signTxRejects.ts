@@ -153,8 +153,8 @@ export const transactionInitRejectTestCases: TestCaseRejectShelley[] = [
     },
     signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
     errCls: DeviceStatusError,
-    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_REJECTED_BY_POLICY],
-    rejectReason: InvalidDataReason.LEDGER_POLICY,
+    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_INVALID_PROTOCOL_MAGIC],
+    rejectReason: InvalidDataReason.INVALID_DATA_SUPPLIED_TO_LEDGER,
   },
   {
     testName: 'Invalid network id',
@@ -167,7 +167,7 @@ export const transactionInitRejectTestCases: TestCaseRejectShelley[] = [
     },
     signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
     errCls: DeviceStatusError,
-    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_INVALID_DATA],
+    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_INVALID_NETWORK_ID],
     rejectReason: InvalidDataReason.NETWORK_INVALID_NETWORK_ID,
   },
   {
@@ -1108,8 +1108,8 @@ export const certificateStakePoolRetirementRejectTestCases: TestCaseRejectShelle
       },
       signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
       errCls: DeviceStatusError,
-      errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_REJECTED_BY_POLICY],
-      rejectReason: InvalidDataReason.LEDGER_POLICY,
+      errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_TX_PARSING_FAIL_CERTIFICATES],
+      rejectReason: InvalidDataReason.INVALID_DATA_SUPPLIED_TO_LEDGER,
     },
     // can't test the rest of the signing modes, because a previous checks catches them
   ]
@@ -1141,7 +1141,7 @@ export const withdrawalRejectTestCases: TestCaseRejectShelley[] = [
     },
     signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
     errCls: DeviceStatusError,
-    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_INVALID_DATA],
+    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_TX_PARSING_FAIL_WITHDRAWALS],
     rejectReason: InvalidDataReason.INVALID_DATA_SUPPLIED_TO_LEDGER,
   },
   {
@@ -1584,7 +1584,7 @@ export const testsInvalidTokenBundleOrdering: TestCaseRejectShelley[] = [
     },
     signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
     errCls: DeviceStatusError,
-    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_INVALID_DATA],
+    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_TX_PARSING_FAIL_CANONICAL_ORDER],
     rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_ORDERING,
   },
   {
@@ -1596,7 +1596,7 @@ export const testsInvalidTokenBundleOrdering: TestCaseRejectShelley[] = [
     },
     signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
     errCls: DeviceStatusError,
-    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_INVALID_DATA],
+    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_TX_PARSING_FAIL_CANONICAL_ORDER],
     rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_NOT_UNIQUE,
   },
   {
@@ -1609,7 +1609,7 @@ export const testsInvalidTokenBundleOrdering: TestCaseRejectShelley[] = [
     },
     signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
     errCls: DeviceStatusError,
-    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_INVALID_DATA],
+    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_TX_PARSING_FAIL_CANONICAL_ORDER],
     rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_ORDERING,
   },
   {
@@ -1622,7 +1622,7 @@ export const testsInvalidTokenBundleOrdering: TestCaseRejectShelley[] = [
     },
     signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
     errCls: DeviceStatusError,
-    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_INVALID_DATA],
+    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_TX_PARSING_FAIL_CANONICAL_ORDER],
     rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_ORDERING,
   },
   {
@@ -1634,7 +1634,7 @@ export const testsInvalidTokenBundleOrdering: TestCaseRejectShelley[] = [
     },
     signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
     errCls: DeviceStatusError,
-    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_INVALID_DATA],
+    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_TX_PARSING_FAIL_CANONICAL_ORDER],
     rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_NOT_UNIQUE,
   },
   {
@@ -1648,7 +1648,7 @@ export const testsInvalidTokenBundleOrdering: TestCaseRejectShelley[] = [
     },
     signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
     errCls: DeviceStatusError,
-    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_INVALID_DATA],
+    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_TX_PARSING_FAIL_MINT],
     rejectReason: InvalidDataReason.MULTIASSET_INVALID_TOKEN_BUNDLE_ORDERING,
   },
   {
@@ -1662,7 +1662,7 @@ export const testsInvalidTokenBundleOrdering: TestCaseRejectShelley[] = [
     },
     signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
     errCls: DeviceStatusError,
-    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_INVALID_DATA],
+    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_TX_PARSING_FAIL_MINT],
     rejectReason: InvalidDataReason.MULTIASSET_INVALID_ASSET_GROUP_ORDERING,
   },
 ]

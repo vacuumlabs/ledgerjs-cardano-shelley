@@ -1,13 +1,16 @@
 import TransportNodeHid from '@ledgerhq/hw-transport-node-hid'
 import SpeculosTransport from '@ledgerhq/hw-transport-node-speculos'
 import * as blake2 from 'blake2'
-import {expect} from 'chai'
+import chai, {expect} from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 import {ImportMock} from 'ts-mock-imports'
 import type {FixLenHexString} from 'types/internal'
 
 import {Ada, utils} from '../src/Ada'
 import {DeviceVersionUnsupported, InvalidDataReason} from '../src/errors/index'
 import * as parseModule from '../src/utils/parse'
+
+chai.use(chaiAsPromised)
 
 export function shouldUseSpeculos(): boolean {
   return process.env.LEDGER_TRANSPORT === 'speculos'
