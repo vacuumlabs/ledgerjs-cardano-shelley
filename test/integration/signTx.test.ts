@@ -27,70 +27,70 @@ import {
   witnessRejectTestCases,
 } from './__fixtures__/signTxRejects'
 
-// describeSignTxPositiveTest('signTxAlonzo', testsAlonzo)
-// describeSignTxPositiveTest('signTxBabbage', testsBabbage)
-// describeSignTxPositiveTest('signTxByron', testsByron)
-// describeSignTxPositiveTest(
-//   'signTxShelleyNoCertificates',
-//   testsShelleyNoCertificates,
-// )
+describeSignTxPositiveTest('signTxAlonzo', testsAlonzo)
+describeSignTxPositiveTest('signTxBabbage', testsBabbage)
+describeSignTxPositiveTest('signTxByron', testsByron)
+describeSignTxPositiveTest(
+  'signTxShelleyNoCertificates',
+  testsShelleyNoCertificates,
+)
 describeSignTxPositiveTest(
   'signTxShelleyWithCertificates',
   testsShelleyWithCertificates,
 )
-// describeSignTxPositiveTest(
-//   'signTxConwayWithoutCertificates',
-//   testsConwayWithoutCertificates,
-// )
-// describeSignTxPositiveTest(
-//   'signTxConwayWithCertificates',
-//   testsConwayWithCertificates,
-// )
-// describeSignTxPositiveTest(
-//   'signTxConwayVotingProcedures',
-//   testsConwayVotingProcedures,
-// )
-// describeSignTxPositiveTest('signTxMultisig', testsMultisig)
-// describeSignTxPositiveTest('signTxAllegra', testsAllegra)
-// describeSignTxPositiveTest('signTxMary', testsMary)
-// describeSignTxPositiveTest(
-//   'signTxTrezorComparison',
-//   testsAlonzoTrezorComparison,
-// )
-// describeSignTxPositiveTest(
-//   'signTxBabbageTrezorComparison',
-//   testsBabbageTrezorComparison,
-// )
-// describeSignTxPositiveTest('signTxMultidelegation', testsMultidelegation)
+describeSignTxPositiveTest(
+  'signTxConwayWithoutCertificates',
+  testsConwayWithoutCertificates,
+)
+describeSignTxPositiveTest(
+  'signTxConwayWithCertificates',
+  testsConwayWithCertificates,
+)
+describeSignTxPositiveTest(
+  'signTxConwayVotingProcedures',
+  testsConwayVotingProcedures,
+)
+describeSignTxPositiveTest('signTxMultisig', testsMultisig)
+describeSignTxPositiveTest('signTxAllegra', testsAllegra)
+describeSignTxPositiveTest('signTxMary', testsMary)
+describeSignTxPositiveTest(
+  'signTxTrezorComparison',
+  testsAlonzoTrezorComparison,
+)
+describeSignTxPositiveTest(
+  'signTxBabbageTrezorComparison',
+  testsBabbageTrezorComparison,
+)
+describeSignTxPositiveTest('signTxMultidelegation', testsMultidelegation)
 
-// describeSignTxRejects('signTxInitPolicyRejects', transactionInitRejectTestCases)
-// describeSignTxRejects(
-//   'signTxAddressParamsPolicyRejects',
-//   addressParamsRejectTestCases,
-// )
-// describeSignTxRejects(
-//   'signTxCertificatePolicyRejects',
-//   certificateRejectTestCases,
-// )
-// describeSignTxRejects(
-//   'signTxCertificateStakingPolicyRejects',
-//   certificateStakingRejectTestCases,
-// )
-// describeSignTxRejects(
-//   'signTxCertificateStakePoolRetirementPolicyRejects',
-//   certificateStakePoolRetirementRejectTestCases,
-// )
-// describeSignTxRejects('signTxWithdrawalRejects', withdrawalRejectTestCases)
-// describeSignTxRejects('signTxWitnessRejects', witnessRejectTestCases)
-// describeSignTxRejects(
-//   'signTxInvalidMultiassetRejects',
-//   testsInvalidTokenBundleOrdering,
-// )
-// describeSignTxRejects(
-//   'signTxSingleAccountRejects',
-//   singleAccountRejectTestCases,
-// )
-// describeSignTxRejects(
-//   'signTxCollateralOutputRejects',
-//   collateralOutputRejectTestCases,
-// )
+describeSignTxRejects('signTxInitPolicyRejects', transactionInitRejectTestCases)
+describeSignTxRejects(
+  'signTxAddressParamsPolicyRejects',
+  addressParamsRejectTestCases,
+)
+describeSignTxRejects(
+  'signTxCertificatePolicyRejects',
+  certificateRejectTestCases,
+)
+describeSignTxRejects(
+  'signTxCertificateStakingPolicyRejects',
+  certificateStakingRejectTestCases,
+)
+describeSignTxRejects(
+  'signTxCertificateStakePoolRetirementPolicyRejects',
+  certificateStakePoolRetirementRejectTestCases,
+)
+describeSignTxRejects('signTxWithdrawalRejects', withdrawalRejectTestCases)
+describeSignTxRejects('signTxWitnessRejects', witnessRejectTestCases)
+describeSignTxRejects(
+  'signTxInvalidMultiassetRejects',
+  testsInvalidTokenBundleOrdering,
+)
+describeSignTxRejects(
+  'signTxSingleAccountRejects',
+  singleAccountRejectTestCases,
+)
+describeSignTxRejects(
+  'signTxCollateralOutputRejects',
+  collateralOutputRejectTestCases,
+)

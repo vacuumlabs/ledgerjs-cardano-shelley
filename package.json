@@ -92,7 +92,8 @@
   "resolutions": {
     "chalk/ansi-regex": "<6.0.6",
     "mocha/diff": "^8.0.3",
-    "mocha/serialize-javascript": "^7.0.3"
+    "mocha/serialize-javascript": "^7.0.3",
+    "lodash": "^4.18.1"
   },
   "packageManager": "yarn@4.13.0"
 }
