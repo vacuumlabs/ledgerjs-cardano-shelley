@@ -687,8 +687,9 @@ export function serializeTxAuxiliaryDataInit(
       buffers.push(serializePathOrCvKey(votingKey))
     }
   } else {
-    assert(votingKey != null, 'missing CIP-15 vote key')
-    buffers.push(serializePathOrCvKey(votingKey))
+    if (votingKey != null) {
+      buffers.push(serializePathOrCvKey(votingKey))
+    }
   }
 
   return Buffer.concat(buffers)
