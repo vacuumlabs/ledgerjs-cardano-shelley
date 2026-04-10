@@ -877,12 +877,12 @@ export const certificateRejectTestCases: TestCaseRejectShelley[] = [
     },
     signingMode: TransactionSigningMode.MULTISIG_TRANSACTION,
     errCls: DeviceStatusError,
-    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_REJECTED_BY_POLICY],
+    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_TX_PARSING_FAIL_CERTIFICATES],
     rejectReason:
       InvalidDataReason.SIGN_MODE_MULTISIG__POOL_RETIREMENT_NOT_ALLOWED,
   },
-  // after this we can't really test the ledger policies from LedgerJS,
-  // since we can't serialize the wrong type of certificate
+  // // after this we can't really test the ledger policies from LedgerJS,
+  // // since we can't serialize the wrong type of certificate
   {
     testName: 'Stake registration in Pool Registration Operator',
     unsupportedInAppXS: true,
