@@ -406,7 +406,7 @@ export const testsCVoteRegistrationRejects: TestCaseRejectShelley[] = [
     },
     signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
     errCls: DeviceStatusError,
-    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_INVALID_DATA],
+    errMsg: DeviceStatusMessages[DeviceStatusCodes.ERR_CVOTE_AUX_DATA_PARSING_FAIL],
     rejectReason: InvalidDataReason.CVOTE_REGISTRATION_INCONSISTENT_WITH_CIP15,
   },
   {

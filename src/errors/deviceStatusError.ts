@@ -7,6 +7,8 @@ import {ErrorBase} from './errorBase'
 export const DeviceStatusCodes = {
   ERR_STILL_IN_CALL: 0x6e04 as const, // internal
   ERR_INVALID_DATA: 0x6e07 as const,
+  ERR_COMMAND_NOT_ALLOWED: 0x6980 as const,
+  ERR_CVOTE_AUX_DATA_PARSING_FAIL: 0x6b50 as const,
   ERR_INVALID_BIP_PATH: 0x6e08 as const,
   ERR_REJECTED_BY_USER: 0x6e09 as const,
   ERR_REJECTED_BY_POLICY: 0x6982 as const,
@@ -25,6 +27,9 @@ export const DeviceStatusCodes = {
 // Human-readable version of errors reported by APDU protocol
 export const DeviceStatusMessages: Record<number, string> = {
   [DeviceStatusCodes.ERR_INVALID_DATA]: 'Invalid data supplied to Ledger',
+  [DeviceStatusCodes.ERR_COMMAND_NOT_ALLOWED]: 'Command not allowed',
+  [DeviceStatusCodes.ERR_CVOTE_AUX_DATA_PARSING_FAIL]:
+    'CVote auxiliary data parsing failed',
   [DeviceStatusCodes.ERR_INVALID_BIP_PATH]:
     'Invalid derivation path supplied to Ledger',
   [DeviceStatusCodes.ERR_REJECTED_BY_USER]: 'Action rejected by user',
