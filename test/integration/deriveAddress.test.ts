@@ -80,7 +80,7 @@ describe('deriveAddress', () => {
       addressParams,
       errCls,
       errMsg,
-      unsupportedInAppXS,
+      appVersion,
     } of rejectTestCases) {
       it(testName, async () => {
         const isAppXS = (await ada.getVersion()).version.flags.isAppXS
@@ -90,7 +90,7 @@ describe('deriveAddress', () => {
           address: addressParams,
         })
 
-        if (isAppXS && unsupportedInAppXS) {
+        if (isAppXS && (appVersion?.unsupportedInAppXS ?? false)) {
           await expect(promise).to.be.rejectedWith(DeviceVersionUnsupported)
         } else {
           await expect(promise).to.be.rejectedWith(errCls, errMsg)
@@ -133,7 +133,7 @@ describe('deriveAddress', () => {
       addressParams,
       errCls,
       errMsg,
-      unsupportedInAppXS,
+      appVersion,
     } of rejectTestCases) {
       it(testName, async () => {
         const isAppXS = (await ada.getVersion()).version.flags.isAppXS
@@ -142,7 +142,7 @@ describe('deriveAddress', () => {
           address: addressParams,
         })
 
-        if (isAppXS && unsupportedInAppXS) {
+        if (isAppXS && (appVersion?.unsupportedInAppXS ?? false)) {
           await expect(promise).to.be.rejectedWith(DeviceVersionUnsupported)
         } else {
           await expect(promise).to.be.rejectedWith(errCls, errMsg)

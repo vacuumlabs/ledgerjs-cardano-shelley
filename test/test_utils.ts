@@ -94,6 +94,11 @@ export const Networks = {
   },
 }
 
+export type AppVersionOverride = {
+  unsupportedInAppXS?: boolean // defaults to false
+  supportedSinceV8?: boolean // defaults to false
+}
+
 type TxHash = FixLenHexString<32>
 
 function hashTxBody(txBodyHex: string): TxHash {
@@ -172,7 +177,7 @@ export function describeSignTxRejects(name: string, testList: any[]) {
       signingMode,
       errCls,
       errMsg,
-      unsupportedInAppXS,
+      appVersion,
     } of testList) {
       it(`${testName} [${signingMode}]`, async () => {
         if (errMsg === DoNotRunOnLedger) {
@@ -190,7 +195,7 @@ export function describeSignTxRejects(name: string, testList: any[]) {
         // We do not expect DeviceVersionUnsupported in that case for XS app.
         const hasTypeError = errCls === TypeError
         const correctlyDetectsUnsupportedInAppXS =
-          isAppXS && unsupportedInAppXS && !hasTypeError
+          isAppXS && (appVersion?.unsupportedInAppXS ?? false) && !hasTypeError
 
         if (correctlyDetectsUnsupportedInAppXS) {
           await expect(response).to.be.rejectedWith(DeviceVersionUnsupported)
@@ -224,7 +229,7 @@ export function describeSignTxPositiveTest(name: string, tests: any[]) {
       options,
       txBody,
       expectedResult,
-      unsupportedInAppXS,
+      appVersion,
     } of tests) {
       it(`${testName} [${signingMode}]`, async () => {
         if (!txBody) {
@@ -242,7 +247,7 @@ export function describeSignTxPositiveTest(name: string, tests: any[]) {
           options,
         })
 
-        if (isAppXS && unsupportedInAppXS) {
+        if (isAppXS && (appVersion?.unsupportedInAppXS ?? false)) {
           await expect(response).to.be.rejectedWith(DeviceVersionUnsupported)
         } else {
           expect(await response).to.deep.equal(expectedResult)
