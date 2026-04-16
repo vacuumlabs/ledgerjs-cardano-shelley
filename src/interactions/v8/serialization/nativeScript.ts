@@ -11,8 +11,6 @@ import {
 } from '../../../types/internal'
 import {unreachable} from '../../../utils/assert'
 import {
-  hex_to_buf,
-  path_to_buf,
   uint8_to_buf,
   uint32_to_buf,
   uint64_to_buf,
