@@ -15,7 +15,6 @@ import type {
 } from '../types/internal'
 import {
   SCRIPT_HASH_LENGTH,
-  CertificateType,
   KEY_HASH_LENGTH,
   RequiredSignerType,
   SCRIPT_DATA_HASH_LENGTH,
@@ -35,6 +34,7 @@ import type {
   Withdrawal,
 } from '../types/public'
 import {
+  CertificateType,
   VoterType,
   PoolKeyType,
   PoolOwnerType,

@@ -15,7 +15,6 @@ import type {
 import {
   KEY_HASH_LENGTH,
   POOL_METADATA_HASH_LENGTH,
-  RelayType,
   REWARD_ACCOUNT_HEX_LENGTH,
   VRF_KEY_HASH_LENGTH,
   MAX_DNS_NAME_LENGTH,
@@ -36,6 +35,7 @@ import {
   PoolKeyType,
   PoolOwnerType,
   PoolRewardAccountType,
+  RelayType,
 } from '../types/public'
 import {
   isHexStringOfLength,

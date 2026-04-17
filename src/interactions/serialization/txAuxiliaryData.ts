@@ -1,5 +1,5 @@
 import type {ParsedTxAuxiliaryData, Uint8_t} from '../../types/internal'
-import {TxAuxiliaryDataType} from '../../types/internal'
+import {TxAuxiliaryDataType} from '../../types/public'
 import {unreachable} from '../../utils/assert'
 import {hex_to_buf, uint8_to_buf} from '../../utils/serialize'
 

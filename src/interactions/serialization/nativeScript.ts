@@ -4,10 +4,7 @@ import type {
   Uint8_t,
   Uint32_t,
 } from '../../types/internal'
-import {
-  NativeScriptHashDisplayFormat,
-  NativeScriptType,
-} from '../../types/internal'
+import {NativeScriptHashDisplayFormat, NativeScriptType} from '../../types/public'
 import {unreachable} from '../../utils/assert'
 import {
   hex_to_buf,

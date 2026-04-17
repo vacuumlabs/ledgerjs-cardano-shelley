@@ -21,7 +21,6 @@ import type {
 } from '../../types/internal'
 import {
   AUXILIARY_DATA_HASH_LENGTH,
-  CertificateType,
   ED25519_SIGNATURE_LENGTH,
   CredentialType,
   TX_HASH_LENGTH,
@@ -32,6 +31,7 @@ import type {
 } from '../../types/public'
 import {
   AddressType,
+  CertificateType,
   CIP36VoteRegistrationFormat,
   DatumType,
   TransactionSigningMode,

@@ -35,22 +35,6 @@ export type _Int64_bigint = bigint & {__type: 'int64_t'}
 export type Int64_str = string & {__type: 'int64_t'}
 export type ValidBIP32Path = Array<Uint32_t> & {__type: 'bip32_path'}
 
-// Reexport blockchain spec
-export {
-  AddressType,
-  CertificateType,
-  DatumType,
-  NativeScriptType,
-  RelayType,
-  PoolKeyType,
-  PoolOwnerType,
-  PoolRewardAccountType,
-  TransactionSigningMode,
-  TxAuxiliaryDataType,
-  CIP36VoteDelegationType,
-  TxOutputDestinationType,
-  TxOutputFormat,
-}
 export {
   Version,
   DeviceCompatibility,

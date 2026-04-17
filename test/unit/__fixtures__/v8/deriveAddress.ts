@@ -1,9 +1,6 @@
 import type {ParsedAddressParams} from '../../../../src/types/internal'
-import {
-  AddressType,
-  SpendingDataSourceType,
-  StakingDataSourceType,
-} from '../../../../src/types/internal'
+import {SpendingDataSourceType, StakingDataSourceType} from '../../../../src/types/internal'
+import {AddressType} from '../../../../src/types/public'
 
 import {samplePath, samplePathHex} from './common'
 

@@ -24,22 +24,22 @@ import type {
   ValidBIP32Path,
 } from '../../../types/internal'
 import {
-  CertificateType,
-  CIP36VoteDelegationType,
   CredentialType,
   DRepType,
+  RequiredSignerType,
+} from '../../../types/internal'
+import {
+  CertificateType,
+  CIP36VoteDelegationType,
+  CIP36VoteRegistrationFormat,
+  DatumType,
   PoolKeyType,
   PoolOwnerType,
   PoolRewardAccountType,
   RelayType,
-  RequiredSignerType,
   TxAuxiliaryDataType,
   TxOutputDestinationType,
   TransactionSigningMode,
-} from '../../../types/internal'
-import {
-  CIP36VoteRegistrationFormat,
-  DatumType,
   VoterType,
 } from '../../../types/public'
 import {assert, unreachable} from '../../../utils/assert'

@@ -5,7 +5,7 @@ import type {
   Version,
   ParsedTransactionOptions,
 } from '../../types/internal'
-import {TransactionSigningMode} from '../../types/internal'
+import {TransactionSigningMode} from '../../types/public'
 import {assert} from '../../utils/assert'
 import {
   serializeOptionFlag,

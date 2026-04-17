@@ -9,9 +9,9 @@ import type {
 } from '../../types/internal'
 import {
   SpendingDataSourceType,
-  AddressType,
   StakingDataSourceType,
 } from '../../types/internal'
+import {AddressType} from '../../types/public'
 import {getVersionString} from '../../utils'
 import {assert, unreachable} from '../../utils/assert'
 import {

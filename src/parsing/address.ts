@@ -6,7 +6,6 @@ import type {
   StakingDataSource,
 } from '../types/internal'
 import {
-  AddressType,
   KEY_HASH_LENGTH,
   SCRIPT_HASH_LENGTH,
   SpendingDataSourceType,
@@ -18,6 +17,7 @@ import type {
   DeviceOwnedAddress,
   Network,
 } from '../types/public'
+import {AddressType} from '../types/public'
 import {
   parseBIP32Path,
   parseHexStringOfLength,

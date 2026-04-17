@@ -1,12 +1,12 @@
 import type {ParsedSigningRequest, ValidBIP32Path} from '../../types/internal'
+import {CredentialType, RequiredSignerType} from '../../types/internal'
 import {
   CertificateType,
-  CredentialType,
   PoolKeyType,
   PoolOwnerType,
-  RequiredSignerType,
-} from '../../types/internal'
-import {TransactionSigningMode, VoterType} from '../../types/public'
+  TransactionSigningMode,
+  VoterType,
+} from '../../types/public'
 
 export function uniquify(witnessPaths: ValidBIP32Path[]): ValidBIP32Path[] {
   const uniquifier: Record<string, ValidBIP32Path> = {}

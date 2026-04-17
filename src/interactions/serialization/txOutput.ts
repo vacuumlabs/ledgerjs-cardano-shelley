@@ -6,9 +6,8 @@ import type {
   Uint8_t,
   Uint32_t,
 } from '../../types/internal'
-import {TxOutputDestinationType} from '../../types/internal'
 import type {Version} from '../../types/public'
-import {DatumType} from '../../types/public'
+import {DatumType, TxOutputDestinationType} from '../../types/public'
 import {unreachable} from '../../utils/assert'
 import {
   hex_to_buf,

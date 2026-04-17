@@ -5,10 +5,10 @@ import type {
   Uint8_t,
 } from '../../../types/internal'
 import {
-  AddressType,
   SpendingDataSourceType,
   StakingDataSourceType,
 } from '../../../types/internal'
+import {AddressType} from '../../../types/public'
 import {unreachable} from '../../../utils/assert'
 import {
   hex_to_buf,

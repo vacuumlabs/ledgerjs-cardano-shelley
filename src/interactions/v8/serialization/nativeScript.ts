@@ -4,11 +4,8 @@ import type {
   Uint8_t,
   Uint32_t,
 } from '../../../types/internal'
-import {
-  CredentialType,
-  NativeScriptHashDisplayFormat,
-  NativeScriptType,
-} from '../../../types/internal'
+import {CredentialType} from '../../../types/internal'
+import {NativeScriptHashDisplayFormat, NativeScriptType} from '../../../types/public'
 import {unreachable} from '../../../utils/assert'
 import {
   uint8_to_buf,

@@ -8,12 +8,7 @@ import type {
   Uint8_t,
   Uint32_t,
 } from '../../types/internal'
-import {
-  PoolKeyType,
-  PoolOwnerType,
-  PoolRewardAccountType,
-  RelayType,
-} from '../../types/internal'
+import {PoolKeyType, PoolOwnerType, PoolRewardAccountType, RelayType} from '../../types/public'
 import {assert, unreachable} from '../../utils/assert'
 import {
   hex_to_buf,
