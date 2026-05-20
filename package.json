@@ -59,7 +59,7 @@
     "ts-mock-imports": "^1.3.19",
     "ts-node": "^10.9.1",
     "typedoc": "^0.28.18",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "bugs": {
     "url": "https://github.com/cardano-foundation/ledgerjs-hw-app-cardano/issues"
