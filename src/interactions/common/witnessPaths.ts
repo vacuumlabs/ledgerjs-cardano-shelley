@@ -69,7 +69,9 @@ export function gatherWitnessPaths(
           }
           break
         case CertificateType.STAKE_POOL_RETIREMENT:
-          witnessPaths.push(cert.path)
+          if (cert.path.type === PoolKeyType.DEVICE_OWNED) {
+            witnessPaths.push(cert.path.path)
+          }
           break
         default:
           break

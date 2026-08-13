@@ -56,6 +56,8 @@ export function getCompatibility(version: Version): DeviceCompatibility {
       supportsMultipleVotesPerVoter: true,
       supportsMessageSigning: true,
       supportsUnrestrictedTransaction: true,
+      supportsPoolRegistrationAsPayer: true,
+      supportsPoolRetirementAsPayer: true,
     }
   }
 
@@ -115,6 +117,8 @@ export function getCompatibility(version: Version): DeviceCompatibility {
       supportsMultipleVotesPerVoter: false,
       supportsMessageSigning: v7_1,
       supportsUnrestrictedTransaction: false,
+      supportsPoolRegistrationAsPayer: false,
+      supportsPoolRetirementAsPayer: false,
     },
     version.flags.isAppXS,
   )

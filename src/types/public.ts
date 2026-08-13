@@ -858,7 +858,11 @@ export type PoolRetirementParams = {
   /**
    * Path to the pool key
    */
-  poolKeyPath: BIP32Path
+  poolKeyPath?: BIP32Path
+  /**
+   * Hash of the pool key
+   */
+  poolKeyHash?: string
   /**
    * Epoch after which the pool should be retired
    */
@@ -1415,6 +1419,14 @@ export type DeviceCompatibility = {
    * Whether we support unrestricted transaction signing mode (app v8+)
    */
   supportsUnrestrictedTransaction: boolean
+  /**
+   * Whether we support the pool registration payer signing mode (app v8+)
+   */
+  supportsPoolRegistrationAsPayer: boolean
+  /**
+   * Whether we support the pool retirement payer signing mode (app v8+)
+   */
+  supportsPoolRetirementAsPayer: boolean
 }
 
 /**
@@ -1988,6 +2000,53 @@ export enum TransactionSigningMode {
    * - [[PoolKeyDeviceOwnedParams.path]] found in pool registration
    */
   POOL_REGISTRATION_AS_OPERATOR = 'pool_registration_as_operator',
+
+  /**
+   * Represents pool registration from the perspective of a third party paying the fee,
+   * with neither the pool cold key nor any owner path present in this session.
+   * 
+   * The transaction
+   * - *should* have valid `path` property on all `inputs`
+   * - *must not* have outputs with datum
+   * - *must* have a single certificate, and it must be pool registration
+   * - *must* have a pool key of [[PoolKeyType.DEVICE_OWNED]] on that certificate
+   * - *must not* have withdrawals
+   * - *must not* contain token minting
+   * - *must not* contain script data hash
+   * - *must not* contain collateral inputs
+   * - *must not* contain required signers
+   *
+  * Unlike operator mode, the payer never holds the pool's own credential (cold key),
+  * so it must always be given as a hash, never a path.
+   *
+   * The API witnesses
+   * - all non-null [[TxInput.path]] on `inputs`
+   */
+  POOL_REGISTRATION_AS_PAYER = 'pool_registration_as_payer',
+
+  /**
+   * Represents pool retirement from the perspective of a third party paying
+   * the fee, with the pool cold key never present in this session.
+   *
+   * The transaction
+   * - *should* have valid `path` property on all `inputs`
+   * - *must not* have outputs with datum
+   * - *must* have the pool key given as a hash ([[PoolRetirementParams.poolKeyHash]]),
+   *   never a path, on that certificate
+   * - *must not* contain withdrawals
+   * - *must not* contain token minting
+   * - *must not* contain script data hash
+   * - *must not* contain collateral inputs
+   * - *must not* contain required signers
+   *
+   * Unlike registration's payer mode, retirement certs carry no
+   * witness-shareable credential, so multiple retirement certificates may be
+   * combined in one payer session.
+   *
+   * The API witnesses
+   * - all non-null [[TxInput.path]] on `inputs`
+   */
+    POOL_RETIREMENT_AS_PAYER = 'pool_retirement_as_payer',
 
   /**
    * Represents a transaction that includes Plutus script evaluation (e.g. spending from a script address).

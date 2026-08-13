@@ -42,7 +42,7 @@ import {
   DatumType,
   VoterType,
 } from '../../../types/public'
-import {assert, unreachable} from '../../../utils/assert'
+import { assert, unreachable } from '../../../utils/assert'
 import {
   hex_to_buf,
   int64_to_buf,
@@ -53,8 +53,8 @@ import {
   uint64Number_to_buf,
   uint64_to_buf,
 } from '../../../utils/serialize'
-import {serializeCredential} from './credential'
-import {serializeAddressParams} from './addressParams'
+import { serializeCredential } from './credential'
+import { serializeAddressParams } from './addressParams'
 import {
   AuxDataType,
   CIP36RegistrationFormat,
@@ -88,6 +88,10 @@ function serializeSigningMode(signingMode: TransactionSigningMode): Buffer {
     [TransactionSigningMode.PLUTUS_TRANSACTION]: SigningMode.PLUTUS_TRANSACTION,
     [TransactionSigningMode.UNRESTRICTED_TRANSACTION]:
       SigningMode.UNRESTRICTED_TRANSACTION,
+    [TransactionSigningMode.POOL_REGISTRATION_AS_PAYER]:
+      SigningMode.POOL_REGISTRATION_AS_PAYER,
+    [TransactionSigningMode.POOL_RETIREMENT_AS_PAYER]:
+      SigningMode.POOL_RETIREMENT_AS_PAYER,
   }[signingMode]
 
   assert(value !== undefined, 'invalid signing mode')
@@ -137,9 +141,9 @@ function serializeAnchor(anchor: ParsedAnchor | null): Buffer {
 function serializePoolKeyCredential(poolKey: ParsedPoolKey): ParsedCredential {
   switch (poolKey.type) {
     case PoolKeyType.DEVICE_OWNED:
-      return {type: CredentialType.KEY_PATH, path: poolKey.path}
+      return { type: CredentialType.KEY_PATH, path: poolKey.path }
     case PoolKeyType.THIRD_PARTY:
-      return {type: CredentialType.KEY_HASH, keyHashHex: poolKey.hashHex}
+      return { type: CredentialType.KEY_HASH, keyHashHex: poolKey.hashHex }
     default:
       unreachable(poolKey)
   }
@@ -150,9 +154,9 @@ function serializePoolOwnerCredential(
 ): ParsedCredential {
   switch (owner.type) {
     case PoolOwnerType.DEVICE_OWNED:
-      return {type: CredentialType.KEY_PATH, path: owner.path}
+      return { type: CredentialType.KEY_PATH, path: owner.path }
     case PoolOwnerType.THIRD_PARTY:
-      return {type: CredentialType.KEY_HASH, keyHashHex: owner.hashHex}
+      return { type: CredentialType.KEY_HASH, keyHashHex: owner.hashHex }
     default:
       unreachable(owner)
   }
@@ -346,10 +350,10 @@ function serializePoolMetadata(metadata: ParsedPoolMetadata): Buffer {
 function serializePoolRegistration(
   certificate: Extract<
     ParsedCertificate,
-    {type: CertificateType.STAKE_POOL_REGISTRATION}
+    { type: CertificateType.STAKE_POOL_REGISTRATION }
   >,
 ): Buffer {
-  const {pool} = certificate
+  const { pool } = certificate
   const buffers: Buffer[] = [
     serializeCredential(serializePoolKeyCredential(pool.poolKey)),
     hex_to_buf(pool.vrfHashHex),
@@ -474,10 +478,7 @@ function serializeCertificate(certificate: ParsedCertificate): Buffer {
     case CertificateType.STAKE_POOL_RETIREMENT:
       return Buffer.concat([
         uint8_to_buf(certificate.type as Uint8_t),
-        serializeCredential({
-          type: CredentialType.KEY_PATH,
-          path: certificate.path,
-        }),
+        serializeCredential(serializePoolKeyCredential(certificate.path)),
         uint64_to_buf(certificate.retirementEpoch),
       ])
     default:
@@ -649,7 +650,7 @@ export function serializeTxInitData(
   witnessPaths: ValidBIP32Path[],
   rawTx: Buffer = serializeTransactionRaw(request.tx),
 ): Buffer {
-  const {tx} = request
+  const { tx } = request
 
   const includeAuxiliaryData = tx.auxiliaryData != null
   const auxiliaryDataType =
