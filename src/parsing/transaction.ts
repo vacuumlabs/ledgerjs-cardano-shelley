@@ -376,38 +376,37 @@ function inferPoolRegistrationSigningMode(
 }
 
 function inferPoolRetirementSigningMode(
-    tx: ParsedTransaction,
-  ): TransactionSigningMode | null {
-    const retirementCertificates = tx.certificates.filter(
-      (certificate) => certificate.type === CertificateType.STAKE_POOL_RETIREMENT,
-    )
+  tx: ParsedTransaction,
+): TransactionSigningMode | null {
+  const retirementCertificates = tx.certificates.filter(
+    (certificate) => certificate.type === CertificateType.STAKE_POOL_RETIREMENT,
+  )
 
-    if (retirementCertificates.length === 0) {
-      return null
-    }
-
-    const hashPoolKeyCount = retirementCertificates.filter(
-      (certificate) => certificate.path.type === PoolKeyType.THIRD_PARTY,
-    ).length
-
-    if (hashPoolKeyCount === 0) {
-      return null
-    }
-
-    // A hash-form pool key is only signable in payer mode, which requires all of
-    // them to be hashes.
-    if (hashPoolKeyCount !== retirementCertificates.length) {
-      throw new InvalidData(InvalidDataReason.CANNOT_DETERMINE_TX_SIGNING_MODE)
-    }
-
-    // Payer mode allows several retirement certificates, but no other kinds.
-    if (tx.certificates.length !== retirementCertificates.length) {
-      throw new InvalidData(InvalidDataReason.CANNOT_DETERMINE_TX_SIGNING_MODE)
-    }
-
-    return TransactionSigningMode.POOL_RETIREMENT_AS_PAYER
+  if (retirementCertificates.length === 0) {
+    return null
   }
 
+  const hashPoolKeyCount = retirementCertificates.filter(
+    (certificate) => certificate.path.type === PoolKeyType.THIRD_PARTY,
+  ).length
+
+  if (hashPoolKeyCount === 0) {
+    return null
+  }
+
+  // A hash-form pool key is only signable in payer mode, which requires all of
+  // them to be hashes.
+  if (hashPoolKeyCount !== retirementCertificates.length) {
+    throw new InvalidData(InvalidDataReason.CANNOT_DETERMINE_TX_SIGNING_MODE)
+  }
+
+  // Payer mode allows several retirement certificates, but no other kinds.
+  if (tx.certificates.length !== retirementCertificates.length) {
+    throw new InvalidData(InvalidDataReason.CANNOT_DETERMINE_TX_SIGNING_MODE)
+  }
+
+  return TransactionSigningMode.POOL_RETIREMENT_AS_PAYER
+}
 
 function inferOrdinaryOrMultisigFromTx(
   tx: ParsedTransaction,

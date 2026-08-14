@@ -15,7 +15,12 @@ import type {
   Uint64_str,
 } from '../types/internal'
 import {DRepParamsType} from '../types/public'
-import type {BIP32Path, Certificate, bigint_like, DRepParams} from '../types/public'
+import type {
+  BIP32Path,
+  Certificate,
+  bigint_like,
+  DRepParams,
+} from '../types/public'
 import {
   parseBIP32Path,
   parseHexStringOfLength,
@@ -88,7 +93,10 @@ function parsePoolRetirementPoolKey(
   if (poolKeyPath != null) {
     return {
       type: PoolKeyType.DEVICE_OWNED,
-      path: parseBIP32Path(poolKeyPath, InvalidDataReason.POOL_KEY_INVALID_PATH),
+      path: parseBIP32Path(
+        poolKeyPath,
+        InvalidDataReason.POOL_KEY_INVALID_PATH,
+      ),
     }
   }
   return {

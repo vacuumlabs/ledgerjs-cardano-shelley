@@ -192,8 +192,7 @@ export function ensureSignTxRequestSupported(
   }
 
   if (
-    request.signingMode ===
-      TransactionSigningMode.POOL_REGISTRATION_AS_PAYER &&
+    request.signingMode === TransactionSigningMode.POOL_REGISTRATION_AS_PAYER &&
     !compatibility.supportsPoolRegistrationAsPayer
   ) {
     unsupported(version, 'Pool registration as payer')
