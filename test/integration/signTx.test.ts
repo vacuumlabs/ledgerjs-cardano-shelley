@@ -4,6 +4,7 @@ import {
   testsAlonzoTrezorComparison,
   testsBabbageTrezorComparison,
   testsByron,
+  testsConwayProposalProcedures,
   testsConwayVotingProcedures,
   testsConwayWithCertificates,
   testsConwayWithoutCertificates,
@@ -50,6 +51,10 @@ describeSignTxPositiveTest(
 describeSignTxPositiveTest(
   'signTxConwayVotingProcedures',
   testsConwayVotingProcedures,
+)
+describeSignTxPositiveTest(
+  'signTxConwayProposalProcedures',
+  testsConwayProposalProcedures,
 )
 describeSignTxPositiveTest('signTxMultisig', testsMultisig)
 describeSignTxPositiveTest('signTxAllegra', testsAllegra)
