@@ -141,7 +141,7 @@ function parsePoolOwnerParams(poolOwner: PoolOwner): ParsedPoolOwner {
   }
 }
 
-function parseRewardAccount(
+export function parseRewardAccount(
   poolRewardAccount: PoolRewardAccount,
 ): ParsedPoolRewardAccount {
   switch (poolRewardAccount.type) {
