@@ -1,3 +1,4 @@
+import type {Version} from '../../../../src/types/public'
 import {parseSignTransactionRequest} from '../../../../src/parsing/transaction'
 import {TxAuxiliaryDataType} from '../../../../src/types/public'
 import {
@@ -424,11 +425,21 @@ export const cip36DelegationsExpectedWitnessPaths = [
   parsedCIP36DelegationsSignTxRequest.tx.inputs[0].path!,
 ]
 
+export const v8AppVersion: Version = {
+  major: 8,
+  minor: 0,
+  patch: 0,
+  flags: {isDebug: false, isAppXS: false},
+}
+
 export function serializeBuiltInitApduHex(
   request: typeof parsedAlonzoTrezorSignTxRequest,
   witnessPaths: typeof alonzoExpectedWitnessPaths,
+  version: Version = v8AppVersion,
 ) {
-  return serializeApdu(buildSignTxInit(request, witnessPaths)).toString('hex')
+  return serializeApdu(
+    buildSignTxInit(version, request, witnessPaths),
+  ).toString('hex')
 }
 
 export function serializeBuiltChunkApdusHex(
