@@ -17,7 +17,7 @@ What they cover:
 - `v8/` — v8 APDU command builder and sender behavior, per-operation dispatch:
   - `commandBuilder.opcert.test.ts`, `commandSender.opcert.test.ts`
   - `signTx.test.ts`, `signTxAllElements.test.ts`
-  - `signCVote.test.ts`, `signMessage.test.ts`, `deriveAddress.test.ts`
+  - `signTxProposalProcedures.test.ts`, `signCVote.test.ts`, `signMessage.test.ts`, `deriveAddress.test.ts`
   - `credential.test.ts`, `dispatch.signOperationalCertificate.test.ts`
 
 Unit test fixtures live in `test/unit/__fixtures__/`. The v8 fixtures (`test/unit/__fixtures__/v8/`) import shared transaction data from `test/integration/__fixtures__/` to avoid duplication.
