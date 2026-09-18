@@ -13,12 +13,12 @@ const AUXILIARY_DATA_HASH_LENGTH = 32
 const ED25519_SIGNATURE_LENGTH = 64
 
 export function* signTransaction(
-  _version: Version,
+  version: Version,
   request: ParsedSigningRequest,
 ): Interaction<SignedTransactionData> {
   const witnessPaths = gatherWitnessPaths(request)
   const {auxiliaryDataResponse, txHashResponse, witnessResponses} =
-    yield* sendSignTx(request, witnessPaths)
+    yield* sendSignTx(version, request, witnessPaths)
 
   const auxiliaryDataSupplement =
     request.tx.auxiliaryData?.type === TxAuxiliaryDataType.CIP36_REGISTRATION
