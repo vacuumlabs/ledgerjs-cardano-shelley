@@ -411,6 +411,13 @@ export function ensureSignTxRequestSupported(
     }
   }
 
+  if (
+    request.tx.proposalProcedures.length > 0 &&
+    !compatibility.supportsProposalProcedures
+  ) {
+    unsupported(version, 'Proposal procedures')
+  }
+
   if (request.tx.treasury !== null && !compatibility.supportsConway) {
     unsupported(version, 'Treasury amount')
   }

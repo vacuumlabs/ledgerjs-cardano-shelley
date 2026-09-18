@@ -1,3 +1,5 @@
+import {getCompatibility} from '../../../validation/deviceCapabilities'
+import type {Version} from '../../../types/public'
 import type {
   CVotePublicKey,
   ParsedAssetGroup,
@@ -22,6 +24,13 @@ import type {
   Uint64_str,
   Uint8_t,
   ValidBIP32Path,
+  FixLenHexString,
+  SCRIPT_HASH_LENGTH,
+  ParsedExUnits,
+  ParsedGovAction,
+  ParsedGovActionId,
+  ParsedProtocolParamUpdate,
+  ParsedRatio,
 } from '../../../types/internal'
 import {
   CertificateType,
@@ -40,6 +49,7 @@ import {
 import {
   CIP36VoteRegistrationFormat,
   DatumType,
+  GovActionType,
   VoterType,
 } from '../../../types/public'
 import {assert, unreachable} from '../../../utils/assert'
@@ -549,6 +559,217 @@ function serializeVoter(voter: ParsedVoter): Buffer {
   }
 }
 
+function ratioBuf(ratio: ParsedRatio): Buffer {
+  return Buffer.concat([
+    uint64_to_buf(ratio.numerator),
+    uint64_to_buf(ratio.denominator),
+  ])
+}
+
+function optUint64(value: Uint64_str | null): Buffer | null {
+  return value == null ? null : uint64_to_buf(value)
+}
+
+function optRatio(ratio: ParsedRatio | null): Buffer | null {
+  return ratio == null ? null : ratioBuf(ratio)
+}
+
+function optExUnits(exUnits: ParsedExUnits | null): Buffer | null {
+  return exUnits == null
+    ? null
+    : Buffer.concat([
+        uint64_to_buf(exUnits.memory),
+        uint64_to_buf(exUnits.steps),
+      ])
+}
+
+/**
+ * protocol_param_update fields in ascending CDDL key order, which is the order the device
+ * reads them in. Keys 12 to 15 and key 18 (cost models) are not defined for this app.
+ */
+const PARAM_FIELD_DESCRIPTORS: Array<{
+  key: number
+  serialize: (u: ParsedProtocolParamUpdate) => Buffer | null
+}> = [
+  {key: 0, serialize: (u) => optUint64(u.minFeeA)},
+  {key: 1, serialize: (u) => optUint64(u.minFeeB)},
+  {key: 2, serialize: (u) => optUint64(u.maxBlockBodySize)},
+  {key: 3, serialize: (u) => optUint64(u.maxTxSize)},
+  {key: 4, serialize: (u) => optUint64(u.maxBlockHeaderSize)},
+  {key: 5, serialize: (u) => optUint64(u.keyDeposit)},
+  {key: 6, serialize: (u) => optUint64(u.poolDeposit)},
+  {key: 7, serialize: (u) => optUint64(u.maxEpoch)},
+  {key: 8, serialize: (u) => optUint64(u.nOpt)},
+  {key: 9, serialize: (u) => optRatio(u.poolPledgeInfluence)},
+  {key: 10, serialize: (u) => optRatio(u.expansionRate)},
+  {key: 11, serialize: (u) => optRatio(u.treasuryGrowthRate)},
+  {key: 16, serialize: (u) => optUint64(u.minPoolCost)},
+  {key: 17, serialize: (u) => optUint64(u.adaPerUtxoByte)},
+  {
+    key: 19,
+    serialize: (u) =>
+      u.executionUnitPrices == null
+        ? null
+        : Buffer.concat([
+            ratioBuf(u.executionUnitPrices.memPrice),
+            ratioBuf(u.executionUnitPrices.stepPrice),
+          ]),
+  },
+  {key: 20, serialize: (u) => optExUnits(u.maxTxExUnits)},
+  {key: 21, serialize: (u) => optExUnits(u.maxBlockExUnits)},
+  {key: 22, serialize: (u) => optUint64(u.maxValueSize)},
+  {key: 23, serialize: (u) => optUint64(u.collateralPercentage)},
+  {key: 24, serialize: (u) => optUint64(u.maxCollateralInputs)},
+  {
+    key: 25,
+    serialize: (u) =>
+      u.poolVotingThresholds == null
+        ? null
+        : Buffer.concat(
+            [
+              u.poolVotingThresholds.motionNoConfidence,
+              u.poolVotingThresholds.committeeNormal,
+              u.poolVotingThresholds.committeeNoConfidence,
+              u.poolVotingThresholds.hardForkInitiation,
+              u.poolVotingThresholds.securityRelevantParameter,
+            ].map(ratioBuf),
+          ),
+  },
+  {
+    key: 26,
+    serialize: (u) =>
+      u.drepVotingThresholds == null
+        ? null
+        : Buffer.concat(
+            [
+              u.drepVotingThresholds.motionNoConfidence,
+              u.drepVotingThresholds.committeeNormal,
+              u.drepVotingThresholds.committeeNoConfidence,
+              u.drepVotingThresholds.updateConstitution,
+              u.drepVotingThresholds.hardForkInitiation,
+              u.drepVotingThresholds.ppNetworkGroup,
+              u.drepVotingThresholds.ppEconomicGroup,
+              u.drepVotingThresholds.ppTechnicalGroup,
+              u.drepVotingThresholds.ppGovGroup,
+              u.drepVotingThresholds.treasuryWithdrawal,
+            ].map(ratioBuf),
+          ),
+  },
+  {key: 27, serialize: (u) => optUint64(u.minCommitteeSize)},
+  {key: 28, serialize: (u) => optUint64(u.committeeTermLimit)},
+  {key: 29, serialize: (u) => optUint64(u.govActionValidityPeriod)},
+  {key: 30, serialize: (u) => optUint64(u.govActionDeposit)},
+  {key: 31, serialize: (u) => optUint64(u.drepDeposit)},
+  {key: 32, serialize: (u) => optUint64(u.drepInactivityPeriod)},
+  {key: 33, serialize: (u) => optRatio(u.minFeeRefScriptCoinsPerByte)},
+]
+
+function serializeProtocolParamUpdate(update: ParsedProtocolParamUpdate): {
+  bitmask: Buffer
+  values: Buffer
+} {
+  let mask = BigInt(0)
+  const values: Buffer[] = []
+  for (const descriptor of PARAM_FIELD_DESCRIPTORS) {
+    const serialized = descriptor.serialize(update)
+    if (serialized == null) continue
+    // eslint-disable-next-line no-bitwise
+    mask |= BigInt(1) << BigInt(descriptor.key)
+    values.push(serialized)
+  }
+  const bitmask = Buffer.alloc(8)
+  bitmask.writeBigUInt64BE(mask, 0)
+  return {bitmask, values: Buffer.concat(values)}
+}
+
+function serializeOptGovActionId(id: ParsedGovActionId | null): Buffer {
+  return id == null
+    ? serializeIncluded(false)
+    : Buffer.concat([
+        serializeIncluded(true),
+        hex_to_buf(id.txHashHex),
+        uint32_to_buf(id.govActionIndex),
+      ])
+}
+
+function serializeOptScriptHash(
+  hashHex: FixLenHexString<typeof SCRIPT_HASH_LENGTH> | null,
+): Buffer {
+  return hashHex == null
+    ? serializeIncluded(false)
+    : Buffer.concat([serializeIncluded(true), hex_to_buf(hashHex)])
+}
+
+function serializeGovAction(govAction: ParsedGovAction): Buffer {
+  switch (govAction.type) {
+    case GovActionType.PARAMETER_CHANGE: {
+      const {bitmask, values} = serializeProtocolParamUpdate(
+        govAction.protocolParamUpdate,
+      )
+      return Buffer.concat([
+        u8(govAction.type),
+        serializeOptGovActionId(govAction.prevActionId),
+        bitmask,
+        serializeOptScriptHash(govAction.guardrailsScriptHashHex),
+        values,
+      ])
+    }
+    case GovActionType.HARD_FORK_INITIATION:
+      return Buffer.concat([
+        u8(govAction.type),
+        serializeOptGovActionId(govAction.prevActionId),
+        uint8_to_buf(govAction.protocolVersion.major),
+        uint32_to_buf(govAction.protocolVersion.minor),
+      ])
+    case GovActionType.TREASURY_WITHDRAWALS:
+      return Buffer.concat([
+        u8(govAction.type),
+        serializeOptScriptHash(govAction.guardrailsScriptHashHex),
+        serializeCount16(govAction.withdrawals.length),
+        ...govAction.withdrawals.map((withdrawal) =>
+          Buffer.concat([
+            serializePoolRewardAccount(withdrawal.rewardAccount),
+            uint64_to_buf(withdrawal.amount),
+          ]),
+        ),
+      ])
+    case GovActionType.NO_CONFIDENCE:
+      return Buffer.concat([
+        u8(govAction.type),
+        serializeOptGovActionId(govAction.prevActionId),
+      ])
+    case GovActionType.UPDATE_COMMITTEE:
+      return Buffer.concat([
+        u8(govAction.type),
+        serializeOptGovActionId(govAction.prevActionId),
+        serializeCount16(govAction.membersToRemove.length),
+        serializeCount16(govAction.membersToAdd.length),
+        uint64_to_buf(govAction.threshold.numerator),
+        uint64_to_buf(govAction.threshold.denominator),
+        ...govAction.membersToRemove.map((credential) =>
+          serializeCredential(credential),
+        ),
+        ...govAction.membersToAdd.map((member) =>
+          Buffer.concat([
+            serializeCredential(member.coldCredential),
+            uint64_to_buf(member.expirationEpoch),
+          ]),
+        ),
+      ])
+    case GovActionType.NEW_CONSTITUTION:
+      return Buffer.concat([
+        u8(govAction.type),
+        serializeOptGovActionId(govAction.prevActionId),
+        serializeAnchor(govAction.anchor),
+        serializeOptScriptHash(govAction.scriptHashHex),
+      ])
+    case GovActionType.INFO:
+      return u8(govAction.type)
+    default:
+      unreachable(govAction)
+  }
+}
+
 export function serializeTransactionRaw(tx: ParsedTransaction): Buffer {
   const buffers: Buffer[] = []
 
@@ -633,6 +854,13 @@ export function serializeTransactionRaw(tx: ParsedTransaction): Buffer {
     }
   }
 
+  for (const proposal of tx.proposalProcedures) {
+    buffers.push(uint64_to_buf(proposal.deposit))
+    buffers.push(serializePoolRewardAccount(proposal.rewardAccount))
+    buffers.push(serializeGovAction(proposal.govAction))
+    buffers.push(serializeAnchor(proposal.anchor))
+  }
+
   if (tx.treasury != null) {
     buffers.push(uint64_to_buf(tx.treasury))
   }
@@ -645,6 +873,7 @@ export function serializeTransactionRaw(tx: ParsedTransaction): Buffer {
 }
 
 export function serializeTxInitData(
+  version: Version,
   request: ParsedSigningRequest,
   witnessPaths: ValidBIP32Path[],
   rawTx: Buffer = serializeTransactionRaw(request.tx),
@@ -688,6 +917,11 @@ export function serializeTxInitData(
     serializeIncluded(tx.totalCollateral != null),
     serializeCount16(tx.referenceInputs.length),
     serializeCount16(tx.votingProcedures.length),
+    // Sent only to apps that read it; older v8 apps would misread these bytes as the
+    // treasury inclusion flag.
+    getCompatibility(version).supportsProposalProcedures
+      ? serializeCount16(tx.proposalProcedures.length)
+      : Buffer.alloc(0),
     serializeIncluded(tx.treasury != null),
     serializeIncluded(tx.donation != null),
     serializeCount16(witnessPaths.length),

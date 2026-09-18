@@ -12,6 +12,14 @@ import type {
   ParsedVoterVotes,
   ParsedWithdrawal,
   ValidBIP32Path,
+  FixLenHexString,
+  ParsedExUnits,
+  ParsedGovAction,
+  ParsedGovActionId,
+  ParsedProposalProcedure,
+  ParsedProtocolParamUpdate,
+  ParsedRatio,
+  Uint64_str,
 } from '../types/internal'
 import {
   SCRIPT_HASH_LENGTH,
@@ -33,9 +41,17 @@ import type {
   Voter,
   VoterVotes,
   Withdrawal,
+  bigint_like,
+  ExUnits,
+  GovAction,
+  GovActionId,
+  ProposalProcedure,
+  ProtocolParamUpdate,
+  Ratio,
 } from '../types/public'
 import {
   HARDENED,
+  GovActionType,
   VoterType,
   PoolKeyType,
   PoolOwnerType,
@@ -53,6 +69,7 @@ import {
   parseInt64_str,
   parseBoolean,
   parseCredential,
+  parseUint8_t,
   parseUint32_t,
   parseUint64_str,
   validate,
@@ -60,6 +77,7 @@ import {
   parseCoin,
 } from '../utils/parse'
 import {parseCertificate} from './certificate'
+import {parseRewardAccount} from './poolRegistration'
 import {MAX_LOVELACE_SUPPLY_STR} from './constants'
 import {parseNetwork} from './network'
 import {parseTokenBundle, parseTxOutput} from './output'
@@ -257,6 +275,306 @@ function parseRequiredSigners(
 function parseReferenceInputs(inputs: Array<TxInput>): Array<ParsedInput> {
   validate(isArray(inputs), InvalidDataReason.REFERENCE_INPUTS_NOT_ARRAY)
   return inputs.map((input) => parseTxInput(input))
+}
+
+function parseOptUint64(
+  value: bigint_like | null | undefined,
+  errMsg: InvalidDataReason,
+): Uint64_str | null {
+  return value == null ? null : parseUint64_str(value, {}, errMsg)
+}
+
+function parseOptCoin(
+  value: bigint_like | null | undefined,
+  errMsg: InvalidDataReason,
+): Uint64_str | null {
+  return value == null ? null : parseCoin(value, errMsg)
+}
+
+function parseRatio(ratio: Ratio, errMsg: InvalidDataReason): ParsedRatio {
+  validate(isObject(ratio), errMsg)
+  return {
+    numerator: parseUint64_str(ratio.numerator, {}, errMsg),
+    denominator: parseUint64_str(ratio.denominator, {min: '1'}, errMsg),
+  }
+}
+
+function parseOptRatio(
+  ratio: Ratio | null | undefined,
+  errMsg: InvalidDataReason,
+): ParsedRatio | null {
+  return ratio == null ? null : parseRatio(ratio, errMsg)
+}
+
+function parseOptExUnits(
+  exUnits: ExUnits | null | undefined,
+  errMsg: InvalidDataReason,
+): ParsedExUnits | null {
+  if (exUnits == null) return null
+  validate(isObject(exUnits), errMsg)
+  return {
+    memory: parseUint64_str(exUnits.memory, {}, errMsg),
+    steps: parseUint64_str(exUnits.steps, {}, errMsg),
+  }
+}
+
+function parseProtocolParamUpdate(
+  update: ProtocolParamUpdate,
+): ParsedProtocolParamUpdate {
+  const err = InvalidDataReason.GOV_ACTION_INVALID_PROTOCOL_PARAM_UPDATE
+  validate(isObject(update), err)
+  const poolThresholds = update.poolVotingThresholds
+  const drepThresholds = update.drepVotingThresholds
+  const exUnitPrices = update.executionUnitPrices
+  return {
+    minFeeA: parseOptCoin(update.minFeeA, err),
+    minFeeB: parseOptCoin(update.minFeeB, err),
+    maxBlockBodySize: parseOptUint64(update.maxBlockBodySize, err),
+    maxTxSize: parseOptUint64(update.maxTxSize, err),
+    maxBlockHeaderSize: parseOptUint64(update.maxBlockHeaderSize, err),
+    keyDeposit: parseOptCoin(update.keyDeposit, err),
+    poolDeposit: parseOptCoin(update.poolDeposit, err),
+    maxEpoch: parseOptUint64(update.maxEpoch, err),
+    nOpt: parseOptUint64(update.nOpt, err),
+    poolPledgeInfluence: parseOptRatio(update.poolPledgeInfluence, err),
+    expansionRate: parseOptRatio(update.expansionRate, err),
+    treasuryGrowthRate: parseOptRatio(update.treasuryGrowthRate, err),
+    minPoolCost: parseOptCoin(update.minPoolCost, err),
+    adaPerUtxoByte: parseOptCoin(update.adaPerUtxoByte, err),
+    executionUnitPrices:
+      exUnitPrices == null
+        ? null
+        : {
+            memPrice: parseRatio(exUnitPrices.memPrice, err),
+            stepPrice: parseRatio(exUnitPrices.stepPrice, err),
+          },
+    maxTxExUnits: parseOptExUnits(update.maxTxExUnits, err),
+    maxBlockExUnits: parseOptExUnits(update.maxBlockExUnits, err),
+    maxValueSize: parseOptUint64(update.maxValueSize, err),
+    collateralPercentage: parseOptUint64(update.collateralPercentage, err),
+    maxCollateralInputs: parseOptUint64(update.maxCollateralInputs, err),
+    poolVotingThresholds:
+      poolThresholds == null
+        ? null
+        : {
+            motionNoConfidence: parseRatio(
+              poolThresholds.motionNoConfidence,
+              err,
+            ),
+            committeeNormal: parseRatio(poolThresholds.committeeNormal, err),
+            committeeNoConfidence: parseRatio(
+              poolThresholds.committeeNoConfidence,
+              err,
+            ),
+            hardForkInitiation: parseRatio(
+              poolThresholds.hardForkInitiation,
+              err,
+            ),
+            securityRelevantParameter: parseRatio(
+              poolThresholds.securityRelevantParameter,
+              err,
+            ),
+          },
+    drepVotingThresholds:
+      drepThresholds == null
+        ? null
+        : {
+            motionNoConfidence: parseRatio(
+              drepThresholds.motionNoConfidence,
+              err,
+            ),
+            committeeNormal: parseRatio(drepThresholds.committeeNormal, err),
+            committeeNoConfidence: parseRatio(
+              drepThresholds.committeeNoConfidence,
+              err,
+            ),
+            updateConstitution: parseRatio(
+              drepThresholds.updateConstitution,
+              err,
+            ),
+            hardForkInitiation: parseRatio(
+              drepThresholds.hardForkInitiation,
+              err,
+            ),
+            ppNetworkGroup: parseRatio(drepThresholds.ppNetworkGroup, err),
+            ppEconomicGroup: parseRatio(drepThresholds.ppEconomicGroup, err),
+            ppTechnicalGroup: parseRatio(drepThresholds.ppTechnicalGroup, err),
+            ppGovGroup: parseRatio(drepThresholds.ppGovGroup, err),
+            treasuryWithdrawal: parseRatio(
+              drepThresholds.treasuryWithdrawal,
+              err,
+            ),
+          },
+    minCommitteeSize: parseOptUint64(update.minCommitteeSize, err),
+    committeeTermLimit: parseOptUint64(update.committeeTermLimit, err),
+    govActionValidityPeriod: parseOptUint64(
+      update.govActionValidityPeriod,
+      err,
+    ),
+    govActionDeposit: parseOptCoin(update.govActionDeposit, err),
+    drepDeposit: parseOptCoin(update.drepDeposit, err),
+    drepInactivityPeriod: parseOptUint64(update.drepInactivityPeriod, err),
+    minFeeRefScriptCoinsPerByte: parseOptRatio(
+      update.minFeeRefScriptCoinsPerByte,
+      err,
+    ),
+  }
+}
+
+function parseOptGovActionId(
+  id: GovActionId | null | undefined,
+): ParsedGovActionId | null {
+  if (id == null) return null
+  validate(isObject(id), InvalidDataReason.GOV_ACTION_ID_INVALID)
+  return {
+    txHashHex: parseHexStringOfLength(
+      id.txHashHex,
+      TX_HASH_LENGTH,
+      InvalidDataReason.GOV_ACTION_ID_INVALID_TX_HASH,
+    ),
+    govActionIndex: parseUint32_t(
+      id.govActionIndex,
+      InvalidDataReason.GOV_ACTION_ID_INVALID_INDEX,
+    ),
+  }
+}
+
+function parseOptScriptHash(
+  hashHex: string | null | undefined,
+): FixLenHexString<typeof SCRIPT_HASH_LENGTH> | null {
+  return hashHex == null
+    ? null
+    : parseHexStringOfLength(
+        hashHex,
+        SCRIPT_HASH_LENGTH,
+        InvalidDataReason.GOV_ACTION_INVALID_SCRIPT_HASH,
+      )
+}
+
+function parseGovAction(govAction: GovAction): ParsedGovAction {
+  validate(isObject(govAction), InvalidDataReason.GOV_ACTION_INVALID)
+  switch (govAction.type) {
+    case GovActionType.PARAMETER_CHANGE:
+      return {
+        type: govAction.type,
+        prevActionId: parseOptGovActionId(govAction.prevActionId),
+        protocolParamUpdate: parseProtocolParamUpdate(
+          govAction.protocolParamUpdate,
+        ),
+        guardrailsScriptHashHex: parseOptScriptHash(
+          govAction.guardrailsScriptHashHex,
+        ),
+      }
+    case GovActionType.HARD_FORK_INITIATION: {
+      const err = InvalidDataReason.GOV_ACTION_INVALID_PROTOCOL_VERSION
+      validate(isObject(govAction.protocolVersion), err)
+      return {
+        type: govAction.type,
+        prevActionId: parseOptGovActionId(govAction.prevActionId),
+        protocolVersion: {
+          major: parseUint8_t(govAction.protocolVersion.major, err),
+          minor: parseUint32_t(govAction.protocolVersion.minor, err),
+        },
+      }
+    }
+    case GovActionType.TREASURY_WITHDRAWALS: {
+      const err = InvalidDataReason.GOV_ACTION_INVALID_TREASURY_WITHDRAWALS
+      validate(isArray(govAction.withdrawals), err)
+      return {
+        type: govAction.type,
+        withdrawals: govAction.withdrawals.map((withdrawal) => {
+          validate(isObject(withdrawal), err)
+          return {
+            rewardAccount: parseRewardAccount(withdrawal.rewardAccount),
+            amount: parseCoin(
+              withdrawal.amount,
+              InvalidDataReason.GOV_ACTION_INVALID_TREASURY_WITHDRAWAL_AMOUNT,
+            ),
+          }
+        }),
+        guardrailsScriptHashHex: parseOptScriptHash(
+          govAction.guardrailsScriptHashHex,
+        ),
+      }
+    }
+    case GovActionType.NO_CONFIDENCE:
+      return {
+        type: govAction.type,
+        prevActionId: parseOptGovActionId(govAction.prevActionId),
+      }
+    case GovActionType.UPDATE_COMMITTEE: {
+      const err = InvalidDataReason.GOV_ACTION_INVALID_COMMITTEE_MEMBERS
+      validate(isArray(govAction.membersToRemove), err)
+      validate(isArray(govAction.membersToAdd), err)
+      return {
+        type: govAction.type,
+        prevActionId: parseOptGovActionId(govAction.prevActionId),
+        membersToRemove: govAction.membersToRemove.map((credential) =>
+          parseCredential(credential, err),
+        ),
+        membersToAdd: govAction.membersToAdd.map((member) => {
+          validate(isObject(member), err)
+          return {
+            coldCredential: parseCredential(member.coldCredential, err),
+            expirationEpoch: parseUint64_str(
+              member.expirationEpoch,
+              {},
+              InvalidDataReason.GOV_ACTION_INVALID_COMMITTEE_EXPIRATION,
+            ),
+          }
+        }),
+        threshold: parseRatio(
+          govAction.threshold,
+          InvalidDataReason.GOV_ACTION_INVALID_COMMITTEE_THRESHOLD,
+        ),
+      }
+    }
+    case GovActionType.NEW_CONSTITUTION: {
+      const anchor = parseAnchor(govAction.anchor)
+      validate(anchor != null, InvalidDataReason.ANCHOR_INVALID)
+      return {
+        type: govAction.type,
+        prevActionId: parseOptGovActionId(govAction.prevActionId),
+        anchor,
+        scriptHashHex: parseOptScriptHash(govAction.scriptHashHex),
+      }
+    }
+    case GovActionType.INFO:
+      return {type: govAction.type}
+    default:
+      unreachable(govAction)
+  }
+}
+
+function parseProposalProcedure(
+  proposal: ProposalProcedure,
+): ParsedProposalProcedure {
+  validate(isObject(proposal), InvalidDataReason.PROPOSAL_PROCEDURE_INVALID)
+  validate(
+    proposal.anchor != null,
+    InvalidDataReason.PROPOSAL_PROCEDURE_MISSING_ANCHOR,
+  )
+  const anchor = parseAnchor(proposal.anchor)
+  validate(anchor != null, InvalidDataReason.PROPOSAL_PROCEDURE_MISSING_ANCHOR)
+  return {
+    deposit: parseCoin(
+      proposal.deposit,
+      InvalidDataReason.PROPOSAL_PROCEDURE_INVALID_DEPOSIT,
+    ),
+    rewardAccount: parseRewardAccount(proposal.rewardAccount),
+    govAction: parseGovAction(proposal.govAction),
+    anchor,
+  }
+}
+
+function parseProposalProcedures(
+  proposalProcedures: Array<ProposalProcedure>,
+): Array<ParsedProposalProcedure> {
+  validate(
+    isArray(proposalProcedures),
+    InvalidDataReason.PROPOSAL_PROCEDURES_NOT_ARRAY,
+  )
+  return proposalProcedures.map((proposal) => parseProposalProcedure(proposal))
 }
 
 function parseVotingProcedures(
@@ -667,6 +985,9 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
 
   // voting procedures
   const votingProcedures = parseVotingProcedures(tx.votingProcedures ?? [])
+  const proposalProcedures = parseProposalProcedures(
+    tx.proposalProcedures ?? [],
+  )
 
   // treasury
   const treasury =
@@ -703,6 +1024,7 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
     totalCollateral,
     referenceInputs,
     votingProcedures,
+    proposalProcedures,
     treasury,
     donation,
   }
@@ -1059,6 +1381,12 @@ export function parseSignTransactionRequest(
         InvalidDataReason.SIGN_MODE_POOL_OWNER__VOTING_PROCEDURES_NOT_ALLOWED,
       )
 
+      // cannot have proposal procedures in the tx
+      validate(
+        tx.proposalProcedures.length === 0,
+        InvalidDataReason.SIGN_MODE_POOL_OWNER__PROPOSAL_PROCEDURES_NOT_ALLOWED,
+      )
+
       // cannot have treasury in the tx
       validate(
         tx.treasury == null,
@@ -1164,6 +1492,12 @@ export function parseSignTransactionRequest(
       validate(
         tx.votingProcedures.length === 0,
         InvalidDataReason.SIGN_MODE_POOL_OPERATOR__VOTING_PROCEDURES_NOT_ALLOWED,
+      )
+
+      // cannot have proposal procedures in the tx
+      validate(
+        tx.proposalProcedures.length === 0,
+        InvalidDataReason.SIGN_MODE_POOL_OPERATOR__PROPOSAL_PROCEDURES_NOT_ALLOWED,
       )
 
       // cannot have treasury in the tx

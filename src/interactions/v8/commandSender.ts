@@ -30,7 +30,7 @@ import {
   buildSignMessageInit,
   buildSignOperationalCertificate,
 } from './commandBuilder'
-import type {NativeScriptHashDisplayFormat} from '../../types/public'
+import type {NativeScriptHashDisplayFormat, Version} from '../../types/public'
 import {NativeScriptType, TxAuxiliaryDataType} from '../../types/public'
 import {serializeTransactionRaw} from './serialization/tx'
 
@@ -117,6 +117,7 @@ export function* sendDeriveNativeScriptHash(
 }
 
 export function* sendSignTx(
+  version: Version,
   request: ParsedSigningRequest,
   witnessPaths: ValidBIP32Path[],
 ): Interaction<{
@@ -126,7 +127,7 @@ export function* sendSignTx(
 }> {
   const rawTx = serializeTransactionRaw(request.tx)
 
-  yield buildSignTxInit(request, witnessPaths, rawTx)
+  yield buildSignTxInit(version, request, witnessPaths, rawTx)
 
   let auxiliaryDataResponse: Buffer | null = null
   if (

@@ -5,6 +5,7 @@ import {
   CIP36VoteDelegationType,
   CIP36VoteRegistrationFormat,
   DatumType,
+  GovActionType,
   MessageAddressFieldType,
   NativeScriptType,
   PoolKeyType,
@@ -313,6 +314,134 @@ export type ParsedVoterVotes = {
   votes: Array<ParsedVote>
 }
 
+export type ParsedRatio = {
+  numerator: Uint64_str
+  denominator: Uint64_str
+}
+
+export type ParsedExUnits = {
+  memory: Uint64_str
+  steps: Uint64_str
+}
+
+export type ParsedExUnitPrices = {
+  memPrice: ParsedRatio
+  stepPrice: ParsedRatio
+}
+
+export type ParsedPoolVotingThresholds = {
+  motionNoConfidence: ParsedRatio
+  committeeNormal: ParsedRatio
+  committeeNoConfidence: ParsedRatio
+  hardForkInitiation: ParsedRatio
+  securityRelevantParameter: ParsedRatio
+}
+
+export type ParsedDRepVotingThresholds = {
+  motionNoConfidence: ParsedRatio
+  committeeNormal: ParsedRatio
+  committeeNoConfidence: ParsedRatio
+  updateConstitution: ParsedRatio
+  hardForkInitiation: ParsedRatio
+  ppNetworkGroup: ParsedRatio
+  ppEconomicGroup: ParsedRatio
+  ppTechnicalGroup: ParsedRatio
+  ppGovGroup: ParsedRatio
+  treasuryWithdrawal: ParsedRatio
+}
+
+export type ParsedProtocolParamUpdate = {
+  minFeeA: Uint64_str | null
+  minFeeB: Uint64_str | null
+  maxBlockBodySize: Uint64_str | null
+  maxTxSize: Uint64_str | null
+  maxBlockHeaderSize: Uint64_str | null
+  keyDeposit: Uint64_str | null
+  poolDeposit: Uint64_str | null
+  maxEpoch: Uint64_str | null
+  nOpt: Uint64_str | null
+  poolPledgeInfluence: ParsedRatio | null
+  expansionRate: ParsedRatio | null
+  treasuryGrowthRate: ParsedRatio | null
+  minPoolCost: Uint64_str | null
+  adaPerUtxoByte: Uint64_str | null
+  executionUnitPrices: ParsedExUnitPrices | null
+  maxTxExUnits: ParsedExUnits | null
+  maxBlockExUnits: ParsedExUnits | null
+  maxValueSize: Uint64_str | null
+  collateralPercentage: Uint64_str | null
+  maxCollateralInputs: Uint64_str | null
+  poolVotingThresholds: ParsedPoolVotingThresholds | null
+  drepVotingThresholds: ParsedDRepVotingThresholds | null
+  minCommitteeSize: Uint64_str | null
+  committeeTermLimit: Uint64_str | null
+  govActionValidityPeriod: Uint64_str | null
+  govActionDeposit: Uint64_str | null
+  drepDeposit: Uint64_str | null
+  drepInactivityPeriod: Uint64_str | null
+  minFeeRefScriptCoinsPerByte: ParsedRatio | null
+}
+
+export type ParsedProtocolVersion = {
+  major: Uint8_t
+  minor: Uint32_t
+}
+
+export type ParsedTreasuryWithdrawal = {
+  rewardAccount: ParsedPoolRewardAccount
+  amount: Uint64_str
+}
+
+export type ParsedCommitteeMember = {
+  coldCredential: ParsedCredential
+  expirationEpoch: Uint64_str
+}
+
+export type ParsedGovAction =
+  | {
+      type: GovActionType.PARAMETER_CHANGE
+      prevActionId: ParsedGovActionId | null
+      protocolParamUpdate: ParsedProtocolParamUpdate
+      guardrailsScriptHashHex: FixLenHexString<typeof SCRIPT_HASH_LENGTH> | null
+    }
+  | {
+      type: GovActionType.HARD_FORK_INITIATION
+      prevActionId: ParsedGovActionId | null
+      protocolVersion: ParsedProtocolVersion
+    }
+  | {
+      type: GovActionType.TREASURY_WITHDRAWALS
+      withdrawals: Array<ParsedTreasuryWithdrawal>
+      guardrailsScriptHashHex: FixLenHexString<typeof SCRIPT_HASH_LENGTH> | null
+    }
+  | {
+      type: GovActionType.NO_CONFIDENCE
+      prevActionId: ParsedGovActionId | null
+    }
+  | {
+      type: GovActionType.UPDATE_COMMITTEE
+      prevActionId: ParsedGovActionId | null
+      membersToRemove: Array<ParsedCredential>
+      membersToAdd: Array<ParsedCommitteeMember>
+      threshold: ParsedRatio
+    }
+  | {
+      type: GovActionType.NEW_CONSTITUTION
+      prevActionId: ParsedGovActionId | null
+      anchor: ParsedAnchor
+      scriptHashHex: FixLenHexString<typeof SCRIPT_HASH_LENGTH> | null
+    }
+  | {
+      type: GovActionType.INFO
+    }
+
+export type ParsedProposalProcedure = {
+  deposit: Uint64_str
+  rewardAccount: ParsedPoolRewardAccount
+  govAction: ParsedGovAction
+  anchor: ParsedAnchor
+}
+
 export const CVOTE_PUBLIC_KEY_LENGTH = 32
 
 export type CVotePublicKey = FixLenHexString<typeof CVOTE_PUBLIC_KEY_LENGTH>
@@ -374,6 +503,7 @@ export type ParsedTransaction = {
   totalCollateral: Uint64_str | null
   referenceInputs: ParsedInput[]
   votingProcedures: ParsedVoterVotes[]
+  proposalProcedures: ParsedProposalProcedure[]
   treasury: Uint64_str | null
   donation: Uint64_str | null
 }
