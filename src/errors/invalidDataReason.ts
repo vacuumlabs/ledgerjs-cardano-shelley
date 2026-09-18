@@ -160,6 +160,20 @@ export enum InvalidDataReason {
   VOTING_PROCEDURES_INVALID_NUMBER_OF_VOTERS = 'there must be exactly 1 voter in voting procedures',
   VOTING_PROCEDURES_INVALID_NUMBER_OF_VOTES = 'there must be exactly 1 voting procedure per voter',
 
+  PROPOSAL_PROCEDURES_NOT_ARRAY = 'proposal procedures not an array',
+  PROPOSAL_PROCEDURE_INVALID = 'invalid proposal procedure object',
+  PROPOSAL_PROCEDURE_INVALID_DEPOSIT = 'invalid proposal procedure deposit',
+  PROPOSAL_PROCEDURE_MISSING_ANCHOR = 'proposal procedure anchor is mandatory',
+  GOV_ACTION_INVALID = 'invalid governance action object',
+  GOV_ACTION_INVALID_SCRIPT_HASH = 'invalid script hash in a governance action',
+  GOV_ACTION_INVALID_PROTOCOL_VERSION = 'invalid protocol version in a hard fork initiation action',
+  GOV_ACTION_INVALID_TREASURY_WITHDRAWALS = 'invalid withdrawals in a treasury withdrawals action',
+  GOV_ACTION_INVALID_TREASURY_WITHDRAWAL_AMOUNT = 'invalid amount in a treasury withdrawal',
+  GOV_ACTION_INVALID_COMMITTEE_MEMBERS = 'invalid committee members in an update committee action',
+  GOV_ACTION_INVALID_COMMITTEE_EXPIRATION = 'invalid expiration epoch of a committee member',
+  GOV_ACTION_INVALID_COMMITTEE_THRESHOLD = 'invalid threshold in an update committee action',
+  GOV_ACTION_INVALID_PROTOCOL_PARAM_UPDATE = 'invalid protocol parameter update',
+
   TREASURY_NOT_VALID = 'treasury amount not valid',
 
   DONATION_NOT_VALID = 'treasury donation not valid',
@@ -205,6 +219,7 @@ export enum InvalidDataReason {
   SIGN_MODE_POOL_OWNER__REQUIRED_SIGNERS_NOT_ALLOWED = 'required signers not allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OWNER',
   SIGN_MODE_POOL_OWNER__REFERENCE_INPUTS_NOT_ALLOWED = 'reference inputs not allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OWNER',
   SIGN_MODE_POOL_OWNER__VOTING_PROCEDURES_NOT_ALLOWED = 'voting procedures not allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OWNER',
+  SIGN_MODE_POOL_OWNER__PROPOSAL_PROCEDURES_NOT_ALLOWED = 'proposal procedures not allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OWNER',
   SIGN_MODE_POOL_OWNER__TREASURY_NOT_ALLOWED = 'treasury amount not allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OWNER',
   SIGN_MODE_POOL_OWNER__DONATION_NOT_ALLOWED = 'treasury donation not allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OWNER',
 
@@ -222,6 +237,7 @@ export enum InvalidDataReason {
   SIGN_MODE_POOL_OPERATOR__REQUIRED_SIGNERS_NOT_ALLOWED = 'required signers not allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR',
   SIGN_MODE_POOL_OPERATOR__REFERENCE_INPUTS_NOT_ALLOWED = 'reference inputs not allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR',
   SIGN_MODE_POOL_OPERATOR__VOTING_PROCEDURES_NOT_ALLOWED = 'voting procedures not allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR',
+  SIGN_MODE_POOL_OPERATOR__PROPOSAL_PROCEDURES_NOT_ALLOWED = 'proposal procedures not allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR',
   SIGN_MODE_POOL_OPERATOR__TREASURY_NOT_ALLOWED = 'treasury amount not allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR',
   SIGN_MODE_POOL_OPERATOR__DONATION_NOT_ALLOWED = 'treasury donation not allowed in TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR',
 
