@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [8.1.0] - [2026]
+
+### Added
+
+- support for proposal procedures (governance action proposals), requires Ledger Cardano app 8.1
+
+
 ## [8.0.0] - [2026]
 
 ### Added
