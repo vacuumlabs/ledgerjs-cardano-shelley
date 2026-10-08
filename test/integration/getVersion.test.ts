@@ -1,6 +1,7 @@
 import {expect} from 'chai'
 
 import type Ada from '../../src/Ada'
+import {isLedgerAppVersionAtLeast} from '../../src/validation/deviceCapabilities'
 import {getAda} from '../test_utils'
 
 describe('getVersion', () => {
@@ -46,6 +47,8 @@ describe('getVersion', () => {
       supportsMultipleVoters: isV8,
       supportsMultipleVotesPerVoter: isV8,
       supportsMessageSigning: true,
+      supportsUnrestrictedTransaction: isV8,
+      supportsPoolRegistrationBlsKey: isLedgerAppVersionAtLeast(version, 8, 1),
     })
   })
 })

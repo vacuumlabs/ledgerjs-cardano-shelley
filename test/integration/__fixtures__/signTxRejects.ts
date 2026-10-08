@@ -1270,7 +1270,7 @@ export const certificateRejectTestCases: TestCaseRejectShelley[] = [
     appVersion: {unsupportedInAppXS: true},
     tx: {
       ...shelleyBase,
-      inputs: [],
+      inputs: [inputs.utxoMultisig],
       certificates: [
         {
           type: CertificateType.STAKE_REGISTRATION,
@@ -1323,7 +1323,7 @@ export const certificateRejectTestCases: TestCaseRejectShelley[] = [
     appVersion: {unsupportedInAppXS: true},
     tx: {
       ...shelleyBase,
-      inputs: [],
+      inputs: [inputs.utxoMultisig],
       certificates: [
         {
           type: CertificateType.STAKE_DEREGISTRATION,
@@ -1375,7 +1375,7 @@ export const certificateRejectTestCases: TestCaseRejectShelley[] = [
     appVersion: {unsupportedInAppXS: true},
     tx: {
       ...shelleyBase,
-      inputs: [],
+      inputs: [inputs.utxoMultisig],
       certificates: [
         {
           type: CertificateType.STAKE_DELEGATION,
@@ -1427,7 +1427,7 @@ export const certificateRejectTestCases: TestCaseRejectShelley[] = [
     appVersion: {unsupportedInAppXS: true},
     tx: {
       ...shelleyBase,
-      inputs: [],
+      inputs: [inputs.utxoMultisig],
       certificates: [
         {
           type: CertificateType.STAKE_POOL_RETIREMENT,
@@ -1603,7 +1603,7 @@ export const withdrawalRejectTestCases: TestCaseRejectShelley[] = [
       },
       v8: {
         errCls: DeviceStatusError,
-        errMsg: StatusWordMsgV8[StatusWordV8.SWO_TX_PARSING_FAIL_WITHDRAWALS],
+        errMsg: StatusWordMsgV8[StatusWordV8.SWO_TX_PARSING_FAIL_CANONICAL_ORDER],
       },
     },
     rejectReason: InvalidDataReason.INVALID_DATA_SUPPLIED_TO_LEDGER,
