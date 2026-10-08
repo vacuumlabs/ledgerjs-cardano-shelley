@@ -9,6 +9,8 @@ DISPLAY_MODE="headless"
 PARALLELISM=1
 SHARDING_REQUESTED=0
 SHOW_PRINTF=0
+AUTO_NAV=0
+BASE_API_PORT="${SPECULOS_API_PORT:-5000}"
 MOCHA_ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -30,12 +32,23 @@ while [[ $# -gt 0 ]]; do
       SHOW_PRINTF=1
       shift
       ;;
+    --auto)
+      AUTO_NAV=1
+      shift
+      ;;
     *)
       MOCHA_ARGS+=("$1")
       shift
       ;;
   esac
 done
+
+# Without --auto a person confirms the screens, hence the long default timeout.
+# With --auto a test that waits longer than this is stuck: let it fail and go on
+# with the next test. A --timeout given on the command line still wins.
+if [ "$AUTO_NAV" -eq 1 ]; then
+  MOCHA_ARGS=(--timeout 120000 "${MOCHA_ARGS[@]+"${MOCHA_ARGS[@]}"}")
+fi
 
 if ! [[ "$PARALLELISM" =~ ^[1-9][0-9]*$ ]]; then
   echo "ERROR: -n must be a positive integer." >&2
@@ -94,9 +107,13 @@ done
 
 WORK_DIR="$(mktemp -d)"
 SPECULOS_PGIDS=()
+AUTONAV_PIDS=()
 MOCHA_PGIDS=()
 
 cleanup() {
+  for pid in "${AUTONAV_PIDS[@]:-}"; do
+    kill "$pid" 2>/dev/null || true
+  done
   for pgid in "${MOCHA_PGIDS[@]:-}"; do
     kill -- "-$pgid" 2>/dev/null || true
   done
@@ -189,6 +206,10 @@ for ((i = 0; i < PARALLELISM; i++)); do
   port=$((BASE_APDU_PORT + i))
   echo "Starting speculos[$i]: $APP_ELF (display=$DISPLAY_MODE, apdu-port=$port)"
   SPECULOS_ARGS=()
+  api_port=0
+  if [ "$AUTO_NAV" -eq 1 ]; then
+    api_port=$((BASE_API_PORT + i))
+  fi
   if [ "$SHOW_PRINTF" -ne 1 ]; then
     SPECULOS_ARGS+=(--log-level speculos:WARNING)
     SPECULOS_ARGS+=(--log-level apdu:WARNING)
@@ -204,18 +225,20 @@ for ((i = 0; i < PARALLELISM; i++)); do
     --seed "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about" \
     --display "$DISPLAY_MODE" \
     --apdu-port "$port" \
-    --api-port 0 \
+    --api-port "$api_port" \
     "${SPECULOS_ARGS[@]}" &
   SPECULOS_PGIDS+=($!)
 done
 
-for ((i = 0; i < PARALLELISM; i++)); do
-  port=$((BASE_APDU_PORT + i))
-  echo "Waiting for speculos[$i] on port $port..."
+wait_for_port() {
+  local name="$1"
+  local port="$2"
+  local i="$3"
+  echo "Waiting for $name[$i] on port $port..."
   for attempt in $(seq 1 30); do
     if lsof -iTCP:$port -sTCP:LISTEN &>/dev/null; then
-      echo "Speculos[$i] ready."
-      break
+      echo "$name[$i] ready."
+      return 0
     fi
     if ! kill -0 "${SPECULOS_PGIDS[$i]}" 2>/dev/null; then
       echo "ERROR: speculos[$i] exited unexpectedly" >&2
@@ -223,13 +246,27 @@ for ((i = 0; i < PARALLELISM; i++)); do
       exit 1
     fi
     if [ "$attempt" -eq 30 ]; then
-      echo "ERROR: Timed out waiting for speculos[$i] on port $port" >&2
+      echo "ERROR: Timed out waiting for $name[$i] on port $port" >&2
       cat "$WORK_DIR/speculos-$i.log" >&2 || true
       exit 1
     fi
     sleep 1
   done
+}
+
+for ((i = 0; i < PARALLELISM; i++)); do
+  wait_for_port "speculos" "$((BASE_APDU_PORT + i))" "$i"
 done
+
+if [ "$AUTO_NAV" -eq 1 ]; then
+  for ((i = 0; i < PARALLELISM; i++)); do
+    wait_for_port "speculos API" "$((BASE_API_PORT + i))" "$i"
+    echo "Starting autonav[$i] on API port $((BASE_API_PORT + i))."
+    node "$SCRIPT_DIR/speculos-autonav.mjs" "http://127.0.0.1:$((BASE_API_PORT + i))" \
+      2> >(tee "$WORK_DIR/autonav-$i.log" >&2) &
+    AUTONAV_PIDS+=($!)
+  done
+fi
 
 if (( PARALLELISM == 1 )); then
   echo "Starting mocha[0] on port $BASE_APDU_PORT."
@@ -282,6 +319,18 @@ FAILED_COUNT="$(sum_matches '[0-9]+ failing' "${MOCHA_LOGS[@]}")"
 PENDING_COUNT="$(sum_matches '[0-9]+ pending' "${MOCHA_LOGS[@]}")"
 PROCESS_ERROR_COUNT="$(count_matching_files 'Exception during run:' "${MOCHA_LOGS[@]}")"
 
+# The navigator reports failed requests on stderr and keeps running; it is
+# not expected to exit before cleanup.
+AUTONAV_ERRORS=()
+for ((i = 0; i < ${#AUTONAV_PIDS[@]}; i++)); do
+  while IFS= read -r line; do
+    AUTONAV_ERRORS+=("- [autonav $i] ${line#\[autonav\] }")
+  done < <(grep -F 'request failed' "$WORK_DIR/autonav-$i.log" 2>/dev/null || true)
+  if ! kill -0 "${AUTONAV_PIDS[$i]}" 2>/dev/null; then
+    AUTONAV_ERRORS+=("- [autonav $i] exited before the tests finished")
+  fi
+done
+
 echo "===== parallel summary ====="
 echo "workers: $PARALLELISM"
 echo "passed: $PASSED_COUNT"
@@ -292,6 +341,10 @@ fi
 if [ "$PROCESS_ERROR_COUNT" -ne 0 ]; then
   echo "worker errors: $PROCESS_ERROR_COUNT"
 fi
+if [ "${#AUTONAV_ERRORS[@]}" -ne 0 ]; then
+  echo "autonav errors:"
+  printf '%s\n' "${AUTONAV_ERRORS[@]}"
+fi
 
 if [ "$FAILED_COUNT" -ne 0 ] || [ "$PROCESS_ERROR_COUNT" -ne 0 ]; then
   echo "failures:"
@@ -301,6 +354,6 @@ if [ "$FAILED_COUNT" -ne 0 ] || [ "$PROCESS_ERROR_COUNT" -ne 0 ]; then
   done
 fi
 
-if [ "$FAILED" -ne 0 ]; then
+if [ "$FAILED" -ne 0 ] || [ "${#AUTONAV_ERRORS[@]}" -ne 0 ]; then
   exit 1
 fi
