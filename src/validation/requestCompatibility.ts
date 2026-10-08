@@ -11,7 +11,7 @@ import type {
   ValidBIP32Path,
   Version,
 } from '../types/internal'
-import {CredentialType} from '../types/internal'
+import {CredentialType, PoolBlsKeyType} from '../types/internal'
 import {
   AddressType,
   CertificateType,
@@ -273,6 +273,15 @@ export function ensureSignTxRequestSupported(
         `More than ${V7_POOL_REGISTRATION_RELAYS_MAX} pool registration relays`,
       )
     }
+  }
+
+  const hasPoolBlsKey = request.tx.certificates.some(
+    (c) =>
+      c.type === CertificateType.STAKE_POOL_REGISTRATION &&
+      c.pool.blsKey.type !== PoolBlsKeyType.ABSENT,
+  )
+  if (hasPoolBlsKey && !compatibility.supportsPoolRegistrationBlsKey) {
+    unsupported(version, 'Pool registration BLS key')
   }
 
   const hasPoolRetirement = request.tx.certificates.some(

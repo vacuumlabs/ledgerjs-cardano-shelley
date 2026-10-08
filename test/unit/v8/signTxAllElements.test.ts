@@ -8,6 +8,7 @@ import {
   signTxAllElementsNoCertificates,
 } from '../../integration/__fixtures__/signTxAllElements'
 import {serializeTransactionRaw} from '../../../src/interactions/v8/serialization/tx'
+import {v8Version} from '../__fixtures__/v8/common'
 import {parseSignTransactionRequest} from '../../../src/parsing/transaction'
 import {
   AddressType,
@@ -142,9 +143,9 @@ describe('v8 signTxAllElements fixtures', () => {
       signingMode: fixture.signingMode,
       additionalWitnessPaths: fixture.additionalWitnessPaths,
     })
-    expect(serializeTransactionRaw(parsed.tx).toString('hex')).to.equal(
-      combinedCertificatesRawTxHex,
-    )
+    expect(
+      serializeTransactionRaw(v8Version, parsed.tx).toString('hex'),
+    ).to.equal(combinedCertificatesRawTxHex)
   })
 
   it('parses the multisig certificate fixture bucket', () => {

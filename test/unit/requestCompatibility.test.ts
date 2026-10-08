@@ -35,6 +35,10 @@ import {parsedOperationalCertificateFixture} from './__fixtures__/v8/opcert'
 import {parsedSignCVoteFixture} from './__fixtures__/v8/signCVote'
 import {parsedSignMessageFixture} from './__fixtures__/v8/signMessage'
 import {signTxAllElementsCombinedCertificates} from '../integration/__fixtures__/signTxAllElements'
+import {
+  poolRegistrationOperatorTestCases,
+  poolRegistrationOwnerTestCases,
+} from '../integration/__fixtures__/signTxPoolRegistration'
 
 const mkVersion = (major: number, minor = 0, isAppXS = false): Version => ({
   major,
@@ -51,6 +55,7 @@ const v7 = mkVersion(7, 1)
 const v7Xs = mkVersion(7, 1, true)
 const v7WithoutMessageSigning = mkVersion(7, 0)
 const v8 = mkVersion(8)
+const v8_1 = mkVersion(8, 1)
 
 const byronAddressParams = parseAddress(
   {protocolMagic: 42, networkId: 0},
@@ -319,6 +324,56 @@ describe('request compatibility gating', () => {
     const v8Interaction = signTransaction(v8, request)
     const first = v8Interaction.next()
     expect(first.done).to.equal(false)
+  })
+
+  it('rejects a pool registration BLS key before app 8.1', () => {
+    const poolBlsKeyTestCases = [
+      ...poolRegistrationOwnerTestCases,
+      ...poolRegistrationOperatorTestCases,
+    ].filter(
+      (testCase) =>
+        testCase.appVersion?.requiredFeature ===
+        'supportsPoolRegistrationBlsKey',
+    )
+    expect(poolBlsKeyTestCases).to.have.length(2)
+
+    for (const testCase of poolBlsKeyTestCases) {
+      const request = parseSignTransactionRequest({
+        tx: testCase.tx,
+        signingMode: testCase.signingMode,
+        additionalWitnessPaths: testCase.additionalWitnessPaths,
+        options: testCase.options,
+      })
+
+      for (const version of [v7, v8]) {
+        expect(() => signTransaction(version, request).next()).to.throw(
+          DeviceVersionUnsupported,
+          'Pool registration BLS key',
+        )
+      }
+
+      const v8_1Interaction = signTransaction(v8_1, request)
+      expect(v8_1Interaction.next().done).to.equal(false)
+    }
+  })
+
+  it('accepts a pool registration without BLS key on every app version', () => {
+    const testCase = poolRegistrationOperatorTestCases.find(
+      (t) =>
+        t.testName ===
+        'Sign_tx_Witness_pool_registration_as_operator_without_bls_key',
+    )
+    if (testCase === undefined) throw new Error('missing fixture')
+    const request = parseSignTransactionRequest({
+      tx: testCase.tx,
+      signingMode: testCase.signingMode,
+      additionalWitnessPaths: testCase.additionalWitnessPaths,
+      options: testCase.options,
+    })
+
+    for (const version of [v7, v8, v8_1]) {
+      expect(signTransaction(version, request).next().done).to.equal(false)
+    }
   })
 
   it('accepts parsing token bundles with more than 1000 asset groups', () => {

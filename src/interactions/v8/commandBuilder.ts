@@ -11,6 +11,7 @@ import type {
   ParsedTransaction,
   Uint32_t,
   ValidBIP32Path,
+  Version,
 } from '../../types/internal'
 import {
   ED25519_SIGNATURE_LENGTH,
@@ -268,6 +269,7 @@ export function buildDeriveNativeScriptHashFinish(
 }
 
 export function buildSignTxInit(
+  version: Version,
   request: ParsedSigningRequest,
   witnessPaths: ValidBIP32Path[],
   rawTx?: Buffer,
@@ -276,7 +278,7 @@ export function buildSignTxInit(
     ins: INS.SIGN_TX,
     p1: V8TxP1.INIT,
     p2: V8P2_UNUSED,
-    data: serializeTxInitData(request, witnessPaths, rawTx),
+    data: serializeTxInitData(version, request, witnessPaths, rawTx),
     expectedResponseLength: 0,
   }
 }
@@ -312,8 +314,9 @@ export function buildSignTxAuxiliaryDataDelegation(
 }
 
 export function buildSignTxChunks(
+  version: Version,
   tx: ParsedTransaction,
-  txData: Buffer = serializeTransactionRaw(tx),
+  txData: Buffer = serializeTransactionRaw(version, tx),
 ): SendParams[] {
   const apdus: SendParams[] = []
   let offset = 0

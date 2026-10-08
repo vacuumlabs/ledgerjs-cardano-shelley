@@ -811,6 +811,19 @@ export type PoolMetadataParams = {
 }
 
 /**
+ * Pool registration BLS key
+ *
+ * @category Pool registration certificate
+ * @see [[PoolRegistrationParams]]
+ */
+export type PoolBlsKeyParams = {
+  /** BLS12-381 public key (96 bytes) */
+  publicKeyHex: string
+  /** Proof of possession of the BLS key (48 bytes) */
+  possessionProofHex: string
+}
+
+/**
  * Pool margin represented as fraction (numerator/denominator)
  *
  * @category Pool registration certificate
@@ -839,6 +852,8 @@ export type PoolRegistrationParams = {
   poolKey: PoolKey
   /** Pool vrf key */
   vrfKeyHashHex: string
+  /** Pool BLS key */
+  blsKey?: PoolBlsKeyParams | null
   /** Owner pledge */
   pledge: bigint_like
   cost: bigint_like
@@ -1415,6 +1430,10 @@ export type DeviceCompatibility = {
    * Whether we support unrestricted transaction signing mode (app v8+)
    */
   supportsUnrestrictedTransaction: boolean
+  /**
+   * Whether we support BLS key in pool registration certificates (app v8.1+)
+   */
+  supportsPoolRegistrationBlsKey: boolean
 }
 
 /**

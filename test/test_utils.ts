@@ -4,7 +4,7 @@ import {ImportMock} from 'ts-mock-imports'
 import type {FixLenHexString} from 'types/internal'
 
 import {Ada, utils} from '../src/Ada'
-import {isV7App} from '../src/validation/deviceCapabilities'
+import {getCompatibility, isV7App} from '../src/validation/deviceCapabilities'
 import {DeviceVersionUnsupported, InvalidDataReason} from '../src/errors/index'
 import {interact} from '../src/interactions/common/interact'
 import type {SendParams} from '../src/interactions/common/types'
@@ -13,6 +13,7 @@ import * as parseModule from '../src/utils/parse'
 import {debugSetSettings, type DebugSettings} from './debugSetSettings'
 import type {
   BIP32Path,
+  DeviceCompatibility,
   SignedTransactionData,
   Transaction,
   TransactionOptions,
@@ -135,6 +136,7 @@ export const Networks = {
 export type AppVersionOverride = {
   unsupportedInAppXS?: boolean // defaults to false
   supportedSinceV8?: boolean // defaults to false
+  requiredFeature?: keyof DeviceCompatibility // defaults to none
 }
 
 type TxHash = FixLenHexString<32>
@@ -338,8 +340,17 @@ export function describeSignTxPositiveTest(
         const {version} = await ada.getVersion()
         const isAppXS = version.flags.isAppXS
 
-        if (isV7App(version) && (appVersion?.supportedSinceV8 ?? false)) {
-          const response = ada.signTransaction({tx, signingMode})
+        if (
+          (isV7App(version) && (appVersion?.supportedSinceV8 ?? false)) ||
+          (appVersion?.requiredFeature !== undefined &&
+            !getCompatibility(version)[appVersion.requiredFeature])
+        ) {
+          const response = ada.signTransaction({
+            tx,
+            signingMode,
+            additionalWitnessPaths,
+            options,
+          })
           await expect(response).to.be.rejectedWith(DeviceVersionUnsupported)
           return
         }

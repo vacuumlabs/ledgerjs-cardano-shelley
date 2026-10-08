@@ -9,6 +9,7 @@ import type {
   ParsedDRep,
   ParsedOutput,
   ParsedOutputDestination,
+  ParsedPoolBlsKey,
   ParsedPoolKey,
   ParsedPoolMetadata,
   ParsedPoolOwner,
@@ -22,12 +23,14 @@ import type {
   Uint64_str,
   Uint8_t,
   ValidBIP32Path,
+  Version,
 } from '../../../types/internal'
 import {
   CertificateType,
   CIP36VoteDelegationType,
   CredentialType,
   DRepType,
+  PoolBlsKeyType,
   PoolKeyType,
   PoolOwnerType,
   PoolRewardAccountType,
@@ -53,6 +56,7 @@ import {
   uint64Number_to_buf,
   uint64_to_buf,
 } from '../../../utils/serialize'
+import {getCompatibility} from '../../../validation/deviceCapabilities'
 import {serializeCredential} from './credential'
 import {serializeAddressParams} from './addressParams'
 import {
@@ -61,6 +65,7 @@ import {
   CVoteCredentialType,
   Included,
   OutputDestinationType,
+  PoolBlsKeyWireType,
   PoolRewardAccountWireType,
   SigningMode,
 } from './wireTypes'
@@ -343,16 +348,42 @@ function serializePoolMetadata(metadata: ParsedPoolMetadata): Buffer {
   ])
 }
 
+function serializePoolBlsKey(blsKey: ParsedPoolBlsKey): Buffer {
+  switch (blsKey.type) {
+    case PoolBlsKeyType.ABSENT:
+      return uint8_to_buf(PoolBlsKeyWireType.ABSENT as Uint8_t)
+    case PoolBlsKeyType.NULL:
+      return uint8_to_buf(PoolBlsKeyWireType.NULL as Uint8_t)
+    case PoolBlsKeyType.PRESENT:
+      return Buffer.concat([
+        uint8_to_buf(PoolBlsKeyWireType.PRESENT as Uint8_t),
+        hex_to_buf(blsKey.publicKeyHex),
+        hex_to_buf(blsKey.possessionProofHex),
+      ])
+    default:
+      unreachable(blsKey)
+  }
+}
+
 function serializePoolRegistration(
+  version: Version,
   certificate: Extract<
     ParsedCertificate,
     {type: CertificateType.STAKE_POOL_REGISTRATION}
   >,
 ): Buffer {
   const {pool} = certificate
+  const supportsBlsKey =
+    getCompatibility(version).supportsPoolRegistrationBlsKey
+  // apps before 8.1 have no BLS key field
+  assert(
+    supportsBlsKey || pool.blsKey.type === PoolBlsKeyType.ABSENT,
+    'unsupported pool bls key',
+  )
   const buffers: Buffer[] = [
     serializeCredential(serializePoolKeyCredential(pool.poolKey)),
     hex_to_buf(pool.vrfHashHex),
+    supportsBlsKey ? serializePoolBlsKey(pool.blsKey) : Buffer.alloc(0),
     uint64_to_buf(pool.pledge),
     uint64_to_buf(pool.cost),
     uint64_to_buf(pool.margin.numerator),
@@ -379,7 +410,10 @@ function serializePoolRegistration(
   return Buffer.concat([uint16_to_buf(payload.length as Uint16_t), payload])
 }
 
-function serializeCertificate(certificate: ParsedCertificate): Buffer {
+function serializeCertificate(
+  version: Version,
+  certificate: ParsedCertificate,
+): Buffer {
   switch (certificate.type) {
     case CertificateType.STAKE_REGISTRATION:
     case CertificateType.STAKE_DEREGISTRATION:
@@ -469,7 +503,7 @@ function serializeCertificate(certificate: ParsedCertificate): Buffer {
     case CertificateType.STAKE_POOL_REGISTRATION:
       return Buffer.concat([
         uint8_to_buf(certificate.type as Uint8_t),
-        serializePoolRegistration(certificate),
+        serializePoolRegistration(version, certificate),
       ])
     case CertificateType.STAKE_POOL_RETIREMENT:
       return Buffer.concat([
@@ -549,7 +583,10 @@ function serializeVoter(voter: ParsedVoter): Buffer {
   }
 }
 
-export function serializeTransactionRaw(tx: ParsedTransaction): Buffer {
+export function serializeTransactionRaw(
+  version: Version,
+  tx: ParsedTransaction,
+): Buffer {
   const buffers: Buffer[] = []
 
   for (const input of tx.inputs) {
@@ -570,7 +607,7 @@ export function serializeTransactionRaw(tx: ParsedTransaction): Buffer {
   }
 
   for (const certificate of tx.certificates) {
-    buffers.push(serializeCertificate(certificate))
+    buffers.push(serializeCertificate(version, certificate))
   }
 
   for (const withdrawal of tx.withdrawals) {
@@ -645,9 +682,10 @@ export function serializeTransactionRaw(tx: ParsedTransaction): Buffer {
 }
 
 export function serializeTxInitData(
+  version: Version,
   request: ParsedSigningRequest,
   witnessPaths: ValidBIP32Path[],
-  rawTx: Buffer = serializeTransactionRaw(request.tx),
+  rawTx: Buffer = serializeTransactionRaw(version, request.tx),
 ): Buffer {
   const {tx} = request
 

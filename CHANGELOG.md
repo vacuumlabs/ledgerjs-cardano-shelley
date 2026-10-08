@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [Unreleased]
+
+Works with Ledger Cardano app 8.1.0 and is backwards compatible with older versions. Older versions of this library cannot sign pool registration certificates with Ledger Cardano app 8.1.0, hence an update to this version of the library is required before Ledger Cardano app 8.1.0 is released.
+
+### Added
+
+- support for the optional BLS key in pool registration certificates (`blsKey` in `PoolRegistrationParams`), requires Ledger Cardano app v8.1+
+- `supportsPoolRegistrationBlsKey` in `DeviceCompatibility`
+
+
 ## [8.1.0](https://github.com/cardano-foundation/ledgerjs-hw-app-cardano/compare/v8.0.0...v8.1.0) - [October 1st 2026]
 
 ### Removed
