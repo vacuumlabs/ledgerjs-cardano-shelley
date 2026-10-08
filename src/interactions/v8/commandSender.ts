@@ -7,6 +7,7 @@ import type {
   ParsedNativeScript,
   ParsedOperationalCertificate,
   ValidBIP32Path,
+  Version,
 } from '../../types/internal'
 import type {Interaction} from '../common/types'
 import {
@@ -117,6 +118,7 @@ export function* sendDeriveNativeScriptHash(
 }
 
 export function* sendSignTx(
+  version: Version,
   request: ParsedSigningRequest,
   witnessPaths: ValidBIP32Path[],
 ): Interaction<{
@@ -124,9 +126,9 @@ export function* sendSignTx(
   txHashResponse: Buffer
   witnessResponses: Buffer[]
 }> {
-  const rawTx = serializeTransactionRaw(request.tx)
+  const rawTx = serializeTransactionRaw(version, request.tx)
 
-  yield buildSignTxInit(request, witnessPaths, rawTx)
+  yield buildSignTxInit(version, request, witnessPaths, rawTx)
 
   let auxiliaryDataResponse: Buffer | null = null
   if (
@@ -150,7 +152,7 @@ export function* sendSignTx(
 
   let txHashResponse: Buffer = Buffer.alloc(0)
 
-  for (const chunk of buildSignTxChunks(request.tx, rawTx)) {
+  for (const chunk of buildSignTxChunks(version, request.tx, rawTx)) {
     txHashResponse = yield chunk
   }
 

@@ -2,6 +2,7 @@ import {InvalidData} from '../errors'
 import {InvalidDataReason} from '../errors/invalidDataReason'
 import type {
   ParsedMargin,
+  ParsedPoolBlsKey,
   ParsedPoolKey,
   ParsedPoolMetadata,
   ParsedPoolOwner,
@@ -13,7 +14,10 @@ import type {
   VarLenAsciiString,
 } from '../types/internal'
 import {
+  BLS_POSSESSION_PROOF_LENGTH,
+  BLS_PUBLIC_KEY_LENGTH,
   KEY_HASH_LENGTH,
+  PoolBlsKeyType,
   POOL_METADATA_HASH_LENGTH,
   RelayType,
   REWARD_ACCOUNT_HEX_LENGTH,
@@ -23,6 +27,7 @@ import {
 } from '../types/internal'
 import type {
   MultiHostRelayParams,
+  PoolBlsKeyParams,
   PoolKey,
   PoolMetadataParams,
   PoolOwner,
@@ -371,6 +376,26 @@ function parsePoolMetadataParams(
   }
 }
 
+function parsePoolBlsKeyParams(
+  params: PoolBlsKeyParams | null | undefined,
+): ParsedPoolBlsKey {
+  if (params === undefined) return {type: PoolBlsKeyType.ABSENT}
+  if (params === null) return {type: PoolBlsKeyType.NULL}
+  return {
+    type: PoolBlsKeyType.PRESENT,
+    publicKeyHex: parseHexStringOfLength(
+      params.publicKeyHex,
+      BLS_PUBLIC_KEY_LENGTH,
+      InvalidDataReason.POOL_REGISTRATION_INVALID_BLS_PUBLIC_KEY,
+    ),
+    possessionProofHex: parseHexStringOfLength(
+      params.possessionProofHex,
+      BLS_POSSESSION_PROOF_LENGTH,
+      InvalidDataReason.POOL_REGISTRATION_INVALID_BLS_POSSESSION_PROOF,
+    ),
+  }
+}
+
 export function parsePoolParams(
   params: PoolRegistrationParams,
 ): ParsedPoolParams {
@@ -380,6 +405,7 @@ export function parsePoolParams(
     VRF_KEY_HASH_LENGTH,
     InvalidDataReason.POOL_REGISTRATION_INVALID_VRF_KEY_HASH,
   )
+  const blsKey = parsePoolBlsKeyParams(params.blsKey)
   const pledge = parseCoin(
     params.pledge,
     InvalidDataReason.POOL_REGISTRATION_INVALID_PLEDGE,
@@ -409,6 +435,7 @@ export function parsePoolParams(
   return {
     poolKey,
     vrfHashHex,
+    blsKey,
     pledge,
     cost,
     margin,

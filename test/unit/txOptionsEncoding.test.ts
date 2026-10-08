@@ -1,6 +1,7 @@
 import {expect} from 'chai'
 
 import {buildSignTxInit} from '../../src/interactions/v8/commandBuilder'
+import {v8Version} from './__fixtures__/v8/common'
 import {serializeTxInit} from '../../src/interactions/v7/serialization/txInit'
 import {parseSignTransactionRequest} from '../../src/parsing/transaction'
 import {parseUint64_str} from '../../src/utils/parse'
@@ -103,8 +104,8 @@ describe('tx options encoding', () => {
   })
 
   it('encodes v8 TX_INIT options as u64(0) and u64(1)', () => {
-    const withoutTag = buildSignTxInit(requestWithoutTag, []).data
-    const withTag = buildSignTxInit(requestWithTag, []).data
+    const withoutTag = buildSignTxInit(v8Version, requestWithoutTag, []).data
+    const withTag = buildSignTxInit(v8Version, requestWithTag, []).data
 
     expect(withoutTag.slice(0, 8).toString('hex')).to.equal('0000000000000000')
     expect(withTag.slice(0, 8).toString('hex')).to.equal('0000000000000001')
@@ -115,7 +116,7 @@ describe('tx options encoding', () => {
       tx: baseTx,
       signingMode: TransactionSigningMode.UNRESTRICTED_TRANSACTION,
     })
-    const init = buildSignTxInit(parsed, []).data
+    const init = buildSignTxInit(v8Version, parsed, []).data
     // signing mode byte is at offset 13: 8 bytes options + 1 network id + 4 protocol magic
     expect(init[13]).to.equal(0x09)
   })

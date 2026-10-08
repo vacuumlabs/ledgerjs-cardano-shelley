@@ -56,6 +56,7 @@ export function getCompatibility(version: Version): DeviceCompatibility {
       supportsMultipleVotesPerVoter: true,
       supportsMessageSigning: true,
       supportsUnrestrictedTransaction: true,
+      supportsPoolRegistrationBlsKey: isLedgerAppVersionAtLeast(version, 8, 3),
     }
   }
 
@@ -115,6 +116,7 @@ export function getCompatibility(version: Version): DeviceCompatibility {
       supportsMultipleVotesPerVoter: false,
       supportsMessageSigning: v7_1,
       supportsUnrestrictedTransaction: false,
+      supportsPoolRegistrationBlsKey: false,
     },
     version.flags.isAppXS,
   )
