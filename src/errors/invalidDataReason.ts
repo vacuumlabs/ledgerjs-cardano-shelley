@@ -73,6 +73,8 @@ export enum InvalidDataReason {
   ANCHOR_INVALID_HASH = 'anchor with an invalid data hash',
 
   POOL_REGISTRATION_INVALID_VRF_KEY_HASH = 'invalid vrf key hash in a pool registration certificate',
+  POOL_REGISTRATION_INVALID_BLS_PUBLIC_KEY = 'invalid bls public key in a pool registration certificate',
+  POOL_REGISTRATION_INVALID_BLS_POSSESSION_PROOF = 'invalid bls possession proof in a pool registration certificate',
   POOL_REGISTRATION_INVALID_PLEDGE = 'invalid pledge in a pool registration certificate',
   POOL_REGISTRATION_INVALID_COST = 'invalid cost in a pool registration certificate',
   POOL_REGISTRATION_INVALID_MARGIN = 'invalid margin in a pool registration certificate',

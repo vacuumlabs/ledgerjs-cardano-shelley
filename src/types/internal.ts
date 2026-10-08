@@ -66,6 +66,8 @@ export const AUXILIARY_DATA_HASH_LENGTH = 32
 export const POOL_METADATA_HASH_LENGTH = 32
 export const KES_PUBLIC_KEY_LENGTH = 32
 export const VRF_KEY_HASH_LENGTH = 32
+export const BLS_PUBLIC_KEY_LENGTH = 96
+export const BLS_POSSESSION_PROOF_LENGTH = 48
 export const REWARD_ACCOUNT_HEX_LENGTH = 29
 export const ED25519_SIGNATURE_LENGTH = 64
 export const SCRIPT_DATA_HASH_LENGTH = 32
@@ -396,9 +398,25 @@ export type ParsedMargin = {
   denominator: Uint64_str
 }
 
+export const enum PoolBlsKeyType {
+  ABSENT = 0,
+  NULL = 1,
+  PRESENT = 2,
+}
+
+export type ParsedPoolBlsKey =
+  | {type: PoolBlsKeyType.ABSENT}
+  | {type: PoolBlsKeyType.NULL}
+  | {
+      type: PoolBlsKeyType.PRESENT
+      publicKeyHex: FixLenHexString<typeof BLS_PUBLIC_KEY_LENGTH>
+      possessionProofHex: FixLenHexString<typeof BLS_POSSESSION_PROOF_LENGTH>
+    }
+
 export type ParsedPoolParams = {
   poolKey: ParsedPoolKey
   vrfHashHex: FixLenHexString<typeof VRF_KEY_HASH_LENGTH>
+  blsKey: ParsedPoolBlsKey
   pledge: Uint64_str
   cost: Uint64_str
   margin: ParsedMargin

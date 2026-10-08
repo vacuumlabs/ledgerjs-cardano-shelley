@@ -47,6 +47,13 @@ export const enum PoolRewardAccountWireType {
   KEY_PATH = 2,
 }
 
+// tx_certificate_types.h: pool_bls_key_presence_t
+export const enum PoolBlsKeyWireType {
+  ABSENT = 1,
+  NULL = 2,
+  PRESENT = 3,
+}
+
 // messageSigning.h: cip8_address_field_type_t
 export const enum CIP8AddressFieldType {
   ADDRESS = 1,
