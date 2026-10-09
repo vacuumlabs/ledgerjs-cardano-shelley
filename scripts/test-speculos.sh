@@ -111,6 +111,9 @@ AUTONAV_PIDS=()
 MOCHA_PGIDS=()
 
 cleanup() {
+  # yarn and timeout can both send SIGTERM; a second signal must not stop the
+  # cleanup half way and leave Speculos or mocha running
+  trap '' INT TERM
   for pid in "${AUTONAV_PIDS[@]:-}"; do
     kill "$pid" 2>/dev/null || true
   done
@@ -273,11 +276,16 @@ if (( PARALLELISM == 1 )); then
   setsid env \
     LEDGER_TRANSPORT=speculos \
     SPECULOS_APDU_PORT="$BASE_APDU_PORT" \
+    bash -c '
+      set -o pipefail
+      logfile="$1"
+      shift
+      "$@" 2>&1 | tee "$logfile"
+    ' _ "$WORK_DIR/mocha-0.log" \
     node_modules/.bin/mocha --timeout 3600000 --color \
     -r ts-node/register -r ./test/mocha.setup.ts \
     "test/integration/**/*.test.ts" \
-    "${MOCHA_ARGS[@]+"${MOCHA_ARGS[@]}"}" \
-    2>&1 | tee "$WORK_DIR/mocha-0.log" &
+    "${MOCHA_ARGS[@]+"${MOCHA_ARGS[@]}"}" &
   MOCHA_PGIDS+=($!)
 else
   for ((i = 0; i < PARALLELISM; i++)); do
@@ -290,6 +298,7 @@ else
       LEDGER_TRANSPORT=speculos \
       SPECULOS_APDU_PORT="$((BASE_APDU_PORT + i))" \
       bash -lc '
+        set -o pipefail
         prefix="$1"
         logfile="$2"
         shift 2
@@ -354,6 +363,7 @@ if [ "$FAILED_COUNT" -ne 0 ] || [ "$PROCESS_ERROR_COUNT" -ne 0 ]; then
   done
 fi
 
-if [ "$FAILED" -ne 0 ] || [ "${#AUTONAV_ERRORS[@]}" -ne 0 ]; then
+if [ "$FAILED" -ne 0 ] || [ "$FAILED_COUNT" -ne 0 ] || [ "$PROCESS_ERROR_COUNT" -ne 0 ] ||
+  [ "${#AUTONAV_ERRORS[@]}" -ne 0 ]; then
   exit 1
 fi
