@@ -43,6 +43,72 @@ jobs:
           name: Try generating the docs
           command: yarn typedoc
 
+  # Integration tests on Speculos (Stax), review screens confirmed by
+  # scripts/speculos-autonav.mjs. The app is built from the develop branch of
+  # vacuumlabs/ledger-app-cardano-dev with Ledger's latest dev-tools image, so a
+  # failure can also come from a change in the app or in the image: the log
+  # prints the app commit and the Speculos version.
+  speculos_tests:
+    docker:
+      - image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:latest
+    resource_class: large
+    working_directory: ~/repo
+    environment:
+      # read-only deploy key of vacuumlabs/ledger-app-cardano-dev
+      APP_DEPLOY_KEY_FINGERPRINT: SHA256:7GvWGip32UkjRPLuG3POy65Xmp/JuJUvMHMozIKPgbw
+    steps:
+      - run:
+          name: Install system dependencies
+          command: |
+            apt-get update
+            apt-get install -y openssh-client lsof libusb-1.0-0-dev libudev-dev
+            curl -fsSL https://nodejs.org/dist/v22.14.0/node-v22.14.0-linux-x64.tar.xz \
+              | tar -xJ -C /usr/local --strip-components=1
+            corepack enable
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - SHA256:7GvWGip32UkjRPLuG3POy65Xmp/JuJUvMHMozIKPgbw
+      - run:
+          name: Clone the app (develop)
+          command: |
+            # the checkout key is also in ~/.ssh; use only the deploy key
+            key=""
+            for file in ~/.ssh/id_*; do
+              case "$file" in *.pub) continue ;; esac
+              if ssh-keygen -l -E sha256 -f "$file" 2>/dev/null | grep -qF "$APP_DEPLOY_KEY_FINGERPRINT"; then
+                key="$file"
+              fi
+            done
+            if [ -z "$key" ]; then
+              echo "Deploy key $APP_DEPLOY_KEY_FINGERPRINT not found in ~/.ssh" >&2
+              ls -la ~/.ssh >&2
+              exit 1
+            fi
+            GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" \
+              git clone --depth 1 --branch develop \
+              git@github.com:vacuumlabs/ledger-app-cardano-dev.git ../ledger-app-cardano-dev
+            git -C ../ledger-app-cardano-dev log -1 --format='app: %h %ci %s'
+            python3 -c 'import importlib.metadata as m; print("speculos", m.version("speculos"))'
+      - run:
+          name: Build the app (Stax, debug)
+          command: make -C ../ledger-app-cardano-dev BOLOS_SDK=$STAX_SDK DEBUG=1 -j4
+
+      - restore_cache:
+          key: v2-speculos-dependencies-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install dependencies
+          command: yarn install
+      - save_cache:
+          paths:
+            - node_modules
+          key: v2-speculos-dependencies-{{ checksum "yarn.lock" }}
+
+      - run:
+          name: Integration tests on Speculos
+          command: yarn test-speculos --auto -n 4
+          no_output_timeout: 30m
+
   update_docs:
     docker:
       - image: cimg/node:22.14
@@ -98,6 +164,7 @@ workflows:
   main_workflow:
     jobs:
       - build_and_test
+      - speculos_tests
       - update_docs:
           requires:
             - build_and_test
