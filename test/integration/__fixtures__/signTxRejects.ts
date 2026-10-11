@@ -1567,6 +1567,132 @@ export const certificateStakePoolRetirementRejectTestCases: TestCaseRejectShelle
       },
       rejectReason: InvalidDataReason.LEDGER_POLICY,
     },
+    {
+      testName: 'Path_sent_in_for_Pool_Retirement_Payer_Tx',
+      appVersion: {unsupportedInAppXS: true, supportedSinceV8: true},
+      tx: {
+        ...shelleyBase,
+        certificates: [
+          {
+            type: CertificateType.STAKE_POOL_RETIREMENT,
+            params: {
+              poolKeyPath: str_to_path("1853'/1815'/0'/0'"),
+              retirementEpoch: 42,
+            },
+          },
+        ],
+      },
+      signingMode: TransactionSigningMode.POOL_RETIREMENT_AS_PAYER,
+      err: {
+        // the mode does not exist on v7, so the SDK rejects with
+        // DeviceVersionUnsupported before any APDU is sent
+        v7: {
+          errCls: DeviceStatusError,
+          errMsg: DoNotRunOnLedger,
+        },
+        v8: {
+          errCls: DeviceStatusError,
+          errMsg:
+            StatusWordMsgV8[StatusWordV8.SWO_SECURITY_CONDITION_NOT_SATISFIED],
+        },
+      },
+      rejectReason:
+        InvalidDataReason.SIGN_MODE_POOL_RETIREMENT_PAYER__POOL_KEY_HASH_REQUIRED,
+    },
+    {
+      testName: 'Hash_sent_in_for_Ordinary_Tx',
+      appVersion: {unsupportedInAppXS: true},
+      tx: {
+        ...shelleyBase,
+        certificates: [
+          {
+            type: CertificateType.STAKE_POOL_RETIREMENT,
+            params: {
+              poolKeyHash:
+                '13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad',
+              retirementEpoch: 42,
+            },
+          },
+        ],
+      },
+      signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+      err: {
+        v7: {
+          errCls: DeviceStatusError,
+          errMsg: StatusWordMsgV7[StatusWordV7.ERR_REJECTED_BY_POLICY],
+        },
+        v8: {
+          errCls: DeviceStatusError,
+          errMsg:
+            StatusWordMsgV8[StatusWordV8.SWO_SECURITY_CONDITION_NOT_SATISFIED],
+        },
+      },
+      rejectReason:
+        InvalidDataReason.SIGN_MODE_ORDINARY__POOL_RETIREMENT_POOL_KEY_ONLY_AS_PATH,
+    },
+    {
+      testName: 'Hash_sent_in_for_Plutus_Tx',
+      appVersion: {unsupportedInAppXS: true},
+      tx: {
+        ...shelleyBase,
+        certificates: [
+          {
+            type: CertificateType.STAKE_POOL_RETIREMENT,
+            params: {
+              poolKeyHash:
+                '13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad',
+              retirementEpoch: 42,
+            },
+          },
+        ],
+      },
+      signingMode: TransactionSigningMode.PLUTUS_TRANSACTION,
+      err: {
+        v7: {
+          errCls: DeviceStatusError,
+          errMsg: StatusWordMsgV7[StatusWordV7.ERR_REJECTED_BY_POLICY],
+        },
+        v8: {
+          errCls: DeviceStatusError,
+          errMsg:
+            StatusWordMsgV8[StatusWordV8.SWO_SECURITY_CONDITION_NOT_SATISFIED],
+        },
+      },
+      rejectReason:
+        InvalidDataReason.SIGN_MODE_PLUTUS__POOL_RETIREMENT_POOL_KEY_ONLY_AS_PATH,
+    },
+    {
+      testName: 'Hash_sent_in_for_Unrestricted_Tx',
+      appVersion: {unsupportedInAppXS: true, supportedSinceV8: true},
+      tx: {
+        ...shelleyBase,
+        certificates: [
+          {
+            type: CertificateType.STAKE_POOL_RETIREMENT,
+            params: {
+              poolKeyHash:
+                '13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad',
+              retirementEpoch: 42,
+            },
+          },
+        ],
+      },
+      signingMode: TransactionSigningMode.UNRESTRICTED_TRANSACTION,
+      err: {
+        // UNRESTRICTED does not exist on v7
+        v7: {
+          errCls: DeviceStatusError,
+          errMsg: DoNotRunOnLedger,
+        },
+        v8: {
+          errCls: DeviceStatusError,
+          errMsg:
+            StatusWordMsgV8[StatusWordV8.SWO_SECURITY_CONDITION_NOT_SATISFIED],
+        },
+      },
+      rejectReason:
+        InvalidDataReason.SIGN_MODE_UNRESTRICTED__POOL_RETIREMENT_POOL_KEY_ONLY_AS_PATH,
+    },
     // can't test the rest of the signing modes, because a previous checks catches them
   ]
 

@@ -495,6 +495,43 @@ export const stakePoolRegistrationPoolIdRejectTestCases: TestCaseRejectShelley[]
       rejectReason:
         InvalidDataReason.SIGN_MODE_POOL_OPERATOR__DEVICE_OWNED_POOL_KEY_REQUIRED,
     },
+    {
+      testName: 'Path_sent_in_for_Pool_Registration_Payer_Tx',
+      appVersion: {unsupportedInAppXS: true, supportedSinceV8: true},
+      tx: {
+        ...txBase,
+        certificates: [
+          {
+            type: CertificateType.STAKE_POOL_REGISTRATION,
+            params: {
+              ...defaultPoolRegistration,
+              poolKey: {
+                type: PoolKeyType.DEVICE_OWNED,
+                params: {
+                  path: str_to_path("1853'/1815'/0'/0'"),
+                },
+              },
+            },
+          },
+        ],
+      },
+      signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_PAYER,
+      err: {
+        // the mode does not exist on v7, so the SDK rejects with
+        // DeviceVersionUnsupported before any APDU is sent
+        v7: {
+          errCls: DeviceStatusError,
+          errMsg: DoNotRunOnLedger,
+        },
+        v8: {
+          errCls: DeviceStatusError,
+          errMsg:
+            StatusWordMsgV8[StatusWordV8.SWO_SECURITY_CONDITION_NOT_SATISFIED],
+        },
+      },
+      rejectReason:
+        InvalidDataReason.SIGN_MODE_POOL_PAYER__THIRD_PARTY_POOL_KEY_REQUIRED,
+    },
   ]
 
 export const stakePoolRegistrationOwnerRejectTestCases: TestCaseRejectShelley[] =

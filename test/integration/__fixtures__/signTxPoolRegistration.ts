@@ -252,7 +252,8 @@ export const certificates: Record<
   | 'poolRegistrationWrongMargin'
   | 'poolRegistrationOperatorNoOwnersNoRelays'
   | 'poolRegistrationOperatorMultipleOwnersAllRelays'
-  | 'poolRegistrationOperatorOneOwnerOperatorNoRelays',
+  | 'poolRegistrationOperatorOneOwnerOperatorNoRelays'
+  | 'poolRegistrationPayerNoOwnersNoRelays',
   Certificate
 > = {
   // for negative tests
@@ -361,6 +362,15 @@ export const certificates: Record<
       poolKey: poolKeys.poolKeyPath,
       poolOwners: poolOwnerVariationSet.twoHashOwners,
       relays: relayVariationSet.allRelays,
+    },
+  },
+  poolRegistrationPayerNoOwnersNoRelays: {
+    type: CertificateType.STAKE_POOL_REGISTRATION,
+    params: {
+      ...defaultPoolRegistration,
+      poolKey: poolKeys.poolKeyHash,
+      poolOwners: poolOwnerVariationSet.noOwners,
+      relays: relayVariationSet.noRelays,
     },
   },
 }
@@ -663,6 +673,86 @@ export const poolRegistrationOperatorTestCases: SignTxTestCase[] = [
           path: str_to_path("1853'/1815'/0'/0'"),
           witnessSignatureHex:
             '8957a7768bc9389cd7ab6fa3b3e2fa089785715a5298f9cb38abf99a6e0da5bef734c4862ca7948fb69575ccb9ed8ae1d92cc971742f674632f6f03e22c5b103',
+        },
+      ],
+      auxiliaryDataSupplement: null,
+    },
+  },
+]
+
+export const poolRegistrationPayerTestCases: SignTxTestCase[] = [
+  {
+    testName:
+      'Sign_tx_Witness_pool_registration_as_payer_with_no_owners_and_no_relays',
+    appVersion: {unsupportedInAppXS: true, supportedSinceV8: true},
+    tx: {
+      ...txBase,
+      inputs: [inputs.utxoWithPath0],
+      certificates: [certificates.poolRegistrationPayerNoOwnersNoRelays],
+    },
+    signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_PAYER,
+    additionalWitnessPaths: [],
+    // Same tx shape/hash as the pool-registration-payer fixture already verified
+    // on the firmware/Python side (ledger-app-cardano signTx.py) -- payer never
+    // holds the cold key, so the pool key is given as a hash, unlike operator's
+    // path. The only witness is the payment key, exactly like operator's payment
+    // witness (same path, same tx hash there too -> identical signature reused
+    // below).
+    txBody:
+      'a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825839017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b090102182a030a04818a03581c13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad582007821cd344d7fd7e3ae5f2ed863218cb979ff1d59e50c4276bdc479b0d0844501b0000000ba43b74001a1443fd00d81e82031864581de1794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad808082782968747470733a2f2f7777772e76616375756d6c6162732e636f6d2f73616d706c6555726c2e6a736f6e5820cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb',
+    expectedResult: {
+      txHashHex:
+        '873f16bfaf7a928810c58a26416ec832c615eb0df7faf2dccbf072969d779803',
+      witnesses: [
+        {
+          path: str_to_path("1852'/1815'/0'/0/0"),
+          // Confirmed against a real Speculos run and cross-checked against
+          // crypto_mock_data.h's mock signature table for this exact
+          // (path, message) pair in ledger-app-cardano -- both agree.
+          witnessSignatureHex:
+            'c1aecdec784dce0c9f000452b9d64badb33695d61d35e3e30266b7953652b13779547fcc7da791ba8aab667c6e57578fffd3e1903b4e19a6e52ce35155b2cc01',
+        },
+      ],
+      auxiliaryDataSupplement: null,
+    },
+  },
+]
+
+export const poolRetirementPayerTestCases: SignTxTestCase[] = [
+  {
+    testName: 'Sign_tx_Witness_pool_retirement_as_payer',
+    appVersion: {unsupportedInAppXS: true, supportedSinceV8: true},
+    tx: {
+      ...txBase,
+      inputs: [inputs.utxoWithPath0],
+      certificates: [
+        {
+          type: CertificateType.STAKE_POOL_RETIREMENT,
+          params: {
+            poolKeyHash:
+              '13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad',
+            retirementEpoch: '42',
+          },
+        },
+      ],
+    },
+    signingMode: TransactionSigningMode.POOL_RETIREMENT_AS_PAYER,
+    additionalWitnessPaths: [],
+    // The payer does not hold the cold key, so the pool key is given as a hash
+    // and the only witness is the payment key taken from the inputs -- no pool
+    // key witness, unlike a path-form retirement in ordinary mode.
+    txBody:
+      'a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825839017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b090102182a030a04818304581c13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad182a',
+    expectedResult: {
+      txHashHex:
+        '788c0f68606bed9345f8855232cbc151e8e18d0dd122a8d0ff424814615ddb1a',
+      witnesses: [
+        {
+          path: str_to_path("1852'/1815'/0'/0/0"),
+          // From crypto_mock_data.h's mock signature table in
+          // ledger-app-cardano for this exact (path, message) pair.
+          witnessSignatureHex:
+            '96c129fd1bec16f4d09a6cdff57ddae817dfd4adbd2a119b0094b3805e62cbcbbf42ba39acb71420a398765921acab3f14b962352ffe2ba0552807252135520c',
         },
       ],
       auxiliaryDataSupplement: null,
