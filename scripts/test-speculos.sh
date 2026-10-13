@@ -191,6 +191,29 @@ collect_process_errors() {
   ' "$file"
 }
 
+# The navigator prints "request failed" when requests start to fail and
+# "recovered after ..." when a request succeeds again. Prints one line per
+# failure: "recovered<TAB>message" or, for the last one if it did not
+# recover, "failing<TAB>message".
+collect_autonav_failures() {
+  local file="$1"
+  [ -f "$file" ] || return 0
+  awk '
+    /^\[autonav\] request failed/ {
+      pending = $0
+      sub(/^\[autonav\] /, "", pending)
+      next
+    }
+    /^\[autonav\] recovered after/ && pending != "" {
+      print "recovered\t" pending
+      pending = ""
+    }
+    END {
+      if (pending != "") print "failing\t" pending
+    }
+  ' "$file"
+}
+
 if (( PARALLELISM >= 2 )); then
   for ((i = 0; i < PARALLELISM; i++)); do
     shard_file="$WORK_DIR/shard-$i.txt"
@@ -265,7 +288,11 @@ if [ "$AUTO_NAV" -eq 1 ]; then
   for ((i = 0; i < PARALLELISM; i++)); do
     wait_for_port "speculos API" "$((BASE_API_PORT + i))" "$i"
     echo "Starting autonav[$i] on API port $((BASE_API_PORT + i))."
+    # The AUTONAV_LOG output (stdout) gets the instance number, so that it can
+    # be matched with the "[mocha $i]" lines. Process substitution, not a pipe,
+    # so that $! is the navigator's PID.
     node "$SCRIPT_DIR/speculos-autonav.mjs" "http://127.0.0.1:$((BASE_API_PORT + i))" \
+      > >(awk -v i="$i" '{sub(/^\[autonav\]/, "[autonav " i "]"); print; fflush()}') \
       2> >(tee "$WORK_DIR/autonav-$i.log" >&2) &
     AUTONAV_PIDS+=($!)
   done
@@ -328,16 +355,27 @@ FAILED_COUNT="$(sum_matches '[0-9]+ failing' "${MOCHA_LOGS[@]}")"
 PENDING_COUNT="$(sum_matches '[0-9]+ pending' "${MOCHA_LOGS[@]}")"
 PROCESS_ERROR_COUNT="$(count_matching_files 'Exception during run:' "${MOCHA_LOGS[@]}")"
 
-# The navigator reports failed requests on stderr and keeps running; it is
-# not expected to exit before cleanup.
+# The navigator reports failed requests on stderr and keeps retrying; it is
+# not expected to exit before cleanup. A failure it recovered from is only a
+# warning: a test that it affected fails on its own. The run fails if a
+# navigator exited or is still failing at the end.
 AUTONAV_ERRORS=()
+AUTONAV_WARNINGS=()
 for ((i = 0; i < ${#AUTONAV_PIDS[@]}; i++)); do
-  while IFS= read -r line; do
-    AUTONAV_ERRORS+=("- [autonav $i] ${line#\[autonav\] }")
-  done < <(grep -F 'request failed' "$WORK_DIR/autonav-$i.log" 2>/dev/null || true)
+  autonav_log="$WORK_DIR/autonav-$i.log"
   if ! kill -0 "${AUTONAV_PIDS[$i]}" 2>/dev/null; then
     AUTONAV_ERRORS+=("- [autonav $i] exited before the tests finished")
+  elif [ -n "$(collect_autonav_failures "$autonav_log" | awk -F'\t' '$1 == "failing"')" ]; then
+    # a failure just before the tests finished: give the retries a moment
+    sleep 2
   fi
+  while IFS=$'\t' read -r state message; do
+    if [ "$state" = "recovered" ]; then
+      AUTONAV_WARNINGS+=("- [autonav $i] $message (recovered)")
+    else
+      AUTONAV_ERRORS+=("- [autonav $i] $message (still failing at the end)")
+    fi
+  done < <(collect_autonav_failures "$autonav_log")
 done
 
 echo "===== parallel summary ====="
@@ -349,6 +387,10 @@ if [ "$PENDING_COUNT" -ne 0 ]; then
 fi
 if [ "$PROCESS_ERROR_COUNT" -ne 0 ]; then
   echo "worker errors: $PROCESS_ERROR_COUNT"
+fi
+if [ "${#AUTONAV_WARNINGS[@]}" -ne 0 ]; then
+  echo "autonav warnings:"
+  printf '%s\n' "${AUTONAV_WARNINGS[@]}"
 fi
 if [ "${#AUTONAV_ERRORS[@]}" -ne 0 ]; then
   echo "autonav errors:"

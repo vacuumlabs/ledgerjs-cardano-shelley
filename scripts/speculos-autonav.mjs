@@ -160,10 +160,10 @@ async function waitForScreenChange(previous, timeoutMs = 3000) {
 }
 
 // The runner starts the navigator only after the API port listens and stops
-// it before Speculos, so a failed request is a real problem. Report it on
-// stderr (the runner lists it in its summary) and keep going, so that the
-// following tests still run. A test that is left waiting fails on its mocha
-// timeout.
+// it before Speculos, so a failed request is unexpected. Report it on stderr
+// and keep retrying, so that the following tests still run, and report the
+// recovery too. The runner fails the run only if requests still fail at the
+// end. A test that is left waiting fails on its mocha timeout.
 const RETRY_MS = 500
 
 const describeError = (error) =>

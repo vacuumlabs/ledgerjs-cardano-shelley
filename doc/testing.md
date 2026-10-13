@@ -70,19 +70,21 @@ With `--auto`, `scripts/test-speculos.sh` enables the Speculos REST API and star
 
 - Buttons and status screens are found by text **and** by their position and text height on the Stax layout, because review values can contain any text. For example, a message with the text "Confirm" is swiped past, not tapped. If the SDK changes the layout, compare the `AUTONAV_LOG=1` output (text, x, y, w, h of each event) with the constants in the script.
 - It checks what the tests check (APDU bytes, tx hash, witnesses). It does **not** check what the screens show: it accepts every warning and signs everything. Screen content is covered by the ragger golden snapshots in the app repo.
-- Every test runs once and the run always continues to the end. A screen the navigator does not recognize leaves the test waiting, so with `--auto` the default test timeout is 2 minutes instead of 1 hour (a `--timeout` on the command line overrides it). Rerun a test that timed out with `AUTONAV_LOG=1` to print every screen and action:
+- Every test runs once and the run always continues to the end. A screen the navigator does not recognize leaves the test waiting, so with `--auto` the default test timeout is 2 minutes instead of 1 hour (a `--timeout` on the command line overrides it). With `AUTONAV_LOG=1`, each navigator prints every screen and action, as `[autonav <i>]` lines that match the `[mocha <i>]` lines of the same instance. CI sets it, so the job log shows the last screen of a test that timed out. Locally, rerun a test that timed out with it:
 
   ```bash
   AUTONAV_LOG=1 yarn test-speculos --auto --grep "<test name>"
   ```
 
-- If a request to the Speculos API fails, the navigator prints the error and keeps running. The summary lists these errors under `autonav errors`, together with a navigator that exited early, and the run then fails even if all tests pass.
+- If a request to the Speculos API fails, the navigator prints the error and keeps retrying. If a later request succeeds, the summary lists the error under `autonav warnings` and the run does not fail because of it (a test that the failure affected fails on its own). If requests still fail when the tests finish, or a navigator exited early, the summary lists this under `autonav errors` and the run fails even if all tests pass.
 - When a test leaves the app stuck on a screen, every later test in that Speculos instance fails with `0x6901`. Only the first failure matters.
 - The API listens on port 5000 (+1 per instance; override with `SPECULOS_API_PORT`), the same default as ragger. Do not run ragger tests at the same time, or move both ports:
 
   ```bash
   SPECULOS_APDU_PORT=19999 SPECULOS_API_PORT=15000 yarn test-speculos --auto
   ```
+
+- In CI, the `speculos_tests` job on pull requests builds a pinned Stax release tag of `ledger-app-cardano-dev`, in a dev-tools image pinned by digest. The job fails if the tag does not point at the expected commit, or if the image does not have the SDK version from the tag name. When the library moves to a newer app, bump the four values in `.circleci/config.yml` together, in their own change. A scheduled pipeline runs the same tests against `develop` with the latest image, as an early warning of drift. It does not gate pull requests.
 
 ## Lint and build
 
