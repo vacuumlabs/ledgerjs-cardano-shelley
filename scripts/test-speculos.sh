@@ -241,7 +241,7 @@ for ((i = 0; i < PARALLELISM; i++)); do
     SPECULOS_ARGS+=(--log-level apdu:WARNING)
     SPECULOS_ARGS+=(--log-level seproxyhal:WARNING)
   fi
-  setsid bash -lc '
+  setsid bash -c '
     prefix="$1"
     logfile="$2"
     shift 2
@@ -324,7 +324,7 @@ else
     setsid env \
       LEDGER_TRANSPORT=speculos \
       SPECULOS_APDU_PORT="$((BASE_APDU_PORT + i))" \
-      bash -lc '
+      bash -c '
         set -o pipefail
         prefix="$1"
         logfile="$2"
