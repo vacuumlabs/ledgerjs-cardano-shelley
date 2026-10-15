@@ -46,6 +46,7 @@ describe('getVersion', () => {
       supportsMultipleVoters: isV8,
       supportsMultipleVotesPerVoter: isV8,
       supportsMessageSigning: true,
+      supportsUnrestrictedTransaction: isV8,
     })
   })
 })

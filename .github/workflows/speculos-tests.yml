@@ -1,0 +1,110 @@
+# Integration tests on Speculos (Stax), review screens confirmed by
+# scripts/speculos-autonav.mjs. The app is built from a ref of
+# vacuumlabs/ledger-app-cardano-dev inside Ledger's dev-tools image. The callers
+# choose the ref and the image: ci.yml a pinned Stax release for pull requests,
+# app-develop-drift.yml the latest develop. The log prints the app commit, the
+# Stax SDK version and the Speculos version.
+name: Speculos tests
+
+on:
+  workflow_call:
+    inputs:
+      image:
+        description: dev-tools image to build the app and run Speculos in
+        required: true
+        type: string
+      app_ref:
+        description: branch, tag or commit SHA of ledger-app-cardano-dev to build
+        required: true
+        type: string
+      app_commit:
+        description: full commit SHA that app_ref must point at; empty skips the check
+        required: false
+        type: string
+        default: ''
+      stax_sdk_version:
+        description: Stax SDK version the image must contain; empty skips the check
+        required: false
+        type: string
+        default: ''
+    secrets:
+      APP_DEPLOY_KEY:
+        description: private part of a read-only deploy key of vacuumlabs/ledger-app-cardano-dev
+        required: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  speculos_tests:
+    name: Speculos tests (${{ inputs.app_ref }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    container:
+      image: ${{ inputs.image }}
+    steps:
+      - name: Install system dependencies
+        run: |
+          apt-get update
+          apt-get install -y openssh-client lsof libusb-1.0-0-dev libudev-dev
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      - run: corepack enable
+
+      - name: Clone the app (${{ inputs.app_ref }})
+        env:
+          APP_DEPLOY_KEY: ${{ secrets.APP_DEPLOY_KEY }}
+          APP_REF: ${{ inputs.app_ref }}
+          APP_COMMIT: ${{ inputs.app_commit }}
+          STAX_SDK_VERSION: ${{ inputs.stax_sdk_version }}
+        run: |
+          key_file="$RUNNER_TEMP/app_deploy_key"
+          trap 'rm -f "$key_file"' EXIT
+          printf '%s\n' "$APP_DEPLOY_KEY" >"$key_file"
+          chmod 600 "$key_file"
+          export GIT_SSH_COMMAND="ssh -i $key_file -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+          # fetch, not clone --branch: the ref can also be a commit SHA
+          git init -q ../ledger-app-cardano-dev
+          git -C ../ledger-app-cardano-dev remote add origin git@github.com:vacuumlabs/ledger-app-cardano-dev.git
+          git -C ../ledger-app-cardano-dev fetch -q --depth 1 origin "$APP_REF"
+          git -C ../ledger-app-cardano-dev checkout -q FETCH_HEAD
+          git -C ../ledger-app-cardano-dev log -1 --format="app: $APP_REF %H %ci %s"
+          # tags in the app repo can be moved
+          actual_commit="$(git -C ../ledger-app-cardano-dev rev-parse HEAD)"
+          if [ -n "$APP_COMMIT" ] && [ "$actual_commit" != "$APP_COMMIT" ]; then
+            echo "::error::$APP_REF points at $actual_commit, expected $APP_COMMIT"
+            exit 1
+          fi
+          sdk_version="$(git -C "$STAX_SDK" describe --tags 2>/dev/null || echo unknown)"
+          echo "Stax SDK: $sdk_version"
+          if [ -n "$STAX_SDK_VERSION" ] && [ "$sdk_version" != "$STAX_SDK_VERSION" ]; then
+            echo "::error::the image has Stax SDK $sdk_version, expected $STAX_SDK_VERSION"
+            exit 1
+          fi
+          python3 -c 'import importlib.metadata as m; print("speculos", m.version("speculos"))'
+
+      - name: Build the app (Stax, debug)
+        run: make -C ../ledger-app-cardano-dev BOLOS_SDK="$STAX_SDK" DEBUG=1 -j4
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: node_modules
+          key: speculos-node-modules-${{ hashFiles('yarn.lock', '.nvmrc') }}
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Integration tests on Speculos
+        run: yarn test-speculos --auto -n 4
+        env:
+          # print every screen and action, to show where a timed-out test stopped
+          AUTONAV_LOG: 1

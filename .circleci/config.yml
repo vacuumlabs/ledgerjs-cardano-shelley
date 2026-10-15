@@ -43,6 +43,104 @@ jobs:
           name: Try generating the docs
           command: yarn typedoc
 
+  # Integration tests on Speculos (Stax), review screens confirmed by
+  # scripts/speculos-autonav.mjs. The app is built from a ref of
+  # vacuumlabs/ledger-app-cardano-dev inside Ledger's dev-tools image. The
+  # workflows below choose the ref and the image: a pinned Stax release for
+  # pull requests, develop for the scheduled drift check. The log prints the
+  # app commit, the Stax SDK version and the Speculos version.
+  speculos_tests:
+    parameters:
+      image:
+        type: string
+      app_ref:
+        description: branch or tag of ledger-app-cardano-dev to build
+        type: string
+      app_commit:
+        description: full commit SHA that app_ref must point at; empty skips the check
+        type: string
+        default: ''
+      stax_sdk_version:
+        description: Stax SDK version the image must contain; empty skips the check
+        type: string
+        default: ''
+    docker:
+      - image: << parameters.image >>
+    resource_class: large
+    working_directory: ~/repo
+    environment:
+      # read-only deploy key of vacuumlabs/ledger-app-cardano-dev
+      APP_DEPLOY_KEY_FINGERPRINT: SHA256:7GvWGip32UkjRPLuG3POy65Xmp/JuJUvMHMozIKPgbw
+    steps:
+      - run:
+          name: Install system dependencies
+          command: |
+            apt-get update
+            apt-get install -y openssh-client lsof libusb-1.0-0-dev libudev-dev
+            curl -fsSL https://nodejs.org/dist/v22.14.0/node-v22.14.0-linux-x64.tar.xz \
+              | tar -xJ -C /usr/local --strip-components=1
+            corepack enable
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - SHA256:7GvWGip32UkjRPLuG3POy65Xmp/JuJUvMHMozIKPgbw
+      - run:
+          name: Clone the app (<< parameters.app_ref >>)
+          command: |
+            # the checkout key is also in ~/.ssh; use only the deploy key
+            key=""
+            for file in ~/.ssh/id_*; do
+              case "$file" in *.pub) continue ;; esac
+              if ssh-keygen -l -E sha256 -f "$file" 2>/dev/null | grep -qF "$APP_DEPLOY_KEY_FINGERPRINT"; then
+                key="$file"
+              fi
+            done
+            if [ -z "$key" ]; then
+              echo "Deploy key $APP_DEPLOY_KEY_FINGERPRINT not found in ~/.ssh" >&2
+              ls -la ~/.ssh >&2
+              exit 1
+            fi
+            GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" \
+              git clone --depth 1 --branch "<< parameters.app_ref >>" \
+              git@github.com:vacuumlabs/ledger-app-cardano-dev.git ../ledger-app-cardano-dev
+            git -C ../ledger-app-cardano-dev log -1 --format='app: << parameters.app_ref >> %H %ci %s'
+            # tags in the app repo can be moved
+            expected_commit="<< parameters.app_commit >>"
+            actual_commit="$(git -C ../ledger-app-cardano-dev rev-parse HEAD)"
+            if [ -n "$expected_commit" ] && [ "$actual_commit" != "$expected_commit" ]; then
+              echo "ERROR: << parameters.app_ref >> points at $actual_commit, expected $expected_commit" >&2
+              exit 1
+            fi
+            sdk_version="$(git -C "$STAX_SDK" describe --tags 2>/dev/null || echo unknown)"
+            echo "Stax SDK: $sdk_version"
+            expected_sdk="<< parameters.stax_sdk_version >>"
+            if [ -n "$expected_sdk" ] && [ "$sdk_version" != "$expected_sdk" ]; then
+              echo "ERROR: the image has Stax SDK $sdk_version, expected $expected_sdk" >&2
+              exit 1
+            fi
+            python3 -c 'import importlib.metadata as m; print("speculos", m.version("speculos"))'
+      - run:
+          name: Build the app (Stax, debug)
+          command: make -C ../ledger-app-cardano-dev BOLOS_SDK=$STAX_SDK DEBUG=1 -j4
+
+      - restore_cache:
+          key: v2-speculos-dependencies-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install dependencies
+          command: yarn install
+      - save_cache:
+          paths:
+            - node_modules
+          key: v2-speculos-dependencies-{{ checksum "yarn.lock" }}
+
+      - run:
+          name: Integration tests on Speculos
+          command: yarn test-speculos --auto -n 4
+          environment:
+            # print every screen and action, to show where a timed-out test stopped
+            AUTONAV_LOG: 1
+          no_output_timeout: 30m
+
   update_docs:
     docker:
       - image: cimg/node:22.14
@@ -96,8 +194,18 @@ jobs:
 workflows:
   version: 2
   main_workflow:
+    when:
+      not:
+        equal: [scheduled_pipeline, << pipeline.trigger_source >>]
     jobs:
       - build_and_test
+      # Bump these four together, in their own change, when the library moves
+      # to a newer app release. The image must contain the SDK in the tag name.
+      - speculos_tests:
+          image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools@sha256:0ed357a6f66a1df949649803ea79e5a224f3f551a496adb3b73af22088781452
+          app_ref: stax_1.11.0_8.0.9_sdk_v27.1.1
+          app_commit: efd32a241d67aedd2bb1acaff037f155e0060f5e
+          stax_sdk_version: v27.1.1
       - update_docs:
           requires:
             - build_and_test
@@ -105,3 +213,15 @@ workflows:
             branches:
               only:
                 - master
+
+  # Early warning that the app and this library have drifted: runs only from a
+  # scheduled pipeline (set up in the CircleCI project settings), never on
+  # pull requests.
+  app_develop_drift:
+    when:
+      equal: [scheduled_pipeline, << pipeline.trigger_source >>]
+    jobs:
+      - speculos_tests:
+          name: speculos_tests_app_develop
+          image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:latest
+          app_ref: develop

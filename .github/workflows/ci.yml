@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [develop, master]
+  pull_request:
+  workflow_dispatch:
+
+# a new push to a pull request cancels the run of the previous one
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libusb-1.0-0-dev libudev-dev
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      - run: corepack enable
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: node_modules
+          key: node-modules-${{ hashFiles('yarn.lock', '.nvmrc') }}
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Prettier
+        run: yarn prettier:check
+      - name: Lint
+        run: yarn lint
+      - name: Spellcheck
+        run: yarn spell:check
+      - name: Audit dependencies
+        run: yarn audit
+      - name: Unit tests
+        run: yarn test-unit
+      - name: Build
+        run: yarn build
+      - name: Try building the example
+        run: yarn tsc -p example-node/tsconfig.json --noEmit
+      - name: Try generating the docs
+        run: yarn typedoc
+
+  speculos_tests:
+    # The secrets are only in the vacuumlabs repo, not in its cardano-foundation
+    # copy, and pull requests from forks do not get them.
+    if: >-
+      github.repository == 'vacuumlabs/ledgerjs-cardano-shelley' &&
+      (github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork)
+    uses: ./.github/workflows/speculos-tests.yml
+    # Bump these four together, in their own change, when the library moves to
+    # a newer app release. The image must contain the SDK in the tag name.
+    with:
+      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools@sha256:0ed357a6f66a1df949649803ea79e5a224f3f551a496adb3b73af22088781452
+      app_ref: stax_1.11.0_8.0.9_sdk_v27.1.1
+      app_commit: efd32a241d67aedd2bb1acaff037f155e0060f5e
+      stax_sdk_version: v27.1.1
+    secrets:
+      APP_DEPLOY_KEY: ${{ secrets.APP_DEPLOY_KEY }}

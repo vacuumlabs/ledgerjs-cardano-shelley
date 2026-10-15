@@ -1,0 +1,71 @@
+# Publishes the typedoc docs of a release to the gh-pages branch, served at
+# https://vacuumlabs.github.io/ledgerjs-cardano-shelley. Each version gets its
+# own directory; the root redirects to the latest release.
+name: Docs
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: release tag to publish the docs of, e.g. v8.1.0
+        required: true
+        type: string
+
+# two runs must not push to gh-pages at the same time
+concurrency:
+  group: docs
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  update_docs:
+    # the docs are served from the gh-pages branch of the vacuumlabs repo
+    if: github.repository == 'vacuumlabs/ledgerjs-cardano-shelley'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # pushes the docs to the gh-pages branch
+    permissions:
+      contents: write
+    steps:
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libusb-1.0-0-dev libudev-dev
+
+      # gh-pages pushes with the token that checkout keeps in the git config
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      - run: corepack enable
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: node_modules
+          key: node-modules-${{ hashFiles('yarn.lock', '.nvmrc') }}
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build and deploy the docs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          version="$(node -p 'require("./package.json").version')"
+          yarn typedoc --out "docs_build/$version"
+          # The root redirects to the latest release only: publishing an older
+          # version, or a pre-release, leaves the redirect as it is.
+          latest="$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)"
+          if [ "$TAG" = "$latest" ]; then
+            echo '<!DOCTYPE html><html><head><meta http-equiv = "refresh" content = "1; url = ./'"$version"'" /></head><body></body></html>' >docs_build/index.html
+          else
+            echo "$TAG is not the latest release ($latest), keeping the redirect"
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          yarn gh-pages --add --dist docs_build --message "[ci skip] Docs for v$version"

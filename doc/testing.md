@@ -30,6 +30,8 @@ Require a connected Ledger device or Speculos emulator. Test the full stack end-
 yarn test-integration          # real device
 yarn test-speculos             # Speculos emulator (started automatically)
 yarn test-speculos --display   # same, with Speculos GUI visible
+yarn test-speculos --auto      # same, review screens confirmed automatically (app v8)
+yarn test-speculos --auto -n 4 # same, sharded over 4 Speculos instances
 yarn test-speculos --grep signTx   # run only matching tests
 APP_ELF=/path/to/app.elf yarn test-speculos   # override elf path
 ```
@@ -59,7 +61,31 @@ pip install -r tests/requirements.txt
 ### App version and headless mode
 
 - **App v7 and earlier:** A debug build compiled with headless mode enabled auto-confirms all prompts — fully automated testing is possible. Use such a build with `yarn test-speculos`. The `--display headless` flag only hides the GUI window; it does **not** enable auto-confirmation (that is a compile-time property of the elf).
-- **App v8 and later:** Headless auto-confirmation was removed. Fully automated Speculos testing is not yet solved for v8.
+- **App v8 and later:** Headless auto-confirmation was removed. Use `yarn test-speculos --auto` for fully automated runs (see below), or `--display` to confirm the screens manually.
+- **Debug build required:** the integration suite expects a debug build of the app (`make DEBUG=1`). `getVersion` checks `isDebug`, and test cases with `requiresExpertMode` enable expert mode through a debug-only command (a release build answers `0x6d00`).
+
+### Automatic navigation (`--auto`)
+
+With `--auto`, `scripts/test-speculos.sh` enables the Speculos REST API and starts `scripts/speculos-autonav.mjs` next to each Speculos instance. The navigator reads the current screen and walks through it like a user: it swipes through review pages, taps confirmation buttons (including "Continue anyway" on warnings) and long-presses "Hold to sign". Touch positions are taken from ragger and match Stax.
+
+- Buttons and status screens are found by text **and** by their position and text height on the Stax layout, because review values can contain any text. For example, a message with the text "Confirm" is swiped past, not tapped. If the SDK changes the layout, compare the `AUTONAV_LOG=1` output (text, x, y, w, h of each event) with the constants in the script.
+- It checks what the tests check (APDU bytes, tx hash, witnesses). It does **not** check what the screens show: it accepts every warning and signs everything. Screen content is covered by the ragger golden snapshots in the app repo.
+- Every test runs once and the run always continues to the end. A screen the navigator does not recognize leaves the test waiting, so with `--auto` the default test timeout is 2 minutes instead of 1 hour (a `--timeout` on the command line overrides it). With `AUTONAV_LOG=1`, each navigator prints every screen and action, as `[autonav <i>]` lines that match the `[mocha <i>]` lines of the same instance. CI sets it, so the job log shows the last screen of a test that timed out. Locally, rerun a test that timed out with it:
+
+  ```bash
+  AUTONAV_LOG=1 yarn test-speculos --auto --grep "<test name>"
+  ```
+
+- If a request to the Speculos API fails, the navigator prints the error and keeps retrying. If a later request succeeds, the summary lists the error under `autonav warnings` and the run does not fail because of it (a test that the failure affected fails on its own). If requests still fail when the tests finish, or a navigator exited early, the summary lists this under `autonav errors` and the run fails even if all tests pass.
+- When a test leaves the app stuck on a screen, every later test in that Speculos instance fails with `0x6901`. Only the first failure matters.
+- The API listens on port 5000 (+1 per instance; override with `SPECULOS_API_PORT`), the same default as ragger. Do not run ragger tests at the same time, or move both ports:
+
+  ```bash
+  SPECULOS_APDU_PORT=19999 SPECULOS_API_PORT=15000 yarn test-speculos --auto
+  ```
+
+- In CI (GitHub Actions), the `speculos_tests` job on pull requests builds a pinned Stax release tag of `ledger-app-cardano-dev`, in a dev-tools image pinned by digest. The job fails if the tag does not point at the expected commit, or if the image does not have the SDK version from the tag name. When the library moves to a newer app, bump the four values in `.github/workflows/ci.yml` together, in their own change. The job steps are in `.github/workflows/speculos-tests.yml`. The job runs only in `vacuumlabs/ledgerjs-cardano-shelley`, which has the app deploy key; pull requests from forks and the `cardano-foundation` copy skip it.
+- The `App develop drift` workflow (`.github/workflows/app-develop-drift.yml`) runs the same tests against `develop` with the latest image, as an early warning of drift. It does not gate pull requests. Once a day on weekdays (06:17 UTC), it reads the `develop` commit and the image digest. It runs the tests only for a pair that it has not tested before, whether that earlier run passed or failed, so a failure is reported once. A failure posts to Slack if the `SLACK_WEBHOOK_URL` secret is set; GitHub also emails the person who last changed the cron line. To run it on demand, use "Run workflow" in the Actions tab, with `force` to test a pair again.
 
 ## Lint and build
 
