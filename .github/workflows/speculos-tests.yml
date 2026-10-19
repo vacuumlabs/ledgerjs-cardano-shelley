@@ -41,7 +41,9 @@ defaults:
 
 jobs:
   speculos_tests:
-    name: Speculos tests (${{ inputs.app_ref }})
+    # A fixed name, because branch protection requires this check by name. The
+    # app ref is in the name of the clone step.
+    name: Speculos tests
     runs-on: ubuntu-latest
     timeout-minutes: 60
     container:

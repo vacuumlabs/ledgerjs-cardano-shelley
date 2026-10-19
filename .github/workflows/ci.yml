@@ -57,10 +57,12 @@ jobs:
 
   speculos_tests:
     # The secrets are only in the vacuumlabs repo, not in its cardano-foundation
-    # copy, and pull requests from forks do not get them.
+    # copy, and pull requests from forks do not get them. Neither do runs
+    # triggered by Dependabot, whose branches are in this repo.
     if: >-
       github.repository == 'vacuumlabs/ledgerjs-cardano-shelley' &&
-      (github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork)
+      (github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork) &&
+      github.actor != 'dependabot[bot]'
     uses: ./.github/workflows/speculos-tests.yml
     # Bump these four together, in their own change, when the library moves to
     # a newer app release. The image must contain the SDK in the tag name.

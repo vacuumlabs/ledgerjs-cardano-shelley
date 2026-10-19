@@ -4,7 +4,8 @@
 #
 # The schedule only checks for changes. The tests run once for each new pair
 # of (develop commit, image digest), whether they pass or fail, so a broken
-# commit is reported once and not on every scheduled run.
+# commit is reported once and not on every scheduled run. If the Slack
+# notification fails, the pair is tested again on the next run.
 name: App develop drift
 
 on:
@@ -44,6 +45,7 @@ jobs:
       app_subject: ${{ steps.inputs.outputs.app_subject }}
       image_digest: ${{ steps.inputs.outputs.image_digest }}
       cache_key: ${{ steps.inputs.outputs.cache_key }}
+      tested: ${{ steps.tested.outputs.cache-hit == 'true' }}
       changed: ${{ inputs.force || steps.tested.outputs.cache-hit != 'true' }}
     steps:
       - name: Find the develop commit and the latest image
@@ -115,11 +117,6 @@ jobs:
     steps:
       - name: Mark this commit and image as tested
         run: echo "${{ needs.speculos_tests.result }}" >app-develop-tested
-      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: app-develop-tested
-          key: ${{ needs.check.outputs.cache_key }}
-
       - name: Notify Slack
         if: needs.speculos_tests.result == 'failure'
         env:
@@ -146,3 +143,12 @@ jobs:
               "Run: \($run_url)"
             )}' |
             curl -fsS -X POST -H 'Content-Type: application/json' --data @- "$SLACK_WEBHOOK_URL"
+
+      # after Slack: if the notification fails, nothing is saved and the next
+      # scheduled run tests this pair again and retries the notification.
+      # A forced run of an already tested pair cannot save again: the key exists
+      - if: needs.check.outputs.tested != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: app-develop-tested
+          key: ${{ needs.check.outputs.cache_key }}

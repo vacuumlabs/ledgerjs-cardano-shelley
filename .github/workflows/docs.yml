@@ -27,14 +27,14 @@ jobs:
     if: github.repository == 'vacuumlabs/ledgerjs-cardano-shelley'
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    # pushes the docs to the gh-pages branch
+    # pushes the docs to the gh-pages branch and requests a Pages build
     permissions:
       contents: write
+      pages: write
     steps:
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install -y libusb-1.0-0-dev libudev-dev
 
-      # gh-pages pushes with the token that checkout keeps in the git config
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.tag || github.ref }}
@@ -68,4 +68,11 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # gh-pages pushes from its own clone in node_modules/.cache, which
+          # does not get the credentials checkout stores for the workspace.
+          # Make Git authenticate through the gh CLI, which uses GH_TOKEN.
+          gh auth setup-git
           yarn gh-pages --add --dist docs_build --message "[ci skip] Docs for v$version"
+          # Pushes made with GITHUB_TOKEN do not trigger a branch-based Pages
+          # build, so request the build explicitly.
+          gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds"
