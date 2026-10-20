@@ -1,0 +1,154 @@
+# Early warning that the app and this library have drifted: runs the Speculos
+# tests against the develop branch of ledger-app-cardano-dev, built in the
+# latest dev-tools image. Does not gate pull requests.
+#
+# The schedule only checks for changes. The tests run once for each new pair
+# of (develop commit, image digest), whether they pass or fail, so a broken
+# commit is reported once and not on every scheduled run. If the Slack
+# notification fails, the pair is tested again on the next run.
+name: App develop drift
+
+on:
+  schedule:
+    # once a day on weekdays, before the work day in Europe; not at minute 0,
+    # when GitHub delays the most runs
+    - cron: '17 6 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: run the tests even if this commit and image were already tested
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: app-develop-drift
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  check:
+    # the deploy key is only in the vacuumlabs repo, not in its cardano-foundation copy
+    if: github.repository == 'vacuumlabs/ledgerjs-cardano-shelley'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      app_commit: ${{ steps.inputs.outputs.app_commit }}
+      app_subject: ${{ steps.inputs.outputs.app_subject }}
+      image_digest: ${{ steps.inputs.outputs.image_digest }}
+      cache_key: ${{ steps.inputs.outputs.cache_key }}
+      tested: ${{ steps.tested.outputs.cache-hit == 'true' }}
+      changed: ${{ inputs.force || steps.tested.outputs.cache-hit != 'true' }}
+    steps:
+      - name: Find the develop commit and the latest image
+        id: inputs
+        env:
+          APP_DEPLOY_KEY: ${{ secrets.APP_DEPLOY_KEY }}
+        run: |
+          key_file="$RUNNER_TEMP/app_deploy_key"
+          trap 'rm -f "$key_file"' EXIT
+          printf '%s\n' "$APP_DEPLOY_KEY" >"$key_file"
+          chmod 600 "$key_file"
+          export GIT_SSH_COMMAND="ssh -i $key_file -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+          app_url=git@github.com:vacuumlabs/ledger-app-cardano-dev.git
+          app_commit="$(git ls-remote "$app_url" refs/heads/develop | cut -f1)"
+          # only the commit object, for its message in the Slack notification
+          git init -q "$RUNNER_TEMP/app"
+          git -C "$RUNNER_TEMP/app" fetch -q --depth 1 --filter=tree:0 "$app_url" "$app_commit"
+          app_subject="$(git -C "$RUNNER_TEMP/app" log -1 --format=%s FETCH_HEAD)"
+
+          repo="${IMAGE#ghcr.io/}"
+          token="$(curl -fsS "https://ghcr.io/token?scope=repository:$repo:pull" | jq -r .token)"
+          image_digest="$(curl -fsSI \
+            -H "Authorization: Bearer $token" \
+            -H 'Accept: application/vnd.oci.image.index.v1+json' \
+            -H 'Accept: application/vnd.docker.distribution.manifest.list.v2+json' \
+            -H 'Accept: application/vnd.oci.image.manifest.v1+json' \
+            -H 'Accept: application/vnd.docker.distribution.manifest.v2+json' \
+            "https://ghcr.io/v2/$repo/manifests/latest" |
+            tr -d '\r' | awk 'tolower($1) == "docker-content-digest:" {print $2}')"
+
+          if ! [[ "$app_commit" =~ ^[0-9a-f]{40}$ ]] || ! [[ "$image_digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "::error::could not read the develop commit ('$app_commit') or the image digest ('$image_digest')"
+            exit 1
+          fi
+          echo "develop: $app_commit $app_subject"
+          echo "image: $IMAGE@$image_digest"
+          {
+            echo "app_commit=$app_commit"
+            echo "app_subject=$app_subject"
+            echo "image_digest=$image_digest"
+            echo "cache_key=app-develop-tested-$app_commit-${image_digest#sha256:}"
+          } >>"$GITHUB_OUTPUT"
+
+      - name: Check if this commit and image were already tested
+        id: tested
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: app-develop-tested
+          key: ${{ steps.inputs.outputs.cache_key }}
+          lookup-only: true
+
+  speculos_tests:
+    needs: check
+    if: needs.check.outputs.changed == 'true'
+    uses: ./.github/workflows/speculos-tests.yml
+    with:
+      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools@${{ needs.check.outputs.image_digest }}
+      app_ref: ${{ needs.check.outputs.app_commit }}
+      app_commit: ${{ needs.check.outputs.app_commit }}
+    secrets:
+      APP_DEPLOY_KEY: ${{ secrets.APP_DEPLOY_KEY }}
+
+  record:
+    needs: [check, speculos_tests]
+    # also after a failure, so that it is reported only once; not when cancelled
+    if: ${{ !cancelled() && needs.check.outputs.changed == 'true' && needs.speculos_tests.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Mark this commit and image as tested
+        run: echo "${{ needs.speculos_tests.result }}" >app-develop-tested
+      - name: Notify Slack
+        if: needs.speculos_tests.result == 'failure'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          APP_COMMIT: ${{ needs.check.outputs.app_commit }}
+          APP_SUBJECT: ${{ needs.check.outputs.app_subject }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then
+            echo "SLACK_WEBHOOK_URL is not set, skipping the notification"
+            exit 0
+          fi
+          commit_url="https://github.com/vacuumlabs/ledger-app-cardano-dev/commit/$APP_COMMIT"
+          # Slack reads <...> as links and & as entities: escape them in the commit message
+          jq -n \
+            --arg commit_url "$commit_url" \
+            --arg short "${APP_COMMIT:0:10}" \
+            --arg subject "$APP_SUBJECT" \
+            --arg run_url "$RUN_URL" \
+            '($subject | gsub("&"; "&amp;") | gsub("<"; "&lt;") | gsub(">"; "&gt;")) as $s |
+            {text: (
+              ":x: ledgerjs Speculos tests fail against ledger-app-cardano-dev develop\n" +
+              "Commit: <\($commit_url)|\($short)> \($s)\n" +
+              "Run: \($run_url)"
+            )}' |
+            curl -fsS -X POST -H 'Content-Type: application/json' --data @- "$SLACK_WEBHOOK_URL"
+
+      # after Slack: if the notification fails, nothing is saved and the next
+      # scheduled run tests this pair again and retries the notification.
+      # A forced run of an already tested pair cannot save again: the key exists
+      - if: needs.check.outputs.tested != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: app-develop-tested
+          key: ${{ needs.check.outputs.cache_key }}
