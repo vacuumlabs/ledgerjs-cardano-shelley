@@ -23,7 +23,6 @@ import type {
   StakeDelegationParams,
   StakeDeregistrationParams,
   StakeRegistrationParams,
-  VoteOption,
 } from '../../../src/types/public'
 import {
   PoolKeyType,
@@ -31,11 +30,12 @@ import {
   PoolRewardAccountType,
   CredentialParamsType,
   TransactionSigningMode,
+  VoteOption,
   VoterType,
 } from '../../../src/types/public'
 import {str_to_path} from '../../../src/utils/address'
-import {bech32_to_hex, DoNotRunOnLedger} from '../../test_utils'
-import type {AppVersionOverride, RejectError} from '../../test_utils'
+import {APP_V8_0, bech32_to_hex, DoNotRunOnLedger} from '../../test_utils'
+import type {AppVersionOverride, RejectErrorsByVersion} from '../../test_utils'
 import {
   destinations,
   inputs,
@@ -50,7 +50,7 @@ export type TestCaseRejectShelley = {
   tx: Transaction
   signingMode: TransactionSigningMode
   additionalWitnessPaths?: BIP32Path[]
-  err?: {v7: RejectError; v8: RejectError}
+  err?: RejectErrorsByVersion
   rejectReason: InvalidDataReason
   appVersion?: AppVersionOverride
 }
@@ -2965,5 +2965,65 @@ export const votingProcedureRejectTestCases: TestCaseRejectShelley[] = [
       },
     },
     rejectReason: InvalidDataReason.VOTING_PROCEDURE_INVALID_VOTE_OPTION,
+  },
+  {
+    // Multiple voters are not supported before v8. The voter given by key
+    // hash is first, so that the v8 app denies it before it gets to the
+    // second one.
+    testName: 'Multiple voters with DREP_KEY_HASH voter in ordinary tx',
+    appVersion: {supportedSince: APP_V8_0},
+    tx: {
+      ...shelleyBase,
+      votingProcedures: [
+        {
+          voter: {
+            type: VoterType.DREP_KEY_HASH,
+            keyHashHex:
+              '7afd028b504c3668102b129b37a86c09a2872f76741dc7a68e2149c8',
+          },
+          votes: [
+            {
+              govActionId: {
+                txHashHex:
+                  '3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7',
+                govActionIndex: 0,
+              },
+              votingProcedure: {
+                vote: VoteOption.YES,
+                anchor: null,
+              },
+            },
+          ],
+        },
+        {
+          voter: {
+            type: VoterType.DREP_KEY_PATH,
+            keyPath: str_to_path("1852'/1815'/0'/3/0"),
+          },
+          votes: [
+            {
+              govActionId: {
+                txHashHex:
+                  '3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7',
+                govActionIndex: 0,
+              },
+              votingProcedure: {
+                vote: VoteOption.YES,
+                anchor: null,
+              },
+            },
+          ],
+        },
+      ],
+    },
+    signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+    err: {
+      v8: {
+        errCls: DeviceStatusError,
+        errMsg:
+          StatusWordMsgV8[StatusWordV8.SWO_SECURITY_CONDITION_NOT_SATISFIED],
+      },
+    },
+    rejectReason: InvalidDataReason.SIGN_MODE_ORDINARY__VOTER_ONLY_AS_PATH,
   },
 ]

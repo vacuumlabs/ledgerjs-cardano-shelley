@@ -8,7 +8,7 @@ import {
 } from '../../../src/errors/deviceStatusError'
 import {str_to_path} from '../../../src/utils/address'
 import {Networks} from '../../test_utils'
-import type {AppVersionOverride} from '../../test_utils'
+import type {AppVersionOverride, RejectErrorsByVersion} from '../../test_utils'
 
 type ByronTestCase = {
   testName: string
@@ -624,7 +624,7 @@ type RejectTestCase = {
   testName: string
   network: Network
   addressParams: DeviceOwnedAddress
-  err: {v7: RejectError; v8: RejectError}
+  err: RejectErrorsByVersion
   appVersion?: AppVersionOverride
 }
 

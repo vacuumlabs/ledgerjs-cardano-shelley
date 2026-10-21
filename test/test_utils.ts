@@ -178,6 +178,34 @@ export type RejectError = {
   errMsg: string
 }
 
+// The error that the app gives, by app version: each entry applies from its
+// version up to the next entry, e.g. {v7: a, v8: b, 'v8.1': c}. A version that
+// does not get the request (see supportedSince) can be left out.
+export type RejectErrorsByVersion = {[version: `v${number}`]: RejectError}
+
+export function resolveRejectError(
+  version: Version,
+  err: RejectErrorsByVersion,
+): RejectError | undefined {
+  let resolved: (AppVersionNumber & {error: RejectError}) | undefined
+  for (const [key, error] of Object.entries(err)) {
+    const match = /^v(\d+)(?:\.(\d+))?$/.exec(key)
+    if (match == null) {
+      throw new Error(`Invalid app version in err: ${key}`)
+    }
+    const major = Number(match[1])
+    const minor = Number(match[2] ?? 0)
+    const isNewer =
+      resolved == null ||
+      major > resolved.major ||
+      (major === resolved.major && minor > resolved.minor)
+    if (isLedgerAppVersionAtLeast(version, major, minor) && isNewer) {
+      resolved = {major, minor, error}
+    }
+  }
+  return resolved?.error
+}
+
 type SignTxRejectCase = {
   testName: string
   tx: Transaction
@@ -186,7 +214,7 @@ type SignTxRejectCase = {
   rejectReason: InvalidDataReason
   errCls?: new (...args: any[]) => Error
   errMsg?: string | RegExp
-  err?: {v7: RejectError; v8: RejectError}
+  err?: RejectErrorsByVersion
   appVersion?: AppVersionOverride
 }
 
@@ -299,9 +327,9 @@ export function describeSignTxRejects(
         let resolvedErrCls = errCls
         let resolvedErrMsg = errMsg
         if (err != null) {
-          const resolvedErr = version.major <= 7 ? err.v7 : err.v8
-          resolvedErrCls = resolvedErr.errCls
-          resolvedErrMsg = resolvedErr.errMsg
+          const resolvedErr = resolveRejectError(version, err)
+          resolvedErrCls = resolvedErr?.errCls
+          resolvedErrMsg = resolvedErr?.errMsg
         }
         if (resolvedErrMsg === DoNotRunOnLedger) {
           return

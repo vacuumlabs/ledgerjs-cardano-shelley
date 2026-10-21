@@ -88,7 +88,7 @@ With `--auto`, `scripts/test-speculos.sh` enables the Speculos REST API and star
 
 The library must work with every app version that users can have, so the same integration tests run against each of them. Each test reads the app version and changes what it expects:
 
-- `err: {v7, v8}` in a reject case gives the expected error for each major version.
+- `err` in a reject case gives the error that the app gives, by app version: each entry applies from its version up to the next entry, e.g. `{v7: a, v8: b, 'v8.1': c}`. Leave out a version that does not get the request (see `supportedSince`).
 - `appVersion: {supportedSince: APP_V8_0}` (in `test/test_utils.ts`) marks a request that older apps do not support. With an older app, the test expects the library to reject the request with `DeviceVersionUnsupported` before it sends anything. Add a constant next to `APP_V8_0` for each new minimum version. Do not take it from `getCompatibility()`: the tests must check the library against an independent expectation.
 - `appVersion: {unsupportedInAppXS: true}` marks a request that the restricted Nano S build of v7 does not support.
 
