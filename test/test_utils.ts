@@ -4,7 +4,10 @@ import {ImportMock} from 'ts-mock-imports'
 import type {FixLenHexString} from 'types/internal'
 
 import {Ada, utils} from '../src/Ada'
-import {isV7App} from '../src/validation/deviceCapabilities'
+import {
+  isLedgerAppVersionAtLeast,
+  isV7App,
+} from '../src/validation/deviceCapabilities'
 import {DeviceVersionUnsupported, InvalidDataReason} from '../src/errors/index'
 import {interact} from '../src/interactions/common/interact'
 import type {SendParams} from '../src/interactions/common/types'
@@ -132,9 +135,28 @@ export const Networks = {
   },
 }
 
+type AppVersionNumber = {major: number; minor: number}
+
+export const APP_V8_0: AppVersionNumber = {major: 8, minor: 0}
+
 export type AppVersionOverride = {
   unsupportedInAppXS?: boolean // defaults to false
-  supportedSinceV8?: boolean // defaults to false
+  // The oldest app version that supports the request. With an older app, the
+  // library must refuse the request with DeviceVersionUnsupported before it
+  // sends anything. Set here, not read from getCompatibility(), so that the
+  // tests do not check the library against itself.
+  supportedSince?: AppVersionNumber // unset: every version supports it
+}
+
+function isSupportedByApp(
+  version: Version,
+  appVersion: AppVersionOverride | undefined,
+): boolean {
+  const since = appVersion?.supportedSince
+  return (
+    since == null ||
+    isLedgerAppVersionAtLeast(version, since.major, since.minor)
+  )
 }
 
 type TxHash = FixLenHexString<32>
@@ -263,6 +285,17 @@ export function describeSignTxRejects(
       it(`${testName} [${signingMode}]`, async () => {
         const {version} = await ada.getVersion()
         const isAppXS = version.flags.isAppXS
+
+        if (!isSupportedByApp(version, appVersion)) {
+          const response = ada.signTransaction({
+            tx,
+            signingMode,
+            additionalWitnessPaths: additionalWitnessPaths || [],
+          })
+          await expect(response).to.be.rejectedWith(DeviceVersionUnsupported)
+          return
+        }
+
         let resolvedErrCls = errCls
         let resolvedErrMsg = errMsg
         if (err != null) {
@@ -338,8 +371,13 @@ export function describeSignTxPositiveTest(
         const {version} = await ada.getVersion()
         const isAppXS = version.flags.isAppXS
 
-        if (isV7App(version) && (appVersion?.supportedSinceV8 ?? false)) {
-          const response = ada.signTransaction({tx, signingMode})
+        if (!isSupportedByApp(version, appVersion)) {
+          const response = ada.signTransaction({
+            tx,
+            signingMode,
+            additionalWitnessPaths,
+            options,
+          })
           await expect(response).to.be.rejectedWith(DeviceVersionUnsupported)
           return
         }

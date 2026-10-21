@@ -1,0 +1,34 @@
+# Runs the Speculos tests against any branch, tag or commit of an app repo, for
+# example an app feature branch that is not released yet. Started by hand from
+# the Actions tab.
+name: Speculos tests (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: the app to build
+        type: choice
+        options: [v8, v7]
+        default: v8
+      app_ref:
+        description: branch, tag or commit SHA of the app repo
+        type: string
+        required: true
+      image:
+        description: dev-tools image to build the app and run Speculos in
+        type: string
+        default: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:latest
+
+permissions:
+  contents: read
+
+jobs:
+  speculos_tests:
+    uses: ./.github/workflows/speculos-tests.yml
+    with:
+      app: ${{ inputs.app }}
+      image: ${{ inputs.image }}
+      app_ref: ${{ inputs.app_ref }}
+    secrets:
+      APP_DEPLOY_KEY: ${{ secrets.APP_DEPLOY_KEY }}

@@ -55,7 +55,8 @@ jobs:
       - name: Try generating the docs
         run: yarn typedoc
 
-  speculos_tests:
+  speculos_tests_v8:
+    name: Speculos tests (v8)
     # The secrets are only in the vacuumlabs repo, not in its cardano-foundation
     # copy, and pull requests from forks do not get them. Neither do runs
     # triggered by Dependabot, whose branches are in this repo.
@@ -73,3 +74,18 @@ jobs:
       stax_sdk_version: v27.1.1
     secrets:
       APP_DEPLOY_KEY: ${{ secrets.APP_DEPLOY_KEY }}
+
+  speculos_tests_v7:
+    # The v7 app repo is public, so this job needs no secrets and also runs for
+    # forks and Dependabot.
+    name: Speculos tests (v7)
+    uses: ./.github/workflows/speculos-tests.yml
+    # The latest v7 release for Stax. Its tag names SDK v26.6.1; we have no
+    # dev-tools image with that SDK, so this job builds with the image (and SDK)
+    # of the v8 job. Bump the image of both jobs together.
+    with:
+      app: v7
+      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools@sha256:0ed357a6f66a1df949649803ea79e5a224f3f551a496adb3b73af22088781452
+      app_ref: stax_1.10.1_7.3.1_sdk_v26.6.1
+      app_commit: 6b8f96f20b27bd254174dc59294dedd0062fe830
+      stax_sdk_version: v27.1.1
