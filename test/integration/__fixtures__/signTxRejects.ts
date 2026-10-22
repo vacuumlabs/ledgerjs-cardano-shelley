@@ -34,7 +34,12 @@ import {
   VoterType,
 } from '../../../src/types/public'
 import {str_to_path} from '../../../src/utils/address'
-import {APP_V8_0, bech32_to_hex, DoNotRunOnLedger} from '../../test_utils'
+import {
+  APP_V8_0,
+  APP_V8_1,
+  bech32_to_hex,
+  DoNotRunOnLedger,
+} from '../../test_utils'
 import type {AppVersionOverride, RejectErrorsByVersion} from '../../test_utils'
 import {
   destinations,
@@ -1566,6 +1571,127 @@ export const certificateStakePoolRetirementRejectTestCases: TestCaseRejectShelle
         },
       },
       rejectReason: InvalidDataReason.LEDGER_POLICY,
+    },
+    {
+      testName: 'Path_sent_in_for_Pool_Retirement_Payer_Tx',
+      appVersion: {unsupportedInAppXS: true, supportedSince: APP_V8_1},
+      tx: {
+        ...shelleyBase,
+        certificates: [
+          {
+            type: CertificateType.STAKE_POOL_RETIREMENT,
+            params: {
+              poolKeyPath: str_to_path("1853'/1815'/0'/0'"),
+              retirementEpoch: 42,
+            },
+          },
+        ],
+      },
+      signingMode: TransactionSigningMode.POOL_RETIREMENT_AS_PAYER,
+      err: {
+        v8: {
+          errCls: DeviceStatusError,
+          errMsg:
+            StatusWordMsgV8[StatusWordV8.SWO_SECURITY_CONDITION_NOT_SATISFIED],
+        },
+      },
+      rejectReason:
+        InvalidDataReason.SIGN_MODE_POOL_RETIREMENT_PAYER__POOL_KEY_HASH_REQUIRED,
+    },
+    {
+      testName: 'Hash_sent_in_for_Ordinary_Tx',
+      appVersion: {unsupportedInAppXS: true},
+      tx: {
+        ...shelleyBase,
+        certificates: [
+          {
+            type: CertificateType.STAKE_POOL_RETIREMENT,
+            params: {
+              poolKeyHash:
+                '13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad',
+              retirementEpoch: 42,
+            },
+          },
+        ],
+      },
+      signingMode: TransactionSigningMode.ORDINARY_TRANSACTION,
+      err: {
+        // v7 cannot encode a pool key hash for a pool retirement: the v7
+        // serialization asserts before any APDU is sent, so there is no
+        // on-device rejection to test (the _JS test covers the SDK check)
+        v7: {
+          errCls: DeviceStatusError,
+          errMsg: DoNotRunOnLedger,
+        },
+        v8: {
+          errCls: DeviceStatusError,
+          errMsg:
+            StatusWordMsgV8[StatusWordV8.SWO_SECURITY_CONDITION_NOT_SATISFIED],
+        },
+      },
+      rejectReason:
+        InvalidDataReason.SIGN_MODE_ORDINARY__POOL_RETIREMENT_POOL_KEY_ONLY_AS_PATH,
+    },
+    {
+      testName: 'Hash_sent_in_for_Plutus_Tx',
+      appVersion: {unsupportedInAppXS: true},
+      tx: {
+        ...shelleyBase,
+        certificates: [
+          {
+            type: CertificateType.STAKE_POOL_RETIREMENT,
+            params: {
+              poolKeyHash:
+                '13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad',
+              retirementEpoch: 42,
+            },
+          },
+        ],
+      },
+      signingMode: TransactionSigningMode.PLUTUS_TRANSACTION,
+      err: {
+        // v7 cannot encode a pool key hash for a pool retirement: the v7
+        // serialization asserts before any APDU is sent, so there is no
+        // on-device rejection to test (the _JS test covers the SDK check)
+        v7: {
+          errCls: DeviceStatusError,
+          errMsg: DoNotRunOnLedger,
+        },
+        v8: {
+          errCls: DeviceStatusError,
+          errMsg:
+            StatusWordMsgV8[StatusWordV8.SWO_SECURITY_CONDITION_NOT_SATISFIED],
+        },
+      },
+      rejectReason:
+        InvalidDataReason.SIGN_MODE_PLUTUS__POOL_RETIREMENT_POOL_KEY_ONLY_AS_PATH,
+    },
+    {
+      testName: 'Hash_sent_in_for_Unrestricted_Tx',
+      appVersion: {unsupportedInAppXS: true, supportedSince: APP_V8_0},
+      tx: {
+        ...shelleyBase,
+        certificates: [
+          {
+            type: CertificateType.STAKE_POOL_RETIREMENT,
+            params: {
+              poolKeyHash:
+                '13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad',
+              retirementEpoch: 42,
+            },
+          },
+        ],
+      },
+      signingMode: TransactionSigningMode.UNRESTRICTED_TRANSACTION,
+      err: {
+        v8: {
+          errCls: DeviceStatusError,
+          errMsg:
+            StatusWordMsgV8[StatusWordV8.SWO_SECURITY_CONDITION_NOT_SATISFIED],
+        },
+      },
+      rejectReason:
+        InvalidDataReason.SIGN_MODE_UNRESTRICTED__POOL_RETIREMENT_POOL_KEY_ONLY_AS_PATH,
     },
     // can't test the rest of the signing modes, because a previous checks catches them
   ]

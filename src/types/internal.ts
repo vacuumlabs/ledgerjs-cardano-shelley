@@ -222,7 +222,7 @@ export type ParsedCertificate =
     }
   | {
       type: CertificateType.STAKE_POOL_RETIREMENT
-      path: ValidBIP32Path
+      path: ParsedPoolKey
       retirementEpoch: Uint64_str
     }
 
