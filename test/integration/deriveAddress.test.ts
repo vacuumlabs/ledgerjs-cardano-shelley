@@ -3,7 +3,8 @@ import chaiAsPromised from 'chai-as-promised'
 
 import type {Ada} from '../../src/Ada'
 import {DeviceVersionUnsupported, utils} from '../../src/Ada'
-import {getAda} from '../test_utils'
+import {getAda, resolveRejectError} from '../test_utils'
+import type {RejectError} from '../test_utils'
 import {
   byronTestCases,
   rejectTestCases,
@@ -82,7 +83,11 @@ describe('deriveAddress', () => {
       it(testName, async () => {
         const {version} = await ada.getVersion()
         const isAppXS = version.flags.isAppXS
-        const {errCls, errMsg} = version.major <= 7 ? err.v7 : err.v8
+        const resolvedErr = resolveRejectError(version, err)
+        expect(resolvedErr, 'missing err for this app version').to.not.equal(
+          undefined,
+        )
+        const {errCls, errMsg} = resolvedErr as RejectError
 
         const promise = ada.deriveAddress({
           network,
@@ -136,7 +141,11 @@ describe('deriveAddress', () => {
       it(testName, async () => {
         const {version} = await ada.getVersion()
         const isAppXS = version.flags.isAppXS
-        const {errCls, errMsg} = version.major <= 7 ? err.v7 : err.v8
+        const resolvedErr = resolveRejectError(version, err)
+        expect(resolvedErr, 'missing err for this app version').to.not.equal(
+          undefined,
+        )
+        const {errCls, errMsg} = resolvedErr as RejectError
 
         const promise = ada.showAddress({
           network,

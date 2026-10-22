@@ -4,7 +4,10 @@ import {ImportMock} from 'ts-mock-imports'
 import type {FixLenHexString} from 'types/internal'
 
 import {Ada, utils} from '../src/Ada'
-import {isV7App} from '../src/validation/deviceCapabilities'
+import {
+  isLedgerAppVersionAtLeast,
+  isV7App,
+} from '../src/validation/deviceCapabilities'
 import {DeviceVersionUnsupported, InvalidDataReason} from '../src/errors/index'
 import {interact} from '../src/interactions/common/interact'
 import type {SendParams} from '../src/interactions/common/types'
@@ -132,9 +135,28 @@ export const Networks = {
   },
 }
 
+type AppVersionNumber = {major: number; minor: number}
+
+export const APP_V8_0: AppVersionNumber = {major: 8, minor: 0}
+
 export type AppVersionOverride = {
   unsupportedInAppXS?: boolean // defaults to false
-  supportedSinceV8?: boolean // defaults to false
+  // The oldest app version that supports the request. With an older app, the
+  // library must refuse the request with DeviceVersionUnsupported before it
+  // sends anything. Set here, not read from getCompatibility(), so that the
+  // tests do not check the library against itself.
+  supportedSince?: AppVersionNumber // unset: every version supports it
+}
+
+function isSupportedByApp(
+  version: Version,
+  appVersion: AppVersionOverride | undefined,
+): boolean {
+  const since = appVersion?.supportedSince
+  return (
+    since == null ||
+    isLedgerAppVersionAtLeast(version, since.major, since.minor)
+  )
 }
 
 type TxHash = FixLenHexString<32>
@@ -156,6 +178,34 @@ export type RejectError = {
   errMsg: string
 }
 
+// The error that the app gives, by app version: each entry applies from its
+// version up to the next entry, e.g. {v7: a, v8: b, 'v8.1': c}. A version that
+// does not get the request (see supportedSince) can be left out.
+export type RejectErrorsByVersion = {[version: `v${number}`]: RejectError}
+
+export function resolveRejectError(
+  version: Version,
+  err: RejectErrorsByVersion,
+): RejectError | undefined {
+  let resolved: (AppVersionNumber & {error: RejectError}) | undefined
+  for (const [key, error] of Object.entries(err)) {
+    const match = /^v(\d+)(?:\.(\d+))?$/.exec(key)
+    if (match == null) {
+      throw new Error(`Invalid app version in err: ${key}`)
+    }
+    const major = Number(match[1])
+    const minor = Number(match[2] ?? 0)
+    const isNewer =
+      resolved == null ||
+      major > resolved.major ||
+      (major === resolved.major && minor > resolved.minor)
+    if (isLedgerAppVersionAtLeast(version, major, minor) && isNewer) {
+      resolved = {major, minor, error}
+    }
+  }
+  return resolved?.error
+}
+
 type SignTxRejectCase = {
   testName: string
   tx: Transaction
@@ -164,7 +214,7 @@ type SignTxRejectCase = {
   rejectReason: InvalidDataReason
   errCls?: new (...args: any[]) => Error
   errMsg?: string | RegExp
-  err?: {v7: RejectError; v8: RejectError}
+  err?: RejectErrorsByVersion
   appVersion?: AppVersionOverride
 }
 
@@ -263,12 +313,23 @@ export function describeSignTxRejects(
       it(`${testName} [${signingMode}]`, async () => {
         const {version} = await ada.getVersion()
         const isAppXS = version.flags.isAppXS
+
+        if (!isSupportedByApp(version, appVersion)) {
+          const response = ada.signTransaction({
+            tx,
+            signingMode,
+            additionalWitnessPaths: additionalWitnessPaths || [],
+          })
+          await expect(response).to.be.rejectedWith(DeviceVersionUnsupported)
+          return
+        }
+
         let resolvedErrCls = errCls
         let resolvedErrMsg = errMsg
         if (err != null) {
-          const resolvedErr = version.major <= 7 ? err.v7 : err.v8
-          resolvedErrCls = resolvedErr.errCls
-          resolvedErrMsg = resolvedErr.errMsg
+          const resolvedErr = resolveRejectError(version, err)
+          resolvedErrCls = resolvedErr?.errCls
+          resolvedErrMsg = resolvedErr?.errMsg
         }
         if (resolvedErrMsg === DoNotRunOnLedger) {
           return
@@ -338,8 +399,13 @@ export function describeSignTxPositiveTest(
         const {version} = await ada.getVersion()
         const isAppXS = version.flags.isAppXS
 
-        if (isV7App(version) && (appVersion?.supportedSinceV8 ?? false)) {
-          const response = ada.signTransaction({tx, signingMode})
+        if (!isSupportedByApp(version, appVersion)) {
+          const response = ada.signTransaction({
+            tx,
+            signingMode,
+            additionalWitnessPaths,
+            options,
+          })
           await expect(response).to.be.rejectedWith(DeviceVersionUnsupported)
           return
         }

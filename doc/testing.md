@@ -84,7 +84,28 @@ With `--auto`, `scripts/test-speculos.sh` enables the Speculos REST API and star
   SPECULOS_APDU_PORT=19999 SPECULOS_API_PORT=15000 yarn test-speculos --auto
   ```
 
-- In CI (GitHub Actions), the `speculos_tests` job on pull requests builds a pinned Stax release tag of `ledger-app-cardano-dev`, in a dev-tools image pinned by digest. The job fails if the tag does not point at the expected commit, or if the image does not have the SDK version from the tag name. When the library moves to a newer app, bump the four values in `.github/workflows/ci.yml` together, in their own change. The job steps are in `.github/workflows/speculos-tests.yml`. The job runs only in `vacuumlabs/ledgerjs-cardano-shelley`, which has the app deploy key; pull requests from forks and the `cardano-foundation` copy skip it.
+### App versions
+
+The library must work with every app version that users can have, so the same integration tests run against each of them. Each test reads the app version and changes what it expects:
+
+- `err` in a reject case gives the error that the app gives, by app version: each entry applies from its version up to the next entry, e.g. `{v7: a, v8: b, 'v8.1': c}`. Leave out a version that does not get the request (see `supportedSince`).
+- `appVersion: {supportedSince: APP_V8_0}` (in `test/test_utils.ts`) marks a request that older apps do not support. With an older app, the test expects the library to reject the request with `DeviceVersionUnsupported` before it sends anything. Add a constant next to `APP_V8_0` for each new minimum version. Do not take it from `getCompatibility()`: the tests must check the library against an independent expectation.
+- `appVersion: {unsupportedInAppXS: true}` marks a request that the restricted Nano S build of v7 does not support.
+
+To run the tests against the v7 app locally, build `LedgerHQ/app-cardano-legacy` for Stax in headless mode and point `APP_ELF` at it, without `--auto`:
+
+```bash
+# in the dev-tools image, in a clone of app-cardano-legacy
+BOLOS_SDK=$STAX_SDK DEVEL=1 DEFINES=HEADLESS make
+# in this repo
+APP_ELF=../app-cardano-legacy/build/stax/bin/app.elf yarn test-speculos -n 4 --timeout 120000
+```
+
+### CI
+
+- In CI (GitHub Actions), the `speculos_tests_v8` job on pull requests builds a pinned Stax release tag of `ledger-app-cardano-dev`, in a dev-tools image pinned by digest. The job fails if the tag does not point at the expected commit, or if the image does not have the SDK version from the tag name. When the library moves to a newer app, bump the four values in `.github/workflows/ci.yml` together, in their own change. The job steps are in `.github/workflows/speculos-tests.yml`. The job runs only in `vacuumlabs/ledgerjs-cardano-shelley`, which has the app deploy key; pull requests from forks and the `cardano-foundation` copy skip it.
+- The `speculos_tests_v7` job runs the same tests against the latest v7 Stax release of `LedgerHQ/app-cardano-legacy`, built with `DEVEL=1` and `HEADLESS` and run without `--auto`. The repo is public, so this job needs no secrets. It uses the same image as the v8 job, because no pinned image has the SDK from the v7 tag name; bump the image of both jobs together.
+- The `Speculos tests (manual)` workflow (`.github/workflows/speculos-manual.yml`) runs the tests against any branch, tag or commit of either app, for example an app feature branch that is not released yet. Start it with "Run workflow" in the Actions tab.
 - The `App develop drift` workflow (`.github/workflows/app-develop-drift.yml`) runs the same tests against `develop` with the latest image, as an early warning of drift. It does not gate pull requests. Once a day on weekdays (06:17 UTC), it reads the `develop` commit and the image digest. It runs the tests only for a pair that it has not tested before, whether that earlier run passed or failed, so a failure is reported once. A failure posts to Slack if the `SLACK_WEBHOOK_URL` secret is set; GitHub also emails the person who last changed the cron line. To run it on demand, use "Run workflow" in the Actions tab, with `force` to test a pair again.
 
 ## Lint and build
