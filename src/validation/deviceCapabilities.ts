@@ -54,6 +54,7 @@ export function getCompatibility(version: Version): DeviceCompatibility {
       supportsConway: true,
       supportsMultipleVoters: true,
       supportsMultipleVotesPerVoter: true,
+      supportsProposalProcedures: isLedgerAppVersionAtLeast(version, 8, 1),
       supportsMessageSigning: true,
       supportsUnrestrictedTransaction: true,
     }
@@ -113,6 +114,7 @@ export function getCompatibility(version: Version): DeviceCompatibility {
       supportsConway: v7_0,
       supportsMultipleVoters: false,
       supportsMultipleVotesPerVoter: false,
+      supportsProposalProcedures: false,
       supportsMessageSigning: v7_1,
       supportsUnrestrictedTransaction: false,
     },

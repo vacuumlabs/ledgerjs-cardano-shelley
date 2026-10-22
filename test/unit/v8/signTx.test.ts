@@ -46,6 +46,7 @@ import {
   serializeBuiltChunkApdusHex,
   serializeBuiltInitApduHex,
   serializeBuiltWitnessApdusHex,
+  v8AppVersion,
 } from '../__fixtures__/v8/signTx'
 import {testsCVoteRegistrationCIP36} from '../../../test/integration/__fixtures__/signTxCVote'
 
@@ -54,7 +55,7 @@ function exhaustSender(
   witnessPaths: typeof alonzoExpectedWitnessPaths,
   responses: Buffer[],
 ) {
-  const interaction = sendSignTx(request, witnessPaths)
+  const interaction = sendSignTx(v8AppVersion, request, witnessPaths)
   const yieldedHex: string[] = []
 
   let step = interaction.next()

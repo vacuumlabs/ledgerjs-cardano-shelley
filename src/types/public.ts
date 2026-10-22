@@ -1408,6 +1408,10 @@ export type DeviceCompatibility = {
    */
   supportsMultipleVotesPerVoter: boolean
   /**
+   * Whether we support proposal procedures (governance action proposals)
+   */
+  supportsProposalProcedures: boolean
+  /**
    * Whether we support CIP-8 message signing
    */
   supportsMessageSigning: boolean
@@ -1790,6 +1794,165 @@ export type VoterVotes = {
   votes: Array<Vote>
 }
 
+export enum GovActionType {
+  PARAMETER_CHANGE = 0,
+  HARD_FORK_INITIATION = 1,
+  TREASURY_WITHDRAWALS = 2,
+  NO_CONFIDENCE = 3,
+  UPDATE_COMMITTEE = 4,
+  NEW_CONSTITUTION = 5,
+  INFO = 6,
+}
+
+export type Ratio = {
+  numerator: bigint_like
+  denominator: bigint_like
+}
+
+export type ExUnits = {
+  memory: bigint_like
+  steps: bigint_like
+}
+
+export type ExUnitPrices = {
+  memPrice: Ratio
+  stepPrice: Ratio
+}
+
+export type PoolVotingThresholds = {
+  motionNoConfidence: Ratio
+  committeeNormal: Ratio
+  committeeNoConfidence: Ratio
+  hardForkInitiation: Ratio
+  securityRelevantParameter: Ratio
+}
+
+export type DRepVotingThresholds = {
+  motionNoConfidence: Ratio
+  committeeNormal: Ratio
+  committeeNoConfidence: Ratio
+  updateConstitution: Ratio
+  hardForkInitiation: Ratio
+  ppNetworkGroup: Ratio
+  ppEconomicGroup: Ratio
+  ppTechnicalGroup: Ratio
+  ppGovGroup: Ratio
+  treasuryWithdrawal: Ratio
+}
+
+/**
+ * Protocol parameter update. Every field is optional; the device is sent a bitmask of the
+ * fields present. Cost models are not supported and cannot be expressed here.
+ */
+export type ProtocolParamUpdate = {
+  minFeeA?: bigint_like | null
+  minFeeB?: bigint_like | null
+  maxBlockBodySize?: bigint_like | null
+  maxTxSize?: bigint_like | null
+  maxBlockHeaderSize?: bigint_like | null
+  keyDeposit?: bigint_like | null
+  poolDeposit?: bigint_like | null
+  maxEpoch?: bigint_like | null
+  nOpt?: bigint_like | null
+  poolPledgeInfluence?: Ratio | null
+  expansionRate?: Ratio | null
+  treasuryGrowthRate?: Ratio | null
+  minPoolCost?: bigint_like | null
+  adaPerUtxoByte?: bigint_like | null
+  executionUnitPrices?: ExUnitPrices | null
+  maxTxExUnits?: ExUnits | null
+  maxBlockExUnits?: ExUnits | null
+  maxValueSize?: bigint_like | null
+  collateralPercentage?: bigint_like | null
+  maxCollateralInputs?: bigint_like | null
+  poolVotingThresholds?: PoolVotingThresholds | null
+  drepVotingThresholds?: DRepVotingThresholds | null
+  minCommitteeSize?: bigint_like | null
+  committeeTermLimit?: bigint_like | null
+  govActionValidityPeriod?: bigint_like | null
+  govActionDeposit?: bigint_like | null
+  drepDeposit?: bigint_like | null
+  drepInactivityPeriod?: bigint_like | null
+  minFeeRefScriptCoinsPerByte?: Ratio | null
+}
+
+export type ProtocolVersion = {
+  major: number
+  minor: number
+}
+
+export type TreasuryWithdrawal = {
+  rewardAccount: PoolRewardAccount
+  amount: bigint_like
+}
+
+export type CommitteeMember = {
+  coldCredential: CredentialParams
+  expirationEpoch: bigint_like
+}
+
+export type ParameterChangeGovAction = {
+  type: GovActionType.PARAMETER_CHANGE
+  prevActionId?: GovActionId | null
+  protocolParamUpdate: ProtocolParamUpdate
+  guardrailsScriptHashHex?: string | null
+}
+
+export type HardForkInitiationGovAction = {
+  type: GovActionType.HARD_FORK_INITIATION
+  prevActionId?: GovActionId | null
+  protocolVersion: ProtocolVersion
+}
+
+export type TreasuryWithdrawalsGovAction = {
+  type: GovActionType.TREASURY_WITHDRAWALS
+  withdrawals: Array<TreasuryWithdrawal>
+  guardrailsScriptHashHex?: string | null
+}
+
+export type NoConfidenceGovAction = {
+  type: GovActionType.NO_CONFIDENCE
+  prevActionId?: GovActionId | null
+}
+
+export type UpdateCommitteeGovAction = {
+  type: GovActionType.UPDATE_COMMITTEE
+  prevActionId?: GovActionId | null
+  membersToRemove: Array<CredentialParams>
+  membersToAdd: Array<CommitteeMember>
+  threshold: Ratio
+}
+
+export type NewConstitutionGovAction = {
+  type: GovActionType.NEW_CONSTITUTION
+  prevActionId?: GovActionId | null
+  anchor: AnchorParams
+  scriptHashHex?: string | null
+}
+
+export type InfoGovAction = {
+  type: GovActionType.INFO
+}
+
+export type GovAction =
+  | ParameterChangeGovAction
+  | HardForkInitiationGovAction
+  | TreasuryWithdrawalsGovAction
+  | NoConfidenceGovAction
+  | UpdateCommitteeGovAction
+  | NewConstitutionGovAction
+  | InfoGovAction
+
+export type ProposalProcedure = {
+  deposit: bigint_like
+  rewardAccount: PoolRewardAccount
+  govAction: GovAction
+  /**
+   * Anchor. Mandatory, unlike the anchor of a voting procedure.
+   */
+  anchor: AnchorParams
+}
+
 /**
  * Represents transaction to be signed by the device.
  * Note that this represents a *superset* of what Ledger can sign due to certain hardware app/security limitations.
@@ -1880,6 +2043,10 @@ export type Transaction = {
    * Voting procedures.
    */
   votingProcedures?: Array<VoterVotes> | null
+  /**
+   * Proposal procedures.
+   */
+  proposalProcedures?: Array<ProposalProcedure> | null
   /**
    * Treasury amount (in Lovelace).
    */

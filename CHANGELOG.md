@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [Unreleased]
+
+Proposal procedures
+
+### Added
+
+- support for proposal procedures in transactions, all 7 governance action types (requires Ledger app v8.1; cost models in parameter change proposals are not supported)
+
 ## [8.1.0](https://github.com/cardano-foundation/ledgerjs-hw-app-cardano/compare/v8.0.0...v8.1.0) - [October 1st 2026]
 
 ### Removed

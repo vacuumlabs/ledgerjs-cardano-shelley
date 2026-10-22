@@ -325,7 +325,7 @@ export function parseCredential(
   }
 }
 
-export function parseAnchor(params: AnchorParams): ParsedAnchor | null {
+export function parseAnchor(params: AnchorParams): ParsedAnchor {
   validate(isObject(params), InvalidDataReason.ANCHOR_INVALID)
   const url = parseAscii(params.url, InvalidDataReason.ANCHOR_INVALID_URL)
   // Additional length check
