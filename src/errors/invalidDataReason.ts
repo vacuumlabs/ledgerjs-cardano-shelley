@@ -93,7 +93,7 @@ export enum InvalidDataReason {
   POOL_REWARD_ACCOUNT_INVALID_HEX = 'invalid pool reward account hex in a pool registration certificate',
 
   POOL_RETIREMENT_INVALID_RETIREMENT_EPOCH = 'invalid pool retirement epoch',
-  POOL_RETIREMENT_INVALID_POOL_KEY = 'invalid pool key hash or pool key path in a pool registration certificate',
+  POOL_RETIREMENT_INVALID_POOL_KEY = 'invalid pool key hash or pool key path in a pool retirement certificate',
 
   RELAY_INVALID_TYPE = 'invalid type of a relay in a pool registration certificate',
   RELAY_INVALID_PORT = 'invalid port in a relay in a pool registration certificate',
