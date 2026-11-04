@@ -721,7 +721,7 @@ export const poolRegistrationPayerTestCases: SignTxTestCase[] = [
 
 export const poolRetirementPayerTestCases: SignTxTestCase[] = [
   {
-    testName: 'Sign_tx_Witness_pool_retirement_as_payer',
+    testName: 'Sign_tx_Witness_pool_retirement_as_payer_multiple_certificates',
     appVersion: {unsupportedInAppXS: true, supportedSince: APP_V8_1},
     tx: {
       ...txBase,
@@ -735,25 +735,28 @@ export const poolRetirementPayerTestCases: SignTxTestCase[] = [
             retirementEpoch: '42',
           },
         },
+        {
+          type: CertificateType.STAKE_POOL_RETIREMENT,
+          params: {
+            poolKeyHash:
+              'f61c42cbf7c8c53af3f520508212ad3e72f674f957fe23ff0acb4973',
+            retirementEpoch: '43',
+          },
+        },
       ],
     },
     signingMode: TransactionSigningMode.POOL_RETIREMENT_AS_PAYER,
     additionalWitnessPaths: [],
-    // The payer does not hold the cold key, so the pool key is given as a hash
-    // and the only witness is the payment key taken from the inputs -- no pool
-    // key witness, unlike a path-form retirement in ordinary mode.
     txBody:
-      'a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825839017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b090102182a030a04818304581c13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad182a',
+      'a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825839017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b090102182a030a04828304581c13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad182a8304581cf61c42cbf7c8c53af3f520508212ad3e72f674f957fe23ff0acb4973182b',
     expectedResult: {
       txHashHex:
-        '788c0f68606bed9345f8855232cbc151e8e18d0dd122a8d0ff424814615ddb1a',
+        '89da89560abaebb177e34e62e3eb89e10aab381315188121d3335f200b2393a4',
       witnesses: [
         {
           path: str_to_path("1852'/1815'/0'/0/0"),
-          // From crypto_mock_data.h's mock signature table in
-          // ledger-app-cardano for this exact (path, message) pair.
           witnessSignatureHex:
-            '96c129fd1bec16f4d09a6cdff57ddae817dfd4adbd2a119b0094b3805e62cbcbbf42ba39acb71420a398765921acab3f14b962352ffe2ba0552807252135520c',
+            '0301816748952f4ba690b7e7f34e5426b67f7ef4020cd1643c89fca33725d7aad5c3b7db428053ff01b5e3dd6092cd33ed3875a695b82bc2570425eb3f4dfb0d',
         },
       ],
       auxiliaryDataSupplement: null,
