@@ -233,7 +233,7 @@ export const signTxAllElementsPoolRegistration: SignTxTestCase[] = [
     testName: 'signTxAllElementsPoolRegistration minimal_coverage_v8',
     signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR,
     txBody:
-      'a400818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018182583901eb0baa5e570cffbe2934db29df0b6a3d7c0430ee65d4c3a7ab2fefb91bc428e4720702ebd5dab4fb175324c192dc9bb76cc5da956e3c8dff821a001e8480a1581c0d63e8d2c5a00cbcffbdf9112487c443466e1ea7d8c834df5ac5c425a14874657374436f696e1a0078386202182a04818a03581c14c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f1124582000112233445566778899aabbccddeeff00112233445566778899aabbccddeeff1903e81864d81e820102581de1eef1689a3970b7880dcf3cb4ca9f22453b3833824fea34105117c84081581c1234567890abcdef1234567890abcdef1234567890abcdef123456788182026b6578616d706c652e636f6d827368747470733a2f2f6578616d706c652e636f6d5820ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100',
+      'a400818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018182583901eb0baa5e570cffbe2934db29df0b6a3d7c0430ee65d4c3a7ab2fefb91bc428e4720702ebd5dab4fb175324c192dc9bb76cc5da956e3c8dff821a001e8480a1581c0d63e8d2c5a00cbcffbdf9112487c443466e1ea7d8c834df5ac5c425a14874657374436f696e1a0078386202182a04818a03581cdbfee4665e58c8f8e9b9ff02b17f32e08a42c855476a5d867c2737b7582000112233445566778899aabbccddeeff00112233445566778899aabbccddeeff1903e81864d81e820102581de1eef1689a3970b7880dcf3cb4ca9f22453b3833824fea34105117c84081581c1234567890abcdef1234567890abcdef1234567890abcdef123456788182026b6578616d706c652e636f6d827368747470733a2f2f6578616d706c652e636f6d5820ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100',
     tx: {
       network: Networks.Mainnet,
       inputs: [inputs.utxoMultisig],
@@ -246,7 +246,7 @@ export const signTxAllElementsPoolRegistration: SignTxTestCase[] = [
             poolKey: {
               type: PoolKeyType.DEVICE_OWNED,
               params: {
-                path: str_to_path("1852'/1815'/0'/0/0"),
+                path: str_to_path("1853'/1815'/0'/0'"),
               },
             },
             vrfKeyHashHex: poolVrfKeyHashHex,
@@ -278,12 +278,12 @@ export const signTxAllElementsPoolRegistration: SignTxTestCase[] = [
     } as SignTxTestCase['tx'],
     expectedResult: {
       txHashHex:
-        '7b26594457ff51ede6fe7085aeb35d0d074111f368612c0551562dc726afa39b',
+        'f4091c0a656524835bc5958d1d25fd54de08ea9e0db9c724211edf16809a6996',
       witnesses: [
         {
-          path: str_to_path("1852'/1815'/0'/0/0"),
+          path: str_to_path("1853'/1815'/0'/0'"),
           witnessSignatureHex:
-            '647741725e12dcad8be828f7a8177295e522baaeac7bbf3ad7f90b4ec23dbf0f98a258f429648b7d3468a01e6a78f919858e389db784593a3e428e621797990c',
+            '487006cccec5fb46a24a0fc5fa2a43d05ba699f059e4567a3a402636d5176af3df37308474658b1a86966df629edae9a5f7b1d46f7e2b931c63dd595e5ed690d',
         },
       ],
       auxiliaryDataSupplement: null,
