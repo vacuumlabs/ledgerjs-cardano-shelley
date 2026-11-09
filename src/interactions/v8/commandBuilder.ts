@@ -18,7 +18,7 @@ import {
   NATIVE_SCRIPT_HASH_LENGTH,
   TX_HASH_LENGTH,
 } from '../../types/internal'
-import type {NativeScriptHashDisplayFormat} from '../../types/public'
+import type {NativeScriptHashDisplayFormat, Version} from '../../types/public'
 import {INS} from '../common/ins'
 import type {SendParams} from '../common/types'
 import {V8P1_UNUSED, V8P2_UNUSED} from './common/apdu'
@@ -268,6 +268,7 @@ export function buildDeriveNativeScriptHashFinish(
 }
 
 export function buildSignTxInit(
+  version: Version,
   request: ParsedSigningRequest,
   witnessPaths: ValidBIP32Path[],
   rawTx?: Buffer,
@@ -276,7 +277,7 @@ export function buildSignTxInit(
     ins: INS.SIGN_TX,
     p1: V8TxP1.INIT,
     p2: V8P2_UNUSED,
-    data: serializeTxInitData(request, witnessPaths, rawTx),
+    data: serializeTxInitData(version, request, witnessPaths, rawTx),
     expectedResponseLength: 0,
   }
 }
