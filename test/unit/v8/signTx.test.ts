@@ -5,6 +5,7 @@ import {sendSignTx} from '../../../src/interactions/v8/commandSender'
 import {yieldValue} from '../../test_utils'
 import {serializeTransactionRaw} from '../../../src/interactions/v8/serialization/tx'
 import {signTransaction} from '../../../src/interactions/v8/signTx'
+import {v8Version} from '../__fixtures__/v8/common'
 import {
   alonzoExpectedChunkApdusHex,
   alonzoExpectedInitApduHex,
@@ -41,6 +42,12 @@ import {
   parsedBabbagePlutusSignTxRequest,
   parsedCIP36DelegationsSignTxRequest,
   parsedCIP36VoteKeyHexSignTxRequest,
+  parsedPoolRegistrationNullBlsKeySignTxRequest,
+  parsedPoolRegistrationWithBlsKeySignTxRequest,
+  parsedPoolRegistrationWithoutBlsKeySignTxRequest,
+  poolRegistrationNullBlsKeyRawTxHex,
+  poolRegistrationWithBlsKeyRawTxHex,
+  poolRegistrationWithoutBlsKeyRawTxHex,
   serializeBuiltAuxDelegationApdusHex,
   serializeBuiltAuxInitApduHex,
   serializeBuiltChunkApdusHex,
@@ -54,7 +61,7 @@ function exhaustSender(
   witnessPaths: typeof alonzoExpectedWitnessPaths,
   responses: Buffer[],
 ) {
-  const interaction = sendSignTx(request, witnessPaths)
+  const interaction = sendSignTx(v8Version, request, witnessPaths)
   const yieldedHex: string[] = []
 
   let step = interaction.next()
@@ -86,42 +93,74 @@ function exhaustSignTransaction(
 describe('v8 signTx', () => {
   it('serializes the Alonzo trezor-parity raw tx like the Python fixture', () => {
     expect(
-      serializeTransactionRaw(parsedAlonzoTrezorSignTxRequest.tx).toString(
-        'hex',
-      ),
+      serializeTransactionRaw(
+        v8Version,
+        parsedAlonzoTrezorSignTxRequest.tx,
+      ).toString('hex'),
     ).to.equal(alonzoTrezorRawTxHex)
   })
 
   it('serializes the Babbage plutus raw tx like the Python fixture', () => {
     expect(
-      serializeTransactionRaw(parsedBabbagePlutusSignTxRequest.tx).toString(
-        'hex',
-      ),
+      serializeTransactionRaw(
+        v8Version,
+        parsedBabbagePlutusSignTxRequest.tx,
+      ).toString('hex'),
     ).to.equal(babbagePlutusRawTxHex)
   })
 
   it('serializes the Babbage ordinary raw tx like the Python fixture', () => {
     expect(
-      serializeTransactionRaw(parsedBabbageOrdinarySignTxRequest.tx).toString(
-        'hex',
-      ),
+      serializeTransactionRaw(
+        v8Version,
+        parsedBabbageOrdinarySignTxRequest.tx,
+      ).toString('hex'),
     ).to.equal(babbageOrdinaryRawTxHex)
   })
 
   it('serializes the CIP36 vote-key-hex raw tx like the Python fixture', () => {
     expect(
-      serializeTransactionRaw(parsedCIP36VoteKeyHexSignTxRequest.tx).toString(
-        'hex',
-      ),
+      serializeTransactionRaw(
+        v8Version,
+        parsedCIP36VoteKeyHexSignTxRequest.tx,
+      ).toString('hex'),
     ).to.equal(cip36VoteKeyHexRawTxHex)
   })
 
   it('serializes the CIP36 delegations raw tx like the Python fixture', () => {
     expect(
-      serializeTransactionRaw(parsedCIP36DelegationsSignTxRequest.tx).toString(
-        'hex',
-      ),
+      serializeTransactionRaw(
+        v8Version,
+        parsedCIP36DelegationsSignTxRequest.tx,
+      ).toString('hex'),
     ).to.equal(cip36DelegationsRawTxHex)
+  })
+
+  it('serializes the pool registration without BLS key raw tx like the Python fixture', () => {
+    expect(
+      serializeTransactionRaw(
+        v8Version,
+        parsedPoolRegistrationWithoutBlsKeySignTxRequest.tx,
+      ).toString('hex'),
+    ).to.equal(poolRegistrationWithoutBlsKeyRawTxHex)
+  })
+
+  it('serializes the pool registration null BLS key raw tx like the Python fixture', () => {
+    expect(
+      serializeTransactionRaw(
+        v8Version,
+        parsedPoolRegistrationNullBlsKeySignTxRequest.tx,
+      ).toString('hex'),
+    ).to.equal(poolRegistrationNullBlsKeyRawTxHex)
+  })
+
+  it('serializes the pool registration with BLS key raw tx like the Python fixture', () => {
+    expect(
+      serializeTransactionRaw(
+        v8Version,
+        parsedPoolRegistrationWithBlsKeySignTxRequest.tx,
+      ).toString('hex'),
+    ).to.equal(poolRegistrationWithBlsKeyRawTxHex)
   })
 
   it('builds the Alonzo trezor-parity APDUs like the Python fixture', () => {

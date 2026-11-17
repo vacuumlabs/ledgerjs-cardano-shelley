@@ -1,5 +1,6 @@
 import type {
   Certificate,
+  PoolBlsKeyParams,
   PoolKey,
   PoolOwner,
   PoolRegistrationParams,
@@ -21,8 +22,10 @@ import {
   utils,
 } from '../../../src/Ada'
 import {TransactionSigningMode} from '../../../src/types/public'
+import {APP_V9_0} from '../../test_utils'
 import {str_to_path} from '../../../src/utils/address'
 import type {SignTxTestCase} from './signTx'
+import {outputs as txElementsOutputs} from './txElements'
 
 export const inputs: Record<
   'utxoNoPath' | 'utxoWithPath0' | 'utxoWithPath1',
@@ -152,6 +155,7 @@ const relays: Record<
   | 'singleHostIPV4Relay0'
   | 'singleHostIPV4Relay1'
   | 'singleHostIPV6Relay'
+  | 'singleHostIPV6OnlyRelay'
   | 'singleHostNameRelay'
   | 'multiHostNameRelay',
   Relay
@@ -178,6 +182,14 @@ const relays: Record<
       portNumber: 3000,
       ipv4: '54.228.75.155', // "36e44b9b"
       ipv6: '24ff:7801:33a2:e383:a5c4:340a:07c2:76e5',
+    },
+  },
+  singleHostIPV6OnlyRelay: {
+    type: RelayType.SINGLE_HOST_IP_ADDR,
+    params: {
+      portNumber: 3000,
+      ipv4: null,
+      ipv6: '24ff:7801:33a2:e383:a5c4:340a:07c2:76e6',
     },
   },
   singleHostNameRelay: {
@@ -217,6 +229,13 @@ export const relayVariationSet = {
     relays.singleHostNameRelay,
     relays.multiHostNameRelay,
   ],
+  allRelaysWithIpv6Only: [
+    relays.singleHostIPV4Relay0,
+    relays.singleHostIPV6Relay,
+    relays.singleHostIPV6OnlyRelay,
+    relays.singleHostNameRelay,
+    relays.multiHostNameRelay,
+  ],
 }
 
 export const defaultPoolRegistration: PoolRegistrationParams = {
@@ -239,6 +258,70 @@ export const defaultPoolRegistration: PoolRegistrationParams = {
   },
 }
 
+// BLS key and proof of possession
+export const poolBlsKey: PoolBlsKeyParams = {
+  publicKeyHex:
+    'a0e085f688774c0b8d58004bff8d46e3e568f6aa44295c75a11e1df9d76b8f9bdb8e28c1b364950603e6a354760cfa870d396369deac8d43093a2b296d83462239812177c4ae4ee49c5c4d1e79d707d9b7a4b648a822746056a4d37710210416',
+  possessionProofHex:
+    '827548617c8556619e3ad55d293db1110f8b71dbbee77673749b4d25aafa4989ced008bc8a2cca1deb8e3edf479fadb2',
+}
+
+// testnet pool registration from cardano-cli, operator replaced by a device path
+const testnetPoolRegistration: PoolRegistrationParams = {
+  poolKey: poolKeys.poolKeyPath,
+  vrfKeyHashHex:
+    'e0376f00ee802a69c42990fae44433b0ec482020d72fde53850a7f8169784f14',
+  pledge: '0',
+  cost: '10000000000',
+  margin: {
+    numerator: 1,
+    denominator: 10,
+  },
+  rewardAccount: {
+    type: PoolRewardAccountType.THIRD_PARTY,
+    params: {
+      rewardAccountHex:
+        'e0df5ef2ad8af90420c3631062f2df774a520713668076cd074977f556',
+    },
+  },
+  poolOwners: [
+    {
+      type: PoolOwnerType.THIRD_PARTY,
+      params: {
+        stakingKeyHashHex:
+          'df5ef2ad8af90420c3631062f2df774a520713668076cd074977f556',
+      },
+    },
+  ],
+  relays: [
+    {
+      type: RelayType.SINGLE_HOST_HOSTNAME,
+      params: {
+        portNumber: 3010,
+        dnsName: 'test.stakepool.at',
+      },
+    },
+  ],
+  metadata: {
+    metadataUrl: 'https://my-ip.at/test/leiospool.metadata.json',
+    metadataHashHex:
+      'f66999e9d756341c9235f888292464885d22e5941d3132f31d130bdb48f8a10c',
+  },
+}
+
+const txBaseTestnet: Transaction = {
+  network: {
+    ...Networks.Testnet,
+    // legacy Byron testnet used 42 for protocol magic
+    // it's encoded into the Byron address we use
+    protocolMagic: 42,
+  },
+  inputs: [inputs.utxoWithPath0],
+  outputs: [txElementsOutputs.externalByronTestnet],
+  fee: 42,
+  ttl: 10,
+}
+
 export const certificates: Record<
   | 'stakeDelegation'
   | 'stakeRegistration'
@@ -252,7 +335,10 @@ export const certificates: Record<
   | 'poolRegistrationWrongMargin'
   | 'poolRegistrationOperatorNoOwnersNoRelays'
   | 'poolRegistrationOperatorMultipleOwnersAllRelays'
-  | 'poolRegistrationOperatorOneOwnerOperatorNoRelays',
+  | 'poolRegistrationOperatorOneOwnerOperatorNoRelays'
+  | 'poolRegistrationOperatorNoBlsKey'
+  | 'poolRegistrationOperatorNullBlsKey'
+  | 'poolRegistrationOperatorWithBlsKey',
   Certificate
 > = {
   // for negative tests
@@ -292,7 +378,7 @@ export const certificates: Record<
     params: {
       ...defaultPoolRegistration,
       poolOwners: poolOwnerVariationSet.twoCombinedOwners,
-      relays: relayVariationSet.allRelays,
+      relays: relayVariationSet.allRelaysWithIpv6Only,
     },
   },
   poolRegistrationMixedOwnersIpv4SingleHostRelays: {
@@ -363,6 +449,24 @@ export const certificates: Record<
       relays: relayVariationSet.allRelays,
     },
   },
+  poolRegistrationOperatorNoBlsKey: {
+    type: CertificateType.STAKE_POOL_REGISTRATION,
+    params: testnetPoolRegistration,
+  },
+  poolRegistrationOperatorNullBlsKey: {
+    type: CertificateType.STAKE_POOL_REGISTRATION,
+    params: {
+      ...testnetPoolRegistration,
+      blsKey: null,
+    },
+  },
+  poolRegistrationOperatorWithBlsKey: {
+    type: CertificateType.STAKE_POOL_REGISTRATION,
+    params: {
+      ...testnetPoolRegistration,
+      blsKey: poolBlsKey,
+    },
+  },
 }
 
 export const poolRegistrationOwnerTestCases: SignTxTestCase[] = [
@@ -377,15 +481,15 @@ export const poolRegistrationOwnerTestCases: SignTxTestCase[] = [
     signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
     additionalWitnessPaths: [],
     txBody:
-      'a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825839017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b090102182a030a04818a03581c13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad582007821cd344d7fd7e3ae5f2ed863218cb979ff1d59e50c4276bdc479b0d0844501b0000000ba43b74001a1443fd00d81e82031864581de1794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad82581c1d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c581c794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad848400190bb84436e44b9af68400190bb84436e44b9b500178ff2483e3a2330a34c4a5e576c2078301190bb86d616161612e626262622e636f6d82026d616161612e626262632e636f6d82782968747470733a2f2f7777772e76616375756d6c6162732e636f6d2f73616d706c6555726c2e6a736f6e5820cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb',
+      'a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7000181825839017cb05fce110fb999f01abb4f62bc455e217d4a51fde909fa9aea545443ac53c046cf6a42095e3c60310fa802771d0672f8fe2d1861138b090102182a030a04818a03581c13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad582007821cd344d7fd7e3ae5f2ed863218cb979ff1d59e50c4276bdc479b0d0844501b0000000ba43b74001a1443fd00d81e82031864581de1794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad82581c1d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c581c794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad858400190bb84436e44b9af68400190bb84436e44b9b500178ff2483e3a2330a34c4a5e576c2078400190bb8f6500178ff2483e3a2330a34c4a5e676c2078301190bb86d616161612e626262622e636f6d82026d616161612e626262632e636f6d82782968747470733a2f2f7777772e76616375756d6c6162732e636f6d2f73616d706c6555726c2e6a736f6e5820cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb',
     expectedResult: {
       txHashHex:
-        'bc678441767b195382f00f9f4c4bddc046f73e6116fa789035105ecddfdee949',
+        'ba8556a4feed7c8720995074879baa06e5022dc0606a46131eb18a92bfa3d8bf',
       witnesses: [
         {
           path: str_to_path("1852'/1815'/0'/2/0"),
           witnessSignatureHex:
-            '61fc06451462426b14fa3a31008a5f7d32b2f1793022060c02939bd0004b07f2bd737d542c2db6cef6dad912b9bdca1829a5dc2b45bab3c72afe374cef59cc04',
+            '6b103dd8ec89368b5c43e54a754a7af94a452f0e457067368b803b61b0b068f0a0c20895b8fa3ddd2989a13d8cc6ca71e3b485a742a4848ff66c7cd15f353903',
         },
       ],
       auxiliaryDataSupplement: null,
@@ -554,15 +658,15 @@ export const poolRegistrationOwnerTestCases: SignTxTestCase[] = [
     signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OWNER,
     additionalWitnessPaths: [],
     txBody:
-      'a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a04818a03581c13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad582007821cd344d7fd7e3ae5f2ed863218cb979ff1d59e50c4276bdc479b0d0844501b0000000ba43b74001a1443fd00d81e82031864581de1794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad82581c1d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c581c794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad848400190bb84436e44b9af68400190bb84436e44b9b500178ff2483e3a2330a34c4a5e576c2078301190bb86d616161612e626262622e636f6d82026d616161612e626262632e636f6d82782968747470733a2f2f7777772e76616375756d6c6162732e636f6d2f73616d706c6555726c2e6a736f6e5820cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb',
+      'a500818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a04818a03581c13381d918ec0283ceeff60f7f4fc21e1540e053ccf8a77307a7a32ad582007821cd344d7fd7e3ae5f2ed863218cb979ff1d59e50c4276bdc479b0d0844501b0000000ba43b74001a1443fd00d81e82031864581de1794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad82581c1d227aefa4b773149170885aadba30aab3127cc611ddbc4999def61c581c794d9b3408c9fb67b950a48a0690f070f117e9978f7fc1d120fc58ad858400190bb84436e44b9af68400190bb84436e44b9b500178ff2483e3a2330a34c4a5e576c2078400190bb8f6500178ff2483e3a2330a34c4a5e676c2078301190bb86d616161612e626262622e636f6d82026d616161612e626262632e636f6d82782968747470733a2f2f7777772e76616375756d6c6162732e636f6d2f73616d706c6555726c2e6a736f6e5820cdb714fd722c24aeb10c93dbb0ff03bd4783441cd5ba2a8b6f373390520535bb',
     expectedResult: {
       txHashHex:
-        '600114fd1c50a7e857fdcaaea73d94f7435c9fce63cfde597f7c48b8dda3b0ba',
+        '665f6b6879ab62ff0d21448994805e394f254288d05f5ed1b280a66e092923c1',
       witnesses: [
         {
           path: str_to_path("1852'/1815'/0'/2/0"),
           witnessSignatureHex:
-            '91c09ad95d5d0f87f61a62e2f5e2dda4245eb4011887a04a53bdf085282002ccc712718e855e36a30cfcf7ecd43bcdc795aa87647be9c716b65e7fcf376e0503',
+            '9202bc5f674bdc75bd2a2348d99091195513ad49684d19b7ad90b51d1300ade326e34d7474d31bb82f56e43ec5bab4d6d93be3190a0e4d4924fab780530c5305',
         },
       ],
       auxiliaryDataSupplement: null,
@@ -663,6 +767,108 @@ export const poolRegistrationOperatorTestCases: SignTxTestCase[] = [
           path: str_to_path("1853'/1815'/0'/0'"),
           witnessSignatureHex:
             '8957a7768bc9389cd7ab6fa3b3e2fa089785715a5298f9cb38abf99a6e0da5bef734c4862ca7948fb69575ccb9ed8ae1d92cc971742f674632f6f03e22c5b103',
+        },
+      ],
+      auxiliaryDataSupplement: null,
+    },
+  },
+  {
+    testName: 'Sign_tx_Witness_pool_registration_as_operator_without_bls_key',
+    appVersion: {unsupportedInAppXS: true},
+    tx: {
+      ...txBaseTestnet,
+      certificates: [certificates.poolRegistrationOperatorNoBlsKey],
+    },
+    signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR,
+    additionalWitnessPaths: [],
+    options: {
+      tagCborSets: true,
+    },
+    txBody:
+      'a500d90102818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018182582f82d818582583581c709bfb5d9733cbdd72f520cd2c8b9f8f942da5e6cd0b6994e1803b0aa10242182a001aef14e76d1a002dd2e802182a030a04d90102818a03581cdbfee4665e58c8f8e9b9ff02b17f32e08a42c855476a5d867c2737b75820e0376f00ee802a69c42990fae44433b0ec482020d72fde53850a7f8169784f14001b00000002540be400d81e82010a581de0df5ef2ad8af90420c3631062f2df774a520713668076cd074977f556d9010281581cdf5ef2ad8af90420c3631062f2df774a520713668076cd074977f556818301190bc271746573742e7374616b65706f6f6c2e617482782d68747470733a2f2f6d792d69702e61742f746573742f6c65696f73706f6f6c2e6d657461646174612e6a736f6e5820f66999e9d756341c9235f888292464885d22e5941d3132f31d130bdb48f8a10c',
+    expectedResult: {
+      txHashHex:
+        'ed0c436866bda2bb45c19a7ca3110b125618bd0dad753a149eca95c79d18131f',
+      witnesses: [
+        {
+          path: str_to_path("1852'/1815'/0'/0/0"),
+          witnessSignatureHex:
+            '762fb4503011f5e84a9ffffb31dc82420e7030fef8e45bcdba836429a3d0c077f00b531f84cd73fab7d07fcc141e95d8c3c89d00772b6367c88ab001c1a0a908',
+        },
+        {
+          path: str_to_path("1853'/1815'/0'/0'"),
+          witnessSignatureHex:
+            'c9a8093a158e9445d88534fb10b04e79602a6b68787305ad07d32e7573e9ed66827e44265c0e5fd88f9c744078e42142c6447631e4bec4f82c7f0e59bc948b03',
+        },
+      ],
+      auxiliaryDataSupplement: null,
+    },
+  },
+  {
+    testName: 'Sign_tx_Witness_pool_registration_as_operator_with_null_bls_key',
+    appVersion: {
+      unsupportedInAppXS: true,
+      supportedSince: APP_V9_0,
+    },
+    tx: {
+      ...txBaseTestnet,
+      certificates: [certificates.poolRegistrationOperatorNullBlsKey],
+    },
+    signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR,
+    additionalWitnessPaths: [],
+    options: {
+      tagCborSets: true,
+    },
+    txBody:
+      'a500d90102818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018182582f82d818582583581c709bfb5d9733cbdd72f520cd2c8b9f8f942da5e6cd0b6994e1803b0aa10242182a001aef14e76d1a002dd2e802182a030a04d90102818b03581cdbfee4665e58c8f8e9b9ff02b17f32e08a42c855476a5d867c2737b75820e0376f00ee802a69c42990fae44433b0ec482020d72fde53850a7f8169784f14f6001b00000002540be400d81e82010a581de0df5ef2ad8af90420c3631062f2df774a520713668076cd074977f556d9010281581cdf5ef2ad8af90420c3631062f2df774a520713668076cd074977f556818301190bc271746573742e7374616b65706f6f6c2e617482782d68747470733a2f2f6d792d69702e61742f746573742f6c65696f73706f6f6c2e6d657461646174612e6a736f6e5820f66999e9d756341c9235f888292464885d22e5941d3132f31d130bdb48f8a10c',
+    expectedResult: {
+      txHashHex:
+        '9ea346f4cd7ff2aac8fd2e7d9f4e4825bf8ee68756be7fd0996c5f85a832bf32',
+      witnesses: [
+        {
+          path: str_to_path("1852'/1815'/0'/0/0"),
+          witnessSignatureHex:
+            '8b8a35bf37743aa86be8e5dfd566a673fb6c852c4f80b95ae621d2330181208021f7ae62041369b7ba225afea434df72e97236cc96f1aa68ae22514aaf9d4d01',
+        },
+        {
+          path: str_to_path("1853'/1815'/0'/0'"),
+          witnessSignatureHex:
+            '2dda90b58ed0ac250e82de88d09915f6effdfb9d04e5fcc833a21ee3450c189d45da79fe46b8b01d711eb9d44b0841eb449fa4384b3e9121ea3c9d534b4f6609',
+        },
+      ],
+      auxiliaryDataSupplement: null,
+    },
+  },
+  {
+    testName: 'Sign_tx_Witness_pool_registration_as_operator_with_bls_key',
+    appVersion: {
+      unsupportedInAppXS: true,
+      supportedSince: APP_V9_0,
+    },
+    tx: {
+      ...txBaseTestnet,
+      certificates: [certificates.poolRegistrationOperatorWithBlsKey],
+    },
+    signingMode: TransactionSigningMode.POOL_REGISTRATION_AS_OPERATOR,
+    additionalWitnessPaths: [],
+    options: {
+      tagCborSets: true,
+    },
+    txBody:
+      'a500d90102818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018182582f82d818582583581c709bfb5d9733cbdd72f520cd2c8b9f8f942da5e6cd0b6994e1803b0aa10242182a001aef14e76d1a002dd2e802182a030a04d90102818b03581cdbfee4665e58c8f8e9b9ff02b17f32e08a42c855476a5d867c2737b75820e0376f00ee802a69c42990fae44433b0ec482020d72fde53850a7f8169784f14825860a0e085f688774c0b8d58004bff8d46e3e568f6aa44295c75a11e1df9d76b8f9bdb8e28c1b364950603e6a354760cfa870d396369deac8d43093a2b296d83462239812177c4ae4ee49c5c4d1e79d707d9b7a4b648a822746056a4d377102104165830827548617c8556619e3ad55d293db1110f8b71dbbee77673749b4d25aafa4989ced008bc8a2cca1deb8e3edf479fadb2001b00000002540be400d81e82010a581de0df5ef2ad8af90420c3631062f2df774a520713668076cd074977f556d9010281581cdf5ef2ad8af90420c3631062f2df774a520713668076cd074977f556818301190bc271746573742e7374616b65706f6f6c2e617482782d68747470733a2f2f6d792d69702e61742f746573742f6c65696f73706f6f6c2e6d657461646174612e6a736f6e5820f66999e9d756341c9235f888292464885d22e5941d3132f31d130bdb48f8a10c',
+    expectedResult: {
+      txHashHex:
+        '9268d260813da8eb39b871c8b697329ea346dc1f73ce0fb26ec98031b9c660df',
+      witnesses: [
+        {
+          path: str_to_path("1852'/1815'/0'/0/0"),
+          witnessSignatureHex:
+            'bc0349c97ac782b26bf74409d3f7c8292b6d33f4851a367bff3660df714caf78127ae533b7a81e5b7f1487f211877b30d798888edec052935cbfde14c7692e08',
+        },
+        {
+          path: str_to_path("1853'/1815'/0'/0'"),
+          witnessSignatureHex:
+            'a83948946c0af6c56349b031777bd792102d7462ed593901124ddf6708e53afc768bb456b0228d2071952deaac27b4e0892083b1b350d46decbabc8e681f0201',
         },
       ],
       auxiliaryDataSupplement: null,

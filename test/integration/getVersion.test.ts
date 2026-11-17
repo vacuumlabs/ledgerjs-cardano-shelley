@@ -17,9 +17,10 @@ describe('getVersion', () => {
   it('Should correctly get the semantic version of device', async () => {
     const {version, compatibility} = await ada.getVersion()
     const isV8 = version.major >= 8
+    const isV9_0 = version.major >= 9
     const isAppXS = version.flags.isAppXS
 
-    expect(version.major).to.be.oneOf([7, 8])
+    expect(version.major).to.be.oneOf([7, 8, 9])
     expect(version.minor).to.be.at.least(0)
 
     expect(version.flags.isDebug).to.equal(true)
@@ -47,6 +48,7 @@ describe('getVersion', () => {
       supportsMultipleVotesPerVoter: isV8,
       supportsMessageSigning: true,
       supportsUnrestrictedTransaction: isV8,
+      supportsPoolRegistrationBlsKey: isV9_0,
     })
   })
 })
