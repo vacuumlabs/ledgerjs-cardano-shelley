@@ -26,6 +26,7 @@ const enum NativeScriptTypeWire {
   N_OF_K = 3,
   INVALID_BEFORE = 4,
   INVALID_HEREAFTER = 5,
+  GUARD = 6,
 }
 
 const TYPE_ENCODING = {
@@ -39,6 +40,7 @@ const TYPE_ENCODING = {
     NativeScriptTypeWire.INVALID_BEFORE as Uint8_t,
   [NativeScriptType.INVALID_HEREAFTER]:
     NativeScriptTypeWire.INVALID_HEREAFTER as Uint8_t,
+  [NativeScriptType.GUARD]: NativeScriptTypeWire.GUARD as Uint8_t,
 } as const
 
 const DISPLAY_FORMAT_ENCODING = {
@@ -97,6 +99,11 @@ export function serializeSimpleNativeScript(
       return Buffer.concat([
         uint8_to_buf(TYPE_ENCODING[script.type]),
         uint64_to_buf(script.params.slot),
+      ])
+    case NativeScriptType.GUARD:
+      return Buffer.concat([
+        uint8_to_buf(TYPE_ENCODING[script.type]),
+        serializeCredential(script.params.credential),
       ])
     default:
       unreachable(script)

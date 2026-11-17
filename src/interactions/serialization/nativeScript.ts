@@ -8,7 +8,7 @@ import {
   NativeScriptHashDisplayFormat,
   NativeScriptType,
 } from '../../types/internal'
-import {unreachable} from '../../utils/assert'
+import {assert, unreachable} from '../../utils/assert'
 import {
   hex_to_buf,
   path_to_buf,
@@ -85,7 +85,7 @@ export function serializeSimpleNativeScript(
         uint64_to_buf(script.params.slot),
       ])
     default:
-      unreachable(script)
+      assert(false, 'Invalid native script type')
   }
 }
 

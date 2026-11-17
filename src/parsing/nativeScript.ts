@@ -1,11 +1,17 @@
 import {InvalidData, InvalidDataReason} from '../errors'
 import type {ParsedNativeScript} from '../types/internal'
 import {KEY_HASH_LENGTH} from '../types/internal'
-import type {bigint_like, BIP32Path, NativeScript} from '../types/public'
+import type {
+  bigint_like,
+  BIP32Path,
+  CredentialParams,
+  NativeScript,
+} from '../types/public'
 import {NativeScriptHashDisplayFormat, NativeScriptType} from '../types/public'
 import {
   isArray,
   parseBIP32Path,
+  parseCredential,
   parseHexStringOfLength,
   parseUint32_t,
   parseUint64_str,
@@ -31,6 +37,7 @@ export function parseNativeScript(
     requiredCount?: number
     slot?: bigint_like
     scripts?: NativeScript[]
+    credential?: CredentialParams
   }
 
   switch (script.type) {
@@ -186,6 +193,38 @@ export function parseNativeScript(
             params.slot,
             {},
             InvalidDataReason.DERIVE_NATIVE_SCRIPT_HASH_INVALID_TOKEN_LOCKING_SLOT,
+          ),
+        },
+      }
+    }
+    case NativeScriptType.GUARD: {
+      validate(
+        params.path == null,
+        InvalidDataReason.DERIVE_NATIVE_SCRIPT_HASH_INVALID_DATA,
+      )
+      validate(
+        params.keyHashHex == null,
+        InvalidDataReason.DERIVE_NATIVE_SCRIPT_HASH_INVALID_DATA,
+      )
+      validate(
+        params.requiredCount == null,
+        InvalidDataReason.DERIVE_NATIVE_SCRIPT_HASH_INVALID_DATA,
+      )
+      validate(
+        params.slot == null,
+        InvalidDataReason.DERIVE_NATIVE_SCRIPT_HASH_INVALID_DATA,
+      )
+      validate(
+        params.scripts == null,
+        InvalidDataReason.DERIVE_NATIVE_SCRIPT_HASH_INVALID_DATA,
+      )
+
+      return {
+        type: script.type,
+        params: {
+          credential: parseCredential(
+            params.credential as CredentialParams,
+            InvalidDataReason.DERIVE_NATIVE_SCRIPT_HASH_INVALID_GUARD_CREDENTIAL,
           ),
         },
       }

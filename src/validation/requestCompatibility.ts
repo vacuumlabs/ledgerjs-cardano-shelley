@@ -17,6 +17,7 @@ import {
   CertificateType,
   CIP36VoteRegistrationFormat,
   HARDENED,
+  NativeScriptType,
   TransactionSigningMode,
   TxAuxiliaryDataType,
   TxOutputDestinationType,
@@ -54,14 +55,34 @@ export function ensureAddressDerivationSupported(
   }
 }
 
+function hasGuardNativeScript(script: ParsedNativeScript) {
+  switch (script.type) {
+    case NativeScriptType.GUARD:
+      return true
+    case NativeScriptType.ALL:
+    case NativeScriptType.ANY:
+    case NativeScriptType.N_OF_K:
+      return script.params.scripts.some(hasGuardNativeScript)
+    default:
+      return false
+  }
+}
+
 export function ensureNativeScriptHashDerivationSupported(
   version: Version,
-  _script: ParsedNativeScript,
+  script: ParsedNativeScript,
 ): void {
   ensureLedgerAppVersionCompatible(version)
 
   if (!getCompatibility(version).supportsNativeScriptHashDerivation) {
     unsupported(version, 'Native script hash derivation')
+  }
+
+  if (
+    hasGuardNativeScript(script) &&
+    !getCompatibility(version).supportsGuardNativeScript
+  ) {
+    unsupported(version, 'Guard native script')
   }
 }
 

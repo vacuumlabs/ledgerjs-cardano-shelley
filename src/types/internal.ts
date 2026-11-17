@@ -679,6 +679,12 @@ export type ParsedSimpleNativeScript =
         slot: Uint64_str
       }
     }
+  | {
+      type: NativeScriptType.GUARD
+      params: {
+        credential: ParsedCredential
+      }
+    }
 
 export type ParsedComplexNativeScript =
   | {

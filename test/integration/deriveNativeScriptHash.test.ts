@@ -8,7 +8,11 @@ import {
   InvalidData,
   NativeScriptHashDisplayFormat,
 } from '../../src/Ada'
-import {describeWithoutValidation, getAda} from '../test_utils'
+import {
+  describeWithoutValidation,
+  getAda,
+  isSupportedByApp,
+} from '../test_utils'
 import {
   InvalidOnLedgerScriptTestCases,
   InvalidScriptTestCases,
@@ -34,14 +38,16 @@ describe('deriveNativeScriptHash', () => {
       script,
       displayFormat,
       hashHex: expectedHash,
+      appVersion,
     } of ValidNativeScriptTestCases) {
       it(testName, async () => {
-        const isAppXS = (await ada.getVersion()).version.flags.isAppXS
+        const {version} = await ada.getVersion()
+        const isAppXS = version.flags.isAppXS
         const promise = ada.deriveNativeScriptHash({
           script,
           displayFormat,
         })
-        if (isAppXS) {
+        if (isAppXS || !isSupportedByApp(version, appVersion)) {
           await expect(promise).to.be.rejectedWith(DeviceVersionUnsupported)
         } else {
           expect((await promise).scriptHashHex).to.equal(expectedHash)

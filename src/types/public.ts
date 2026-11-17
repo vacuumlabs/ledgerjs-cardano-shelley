@@ -1415,6 +1415,10 @@ export type DeviceCompatibility = {
    * Whether we support unrestricted transaction signing mode (app v8+)
    */
   supportsUnrestrictedTransaction: boolean
+  /**
+   * Whether we support the guard native script type (app v9+)
+   */
+  supportsGuardNativeScript: boolean
 }
 
 /**
@@ -2098,6 +2102,11 @@ export enum NativeScriptType {
    * @see [[NativeScriptParamsInvalidHereafter]]
    */
   INVALID_HEREAFTER = 'invalid_hereafter',
+  /**
+   * The specified credential must be listed in the transaction required signers (guards).
+   * @see [[NativeScriptParamsGuard]]
+   */
+  GUARD = 'guard',
 }
 
 /**
@@ -2134,6 +2143,10 @@ export type NativeScript =
   | {
       type: NativeScriptType.INVALID_HEREAFTER
       params: NativeScriptParamsInvalidHereafter
+    }
+  | {
+      type: NativeScriptType.GUARD
+      params: NativeScriptParamsGuard
     }
 
 /**
@@ -2207,6 +2220,16 @@ export type NativeScriptParamsInvalidBefore = {
  */
 export type NativeScriptParamsInvalidHereafter = {
   slot: bigint_like
+}
+
+/**
+ * Native script of type *guard* parameters.
+ * @category Scripts
+ * @see [[NativeScriptType.GUARD]]
+ * @see [[NativeScript]]
+ */
+export type NativeScriptParamsGuard = {
+  credential: CredentialParams
 }
 
 /**
