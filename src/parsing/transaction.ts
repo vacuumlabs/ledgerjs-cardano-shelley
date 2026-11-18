@@ -39,6 +39,7 @@ import {
   VoterType,
   PoolKeyType,
   PoolOwnerType,
+  RequiredSignersFormat,
   TransactionSigningMode,
   TxOutputDestinationType,
   TxRequiredSignerType,
@@ -123,6 +124,15 @@ function parseRequiredSigner(
           requiredSigner.hashHex,
           KEY_HASH_LENGTH,
           InvalidDataReason.VKEY_HASH_WRONG_LENGTH,
+        ),
+      }
+    case TxRequiredSignerType.SCRIPT_HASH:
+      return {
+        type: RequiredSignerType.SCRIPT_HASH,
+        hashHex: parseHexStringOfLength(
+          requiredSigner.hashHex,
+          SCRIPT_HASH_LENGTH,
+          InvalidDataReason.REQUIRED_SIGNER_INVALID_SCRIPT_HASH,
         ),
       }
     default:
@@ -630,6 +640,26 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
   // required signers
   const requiredSigners = parseRequiredSigners(tx.requiredSigners ?? [])
 
+  // guards encoding
+  validate(
+    tx.requiredSignersFormat == null ||
+      tx.requiredSignersFormat === RequiredSignersFormat.KEY_HASHES ||
+      tx.requiredSignersFormat === RequiredSignersFormat.CREDENTIALS,
+    InvalidDataReason.REQUIRED_SIGNERS_FORMAT_INVALID,
+  )
+  const requiredSignersFormat =
+    tx.requiredSignersFormat === RequiredSignersFormat.CREDENTIALS
+      ? RequiredSignersFormat.CREDENTIALS
+      : RequiredSignersFormat.KEY_HASHES
+  validate(
+    requiredSignersFormat === RequiredSignersFormat.CREDENTIALS ||
+      requiredSigners.every(
+        (requiredSigner) =>
+          requiredSigner.type !== RequiredSignerType.SCRIPT_HASH,
+      ),
+    InvalidDataReason.REQUIRED_SIGNERS_SCRIPT_HASH_WITHOUT_CREDENTIALS,
+  )
+
   // include network ID
   const includeNetworkId =
     tx.includeNetworkId == null
@@ -698,6 +728,7 @@ export function parseTransaction(tx: Transaction): ParsedTransaction {
     scriptDataHashHex,
     collateralInputs,
     requiredSigners,
+    requiredSignersFormat,
     includeNetworkId,
     collateralOutput,
     totalCollateral,

@@ -11,6 +11,7 @@ import {
   PoolOwnerType,
   PoolRewardAccountType,
   RelayType,
+  RequiredSignersFormat,
   TransactionSigningMode,
   TxAuxiliaryDataType,
   TxOutputDestinationType,
@@ -247,12 +248,17 @@ export type ParsedWithdrawal = {
 export const enum RequiredSignerType {
   PATH = 0,
   HASH = 1,
+  SCRIPT_HASH = 2,
 }
 
 export type ParsedRequiredSigner =
   | {
       type: RequiredSignerType.HASH
       hashHex: FixLenHexString<typeof KEY_HASH_LENGTH>
+    }
+  | {
+      type: RequiredSignerType.SCRIPT_HASH
+      hashHex: FixLenHexString<typeof SCRIPT_HASH_LENGTH>
     }
   | {
       type: RequiredSignerType.PATH
@@ -369,6 +375,7 @@ export type ParsedTransaction = {
   scriptDataHashHex: ScriptDataHash | null
   collateralInputs: ParsedInput[]
   requiredSigners: ParsedRequiredSigner[]
+  requiredSignersFormat: RequiredSignersFormat
   includeNetworkId: boolean
   collateralOutput: ParsedOutput | null
   totalCollateral: Uint64_str | null

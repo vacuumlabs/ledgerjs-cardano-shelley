@@ -54,6 +54,7 @@ describe('getVersion', () => {
       supportsMessageSigning: true,
       supportsUnrestrictedTransaction: isV8,
       supportsGuardNativeScript: isV9_0,
+      supportsRequiredSignersFormat: isV9_0,
     })
   })
 })

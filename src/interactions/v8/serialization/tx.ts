@@ -1,3 +1,5 @@
+import {getCompatibility} from '../../../validation/deviceCapabilities'
+import type {Version} from '../../../types/public'
 import type {
   CVotePublicKey,
   ParsedAssetGroup,
@@ -493,6 +495,7 @@ function serializeRequiredSigner(requiredSigner: ParsedRequiredSigner): Buffer {
         path_to_buf(requiredSigner.path),
       ])
     case RequiredSignerType.HASH:
+    case RequiredSignerType.SCRIPT_HASH:
       return Buffer.concat([
         uint8_to_buf(requiredSigner.type as Uint8_t),
         hex_to_buf(requiredSigner.hashHex),
@@ -645,6 +648,7 @@ export function serializeTransactionRaw(tx: ParsedTransaction): Buffer {
 }
 
 export function serializeTxInitData(
+  version: Version,
   request: ParsedSigningRequest,
   witnessPaths: ValidBIP32Path[],
   rawTx: Buffer = serializeTransactionRaw(request.tx),
@@ -683,6 +687,9 @@ export function serializeTxInitData(
     serializeIncluded(tx.scriptDataHashHex != null),
     serializeCount16(tx.collateralInputs.length),
     serializeCount16(tx.requiredSigners.length),
+    getCompatibility(version).supportsRequiredSignersFormat
+      ? u8(tx.requiredSignersFormat)
+      : Buffer.alloc(0),
     serializeIncluded(tx.includeNetworkId),
     serializeIncluded(tx.collateralOutput != null),
     serializeIncluded(tx.totalCollateral != null),

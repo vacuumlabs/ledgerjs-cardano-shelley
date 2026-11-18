@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [Unreleased]
+
+### Added
+
+- support for the guard native script type (requires Ledger app v9.0)
+- support for guards (required signers) in the credentials encoding (requires Ledger app v9.0)
+
 ## [8.1.0](https://github.com/cardano-foundation/ledgerjs-hw-app-cardano/compare/v8.0.0...v8.1.0) - [October 1st 2026]
 
 ### Removed

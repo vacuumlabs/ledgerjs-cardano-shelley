@@ -18,6 +18,7 @@ import {
   CIP36VoteRegistrationFormat,
   HARDENED,
   NativeScriptType,
+  RequiredSignersFormat,
   TransactionSigningMode,
   TxAuxiliaryDataType,
   TxOutputDestinationType,
@@ -394,6 +395,13 @@ export function ensureSignTxRequestSupported(
           break
       }
     }
+  }
+
+  if (
+    request.tx.requiredSignersFormat === RequiredSignersFormat.CREDENTIALS &&
+    !compatibility.supportsRequiredSignersFormat
+  ) {
+    unsupported(version, 'Guards in the credentials encoding')
   }
 
   if (request.tx.includeNetworkId && !compatibility.supportsAlonzo) {

@@ -1,9 +1,11 @@
 import {CertificateType, Networks, TxRequiredSignerType} from '../../../src/Ada'
 import {
   CredentialParamsType,
+  RequiredSignersFormat,
   TransactionSigningMode,
 } from '../../../src/types/public'
 import {str_to_path} from '../../../src/utils/address'
+import {APP_V9_0} from '../../test_utils'
 import type {SignTxTestCase} from './signTx'
 import {inputs, mainnetFeeTtl, outputs} from './txElements'
 
@@ -201,6 +203,50 @@ export const testsAlonzo: SignTxTestCase[] = [
       ],
       auxiliaryDataSupplement: null,
     },
+  },
+  {
+    testName: 'Sign_tx_with_required_signers_as_credentials',
+    tx: {
+      ...mainnetFeeTtl,
+      inputs: [inputs.utxoShelley],
+      outputs: [],
+      requiredSigners: [
+        {
+          type: TxRequiredSignerType.HASH,
+          hashHex: 'fea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a',
+        },
+        {
+          type: TxRequiredSignerType.PATH,
+          path: str_to_path("1852'/1815'/0'/0/0"),
+        },
+        {
+          type: TxRequiredSignerType.SCRIPT_HASH,
+          hashHex: '0241f2d196f52a92fbd2183d03b370c30b6960cfdeae364ffabac889',
+        },
+      ],
+      requiredSignersFormat: RequiredSignersFormat.CREDENTIALS,
+      includeNetworkId: true,
+    },
+    signingMode: TransactionSigningMode.PLUTUS_TRANSACTION,
+    additionalWitnessPaths: [],
+    options: {
+      tagCborSets: true,
+    },
+    txBody:
+      'a600d90102818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018002182a030a0ed90102838200581cfea6646c67fb467f8a5425e9c752e1e262b0420ba4b638f39514049a8200581c14c16d7f43243bd81478e68b9db53a8528fd4fb1078d58d54a7f11248201581c0241f2d196f52a92fbd2183d03b370c30b6960cfdeae364ffabac8890f01',
+    expectedResult: {
+      txHashHex:
+        '9a43aed0bfd3e308256bc093a4a47d2eb8d491e0c113ac72157c944873052c70',
+      witnesses: [
+        {
+          path: str_to_path("1852'/1815'/0'/0/0"),
+          witnessSignatureHex:
+            '03cfc45f99b6d215ed56365aabe8487144ff0f3e29d5b7d238a400c8be0909b628d70af8de2663eefd53f24290a5e115357986c974972af5ea0111e3eef2f204',
+        },
+      ],
+      auxiliaryDataSupplement: null,
+    },
+    appVersion: {supportedSince: APP_V9_0},
   },
   {
     testName: 'Sign_tx_with_required_signers_mixed',

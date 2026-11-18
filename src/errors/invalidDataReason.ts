@@ -141,6 +141,9 @@ export enum InvalidDataReason {
   VKEY_HASH_WRONG_LENGTH = 'vkey hash not 28 bytes long',
   UNKNOWN_REQUIRED_SIGNER_TYPE = 'unknown required signer type',
   REQUIRED_SIGNER_INVALID_PATH = 'invalid path for required signer',
+  REQUIRED_SIGNERS_FORMAT_INVALID = 'invalid guards encoding',
+  REQUIRED_SIGNER_INVALID_SCRIPT_HASH = 'invalid script hash for required signer',
+  REQUIRED_SIGNERS_SCRIPT_HASH_WITHOUT_CREDENTIALS = 'script hash guards require the credentials encoding',
 
   COLLATERAL_INPUT_CONTAINS_DATUM = 'collateral return output contains datum',
   COLLATERAL_INPUT_CONTAINS_REFERENCE_SCRIPT = 'collateral return output contains reference script',
