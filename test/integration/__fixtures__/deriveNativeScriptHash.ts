@@ -1,16 +1,19 @@
 import type {NativeScript} from '../../../src/Ada'
 import {
+  CredentialParamsType,
   InvalidDataReason,
   NativeScriptHashDisplayFormat,
   NativeScriptType,
 } from '../../../src/Ada'
 import {str_to_path} from '../../../src/utils/address'
+import {APP_V9_0, type AppVersionOverride} from '../../test_utils'
 
 type ValidNativeScriptTestCase = {
   testName: string
   script: NativeScript
   displayFormat: NativeScriptHashDisplayFormat
   hashHex: string
+  appVersion?: AppVersionOverride
 }
 
 export const ValidNativeScriptTestCases: ValidNativeScriptTestCase[] = [
@@ -353,6 +356,99 @@ export const ValidNativeScriptTestCases: ValidNativeScriptTestCase[] = [
     displayFormat: NativeScriptHashDisplayFormat.BECH32,
     hashHex: 'ed1dd7ef95caf389669c62618eb7f7aa7eadd08feb76618db2ae0cfc',
   },
+  {
+    testName: 'Native_script_Nested_native_scripts_with_GUARD',
+    script: {
+      type: NativeScriptType.ALL,
+      params: {
+        scripts: [
+          {
+            type: NativeScriptType.GUARD,
+            params: {
+              credential: {
+                type: CredentialParamsType.KEY_HASH,
+                keyHashHex:
+                  'c4b9265645fde9536c0795adbcc5291767a0c61fd62448341d7e0386',
+              },
+            },
+          },
+          {
+            type: NativeScriptType.ANY,
+            params: {
+              scripts: [
+                {
+                  type: NativeScriptType.PUBKEY_THIRD_PARTY,
+                  params: {
+                    keyHashHex:
+                      'c4b9265645fde9536c0795adbcc5291767a0c61fd62448341d7e0386',
+                  },
+                },
+                {
+                  type: NativeScriptType.GUARD,
+                  params: {
+                    credential: {
+                      type: CredentialParamsType.SCRIPT_HASH,
+                      scriptHashHex:
+                        '0241f2d196f52a92fbd2183d03b370c30b6960cfdeae364ffabac889',
+                    },
+                  },
+                },
+              ],
+            },
+          },
+          {
+            type: NativeScriptType.N_OF_K,
+            params: {
+              requiredCount: 2,
+              scripts: [
+                {
+                  type: NativeScriptType.PUBKEY_THIRD_PARTY,
+                  params: {
+                    keyHashHex:
+                      'c4b9265645fde9536c0795adbcc5291767a0c61fd62448341d7e0386',
+                  },
+                },
+                {
+                  type: NativeScriptType.GUARD,
+                  params: {
+                    credential: {
+                      type: CredentialParamsType.KEY_PATH,
+                      keyPath: str_to_path("1854'/1815'/0'/0/0"),
+                    },
+                  },
+                },
+                {
+                  type: NativeScriptType.GUARD,
+                  params: {
+                    credential: {
+                      type: CredentialParamsType.SCRIPT_HASH,
+                      scriptHashHex:
+                        'cecb1d427c4ae436d28cc0f8ae9bb37501a5b77bcc64cd1693e9ae20',
+                    },
+                  },
+                },
+              ],
+            },
+          },
+          {
+            type: NativeScriptType.INVALID_BEFORE,
+            params: {
+              slot: 100,
+            },
+          },
+          {
+            type: NativeScriptType.INVALID_HEREAFTER,
+            params: {
+              slot: 200,
+            },
+          },
+        ],
+      },
+    },
+    displayFormat: NativeScriptHashDisplayFormat.POLICY_ID,
+    hashHex: 'a478040fb14f8b971c69a698f3c7dae84e7a7f48e9be9efdffe7762c',
+    appVersion: {supportedSince: APP_V9_0},
+  },
 ]
 
 type InvalidOnLedgerScriptTestCase = {
@@ -508,5 +604,19 @@ export const InvalidScriptTestCases: InvalidScriptTestCase[] = [
     },
     invalidDataReason:
       InvalidDataReason.DERIVE_NATIVE_SCRIPT_HASH_INVALID_TOKEN_LOCKING_SLOT,
+  },
+  {
+    testName: 'GUARD - invalid key hash (too short)',
+    script: {
+      type: NativeScriptType.GUARD,
+      params: {
+        credential: {
+          type: CredentialParamsType.KEY_HASH,
+          keyHashHex: '3a55d9f68255dfbefa1efd711f82d005fae1be2e145d616c90cf0fa',
+        },
+      },
+    },
+    invalidDataReason:
+      InvalidDataReason.DERIVE_NATIVE_SCRIPT_HASH_INVALID_GUARD_CREDENTIAL,
   },
 ]

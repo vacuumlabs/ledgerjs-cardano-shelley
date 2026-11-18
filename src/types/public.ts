@@ -1415,6 +1415,14 @@ export type DeviceCompatibility = {
    * Whether we support unrestricted transaction signing mode (app v8+)
    */
   supportsUnrestrictedTransaction: boolean
+  /**
+   * Whether we support the guard native script type (app v9+)
+   */
+  supportsGuardNativeScript: boolean
+  /**
+   * Whether we support guards in the credentials encoding (app v9+)
+   */
+  supportsRequiredSignersFormat: boolean
 }
 
 /**
@@ -1673,6 +1681,8 @@ export enum TxRequiredSignerType {
   /** Required Signer is supplied as key path or hash value */
   PATH = 'required_signer_path',
   HASH = 'required_signer_hash',
+  /** Script hash guard, only in the credentials encoding (app v9+) */
+  SCRIPT_HASH = 'required_signer_script_hash',
 }
 
 export type RequiredSigner =
@@ -1684,6 +1694,20 @@ export type RequiredSigner =
       type: TxRequiredSignerType.HASH
       hashHex: string
     }
+  | {
+      type: TxRequiredSignerType.SCRIPT_HASH
+      hashHex: string
+    }
+
+/**
+ * Encoding of the guards (required signers) in the transaction body
+ */
+export enum RequiredSignersFormat {
+  /** Bare key hashes */
+  KEY_HASHES = 0,
+  /** Credentials `[0, keyhash]` or `[1, scripthash]` */
+  CREDENTIALS = 1,
+}
 
 export enum VoterType {
   COMMITTEE_KEY_HASH = 0,
@@ -1860,6 +1884,10 @@ export type Transaction = {
    * Required signers by key (if any)
    */
   requiredSigners?: Array<RequiredSigner> | null
+  /**
+   * Encoding of the guards (KEY_HASHES if not given)
+   */
+  requiredSignersFormat?: RequiredSignersFormat | null
   /**
    * True if network id should be included in the transaction body; false or not given otherwise
    */
@@ -2098,6 +2126,11 @@ export enum NativeScriptType {
    * @see [[NativeScriptParamsInvalidHereafter]]
    */
   INVALID_HEREAFTER = 'invalid_hereafter',
+  /**
+   * The specified credential must be one of the transaction guards (required signers).
+   * @see [[NativeScriptParamsGuard]]
+   */
+  GUARD = 'guard',
 }
 
 /**
@@ -2134,6 +2167,10 @@ export type NativeScript =
   | {
       type: NativeScriptType.INVALID_HEREAFTER
       params: NativeScriptParamsInvalidHereafter
+    }
+  | {
+      type: NativeScriptType.GUARD
+      params: NativeScriptParamsGuard
     }
 
 /**
@@ -2207,6 +2244,16 @@ export type NativeScriptParamsInvalidBefore = {
  */
 export type NativeScriptParamsInvalidHereafter = {
   slot: bigint_like
+}
+
+/**
+ * Native script of type *guard* parameters.
+ * @category Scripts
+ * @see [[NativeScriptType.GUARD]]
+ * @see [[NativeScript]]
+ */
+export type NativeScriptParamsGuard = {
+  credential: CredentialParams
 }
 
 /**

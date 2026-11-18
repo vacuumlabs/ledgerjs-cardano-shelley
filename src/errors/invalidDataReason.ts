@@ -141,6 +141,9 @@ export enum InvalidDataReason {
   VKEY_HASH_WRONG_LENGTH = 'vkey hash not 28 bytes long',
   UNKNOWN_REQUIRED_SIGNER_TYPE = 'unknown required signer type',
   REQUIRED_SIGNER_INVALID_PATH = 'invalid path for required signer',
+  REQUIRED_SIGNERS_FORMAT_INVALID = 'invalid guards encoding',
+  REQUIRED_SIGNER_INVALID_SCRIPT_HASH = 'invalid script hash for required signer',
+  REQUIRED_SIGNERS_SCRIPT_HASH_WITHOUT_CREDENTIALS = 'script hash guards require the credentials encoding',
 
   COLLATERAL_INPUT_CONTAINS_DATUM = 'collateral return output contains datum',
   COLLATERAL_INPUT_CONTAINS_REFERENCE_SCRIPT = 'collateral return output contains reference script',
@@ -252,6 +255,7 @@ export enum InvalidDataReason {
   DERIVE_NATIVE_SCRIPT_HASH_SCRIPTS_NOT_AN_ARRAY = 'invalid scripts - scripts is not an array',
   DERIVE_NATIVE_SCRIPT_HASH_INVALID_REQUIRED_COUNT = 'invalid required count',
   DERIVE_NATIVE_SCRIPT_HASH_INVALID_TOKEN_LOCKING_SLOT = 'invalid token locking slot',
+  DERIVE_NATIVE_SCRIPT_HASH_INVALID_GUARD_CREDENTIAL = 'invalid guard credential param',
   DERIVE_NATIVE_SCRIPT_HASH_DEPTH_LIMIT_EXCEEDED = 'native script exceeds maximum supported nesting depth',
   DERIVE_NATIVE_SCRIPT_HASH_REQUIRED_COUNT_HIGHER_THAN_NUMBER_OF_SCRIPTS = 'invalid required count - higher than number of total scripts',
   DERIVE_NATIVE_SCRIPT_HASH_UNKNOWN_TYPE = 'unknown script type',

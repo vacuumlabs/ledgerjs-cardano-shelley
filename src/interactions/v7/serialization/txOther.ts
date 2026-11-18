@@ -114,7 +114,7 @@ export function serializeRequiredSigner(
         hex_to_buf(requiredSigner.hashHex),
       ])
     default:
-      unreachable(requiredSigner)
+      assert(false, 'Invalid required signer type')
   }
 }
 
